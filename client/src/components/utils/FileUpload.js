@@ -1,30 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Dropzone from 'react-dropzone';
 import { Icon } from 'antd';
 import axios from 'axios';
-import { response } from 'express';
 
-function FileUpload() {
+function FileUpload(props) {
+
+  const [Images, setImages] = useState([]);
 
   const dropHandler = (files) => {
-
-    console.log("files>>>>", files);
+    console.log("업로드 하기위해 선택한 파일정보>>>>>", files);
 
     let formData = new FormData();
     const config = {
       header: { 'content-type': 'multipart/form-data' }
     }
+
     formData.append("file", files[0]);
 
     axios.post('/api/product/image', formData, config)
     .then(response => {
       if (response.data.success) {
-        alert(' 파일 저장하는데 성공 했습니다. ');
+        setImages([...Images, response.data.filePath]);
+
+        // 이미지에 대한 상태 변경이 있을때 부모 컴포넌트에도 이미지 정보를 전달
+        props.refreshFunction([...Images, response.data.filePath]);
       } else {
-        alert(' 파일 저장하는데 실패 했습니다. ');
+        alert('Failed to save file.'); // 파일 저장하는데 실패 했습니다. 
       }
     })
 
+  }
+
+  const deleteHandler = (image) => {
+    const currentIndex = Images.indexOf(image);
+    let newImages = [...Images];
+    newImages.splice(currentIndex, 1)
+    setImages(newImages);
+
+    // 이미지에 대한 상태 변경이 있을때 부모 컴포넌트에도 이미지 정보를 전달
+    props.refreshFunction(newImages);
   }
 
   return (
@@ -42,6 +56,13 @@ function FileUpload() {
           </div>
         )}
       </Dropzone>
+      <div style={{ display:'flex', width:'350px', height:'240px' }}>
+        {Images.map((image, index) => (
+          <div onClick={() => deleteHandler(image)} key={index}>
+            <img style={{ minWidth:'300px', width:'300px', height:'240px' }} src={`http://localhost:5000/${image}`}/>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

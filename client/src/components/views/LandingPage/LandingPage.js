@@ -6,9 +6,9 @@ function LandingPage() {
         <>
             <div className="app">
                 <FaCode style={{ fontSize: '4rem' }} /><br />
-                <span style={{ fontSize: '2rem' }}>Hirosophy Website</span>
+                <span style={{ fontSize: '2rem' }}>HIROSOPHY Website</span>
             </div>
-            <div style={{ float: 'right' }}>Thank you for visiting the Hirosophy website.</div>
+            <div style={{ float: 'left' }}>Thank you for visiting the Hirosophy website.</div>
         </>
     )
 }
