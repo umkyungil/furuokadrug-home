@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/furuoka-drug-master/static/css/main.d6c2332f.chunk.css",
+    "main.js": "/furuoka-drug-master/static/js/main.e0659356.chunk.js",
+    "main.js.map": "/furuoka-drug-master/static/js/main.e0659356.chunk.js.map",
+    "runtime-main.js": "/furuoka-drug-master/static/js/runtime-main.3ddaadf3.js",
+    "runtime-main.js.map": "/furuoka-drug-master/static/js/runtime-main.3ddaadf3.js.map",
+    "static/css/2.051905ae.chunk.css": "/furuoka-drug-master/static/css/2.051905ae.chunk.css",
+    "static/js/2.f23e974a.chunk.js": "/furuoka-drug-master/static/js/2.f23e974a.chunk.js",
+    "static/js/2.f23e974a.chunk.js.map": "/furuoka-drug-master/static/js/2.f23e974a.chunk.js.map",
+    "index.html": "/furuoka-drug-master/index.html",
+    "precache-manifest.33399bef733f1be4026302650d87c700.js": "/furuoka-drug-master/precache-manifest.33399bef733f1be4026302650d87c700.js",
+    "service-worker.js": "/furuoka-drug-master/service-worker.js",
+    "static/css/2.051905ae.chunk.css.map": "/furuoka-drug-master/static/css/2.051905ae.chunk.css.map",
+    "static/css/main.d6c2332f.chunk.css.map": "/furuoka-drug-master/static/css/main.d6c2332f.chunk.css.map",
+    "static/js/2.f23e974a.chunk.js.LICENSE.txt": "/furuoka-drug-master/static/js/2.f23e974a.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.3ddaadf3.js",
+    "static/css/2.051905ae.chunk.css",
+    "static/js/2.f23e974a.chunk.js",
+    "static/css/main.d6c2332f.chunk.css",
+    "static/js/main.e0659356.chunk.js"
+  ]
+}
