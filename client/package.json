@@ -44,5 +44,6 @@
   },
   "devDependencies": {
     "http-proxy-middleware": "^1.0.3"
-  }
+  },
+  "homepage": "https://umkyungil.github.io/furuoka-drug-master"
 }
