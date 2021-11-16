@@ -7,6 +7,7 @@ function FileUpload(props) {
 
   const [Images, setImages] = useState([]);
 
+  // 이미지 등록
   const dropHandler = (files) => {
     console.log("업로드 하기위해 선택한 파일정보>>>>>", files);
 
@@ -31,6 +32,7 @@ function FileUpload(props) {
 
   }
 
+  // 이미지 삭제
   const deleteHandler = (image) => {
     const currentIndex = Images.indexOf(image);
     let newImages = [...Images];

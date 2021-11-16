@@ -18,7 +18,7 @@ function LeftMenu(props) {
         <Menu.Item key="setting:3">Option 3</Menu.Item>
         <Menu.Item key="setting:4">Option 4</Menu.Item>
       </MenuItemGroup>
-    </SubMenu>
+    </SubMenu>    
   </Menu>
   )
 }

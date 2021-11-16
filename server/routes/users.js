@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const { User } = require("../models/User");
-
 const { auth } = require("../middleware/auth");
 
 //=================================
@@ -21,6 +20,7 @@ router.get("/auth", auth, (req, res) => {
     });
 });
 
+// 사용자 등록
 router.post("/register", (req, res) => {
 
     const user = new User(req.body);
@@ -33,6 +33,7 @@ router.post("/register", (req, res) => {
     });
 });
 
+// Login
 router.post("/login", (req, res) => {
     User.findOne({ email: req.body.email }, (err, user) => {
         if (!user)
@@ -59,6 +60,7 @@ router.post("/login", (req, res) => {
     });
 });
 
+// Logout
 router.get("/logout", auth, (req, res) => {
     User.findOneAndUpdate({ _id: req.user._id }, { token: "", tokenExp: "" }, (err, doc) => {
         if (err) return res.json({ success: false, err });

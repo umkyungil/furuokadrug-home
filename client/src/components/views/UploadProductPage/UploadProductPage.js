@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Typography, Button, Form, Input } from 'antd';
+import { Button, Form, Input } from 'antd';
 import FileUpload from '../../utils/FileUpload';
 import Axios from 'axios';
 
@@ -7,23 +7,20 @@ import Axios from 'axios';
 const { TextArea } = Input;
 
 const Continents = [
-  {key:1, value: "Africa"},
-  {key:2, value: "Europe"},
-  {key:3, value: "Asia"},
-  {key:4, value: "North America"},
-  {key:5, value: "South America"},
-  {key:6, value: "Australia"},
-  {key:7, value: "Antarctica"}
+  {key:1, value: "Skin Care"},
+  {key:2, value: "Eye Care"},
+  {key:3, value: "Hair Care"},
+  {key:4, value: "Others"},
+  {key:5, value: "Supplement"},
+  {key:6, value: "Men's"}
 ]
 
 function UploadProductPage(props) {
-
   const [Title, setTitle] = useState("");
   const [Description, setDescription] = useState("");
   const [Price, setPrice] = useState(0);
   const [Continent, setContinent] = useState(1);
   const [Images, setImages] = useState([]);
-
 
   const titleChangeHandler = (event) => {
     setTitle(event.currentTarget.value);
@@ -73,10 +70,6 @@ function UploadProductPage(props) {
           alert('Product upload failed.'); // 상품 업로드에 실패했습니다.
         }
       });
-
-
-
-
   }
 
   return (
