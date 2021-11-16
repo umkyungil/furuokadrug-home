@@ -7,7 +7,8 @@
     "start": "node server/index.js",
     "backend": "nodemon server/index.js",
     "frontend": "npm run start --prefix client",
-    "dev": "concurrently \"npm run backend\" \"npm run start --prefix client\""
+    "dev": "concurrently \"npm run backend\" \"npm run start --prefix client\"",
+    "deploy": "gh-pages -d build"
   },
   "author": "John ahn",
   "license": "ISC",
@@ -29,5 +30,6 @@
   "devDependencies": {
     "concurrently": "^6.3.0",
     "nodemon": "^2.0.14"
-  }
+  },
+  "homepage": "https://umkyungil.github.io/furuoka-drug-master"
 }
