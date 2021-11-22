@@ -41,22 +41,72 @@ router.post('/', (req, res) => {
   })
 })
 
-// 상품 검색
+// 상품 가져오기
 router.post('/products', (req, res) => {
 
   // product collection에 들어 있는 모든 상품 정보 가져오기
   let limit = req.body.limit ? parseInt(req.body.limit) : 20;
   let skip  = req.body.skip  ? parseInt(req.body.skip)  : 0;
-
-  Product.find()
-    .populate("writer")
-    .skip(skip)
-    .limit(limit)
-    .exec((err, productInfo) =>{
-      if (err) return res.status(400).json({ success: false, err });
-      return res.status(200).json({ success: true, productInfo, postSize: productInfo.length })
-    })
+  let term = req.body.searchTerm;
+  let findArgs = {};
   
+  for (let key in req.body.filters) {
+    if (req.body.filters[key].length > 0) {
+
+      // key -> continent 또는 price
+      if (key === "price") {
+        findArgs[key] = {
+          //greater then equal -> MongoDB
+          $gte: req.body.filters[key][0], 
+          //less than equal
+          $lte: req.body.filters[key][1]
+        }
+      } else {
+        findArgs[key] = req.body.filters[key];
+      }
+    }
+  }
+
+  console.log('findArgs>>>>>>', findArgs);
+
+  if (term) {
+    Product.find(findArgs)
+      //.find({ $text: { $search: term } })
+      .find({ 
+        "title": { '$regex': term }
+      })
+      .populate("writer")
+      .skip(skip)
+      .limit(limit)
+      .exec((err, productInfo) =>{
+        if (err) return res.status(400).json({ success: false, err });
+        return res.status(200).json({ success: true, productInfo, postSize: productInfo.length })
+      })
+  } else {
+    // findArgs: find에 객체 형태로 주면 조건식이 된다
+    Product.find(findArgs)
+      .populate("writer")
+      .skip(skip)
+      .limit(limit)
+      .exec((err, productInfo) =>{
+        if (err) return res.status(400).json({ success: false, err });
+        return res.status(200).json({ success: true, productInfo, postSize: productInfo.length })
+      })
+  }
+})
+
+router.get('/products_by_id', (req, res) => {
+
+  let type = req.query.type;
+  let productId = req.query.id;
+
+  // productId를 이용해서 DB에서 productId와 같은 상품의 정보를 가져온다
+  Product.find({ _id: productId })
+    .populate('writer')
+    .exec((err, product) => {
+      if (err) return res.status(400).send(err)
+      return res.status(200).send({success: true, product});
+    })
 })
 
 module.exports = router;

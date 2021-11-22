@@ -36,5 +36,17 @@ const customerSchema = mongoose.Schema({
 	}
 })
 
+customerSchema.index({
+  name: 'text',
+  lastname: 'text',
+	salesman: 'text'
+}, {
+  weights: {
+    name: 5,
+    lastname: 1,
+		salesman: 1
+  }
+})
+
 const Customer = mongoose.model('Customer', customerSchema);
 module.exports = { Customer }

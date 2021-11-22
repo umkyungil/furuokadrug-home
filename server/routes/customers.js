@@ -21,12 +21,28 @@ router.post("/register", (req, res) => {
 
 // 사용자 조회
 router.post("/list", (req, res) => {
+    let term = req.body.searchTerm;
+
     // Customer collection에 들어 있는 모든 사용자 정보 가져오기
-    Customer.find()
-    .exec((err, customerInfo) => {
-        if (err) return res.status(400).json({success: false, err});
-        return res.status(200).json({ success: true, customerInfo})
-    });
+    if (term) {
+        console.log("term>>>",term);
+        Customer
+        //.find({ $text: { $search: term } })
+        .find({ 
+            "name": { '$regex': term },
+          })
+        .skip(req.body.skip)
+        .exec((err, customerInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, customerInfo})
+        });
+    } else {
+        Customer.find().exec((err, customerInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, customerInfo})
+        });
+    }
+    
 });
 
 

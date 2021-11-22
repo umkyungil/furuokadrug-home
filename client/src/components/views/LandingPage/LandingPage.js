@@ -4,7 +4,9 @@ import { Icon, Col, Card, Row } from 'antd';
 import ImageSlider from '../../utils/ImageSlider';
 import Meta from 'antd/lib/card/Meta';
 import CheckBox from './Sections/CheckBox';
-import { continents } from './Sections/Datas';
+import RadioBox from './Sections/RadioBox';
+import SearchFeature from './Sections/SearchFeature';
+import { continents, price } from './Sections/Datas';
 
 function LandingPage() {
 
@@ -12,6 +14,11 @@ function LandingPage() {
 	const [Skip, setSkip] = useState(0);
 	const [Limit, setLimit] = useState(8)
 	const [PostSize, setPostSize] = useState(0)
+	const [Filters, setFilters] = useState({
+		continents: [],
+		price: []
+	})
+	const [SearchTerm, setSearchTerm] = useState("");
 
 	useEffect(() => {
 		let body = {
@@ -19,7 +26,7 @@ function LandingPage() {
 			limit: Limit
 		}
 
-		// 제일 처음 상품을 가지고 온다
+		// 상품 가져오기
 		getProducts(body);
 	}, [])
 
@@ -42,6 +49,7 @@ function LandingPage() {
 			})
 	}
 
+	// 더보기 버튼눌렀을때 상품 가져오기
 	const loadMoreHandler = () => {
 		let skip = Skip + Limit;
 
@@ -51,7 +59,9 @@ function LandingPage() {
 			loadMore: true // 더 보기 버튼을 눌렀다는 flag
 		}
 		
+		// 상품 가져오기
 		getProducts(body);
+		// skip정보 status에 보관
 		setSkip(skip);
 	}
 
@@ -61,7 +71,8 @@ function LandingPage() {
 		// lg: 화면이 가장 클때, md: 중간 
 		return <Col lg={6} md={8} xs={24} key={index} > 
 			<Card
-				cover={ <ImageSlider images={product.images}/> } // ImageSlider에 images라는 이름으로 데이터를 넘김
+				// ImageSlider에 images라는 이름으로 데이터를 넘김
+				cover={<a href={`product/${product._id}`}><ImageSlider images={product.images}/></a>} 
 			>
 				<Meta 
 					title={product.title}
@@ -71,8 +82,63 @@ function LandingPage() {
 		</Col>
 	});
 
-	const handleFilters = () => {
+	// 라디오 또는 체크박스 눌렀을때 상품검색해서 가져오기
+	const showFilteredResults = (filters) => {
+		let body = {
+			skip: 0,
+			limit: Limit,
+			filters: filters
+		}
 
+		// 상품 가져오기
+		getProducts(body);
+		// Skip정보 보관하기(body에서 0으로 했기때문에 0으로 변경)
+		setSkip(0);
+	}
+
+	// 화면에서 선택한 라디오 버튼의 값을 가져오기
+	const handlePrice = (value) => {
+		// price전체 데이터
+		const data = price;
+		let array = [];
+
+		for (let key in data) {
+			if (data[key]._id === parseInt(value, 10)) {
+				array = data[key].array;
+			}
+		}
+
+		return array;
+	}
+
+	// 라디오 또는 체크박스 선택했을 때 처리
+	const handleFilters = (filters, category) => {
+		const newFilters = {...Filters };
+		newFilters[category] = filters;
+
+		if (category === "price") {
+			let priceValues = handlePrice(filters);
+			newFilters[category] = priceValues;
+		}
+
+		showFilteredResults(newFilters);
+		setFilters(newFilters);
+	}
+
+	// 키워드 검색시 상품 가져오기
+	const updateSearchTerm = (newSearchTerm) => {
+		
+		let body = {
+			skip:0,
+			limit:Limit,
+			filters:Filters,
+			searchTerm: newSearchTerm
+		}
+
+		setSkip(0);
+		setSearchTerm(newSearchTerm);
+
+		getProducts(body);
 	}
 
 	return (
@@ -82,11 +148,21 @@ function LandingPage() {
 			</div>
 
 			{/* Filter */}
-
-			{/* CheckBox */}
-			<CheckBox list={continents} handleFilters={filter => handleFilters(filter, "continents")}/>
+			<Row gutter={[16, 16]}>
+				<Col lg={12} xs={24}>
+					{/* CheckBox */}
+					<CheckBox list={continents} handleFilters={filters => handleFilters(filters, "continents")}/>
+				</Col>
+				<Col lg={12} xs={24}>
+					{/* RadioBox */}
+					<RadioBox list={price} handleFilters={filters => handleFilters(filters, "price")}/>
+				</Col>
+			</Row>
 
 			{/* Search */}
+			<div style={{ display:'flex', justifyContent:'flex-end', margin:'1rem auto' }}>
+				<SearchFeature refreshFunction={updateSearchTerm}/>
+			</div>
 
 			{/* Cards */}
 

@@ -8,7 +8,7 @@ function ImageSlider(data) {
       <Carousel autoplay> {/* autoplay: 자동으로 이미지 변환 */}
         {data.images.map((image, index) => (
           <div key={index}>
-            <img style={{ width:'100%', maxHeight:'200px' }} src={`http://localhost:5000/${image}`} />            
+            <img style={{ width:'100%', maxHeight:'350px' }} src={`http://localhost:5000/${image}`} />            
           </div>
         ))}
 			</Carousel>

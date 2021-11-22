@@ -37,7 +37,6 @@ function CustomerRegisterPage(props) {
         smaregiId: '',
         name: '',
         tel: '',
-        lastName: '',
         email: '',
         address: '',
         salesman: '',
@@ -55,7 +54,6 @@ function CustomerRegisterPage(props) {
           let dataToSubmit = {
             smaregiId: values.smaregiId,
             name: values.name,
-            lastname: values.lastname,
             tel: values.tel,
             email: values.email,
             address: values.address,
@@ -64,7 +62,7 @@ function CustomerRegisterPage(props) {
 
           dispatch(registerCustomer(dataToSubmit)).then(response => {
             if (response.payload.success) {
-              props.history.push("/");
+              props.history.push("/customer/list");
             } else {
               alert(response.payload.err.errmsg)
             }
@@ -116,21 +114,6 @@ function CustomerRegisterPage(props) {
                 />
                 {errors.name && touched.name && (
                   <div className="input-feedback">{errors.name}</div>
-                )}
-              </Form.Item>
-
-              <Form.Item label="Last Name">
-                <Input
-                  id="lastName"
-                  placeholder="Enter the customer's last name"
-                  type="text"
-                  value={values.lastName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={errors.lastName && touched.lastName ? 'text-input error' : 'text-input'}
-                />
-                {errors.lastName && touched.lastName && (
-                  <div className="input-feedback">{errors.lastName}</div>
                 )}
               </Form.Item>
 
