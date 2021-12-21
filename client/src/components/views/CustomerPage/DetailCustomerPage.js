@@ -1,24 +1,38 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 
-function DetailCustomerPage(props) {
+import CustomerInfo from './Sections/CustomerInfo'
+import { Row, Col } from 'antd';
 
+function DetailCustomerPage(props) {
+  const [Customer, setCustomer] = useState({});
   const customerId = props.match.params.customerId;
 
   useEffect(() => {
-    axios.get(`/api/customer/customers_by_id?id=${customerId}&type=single`)
+    axios.get(`/api/customers/customers_by_id?id=${customerId}&type=single`)
       .then(response => {
         if (response.data.success) {
-          console.log(response.data);
+          setCustomer(response.data.customer[0])
         } else {
-          alert("고객 정보 가져오기를 실패했습니다.")
+          alert("Failed to get customer information.")
         }
       })
   }, [])
 
   return (
-    <div>
-      DetailCustomerPage
+    <div style={{ width:'100%', padding:'3rem 4rem' }}>
+      <div style={{ display:'flex', justifyContent:'center' }}>
+        <h1>Customer Info</h1>
+      </div>
+      <br />
+      
+      {/* 여백설정 */}
+      <Row gutter={[16, 16]} >
+        <Col lg={32} sm={24}>
+          {/* ProductInfo */}
+          <CustomerInfo detail={Customer} />
+        </Col>
+      </Row>
     </div>
   )
 }

@@ -36,8 +36,8 @@ const tailFormItemLayout = {
 
 function RegisterPage(props) {
   const dispatch = useDispatch();
-  return (
 
+  return (
     <Formik
       initialValues={{
         email: '',
@@ -100,16 +100,8 @@ function RegisterPage(props) {
             <Form style={{ minWidth: '375px' }} {...formItemLayout} onSubmit={handleSubmit} >
 
               <Form.Item required label="Name">
-                <Input
-                  id="name"
-                  placeholder="Enter your name"
-                  type="text"
-                  value={values.name}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={
-                    errors.name && touched.name ? 'text-input error' : 'text-input'
-                  }
+                <Input id="name" placeholder="Enter your name" type="text" value={values.name} onChange={handleChange} onBlur={handleBlur}
+                  className={ errors.name && touched.name ? 'text-input error' : 'text-input'}
                 />
                 {errors.name && touched.name && (
                   <div className="input-feedback">{errors.name}</div>
@@ -117,16 +109,8 @@ function RegisterPage(props) {
               </Form.Item>
 
               <Form.Item required label="Last Name">
-                <Input
-                  id="lastName"
-                  placeholder="Enter your Last Name"
-                  type="text"
-                  value={values.lastName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={
-                    errors.lastName && touched.lastName ? 'text-input error' : 'text-input'
-                  }
+                <Input id="lastName" placeholder="Enter your Last Name" type="text" value={values.lastName} onChange={handleChange} onBlur={handleBlur}
+                  className={ errors.lastName && touched.lastName ? 'text-input error' : 'text-input' }
                 />
                 {errors.lastName && touched.lastName && (
                   <div className="input-feedback">{errors.lastName}</div>

@@ -6,12 +6,12 @@ const moment = require("moment");
 
 const userSchema = mongoose.Schema({
     name: {
-        type:String,
-        maxlength:50
+        type: String,
+        maxlength: 50
     },
     email: {
-        type:String,
-        trim:true,
+        type: String,
+        trim: true,
         unique: 1 
     },
     password: {
@@ -19,12 +19,20 @@ const userSchema = mongoose.Schema({
         minglength: 5
     },
     lastname: {
-        type:String,
+        type: String,
         maxlength: 50
     },
     role : {
-        type:Number,
+        type: Number,
         default: 0 
+    },
+    cart: {
+        type: Array,
+        default: []
+    },
+    history: {
+        type: Array,
+        default: []
     },
     image: String,
     token : {
@@ -77,7 +85,10 @@ userSchema.methods.generateToken = function(cb) {
 userSchema.statics.findByToken = function (token, cb) {
     var user = this;
 
-    jwt.verify(token,'secret',function(err, decode){
+    // 토큰을 decode 한다
+    jwt.verify(token,'secret', function(err, decode){
+        // 유저 아이드를 이용해서 유저를 찾은 다음에
+        // 클라이언트에서 가져온 token과 DB에서 보관된 토큰이 일치하는지 확인
         user.findOne({"_id":decode, "token":token}, function(err, user){
             if(err) return cb(err);
             cb(null, user);

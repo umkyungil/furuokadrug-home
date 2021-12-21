@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/icons": "4.0.0-rc.0",
     "antd": "^3.24.1",
     "axios": "^0.19.2",
     "core-js": "^3.6.4",
+    "emailjs-com": "^3.2.0",
     "formik": "^1.5.8",
     "gh-pages": "^3.2.3",
     "moment": "^2.24.0",
@@ -13,6 +15,7 @@
     "react-app-polyfill": "^1.0.6",
     "react-dom": "^16.8.6",
     "react-dropzone": "^11.4.2",
+    "react-file-reader": "^1.1.4",
     "react-icons": "^3.7.0",
     "react-image-gallery": "^1.2.7",
     "react-redux": "^7.1.0-rc.1",
@@ -47,6 +50,5 @@
   },
   "devDependencies": {
     "http-proxy-middleware": "^1.0.3"
-  },
-  "homepage": "https://umkyungil.github.io/furuoka-drug-master"
+  }
 }

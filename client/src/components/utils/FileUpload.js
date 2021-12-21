@@ -4,13 +4,10 @@ import { Icon } from 'antd';
 import axios from 'axios';
 
 function FileUpload(props) {
-
   const [Images, setImages] = useState([]);
 
   // 이미지 등록
   const dropHandler = (files) => {
-    console.log("업로드 하기위해 선택한 파일정보>>>>>", files);
-
     let formData = new FormData();
     const config = {
       header: { 'content-type': 'multipart/form-data' }
@@ -29,7 +26,6 @@ function FileUpload(props) {
         alert('Failed to save file.'); // 파일 저장하는데 실패 했습니다. 
       }
     })
-
   }
 
   // 이미지 삭제
@@ -38,6 +34,16 @@ function FileUpload(props) {
     let newImages = [...Images];
     newImages.splice(currentIndex, 1)
     setImages(newImages);
+
+    const body = {image: image}
+    axios.post('/api/product/delete_image', body)
+      .then(response => {
+        if (response.data.success) {
+          console.log('Image delete was successful.');
+        } else {
+          console.log('Image delete failed.');
+        }
+      });
 
     // 이미지에 대한 상태 변경이 있을때 부모 컴포넌트에도 이미지 정보를 전달
     props.refreshFunction(newImages);
@@ -49,7 +55,7 @@ function FileUpload(props) {
         {({getRootProps, getInputProps}) => (
           <div 
             style ={{ 
-              width:300, height:240, border:'1px solid lightgray',    
+              width:300, height:240, border:'1px solid lightgray',
               display:'flex', alignItems:'center', justifyContent:'center'
             }} 
             {...getRootProps()}>
@@ -58,6 +64,8 @@ function FileUpload(props) {
           </div>
         )}
       </Dropzone>
+      
+      {/* <div style={{ display:'flex', width:'350px', height:'240px', overflowX:'scroll' }}> */}
       <div style={{ display:'flex', width:'350px', height:'240px' }}>
         {Images.map((image, index) => (
           <div onClick={() => deleteHandler(image)} key={index}>

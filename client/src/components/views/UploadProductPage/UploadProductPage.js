@@ -25,23 +25,18 @@ function UploadProductPage(props) {
   const titleChangeHandler = (event) => {
     setTitle(event.currentTarget.value);
   }
-
   const descriptionChangeHandler = (event) => {
     setDescription(event.currentTarget.value);
   }
-
   const priceChangeHandler = (event) => {
     setPrice(event.currentTarget.value);
   }
-
   const continentChangeHandler = (event) => {
     setContinent(event.currentTarget.value);
   }
-
   const updateImages = (newImages) => {
     setImages(newImages);
   }
-
   const submitHandler = (event) => {
     event.preventDefault();
 
@@ -51,7 +46,6 @@ function UploadProductPage(props) {
     }
 
     // 서버에 채운 값들을 request로 보낸다
-
     const body = {
       writer: props.user.userData._id,
       title: Title,

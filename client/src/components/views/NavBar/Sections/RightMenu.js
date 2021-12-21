@@ -34,6 +34,14 @@ function RightMenu(props) {
   } else {
     return (
       <Menu mode={props.mode}>
+        <SubMenu title={<span>Data Upload</span>}>
+          <Menu.Item key="univaPayCastUpload">
+            <a href="/csv/upload/univaPayCast">Univapay Csv Upload</a>
+          </Menu.Item>
+          <Menu.Item key="smaregiUpload">
+            <a href="/csv/upload/smaregi">Smaregi Csv Upload</a>
+          </Menu.Item>
+        </SubMenu>  
         <SubMenu title={<span>Customer</span>}>
           <Menu.Item key="register">
             <a href="/customer/register">Customer Register</a>
@@ -44,6 +52,9 @@ function RightMenu(props) {
         </SubMenu>
         <Menu.Item key="upload">
           <a href="/product/upload">Product Upload</a>
+        </Menu.Item>
+        <Menu.Item key="contact">
+          <a href="/mail/contact">Contact Us</a>
         </Menu.Item>
         <Menu.Item key="logout">
           <a onClick={logoutHandler}>Logout</a>

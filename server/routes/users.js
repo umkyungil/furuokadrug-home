@@ -8,6 +8,9 @@ const { auth } = require("../middleware/auth");
 //=================================
 
 router.get("/auth", auth, (req, res) => {
+
+    // 여기까지 미들웨어를 통과해 왔다는 거는 Authentication이 True라는 말
+    // role : 0 일반유저 role : 0이 아니면 관리자
     res.status(200).json({
         _id: req.user._id,
         isAdmin: req.user.role === 0 ? false : true,
@@ -49,8 +52,7 @@ router.post("/login", (req, res) => {
             user.generateToken((err, user) => {
                 if (err) return res.status(400).send(err);
                 res.cookie("w_authExp", user.tokenExp);
-                res
-                    .cookie("w_auth", user.token)
+                res.cookie("w_auth", user.token)
                     .status(200)
                     .json({
                         loginSuccess: true, userId: user._id
@@ -68,6 +70,58 @@ router.get("/logout", auth, (req, res) => {
             success: true
         });
     });
+});
+
+
+router.post("/addToCart", auth, (req, res) => {
+    // 먼저 User Collection에서 해당 사용자 정보를 가져오기
+    User.findOne({_id: req.user._id}, 
+        (err, userInfo) => {
+
+            // 가져온 정보에서 카트에다 넣으려 하는 상품이 이미 들어 있는지 확인
+            let duplicate = false; 
+            userInfo.cart.forEach((item) => {
+                if (item.id === req.body.productId) {
+                    duplicate = true;
+                }
+            })
+
+            // 상품이 이미 있을때
+            if (duplicate) {
+                User.findOneAndUpdate(
+                    { _id: req.user._id, "cart.id": req.body.productId },
+                    { $inc: { "cart.$.quantity": 1 } },
+                    { new: true },
+                    (err, userInfo) => {
+                        if(err) return res.status(400).json({ success: false, err })
+                        res.status(200).send(userInfo.cart)
+                    }
+                )
+            } else {
+                User.findOneAndUpdate(
+                    { _id: req.user._id },
+                    { $push: {
+                        cart: {
+                            id: req.body.productId,
+                            quantity: 1, 
+                            date: Date.now()
+                            }
+                        }
+                    },
+                    { new: true },
+                    (err, userInfo) => {
+                        if (err) return res.status(400).json({ success: false, err })
+                        res.status(200).send(userInfo.cart)
+                    }
+                )
+            }
+        })
+
+    
+
+    // 상품이 이미 있을때
+
+    // 상품이 이미 있지 않을때
 });
 
 module.exports = router;

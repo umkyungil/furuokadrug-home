@@ -15,7 +15,7 @@ function DetailProductPage(props) {
         if (response.data.success) {
           setProduct(response.data.product[0])
         } else {
-          alert("상세 정보 가져오기를 실패했습니다.")
+          alert("Failed to get product information.")
         }
       })
 
@@ -39,10 +39,6 @@ function DetailProductPage(props) {
           <ProductInfo detail={Product} />
         </Col>
       </Row>
-      
-
-      
-
     </div>
   )
 }

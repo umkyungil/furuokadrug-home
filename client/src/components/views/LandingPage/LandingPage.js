@@ -72,7 +72,7 @@ function LandingPage() {
 		return <Col lg={6} md={8} xs={24} key={index} > 
 			<Card
 				// ImageSlider에 images라는 이름으로 데이터를 넘김
-				cover={<a href={`product/${product._id}`}><ImageSlider images={product.images}/></a>} 
+				cover={<a href={`/product/${product._id}`}><ImageSlider images={product.images}/></a>} 
 			>
 				<Meta 
 					title={product.title}
@@ -148,7 +148,7 @@ function LandingPage() {
 			</div>
 
 			{/* Filter */}
-			<Row gutter={[16, 16]}>
+			<Row gutter={[16, 16]}>{/* gutter 여백 */}
 				<Col lg={12} xs={24}>
 					{/* CheckBox */}
 					<CheckBox list={continents} handleFilters={filters => handleFilters(filters, "continents")}/>

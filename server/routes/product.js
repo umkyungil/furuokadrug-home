@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { Product } = require('../models/Product');
+const fs = require('fs');
 
 //=================================
 //             Product
@@ -31,6 +32,7 @@ router.post('/image', (req, res) => {
   })
 })
 
+
 // 상품 등록(이미지 포함)
 router.post('/', (req, res) => {
   // 받아온 정보들을 디비에 넣어준다
@@ -43,7 +45,6 @@ router.post('/', (req, res) => {
 
 // 상품 가져오기
 router.post('/products', (req, res) => {
-
   // product collection에 들어 있는 모든 상품 정보 가져오기
   let limit = req.body.limit ? parseInt(req.body.limit) : 20;
   let skip  = req.body.skip  ? parseInt(req.body.skip)  : 0;
@@ -66,8 +67,6 @@ router.post('/products', (req, res) => {
       }
     }
   }
-
-  console.log('findArgs>>>>>>', findArgs);
 
   if (term) {
     Product.find(findArgs)
@@ -108,5 +107,46 @@ router.get('/products_by_id', (req, res) => {
       return res.status(200).send({success: true, product});
     })
 })
+
+// 상품 삭제
+router.post('/delete', (req, res) => {
+  
+  // Image 삭제
+  if (req.body.images.length > 0) {
+    let images = req.body.images;
+    for (let i=0; i<images.length; i++) {
+      let path = images[i];
+      try {
+        fs.unlinkSync(path);
+      } catch(err) {
+        return res.json({ success: false}, err);
+      }
+    } 
+  }
+
+  if (req.body.id) {
+    // DataBase 삭제
+    Product.deleteOne({_id: req.body.id})
+    .then((r)=>{
+      console.log(r.result);
+      return res.json({ success: true});
+    }, (err)=>{
+      if(err) console.log(err);
+      return res.json({success: false, err});
+    });
+  }
+})
+
+// Image 삭제
+router.post('/delete_image', (req, res) => {
+  let path = req.body.image;
+  try {
+    fs.unlinkSync(path);
+    return res.json({ success: true});
+  } catch(err) {
+    return res.json({ success: false}, err);
+  }
+})
+
 
 module.exports = router;

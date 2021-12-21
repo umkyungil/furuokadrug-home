@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
-import { List, Avatar, Icon } from 'antd';
+import { List, Avatar, Icon, Button } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 
 function CustomerListPage() {
@@ -56,16 +56,16 @@ function CustomerListPage() {
 					itemLayout="horizontal"
 					dataSource={Customers}
 					renderItem={customer => (
-						<List.Item>
+						<List.Item actions={[<a href={`/customer/${customer._id}`}>detail</a>, 
+																	<a href={`/customer/update/${customer._id}`}>edit</a>,
+																	<a href={`/mail/sendmail/${customer.email}`}>email</a>]}>
 							<List.Item.Meta
 								avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
-								title={<a href={`/customer/${customer._id}`}>{customer.name}</a>}
+								title={customer.name}
 								description={`Smaregi ID: ${customer.smaregiId} / 
 															Phone number: ${customer.tel} / 
-															Emal: ${customer.email} / 
-															Address: ${customer.address} / 
-															Salesman: ${customer.salesman} / 
-															Point:  ${customer.point}
+															Email: ${customer.email} / 
+															Salesman: ${customer.salesman}
 														`}
 							/>
 						</List.Item>

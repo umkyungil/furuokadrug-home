@@ -25,8 +25,11 @@ app.use(cookieParser());
 app.use('/api/users', require('./routes/users'));
 app.use('/api/product', require('./routes/product'));
 app.use('/api/customers', require('./routes/customers'));
+app.use('/api/csv', require('./routes/csv'));
+app.use('/api/sendmail', require('./routes/sendmail'));
 
 app.use('/uploads', express.static('uploads'));
+
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));

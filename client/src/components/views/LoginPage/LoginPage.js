@@ -42,6 +42,7 @@ function LoginPage(props) {
             password: values.password
           };
 
+          // 로그인 
           dispatch(loginUser(dataToSubmit))
             .then(response => {
               if (response.payload.loginSuccess) {
@@ -51,6 +52,7 @@ function LoginPage(props) {
                 } else {
                   localStorage.removeItem('rememberMe');
                 }
+                // 랜딩페이지 이동
                 props.history.push("/");
               } else {
                 setFormErrorMessage('Check out your Account or Password again')
