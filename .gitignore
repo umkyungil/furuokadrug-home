@@ -2,8 +2,7 @@
 /build
 
 dev.js
-nodemail.js
-sendmail.js
+mail-info.js
 
 
 .DS_Store
