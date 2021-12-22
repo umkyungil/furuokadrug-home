@@ -58,7 +58,7 @@ function CustomerListPage() {
 					renderItem={customer => (
 						<List.Item actions={[<a href={`/customer/${customer._id}`}>detail</a>, 
 																	<a href={`/customer/update/${customer._id}`}>edit</a>,
-																	<a href={`/mail/sendmail/${customer.email}`}>email</a>]}>
+																	<a href={`/mail/notice/${customer.email}`}>email</a>]}>
 							<List.Item.Meta
 								avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
 								title={customer.name}

@@ -1,12 +1,9 @@
 import React, { useState } from 'react'
-import emailjs from 'emailjs-com';
 import { Form, Input, Button } from 'antd';
+import axios from 'axios';
+import { useHistory } from 'react-router-dom';
 
 const { TextArea } = Input;
-// const YOUR_SERVICE_ID = 'service_2rvkwal'; // Gmail
-const YOUR_SERVICE_ID = 'service_x5j409i'; // Outlook
-const YOUR_TEMPLATE_ID = 'template_bzg5h2n'
-const YOUR_USER_ID = 'user_pFh5Lp8R4tGlbA7lyl2FI';
 
 const formItemLayout = {
   labelCol: {
@@ -36,18 +33,27 @@ function ContactUsPage() {
   const [Name, setName] = useState("");
   const [Email, setEmail] = useState("");
   const [Message, setMessage] = useState("");
+
+  const history = useHistory();
  
+  const body = {
+    name: Name,
+    from: Email,
+    message: Message
+  }
+
   // 메일 송신
   const sendEmail = (e) => { 
     e.preventDefault(); 
     
-    emailjs.sendForm(YOUR_SERVICE_ID, YOUR_TEMPLATE_ID, e.target, YOUR_USER_ID)
-      .then((result) => { 
-        console.log(result.text); 
-        alert("The mail was sent successfully")
-      }, (error) => { 
-        alert("Failed to send mail")
-        console.log(error.text); 
+    axios.post('/api/sendmail/inquiry', body)
+      .then(response => {
+        if (response.data.success) {
+          alert('Your inquiry email has been received');
+          history.push("/");
+        } else {
+          alert('The inquiry email was not sent. Please try again later');
+        }
       });
   }
 

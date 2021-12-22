@@ -28,7 +28,8 @@ const tailFormItemLayout = {
   },
 };
 
-const SendMailPage = (props) => { 
+const NoticeMailPage = (props) => { 
+  const history = useHistory();
 
   // query string 취득  
   let to_email;
@@ -38,7 +39,6 @@ const SendMailPage = (props) => {
     to_email = "";
   }
   
-
   const [Subject, setSubject] = useState("");
   const [FromEmail, setFromEmail] = useState("info@furuokadrug.com");
   const [ToEmail, setToEmail] = useState(to_email);
@@ -55,12 +55,13 @@ const SendMailPage = (props) => {
   const sendEmail = (e) => { 
     e.preventDefault(); 
     
-    axios.post('/api/sendmail', body)
+    axios.post('/api/sendmail/notice', body)
       .then(response => {
         if (response.data.success) {
-          alert('Email sending was successful.');
+          alert('Notification email has been sent normally');
+          history.push("/");
         } else {
-          alert('Email sending failed.');
+          alert('Failed to send notification mail');
         }
       });
   }
@@ -80,7 +81,7 @@ const SendMailPage = (props) => {
 
   return (
     <div className="app">
-      <h2>Send Mail</h2><br />
+      <h2>Notice Mail</h2><br />
       <Form style={{ minWidth: '375px' }} onSubmit={sendEmail} {...formItemLayout} >
         <Form.Item label="Subject" required>
           <Input name="subject" placeholder="Please enter your subject" type="text" value={Subject} onChange={subjectHandler} required/>
@@ -106,4 +107,4 @@ const SendMailPage = (props) => {
   );
 };
 
-export default SendMailPage;
+export default NoticeMailPage;

@@ -13,7 +13,6 @@ function ProductInfo(props) {
   const dispatch = useDispatch();
 
   const clickHandler = () => {
-
     // 필요한 정보를 Cart필드에 넣어준다
     dispatch(addToCart(props.detail._id));
   }

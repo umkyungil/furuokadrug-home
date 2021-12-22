@@ -94,8 +94,8 @@ router.post('/products', (req, res) => {
   }
 })
 
+// 상품상세(상품정보 가져오기)
 router.get('/products_by_id', (req, res) => {
-
   let type = req.query.type;
   let productId = req.query.id;
 
@@ -108,9 +108,8 @@ router.get('/products_by_id', (req, res) => {
     })
 })
 
-// 상품 삭제
-router.post('/delete', (req, res) => {
-  
+// 상품삭제
+router.post('/delete', (req, res) => {  
   // Image 삭제
   if (req.body.images.length > 0) {
     let images = req.body.images;
