@@ -6,3 +6,4 @@ export const REGISTER_CUSTOMER = 'register_customer';
 export const UPDATE_CUSTOMER = 'update_customer';
 export const DELETE_CUSTOMER = 'delete_customer';
 export const ADD_TO_CART = 'add_to_cart';
+export const GET_CART_ITEMS = 'get_cart_items';

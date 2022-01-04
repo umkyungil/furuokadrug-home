@@ -1,3 +1,5 @@
+//import { PROD_URL_5000 } from './components/Config.js';
+
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function (app) {
@@ -5,6 +7,7 @@ module.exports = function (app) {
         '/api',
         createProxyMiddleware({
             target: 'http://localhost:5000',
+            // target: PROD_URL_5000,
             changeOrigin: true,
         })
     );

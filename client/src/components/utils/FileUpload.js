@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Dropzone from 'react-dropzone';
 import { Icon } from 'antd';
 import axios from 'axios';
+//import { PROD_URL_5000 } from '../Config.js';
 
 function FileUpload(props) {
   const [Images, setImages] = useState([]);
@@ -70,6 +71,7 @@ function FileUpload(props) {
         {Images.map((image, index) => (
           <div onClick={() => deleteHandler(image)} key={index}>
             <img style={{ minWidth:'300px', width:'300px', height:'240px' }} src={`http://localhost:5000/${image}`}/>
+            {/* <img style={{ minWidth:'300px', width:'300px', height:'240px' }} src={`${PROD_URL_5000}/${image}`}/> */}
           </div>
         ))}
       </div>

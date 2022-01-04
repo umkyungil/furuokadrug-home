@@ -18,6 +18,7 @@ import UploadCsvOfUnivaPayCastPage from "./views/UploadCsvPage/UploadCsvOfUnivaP
 import ContactUsPage from "./views/SendMailPage/ContactUsPage.js";
 import NoticeMailPage from "./views/SendMailPage/NoticeMailPage.js";
 import VirtualReservationPage from "./views/VirtualReservationPage/VirtualReservationPage.js";
+import CartPage from "./views/CartPage/CartPage.js";
 
 //null   아무나 안으로 들어갈수 있다
 //true   로그인 한 사용자만 안으로 들어갈수 있다
@@ -42,6 +43,7 @@ function App() {
           <Route exact path="/mail/contact" component={Auth(ContactUsPage, true)} />
           <Route exact path="/mail/notice/:toEmail" component={Auth(NoticeMailPage, true)} />
           <Route exact path="/mail/reservation" component={Auth(VirtualReservationPage, null)} />
+          <Route exact path="/user/cart" component={Auth(CartPage, true)} />
         </Switch>
       </div>
       <Footer />
