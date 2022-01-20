@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { auth } = require("../middleware/auth");
 const nodemailer = require("nodemailer");
-const nodeConfig = require("../config/mail-info");
+const nodeConfig = require("../config/mailConfig");
 
 //=================================
 //          Sendmail

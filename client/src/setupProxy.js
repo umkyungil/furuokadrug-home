@@ -7,7 +7,7 @@ module.exports = function (app) {
         '/api',
         createProxyMiddleware({
             target: 'http://localhost:5000',
-            // target: PROD_URL_5000,
+            // target: `https://furuokadrug.herokuapp.com/`,
             changeOrigin: true,
         })
     );

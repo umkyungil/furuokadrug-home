@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import ImageGallery from 'react-image-gallery'
-//import { PROD_URL_5000 } from '../../../Config';
+import React, { useEffect, useState } from 'react';
+import ImageGallery from 'react-image-gallery';
 
 function ProductImage(props) {
   const [Images, setImages]  = useState([])
@@ -11,10 +10,12 @@ function ProductImage(props) {
 
       props.detail.images.map(item => {
         images.push({
-          original: `http://localhost:5000/${item}`,
-          thumbnail: `http://localhost:5000/${item}`
-          // original: `${PROD_URL_5000}/${item}`,
-          // thumbnail: `${PROD_URL_5000}/${item}`
+          // original: `http://localhost:5000/${item}`,
+          // thumbnail: `http://localhost:5000/${item}`
+          // original: `https://furuokadrug.herokuapp.com/${item}`,
+          // thumbnail: `https://furuokadrug.herokuapp.com/${item}`
+          original: `${item}`,
+          thumbnail: `${item}`
         })
       })
       setImages(images);

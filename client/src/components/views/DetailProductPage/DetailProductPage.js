@@ -13,6 +13,12 @@ function DetailProductPage(props) {
     axios.get(`/api/product/products_by_id?id=${productId}&type=single`)
       .then(response => {
         if (response.data.success) {
+          console.log("data: ", response.data.product[0])
+          let str = response.data.product[0].description;
+          let res = str.replace(/\n/g, '<br />');
+          response.data.product[0].description = res;
+          
+          console.log(response.data.product[0].description);
           setProduct(response.data.product[0])
         } else {
           alert("Failed to get product information.")

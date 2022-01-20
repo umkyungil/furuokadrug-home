@@ -12,11 +12,13 @@ function ProductInfo(props) {
   const history = useHistory();
   const dispatch = useDispatch();
 
+  // 카트 넣기
   const clickHandler = () => {
     // 필요한 정보를 Cart필드에 넣어준다
     dispatch(addToCart(props.detail._id));
   }
 
+  // 상품 삭제
   const deleteHandler = () => {
     const body = {
       id: props.detail._id,
@@ -39,15 +41,17 @@ function ProductInfo(props) {
     history.push("/");
   }
 
-  // 未ログイン
+  // 로그인 전
   if (user.userData && !user.userData.isAuth) {
     return (
       <div>
-        <Descriptions title="Product Info">
+        <Descriptions title="Product Information">
           <Descriptions.Item label="Price">{props.detail.price}</Descriptions.Item>
           <Descriptions.Item label="Sold">{props.detail.sold}</Descriptions.Item>
           <Descriptions.Item label="View">{props.detail.views}</Descriptions.Item>
-          <Descriptions.Item label="Description">{props.detail.description}</Descriptions.Item>
+          <Descriptions.Item label="Description">
+            {props.detail.description}
+          </Descriptions.Item>
         </Descriptions>
 
         <br />
@@ -67,7 +71,9 @@ function ProductInfo(props) {
           <Descriptions.Item label="Price">{props.detail.price}</Descriptions.Item>
           <Descriptions.Item label="Sold">{props.detail.sold}</Descriptions.Item>
           <Descriptions.Item label="View">{props.detail.views}</Descriptions.Item>
-          <Descriptions.Item label="Description">{props.detail.description}</Descriptions.Item>
+          <Descriptions.Item label="Description">
+            {props.detail.description}
+          </Descriptions.Item>
         </Descriptions>
 
         <br />

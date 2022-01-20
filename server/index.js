@@ -30,8 +30,8 @@ app.use('/api/sendmail', require('./routes/sendmail'));
 
 app.use('/uploads', express.static('uploads'));
 
-
 if (process.env.NODE_ENV === "production") {
+  // 모든 자바스크립트와 css 파일 같은 static한 파일들은 이 폴더에서 처리한다고 지정
   app.use(express.static("client/build"));
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(__dirname, "../client", "build", "index.html"));

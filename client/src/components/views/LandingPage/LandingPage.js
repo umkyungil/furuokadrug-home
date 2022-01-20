@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
-import { Icon, Col, Card, Row } from 'antd';
+import { Icon, Col, Card, Row, Button } from 'antd';
 import ImageSlider from '../../utils/ImageSlider';
 import Meta from 'antd/lib/card/Meta';
 import CheckBox from './Sections/CheckBox';
@@ -12,7 +12,7 @@ function LandingPage() {
 
 	const [Products, setProducts] = useState([]);
 	const [Skip, setSkip] = useState(0);
-	const [Limit, setLimit] = useState(8)
+	const [Limit, setLimit] = useState(4)
 	const [PostSize, setPostSize] = useState(0)
 	const [Filters, setFilters] = useState({
 		continents: [],
@@ -53,8 +53,10 @@ function LandingPage() {
 	const loadMoreHandler = () => {
 		let skip = Skip + Limit;
 
+		console.log("skip", skip);
+
 		let body = {
-			skip: Skip,
+			skip: skip,
 			limit: Limit,
 			loadMore: true // 더 보기 버튼을 눌렀다는 flag
 		}
@@ -171,14 +173,15 @@ function LandingPage() {
 				{renderCards}
 			</Row>
 
+			<br />
 			{/* PostSize가 Limit보다 크거나 같으면 더보기 버튼을 보여주는 조건 */}
 			{/* PostSize: Product Size */}
 			{PostSize >= Limit && 
 				<div style={{ display:'flex', justifyContent:'center' }}>
-					<button onClick={loadMoreHandler}>More</button>
+					{/* <button onClick={loadMoreHandler}>More</button> */}
+					<Button onClick={loadMoreHandler}>More</Button>
 				</div>
-			}	
-
+			}
 		</div>
 	)
 }

@@ -2,7 +2,8 @@
 /build
 
 dev.js
-mail-info.js
+mailConfig.js
+awsConfig.js
 
 .DS_Store
 
