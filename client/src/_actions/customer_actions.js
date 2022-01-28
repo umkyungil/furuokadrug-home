@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { REGISTER_CUSTOMER, DELETE_CUSTOMER, UPDATE_CUSTOMER } from './types';
 import { CUSTOMER_SERVER } from '../components/Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 export function registerCustomer(dataToSubmit){
     const request = axios.post(`${CUSTOMER_SERVER}/register`,dataToSubmit)

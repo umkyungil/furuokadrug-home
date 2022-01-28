@@ -1,16 +1,21 @@
-import React from 'react'
-import { Button, Descriptions } from 'antd';
-import { useDispatch } from 'react-redux'
+import React from 'react';
+import { Button, Descriptions, Collapse } from 'antd';
+import { useDispatch } from 'react-redux';
 import { addToCart } from '../../../../_actions/user_actions';
 import { useHistory } from 'react-router-dom';
 import { useSelector } from "react-redux";
 import axios from 'axios';
+import { PRODUCT_SERVER } from '../../../Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 function ProductInfo(props) {
   const user = useSelector(state => state.user)
 
   const history = useHistory();
   const dispatch = useDispatch();
+
+  const { Panel } = Collapse;
 
   // 카트 넣기
   const clickHandler = () => {
@@ -25,7 +30,7 @@ function ProductInfo(props) {
       images: props.detail.images
     }
 
-    axios.post('/api/product/delete', body)
+    axios.post(`${PRODUCT_SERVER}/delete`, body)
       .then(response => {
         if (response.data.success) {
           alert('Product delete was successful.');
@@ -45,20 +50,22 @@ function ProductInfo(props) {
   if (user.userData && !user.userData.isAuth) {
     return (
       <div>
-        <Descriptions title="Product Information">
+        <Descriptions title="Product Information" bordered>
           <Descriptions.Item label="Price">{props.detail.price}</Descriptions.Item>
+          <Descriptions.Item label="Point">{props.detail.point}</Descriptions.Item>
           <Descriptions.Item label="Sold">{props.detail.sold}</Descriptions.Item>
-          <Descriptions.Item label="View">{props.detail.views}</Descriptions.Item>
-          <Descriptions.Item label="Description">
-            {props.detail.description}
-          </Descriptions.Item>
+          <Descriptions.Item label="Description">{props.detail.description}</Descriptions.Item>
         </Descriptions>
-
         <br />
-        <br />
+        <Collapse defaultActiveKey={['0']}>
+          <Panel header="usage instructions">
+          {/* 체크박스를 표시 */}
+  
+          </Panel>
+        </Collapse>
         <br />
         <div style={{ display:'flex', justifyContent:'center' }} >
-          <Button size="large" shape="round" type="primary" onClick={listHandler}>
+          <Button size="large" onClick={listHandler}>
             Product List
           </Button>
         </div>
@@ -67,28 +74,30 @@ function ProductInfo(props) {
   } else {
     return (
       <div>
-        <Descriptions title="Product Info">
+        <Descriptions title="Product Info" bordered>
           <Descriptions.Item label="Price">{props.detail.price}</Descriptions.Item>
+          <Descriptions.Item label="Point">{props.detail.point}</Descriptions.Item>
           <Descriptions.Item label="Sold">{props.detail.sold}</Descriptions.Item>
-          <Descriptions.Item label="View">{props.detail.views}</Descriptions.Item>
-          <Descriptions.Item label="Description">
-            {props.detail.description}
-          </Descriptions.Item>
+          <Descriptions.Item label="Description">{props.detail.description}</Descriptions.Item>
         </Descriptions>
-
         <br />
-        <br />
+        <Collapse defaultActiveKey={['0']}>
+          <Panel header="usage instructions">
+          {/* 체크박스를 표시 */}
+  
+          </Panel>
+        </Collapse>
         <br />
         <div style={{ display:'flex', justifyContent:'center' }} >
-          <Button size="large" shape="round" type="primary" onClick={listHandler}>
+          <Button size="large" onClick={listHandler}>
             Product List
           </Button>
           &nbsp;&nbsp;&nbsp;
-          <Button size="large" shape="round" type="primary" onClick={clickHandler}>
+          <Button size="large" type="primary" onClick={clickHandler}>
             Add to Cart
           </Button>
           &nbsp;&nbsp;&nbsp;
-          <Button size="large" shape="round" type="danger" onClick={deleteHandler}>
+          <Button size="large" type="danger" onClick={deleteHandler}>
             Delete
           </Button>
         </div>

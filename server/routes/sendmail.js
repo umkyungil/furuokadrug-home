@@ -31,11 +31,9 @@ router.post("/notice", auth, (req, res) => {
 
     transporter.sendMail(mailOptions, function(error, info){
         if (error) {
-            console.log('err: ', error);
             return res.json({ success: false}, error);
         }
         else {
-            console.log('Email sent: ' + info.response);
             return res.json({ success: true});
         }
     });
@@ -103,10 +101,8 @@ router.post("/reservation", auth, (req, res) => {
 
     transporter.sendMail(mailOptions, function(error, info){
         if (error) {
-            console.log(error);
             return res.json({ success: false}, error);
-        }
-        else {
+        } else {
             return res.json({ success: true});
         }
     });

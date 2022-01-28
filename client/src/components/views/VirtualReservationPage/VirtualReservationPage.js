@@ -1,9 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { Form, Input, Button } from 'antd';
-const { TextArea } = Input;
+import { MAIL_SERVER } from '../../Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
+const { TextArea } = Input;
 const formItemLayout = {
   labelCol: {
     xs: { span: 24 },
@@ -59,11 +62,8 @@ function VirtualReservationPage(props) {
   const sendEmail = (e) => { 
     e.preventDefault(); 
     
-    axios.post('/api/sendmail/reservation', body)
+    axios.post(`${MAIL_SERVER}/reservation`, body)
       .then(response => {
-
-        console.log(response.date);
-
         if (response.data.success) {
           alert('The virtual reservation has been received');
           history.push("/");

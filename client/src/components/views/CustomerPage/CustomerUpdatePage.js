@@ -5,6 +5,9 @@ import { updateCustomer } from "../../../_actions/customer_actions";
 import { useDispatch } from "react-redux";
 import { Form, Input, Button } from 'antd';
 import axios from 'axios';
+import { CUSTOMER_SERVER } from '../../Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 const formItemLayout = {
   labelCol: {
@@ -45,7 +48,7 @@ function CustomerUpdatePage(props) {
 
   // 고객정보 취득
   useEffect(() => {
-    axios.get(`/api/customers/customers_by_id?id=${customerId}&type=single`)
+    axios.get(`${CUSTOMER_SERVER}/customers_by_id?id=${customerId}&type=single`)
       .then(response => {
 
         if (response.data.success) {

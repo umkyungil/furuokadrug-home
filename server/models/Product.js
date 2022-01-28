@@ -30,7 +30,7 @@ const productSchema = mongoose.Schema({
       type: Number,
       default: 0
     },
-    views: {
+    point: {
       type: Number,
       default: 0
     }

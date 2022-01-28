@@ -23,7 +23,7 @@ function ProductImage(props) {
   }, [props.detail]) // props.detail의 값이 바뀔때마다 라이프 사이클을 다시 실행한다
 
   return (
-    <div>
+    <div style={{ width:'70%'}}>
       <ImageGallery items={Images} />
     </div>
   )

@@ -4,14 +4,11 @@ import { auth } from '../_actions/user_actions';
 import { useSelector, useDispatch } from "react-redux";
 
 export default function (SpecificComponent, option, adminRoute = null) {
-
-    // option
+    // 【option】
     // null 아무나 출입이 가능한 페이지
     // true 로그인 한 유저만 출입이 가능한 페이지
     // false 로그인한 유저는 출입이 불가능한 페이지
-
     function AuthenticationCheck(props) {
-
         let user = useSelector(state => state.user);
         const dispatch = useDispatch();
 
@@ -23,7 +20,7 @@ export default function (SpecificComponent, option, adminRoute = null) {
                     if (option) {
                         props.history.push('/login')
                     }
-                    //로그인 한 상태 
+                //로그인 한 상태 
                 } else {
                     //supposed to be Admin page, but not admin person wants to go inside
                     if (adminRoute && !response.payload.isAdmin) {

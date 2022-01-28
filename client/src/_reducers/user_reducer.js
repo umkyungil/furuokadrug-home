@@ -6,7 +6,6 @@ import {
     ADD_TO_CART,
     GET_CART_ITEMS
 } from '../_actions/types';
- 
 
 export default function(state={},action){
     switch(action.type){

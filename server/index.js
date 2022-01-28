@@ -1,25 +1,30 @@
 const express = require("express");
 const app = express();
 const path = require("path");
-const cors = require('cors')
-
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
 const config = require("./config/key");
-
 const mongoose = require("mongoose");
 const connect = mongoose.connect(config.mongoURI,
-  {
-    useNewUrlParser: true, useUnifiedTopology: true,
-  })
+  { useNewUrlParser: true, useUnifiedTopology: true, })
   .then(() => console.log('MongoDB Connected...'))
   .catch(err => console.log(err));
 
-app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
+
+// CORS 설정
+const cors = require('cors')
+app.use(cors({ origin: true, credentials: true }));
+// const whitelist = [`http://localhost:3000`];
+// app.use(
+//   cors({
+//     origin: whitelist,
+//     credentials: true,
+//   })
+// );
 
 // 아래 주소로 오면 해당 라우터로 가라는 지정
 app.use('/api/users', require('./routes/users'));

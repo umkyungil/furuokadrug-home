@@ -124,16 +124,12 @@ router.post('/delete', (req, res) => {
 
   if (req.body.images.length > 0) {
     let images = req.body.images;
-    
-    console.log("images: ", images);
 
     // AWS S3 이미지 삭제
     for (let i=0; i<images.length; i++) {
       let str = images[i];
       let words = str.split('/');
       let fileName = words[words.length-1]
-
-      console.log("fileName: ", fileName);
 
       s3.deleteObject({
         Bucket: "furuokadrug-bucket", // 사용자 버켓 이름
@@ -143,7 +139,6 @@ router.post('/delete', (req, res) => {
           isErr = true;
           console.log(err, err.stack);
         }
-        console.log("image delete: ", data);
       })
     } 
   }
@@ -163,7 +158,6 @@ router.post('/delete', (req, res) => {
     }
   }
 
-  console.log("isErr3: ", isErr);
   if (!isErr) {
     return res.json({success: true});
   } else {
@@ -181,8 +175,7 @@ router.post('/delete_image', (req, res) => {
     Bucket: "furuokadrug-bucket", // 사용자 버켓 이름
     Key: fileName // 버켓 내 경로
   }, (err, data) => {
-    if (err) { 
-      console.log(err, err.stack);
+    if (err) {
       return res.json({ success: false }) 
     }
     return res.json({ success: true});    

@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Icon, Col, Card, Row, Carousel } from 'antd';
+import { USER_SERVER } from '../../Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 function UserPage() {
-
 	const [Users, setUsers] = useState([]);
 
 	useEffect(() => {
 
-		axios.post('/api/users/list')
+		axios.post(`${USER_SERVER}/api/users/list`)
 			.then(response => {
 					if (response.data.success) {
 						console.log("response.data>>>", response.data);

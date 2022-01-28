@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { Form, Input, Button } from 'antd';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
+import { MAIL_SERVER } from '../../Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 const { TextArea } = Input;
-
 const formItemLayout = {
   labelCol: {
     xs: { span: 24 },
@@ -46,7 +48,7 @@ function ContactUsPage() {
   const sendEmail = (e) => { 
     e.preventDefault(); 
     
-    axios.post('/api/sendmail/inquiry', body)
+    axios.post(`${MAIL_SERVER}/inquiry`, body)
       .then(response => {
         if (response.data.success) {
           alert('Your inquiry email has been received');

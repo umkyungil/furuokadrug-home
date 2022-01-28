@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
-
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import CustomerInfo from './Sections/CustomerInfo'
 import { Row, Col } from 'antd';
+import { CUSTOMER_SERVER } from '../../Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 function DetailCustomerPage(props) {
   const [Customer, setCustomer] = useState({});
   const customerId = props.match.params.customerId;
 
   useEffect(() => {
-    axios.get(`/api/customers/customers_by_id?id=${customerId}&type=single`)
+    axios.get(`${CUSTOMER_SERVER}/customers_by_id?id=${customerId}&type=single`)
       .then(response => {
         if (response.data.success) {
           setCustomer(response.data.customer[0])

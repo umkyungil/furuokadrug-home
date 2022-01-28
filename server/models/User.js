@@ -47,7 +47,6 @@ userSchema.pre('save', function( next ) {
     var user = this;
     
     if(user.isModified('password')){    
-        // console.log('password changed')
         bcrypt.genSalt(saltRounds, function(err, salt){
             if(err) return next(err);
     
@@ -62,13 +61,16 @@ userSchema.pre('save', function( next ) {
     }
 });
 
+// 암호 비교
 userSchema.methods.comparePassword = function(plainPassword,cb){
+    // plan password를 암호화 해서 비교한다, 기존 DB의 암호를 복화화 할수 없다
     bcrypt.compare(plainPassword, this.password, function(err, isMatch){
         if (err) return cb(err);
-        cb(null, isMatch)
+        cb(null, isMatch);
     })
 }
 
+// jsonwebtoken을 이용해서 token생성
 userSchema.methods.generateToken = function(cb) {
     var user = this;
     var token =  jwt.sign(user._id.toHexString(),'secret')
@@ -77,7 +79,7 @@ userSchema.methods.generateToken = function(cb) {
     user.tokenExp = oneHour;
     user.token = token;
     user.save(function (err, user){
-        if(err) return cb(err)
+        if(err) return cb(err);
         cb(null, user);
     })
 }

@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { List, Avatar, Icon, Button } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
+import { CUSTOMER_SERVER } from '../../Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 function CustomerListPage() {
 	const [Customers, setCustomers] = useState([]);
@@ -17,7 +20,7 @@ function CustomerListPage() {
 	}, [])
 
 	const getCustomers = (body) => {
-		axios.post('/api/customers/list', body)
+		axios.post(`${CUSTOMER_SERVER}/list`, body)
 			.then(response => {
 					if (response.data.success) {
 						setCustomers([...response.data.customerInfo]);

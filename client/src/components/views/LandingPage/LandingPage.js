@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Icon, Col, Card, Row, Button } from 'antd';
 import ImageSlider from '../../utils/ImageSlider';
@@ -7,9 +7,11 @@ import CheckBox from './Sections/CheckBox';
 import RadioBox from './Sections/RadioBox';
 import SearchFeature from './Sections/SearchFeature';
 import { continents, price } from './Sections/Datas';
+import { PRODUCT_SERVER } from '../../Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 function LandingPage() {
-
 	const [Products, setProducts] = useState([]);
 	const [Skip, setSkip] = useState(0);
 	const [Limit, setLimit] = useState(4)
@@ -32,7 +34,7 @@ function LandingPage() {
 
 	// limit, skip은 mongo의 옵션
 	const getProducts = (body) => {
-		axios.post('/api/product/products', body)
+		axios.post(`${PRODUCT_SERVER}/products`, body)
 			.then(response => {
 					if (response.data.success) {
 						// 더 보기 버튼인지 확인
@@ -52,9 +54,6 @@ function LandingPage() {
 	// 더보기 버튼눌렀을때 상품 가져오기
 	const loadMoreHandler = () => {
 		let skip = Skip + Limit;
-
-		console.log("skip", skip);
-
 		let body = {
 			skip: skip,
 			limit: Limit,

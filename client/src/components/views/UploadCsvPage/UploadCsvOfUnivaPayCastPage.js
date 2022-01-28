@@ -1,9 +1,10 @@
-import React, {useState} from 'react'
+import React, {useState} from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { Button } from 'antd';
-
-
+import { CSV_SERVER } from '../../Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 function UploadCsvOfUnivaPayCastPage() {
   const [CsvData, setCsvData] = useState([]);
@@ -64,7 +65,7 @@ function UploadCsvOfUnivaPayCastPage() {
   // CSV 등록
   const registerHandler = () => {
     if (CsvData.length > 0) {
-      axios.post('/api/csv/univaPayCast/register', CsvData)
+      axios.post(`${CSV_SERVER}/univaPayCast/register`, CsvData)
       .then(response => {
         if (response.data.success) {
           alert('CSV registration was successful.');

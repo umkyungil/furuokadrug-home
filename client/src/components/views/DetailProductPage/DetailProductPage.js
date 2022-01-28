@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import ProductImage from './Sections/ProductImage';
 import ProductInfo from './Sections/ProductInfo';
-import { Row, Col } from 'antd';
+import { Row, Col, Divider } from 'antd';
+import { PRODUCT_SERVER } from '../../Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 function DetailProductPage(props) {
 
@@ -10,37 +13,36 @@ function DetailProductPage(props) {
   const [Product, setProduct] = useState({});
 
   useEffect(() => {    
-    axios.get(`/api/product/products_by_id?id=${productId}&type=single`)
+    axios.get(`${PRODUCT_SERVER}/products_by_id?id=${productId}&type=single`)
       .then(response => {
         if (response.data.success) {
-          console.log("data: ", response.data.product[0])
           let str = response.data.product[0].description;
-          let res = str.replace(/\n/g, '<br />');
+          let res = str.split('\n').map((txt, index) => (
+             <React.Fragment key={index}>{txt}<br /></React.Fragment>
+          ))
           response.data.product[0].description = res;
-          
-          console.log(response.data.product[0].description);
+
           setProduct(response.data.product[0])
         } else {
           alert("Failed to get product information.")
         }
       })
-
   }, [])
 
   return (
-    <div style={{ width:'100%', padding:'3rem 4rem' }}>
+    <div style={{ width:'90%', padding:'3rem 4rem' }}>
       <div style={{ display:'flex', justifyContent:'center' }}>
         <h1>{Product.title}</h1>
       </div>
       <br />
       
       {/* 여백설정 */}
-      <Row gutter={[16, 16]} >
+      <Row gutter={[16, 16]}>
         <Col lg={12} sm={24}>
           {/* ProductImage */}
-          <ProductImage detail={Product} />
+          <ProductImage detail={Product} /> 
         </Col>
-        <Col lg={12} sm={24}>
+        <Col lg={12} sm={24}  >
           {/* ProductInfo */}
           <ProductInfo detail={Product} />
         </Col>

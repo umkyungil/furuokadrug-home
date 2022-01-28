@@ -12,7 +12,6 @@ import UploadProductPage from "./views/UploadProductPage/UploadProductPage.js";
 import CustomerRegisterPage from "./views/CustomerPage/CustomerRegisterPage.js";
 import CustomerListPage from "./views/CustomerPage/CustomerListPage.js";
 import CustomerUpdatePage from "./views/CustomerPage/CustomerUpdatePage.js";
-
 import DetailCustomerPage from "./views/CustomerPage/DetailCustomerPage.js";
 import UploadCsvOfUnivaPayCastPage from "./views/UploadCsvPage/UploadCsvOfUnivaPayCastPage.js";
 import ContactUsPage from "./views/SendMailPage/ContactUsPage.js";

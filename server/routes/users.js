@@ -27,7 +27,6 @@ router.get("/auth", auth, (req, res) => {
 
 // 사용자 등록
 router.post("/register", (req, res) => {
-
     const user = new User(req.body);
 
     user.save((err, doc) => {
@@ -41,24 +40,26 @@ router.post("/register", (req, res) => {
 // Login
 router.post("/login", (req, res) => {
     User.findOne({ email: req.body.email }, (err, user) => {
-        if (!user)
+        if (!user) {
             return res.json({
                 loginSuccess: false,
                 message: "Auth failed, email not found"
             });
-
+        }
+        // 요청된 이메일이 DB에 있다면 비밀번호가 만즌 비밀번호 인지 확인
         user.comparePassword(req.body.password, (err, isMatch) => {
             if (!isMatch)
                 return res.json({ loginSuccess: false, message: "Wrong password" });
 
+            // 비밀번호 까지 맞다면 토큰을 생성하기
             user.generateToken((err, user) => {
                 if (err) return res.status(400).send(err);
+
+                // 토큰을 저장한다
                 res.cookie("w_authExp", user.tokenExp);
-                res.cookie("w_auth", user.token)
-                    .status(200)
-                    .json({
-                        loginSuccess: true, userId: user._id
-                    });
+                res.cookie("w_auth", user.token).status(200).json({
+                    loginSuccess: true, userId: user._id
+                });
             });
         });
     });

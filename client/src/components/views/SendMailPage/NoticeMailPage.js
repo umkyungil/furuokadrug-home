@@ -1,9 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { Form, Input, Button } from 'antd';
-const { TextArea } = Input;
+import { MAIL_SERVER } from '../../Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
+const { TextArea } = Input;
 const formItemLayout = {
   labelCol: {
     xs: { span: 24 },
@@ -55,7 +58,7 @@ const NoticeMailPage = (props) => {
   const sendEmail = (e) => { 
     e.preventDefault(); 
     
-    axios.post('/api/sendmail/notice', body)
+    axios.post(`${MAIL_SERVER}/notice`, body)
       .then(response => {
         if (response.data.success) {
           alert('Notification email has been sent normally');

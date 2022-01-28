@@ -1,7 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { Button, Form, Input } from 'antd';
 import FileUpload from '../../utils/FileUpload';
-import Axios from 'axios';
+import axios from 'axios';
+import { PRODUCT_SERVER } from '../../Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 //const { Title } = Typography;
 const { TextArea } = Input;
@@ -55,7 +58,7 @@ function UploadProductPage(props) {
       continents: Continent
     }
 
-    Axios.post('/api/product', body)
+    axios.post(`${PRODUCT_SERVER}`, body)
       .then(response => {
         if (response.data.success) {
           alert('Product upload was successful.'); // 상품 업로드에 성공했습니다.
@@ -90,6 +93,8 @@ function UploadProductPage(props) {
         <Input onChange={priceChangeHandler} value={Price}/>
         <br />
         <br />
+        <label>Item Selection</label>
+        <br />
         <select onChange={continentChangeHandler} value={Continent}>
           {Continents.map(item => (
             <option key={item.key} value={item.key}> {item.value} </option>
@@ -97,7 +102,8 @@ function UploadProductPage(props) {
         </select>
         <br />
         <br />
-        <Button htmlType="submit">
+        <br />
+        <Button htmlType="submit" type="primary">
           Submit
         </Button>
       </Form>

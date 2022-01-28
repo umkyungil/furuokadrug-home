@@ -5,6 +5,8 @@ import axios from 'axios';
 import { USER_SERVER } from '../../../Config';
 import { withRouter } from 'react-router-dom';
 import { useSelector } from "react-redux";
+// CORS 대책
+axios.defaults.withCredentials = true;
 const SubMenu = Menu.SubMenu;
 
 function RightMenu(props) {
@@ -25,10 +27,10 @@ function RightMenu(props) {
     return (
       <Menu mode={props.mode}>
         <Menu.Item key="mail">
-          <a href="/login">Signin</a>
+          <a href="/login">Sign In</a>
         </Menu.Item>
         <Menu.Item key="app">
-          <a href="/register">Signup</a>
+          <a href="/register">Sign Up</a>
         </Menu.Item>
       </Menu>
     )
@@ -55,8 +57,6 @@ function RightMenu(props) {
         <Menu.Item key="upload">
           <a href="/product/upload">Product Upload</a>
         </Menu.Item>
-
-
         <Menu.Item key="cart" style={{paddingBottom:3}}>
           <Badge count={5}>
             <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'667777'}}>
@@ -64,8 +64,6 @@ function RightMenu(props) {
             </a>
           </Badge>
         </Menu.Item>
-        
-        
         <Menu.Item key="contact">
           <a href="/mail/contact">Contact Us</a>
         </Menu.Item>

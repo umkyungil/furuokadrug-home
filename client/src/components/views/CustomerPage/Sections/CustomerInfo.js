@@ -1,11 +1,10 @@
-import React from 'react'
+import React from 'react';
 import { Button, Descriptions } from 'antd';
-import { useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux';
 import { deleteCustomer } from '../../../../_actions/customer_actions';
 import { useHistory } from 'react-router-dom';
 
 function CustomerInfo(props) {
-
   const history = useHistory();
   const dispatch = useDispatch();
   const deleteHandler = () => {

@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import Dropzone from 'react-dropzone';
 import { Icon } from 'antd';
 import axios from 'axios';
+import { PRODUCT_SERVER } from '../Config.js';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 function FileUpload(props) {
   const [Images, setImages] = useState([]);
@@ -14,11 +17,10 @@ function FileUpload(props) {
     }
     formData.append("file", files[0]);
 
-    axios.post('/api/product/image', formData, config)
+    axios.post(`${PRODUCT_SERVER}/image`, formData, config)
     .then(response => {
       if (response.data.success) {
         setImages([...Images, response.data.filePath]);
-        console.log(Images);
 
         // 이미지에 대한 상태 변경이 있을때 부모 컴포넌트에도 이미지 정보를 전달
         props.refreshFunction([...Images, response.data.filePath]);
@@ -38,7 +40,7 @@ function FileUpload(props) {
 
     // AWS S3에서 이미지를 삭제
     const body = {image: image}
-    axios.post('/api/product/delete_image', body)
+    axios.post(`${PRODUCT_SERVER}/delete_image`, body)
       .then(response => {
         if (response.data.success) {
           console.log('Image delete was successful.');
