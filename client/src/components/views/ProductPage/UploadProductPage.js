@@ -8,7 +8,6 @@ axios.defaults.withCredentials = true;
 
 //const { Title } = Typography;
 const { TextArea } = Input;
-
 const Continents = [
   {key:1, value: "Skin Care"},
   {key:2, value: "Eye Care"},
@@ -21,7 +20,9 @@ const Continents = [
 function UploadProductPage(props) {
   const [Title, setTitle] = useState("");
   const [Description, setDescription] = useState("");
+  const [Usage, setUsage] = useState("");
   const [Price, setPrice] = useState(0);
+  const [Point, setPoint] = useState(0);
   const [Continent, setContinent] = useState(1);
   const [Images, setImages] = useState([]);
 
@@ -30,9 +31,15 @@ function UploadProductPage(props) {
   }
   const descriptionChangeHandler = (event) => {
     setDescription(event.currentTarget.value);
+  }  
+  const usageChangeHandler = (event) => {
+    setUsage(event.currentTarget.value);
   }
   const priceChangeHandler = (event) => {
     setPrice(event.currentTarget.value);
+  }
+  const pointChangeHandler = (event) => {
+    setPoint(event.currentTarget.value);
   }
   const continentChangeHandler = (event) => {
     setContinent(event.currentTarget.value);
@@ -44,8 +51,20 @@ function UploadProductPage(props) {
     event.preventDefault();
 
     // validation check
-    if (!Title || !Description || !Price || !Continent || !Images) {
-      return alert("Calculate all values.") // 모든 값을 넣어주셔야 합니다.
+    if (!Title) return alert("Please enter a title");
+    if (!Description) return alert("Please enter a product description");
+    if (!Usage) return alert("Please enter a product usage");
+    if (Number(Price) < 0) return alert("Please check the price");
+    if (Images.length < 1) return alert("Please select an image");
+    if (Number(Point) < 0) return alert("Please check the point");
+
+    // 숫자만 있는지 확인
+    if (isNaN(Price)) {
+      alert("Please enter only numbers for the price");
+    }
+    // 숫자확인
+    if (isNaN(Point)) {
+      alert("Please enter only numbers for point");
     }
 
     // 서버에 채운 값들을 request로 보낸다
@@ -53,7 +72,9 @@ function UploadProductPage(props) {
       writer: props.user.userData._id,
       title: Title,
       description: Description,
+      usage: Usage,
       price: Price,
+      point: Point,
       images: Images,
       continents: Continent
     }
@@ -81,19 +102,27 @@ function UploadProductPage(props) {
 
         <br />
         <br />
-        <label>Title</label>
+        <label><span style={{color: 'red'}}>*&nbsp;</span>Title</label>
         <Input onChange={titleChangeHandler} value={Title}/>
         <br />
         <br />
-        <label>Description</label>
+        <label><span style={{color: 'red'}}>*&nbsp;</span>Description</label>
         <TextArea onChange={descriptionChangeHandler} value={Description}/>
         <br />
         <br />
-        <label>Price($)</label>
+        <label><span style={{color: 'red'}}>*&nbsp;</span>Usage</label>
+        <TextArea onChange={usageChangeHandler} value={Usage}/>
+        <br />
+        <br />
+        <label><span style={{color: 'red'}}>*&nbsp;</span>Price($)</label>
         <Input onChange={priceChangeHandler} value={Price}/>
         <br />
         <br />
-        <label>Item Selection</label>
+        <label><span style={{color: 'red'}}>*&nbsp;</span>Point</label>
+        <Input onChange={pointChangeHandler} value={Point}/>
+        <br />
+        <br />
+        <label><span style={{color: 'red'}}>*&nbsp;</span>Item Selection</label>
         <br />
         <select onChange={continentChangeHandler} value={Continent}>
           {Continents.map(item => (

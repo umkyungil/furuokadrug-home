@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, Descriptions, Collapse } from 'antd';
+import React, {useState} from 'react';
+import { Button, Descriptions, Collapse, InputNumber, Space } from 'antd';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../../../../_actions/user_actions';
 import { useHistory } from 'react-router-dom';
@@ -10,17 +10,23 @@ import { PRODUCT_SERVER } from '../../../Config.js';
 axios.defaults.withCredentials = true;
 
 function ProductInfo(props) {
-  const user = useSelector(state => state.user)
+  const [value, setValue] = React.useState('1');
 
+  const user = useSelector(state => state.user)
   const history = useHistory();
   const dispatch = useDispatch();
-
   const { Panel } = Collapse;
-
+  // 금액에 콤마 추가
+  const price = Number(props.detail.price).toLocaleString();
   // 카트 넣기
-  const clickHandler = () => {
+  const cartHandler = () => {
     // 필요한 정보를 Cart필드에 넣어준다
     dispatch(addToCart(props.detail._id));
+  }
+
+  // 상품 수정
+  const modifyHandler = () => {
+    history.push(`/product/update/${props.detail._id}`);
   }
 
   // 상품 삭제
@@ -46,21 +52,32 @@ function ProductInfo(props) {
     history.push("/");
   }
 
+  function onChange(value) {
+    console.log('changed', value);
+  }
+
   // 로그인 전
   if (user.userData && !user.userData.isAuth) {
     return (
       <div>
-        <Descriptions title="Product Information" bordered>
-          <Descriptions.Item label="Price">{props.detail.price}</Descriptions.Item>
+        <InputNumber min={1} max={10} defaultValue={value} onChange={setValue} />&nbsp;
+        <Button type="primary" onClick={cartHandler}>
+          Add Cart
+        </Button>
+        <br />
+        <br />
+        <Descriptions bordered>
+          <Descriptions.Item label="Price">{price}</Descriptions.Item>
           <Descriptions.Item label="Point">{props.detail.point}</Descriptions.Item>
           <Descriptions.Item label="Sold">{props.detail.sold}</Descriptions.Item>
           <Descriptions.Item label="Description">{props.detail.description}</Descriptions.Item>
         </Descriptions>
         <br />
         <Collapse defaultActiveKey={['0']}>
-          <Panel header="usage instructions">
-          {/* 체크박스를 표시 */}
-  
+          <Panel header="Usage">
+            <Descriptions>
+              <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
+            </Descriptions>
           </Panel>
         </Collapse>
         <br />
@@ -75,16 +92,17 @@ function ProductInfo(props) {
     return (
       <div>
         <Descriptions title="Product Info" bordered>
-          <Descriptions.Item label="Price">{props.detail.price}</Descriptions.Item>
+          <Descriptions.Item label="Price">{price}</Descriptions.Item>
           <Descriptions.Item label="Point">{props.detail.point}</Descriptions.Item>
           <Descriptions.Item label="Sold">{props.detail.sold}</Descriptions.Item>
           <Descriptions.Item label="Description">{props.detail.description}</Descriptions.Item>
         </Descriptions>
         <br />
-        <Collapse defaultActiveKey={['0']}>
-          <Panel header="usage instructions">
-          {/* 체크박스를 표시 */}
-  
+        <Collapse defaultActiveKey={['1']}>
+          <Panel header="Usage">
+            <Descriptions>
+              <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
+            </Descriptions>
           </Panel>
         </Collapse>
         <br />
@@ -93,8 +111,12 @@ function ProductInfo(props) {
             Product List
           </Button>
           &nbsp;&nbsp;&nbsp;
-          <Button size="large" type="primary" onClick={clickHandler}>
+          <Button size="large" type="primary" onClick={cartHandler}>
             Add to Cart
+          </Button>
+          &nbsp;&nbsp;&nbsp;
+          <Button size="large" type="primary" onClick={modifyHandler}>
+            Modify
           </Button>
           &nbsp;&nbsp;&nbsp;
           <Button size="large" type="danger" onClick={deleteHandler}>

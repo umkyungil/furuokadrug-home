@@ -1,5 +1,6 @@
 //SERVER ROUTES
 export const MAIN_SERVER = 'http://localhost:5000'
+//export const MAIN_SERVER = 'https://furuokadrug.herokuapp.com'
 export const USER_SERVER = `${MAIN_SERVER}/api/users`;
 export const CUSTOMER_SERVER = `${MAIN_SERVER}/api/customers`;
 export const PRODUCT_SERVER = `${MAIN_SERVER}/api/product`;

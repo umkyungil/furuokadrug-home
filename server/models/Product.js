@@ -13,6 +13,9 @@ const productSchema = mongoose.Schema({
     description: {
       type: String,
     },
+    usage: {
+      type: String,
+    },
     price: {
       type: Number,
       default: 0
@@ -46,7 +49,6 @@ productSchema.index({
     description: 1
   }
 })
-
 
 const Product = mongoose.model('Product', productSchema);
 

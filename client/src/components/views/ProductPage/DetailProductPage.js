@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ProductImage from './Sections/ProductImage';
 import ProductInfo from './Sections/ProductInfo';
-import { Row, Col, Divider } from 'antd';
+import { Row, Col } from 'antd';
 import { PRODUCT_SERVER } from '../../Config.js';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function DetailProductPage(props) {
-
   const productId = props.match.params.productId;
   const [Product, setProduct] = useState({});
 
@@ -16,13 +15,26 @@ function DetailProductPage(props) {
     axios.get(`${PRODUCT_SERVER}/products_by_id?id=${productId}&type=single`)
       .then(response => {
         if (response.data.success) {
-          let str = response.data.product[0].description;
-          let res = str.split('\n').map((txt, index) => (
-             <React.Fragment key={index}>{txt}<br /></React.Fragment>
-          ))
-          response.data.product[0].description = res;
+          // Description Carriage return적용
+          let tmpDesc1 = response.data.product[0].description;
+          if (tmpDesc1) {
+            let tmpDesc2 = tmpDesc1.split('\n').map((txt1, index1) => (
+              <React.Fragment key={index1}>{txt1}<br /></React.Fragment>
+            ))
+            response.data.product[0].description = tmpDesc2;
+          }
+
+          // Usage Carriage return 적용
+          let tmpUsage1 = response.data.product[0].usage;
+          if (tmpUsage1) {
+            let tmpUsage2 = tmpUsage1.split('\n').map((txt2, index2) => (
+              <React.Fragment key={index2}>{txt2}<br /></React.Fragment>
+            ))
+            response.data.product[0].usage = tmpUsage2;
+          }
 
           setProduct(response.data.product[0])
+
         } else {
           alert("Failed to get product information.")
         }

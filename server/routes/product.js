@@ -182,4 +182,41 @@ router.post('/delete_image', (req, res) => {
   })
 })
 
+// 상품수정(이미지 경로포함)
+router.post('/update', (req, res) => {
+  // 기존 이미지 취득
+  const oldImages = req.body.oldImages
+  // AWS S3 이미지 삭제
+  for (let i=0; i<oldImages.length; i++) {
+    let str = oldImages[i];
+    let words = str.split('/');
+    let fileName = words[words.length-1]
+
+    s3.deleteObject({
+      Bucket: "furuokadrug-bucket", // 사용자 버켓 이름
+      Key: fileName // 버켓 내 경로
+    }, (err, data) => {
+      if (err) { 
+        isErr = true;
+        console.log(err, err.stack);
+      }
+    })
+  }
+  // 데이타 삭제
+  Product.deleteOne({_id: req.body.id})
+    .then((r)=>{
+      console.log("Database delete success");
+    }, (err)=>{
+      if(err) {
+        console.log(err);
+      }
+    });
+
+  const product = new Product(req.body)
+  product.save((err) => {
+    if (err) return res.status(400).json({success: false, err})
+    return res.status(200).json({success: true});
+  })
+})
+
 module.exports = router;
