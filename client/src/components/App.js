@@ -14,11 +14,17 @@ import CustomerRegisterPage from "./views/CustomerPage/CustomerRegisterPage.js";
 import CustomerListPage from "./views/CustomerPage/CustomerListPage.js"; // 고객리스트
 import CustomerUpdatePage from "./views/CustomerPage/CustomerUpdatePage.js"; // 고객수정
 import DetailCustomerPage from "./views/CustomerPage/DetailCustomerPage.js"; // 고객상세
-import UploadCsvOfUnivaPayCastPage from "./views/UploadCsvPage/UploadCsvOfUnivaPayCastPage.js"; // CSV Upload
+import ListAlipayPage from "./views/PaymentPage/ListAlipayPage.js"; // Alipay 결제결과 리스트
+import UploadCSVUnivaPayCastPage from "./views/CsvPage/UploadCSVUnivaPayCastPage.js"; // CSV Upload
 import ContactUsPage from "./views/SendMailPage/ContactUsPage.js"; // 문의
 import NoticeMailPage from "./views/SendMailPage/NoticeMailPage.js"; // 고객메일
 import VirtualReservationPage from "./views/VirtualReservationPage/VirtualReservationPage.js"; // 가상예약
 import CartPage from "./views/CartPage/CartPage.js"; // 카트페이지
+
+
+// 결제결과 테스트
+import AlipayTestPaymentResult from './views/PaymentPage/AlipayTestPaymentResult';
+import WechatTestPaymentResult from './views/PaymentPage/WechatTestPaymentResult';
 
 //null   아무나 안으로 들어갈수 있다
 //true   로그인 한 사용자만 안으로 들어갈수 있다
@@ -40,11 +46,18 @@ function App() {
           <Route exact path="/customer/list" component={Auth(CustomerListPage, true)} />
           <Route exact path="/customer/:customerId" component={Auth(DetailCustomerPage, true)} />
           <Route exact path="/customer/update/:customerId" component={Auth(CustomerUpdatePage, true)} />
-          <Route exact path="/csv/upload/univaPayCast" component={Auth(UploadCsvOfUnivaPayCastPage, true)} />
+          <Route exact path="/csv/upload/univaPayCast" component={Auth(UploadCSVUnivaPayCastPage, true)} />
           <Route exact path="/mail/contact" component={Auth(ContactUsPage, true)} />
           <Route exact path="/mail/notice/:toEmail" component={Auth(NoticeMailPage, true)} />
           <Route exact path="/mail/reservation" component={Auth(VirtualReservationPage, null)} />
           <Route exact path="/user/cart" component={Auth(CartPage, true)} />
+
+          {/* Test */}
+          <Route exact path="/payment/alipay" component={Auth(AlipayTestPaymentResult, null)} />
+          <Route exact path="/payment/wechat" component={Auth(WechatTestPaymentResult, null)} />
+          
+          <Route exact path="/payment/alipay/list" component={Auth(ListAlipayPage, true)} />
+
         </Switch>
       </div>
       <Footer />

@@ -6,5 +6,4 @@ export const CUSTOMER_SERVER = `${MAIN_SERVER}/api/customers`;
 export const PRODUCT_SERVER = `${MAIN_SERVER}/api/product`;
 export const MAIL_SERVER = `${MAIN_SERVER}/api/sendmail`;
 export const CSV_SERVER = `${MAIN_SERVER}/api/csv`;
-
-
+export const PAYMENT_SERVER = `${MAIN_SERVER}/api/payment`;

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "react boiler plate",
   "main": "index.js",
-  "engine": {
+  "engines": {
     "node": "14.17.0",
     "npm": "8.1.2"
   },

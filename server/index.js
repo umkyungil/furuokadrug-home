@@ -32,6 +32,7 @@ app.use('/api/product', require('./routes/product'));
 app.use('/api/customers', require('./routes/customers'));
 app.use('/api/csv', require('./routes/csv'));
 app.use('/api/sendmail', require('./routes/sendmail'));
+app.use('/api/payment', require('./routes/payment'));
 
 app.use('/uploads', express.static('uploads'));
 

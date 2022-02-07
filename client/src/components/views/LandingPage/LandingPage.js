@@ -68,6 +68,9 @@ function LandingPage() {
 
 	// 상품별 카드를 생성
 	const renderCards = Products.map((product, index) => {
+		// 콤마 추가
+		const price = Number(product.price).toLocaleString();
+		
 		// 한 Row는 24사이즈 즉 카드 하나당 6사이즈로 하면 화면에 4개가 표시된다 
 		// lg: 화면이 가장 클때, md: 중간 
 		return <Col lg={6} md={8} xs={24} key={index} > 
@@ -77,7 +80,7 @@ function LandingPage() {
 			>
 				<Meta 
 					title={product.title}
-					description={`¥${product.price}`}
+					description={`¥${price}`}
 				/>
 			</Card>
 		</Col>

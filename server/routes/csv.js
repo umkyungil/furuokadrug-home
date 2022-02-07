@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { UnivaPayCast } = require("../models/UnivaPayCast");
+const { CSVUnivaPayCast } = require("../models/CSVUnivaPayCast");
 const { auth } = require("../middleware/auth");
 
 //=================================
@@ -26,7 +26,7 @@ router.get("/auth", auth, (req, res) => {
 // UNIVA PAY CAST CSV 등록
 router.post("/univaPayCast/register", (req, res) => {
 
-    UnivaPayCast.insertMany(req.body).
+    CSVUnivaPayCast.insertMany(req.body).
     then(function(){
         console.log("Data inserted")
         return res.status(200).json({success: true})
@@ -35,8 +35,5 @@ router.post("/univaPayCast/register", (req, res) => {
         return res.json({success: false, err})
     });
 });
-
-
-
 
 module.exports = router;

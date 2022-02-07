@@ -6,7 +6,7 @@ import { CSV_SERVER } from '../../Config.js';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-function UploadCsvOfUnivaPayCastPage() {
+function UploadCSVUnivaPayCastPage() {
   const [CsvData, setCsvData] = useState([]);
   const [FileName, setFileName] = useState("File Name");
   const history = useHistory();
@@ -140,4 +140,4 @@ function UploadCsvOfUnivaPayCastPage() {
   );
 }
 
-export default UploadCsvOfUnivaPayCastPage
+export default UploadCSVUnivaPayCastPage

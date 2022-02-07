@@ -18,17 +18,16 @@ function ProductInfo(props) {
   const { Panel } = Collapse;
   // 금액에 콤마 추가
   const price = Number(props.detail.price).toLocaleString();
+  const point = Number(props.detail.point).toLocaleString();
   // 카트 넣기
   const cartHandler = () => {
     // 필요한 정보를 Cart필드에 넣어준다
     dispatch(addToCart(props.detail._id));
   }
-
   // 상품 수정
   const modifyHandler = () => {
     history.push(`/product/update/${props.detail._id}`);
   }
-
   // 상품 삭제
   const deleteHandler = () => {
     const body = {
@@ -46,7 +45,6 @@ function ProductInfo(props) {
         }
       });
   }
-
   // Landing pageへ戻る
   const listHandler = () => {
     history.push("/");
@@ -68,7 +66,7 @@ function ProductInfo(props) {
         <br />
         <Descriptions bordered>
           <Descriptions.Item label="Price">{price}</Descriptions.Item>
-          <Descriptions.Item label="Point">{props.detail.point}</Descriptions.Item>
+          <Descriptions.Item label="Point">{point}</Descriptions.Item>
           <Descriptions.Item label="Sold">{props.detail.sold}</Descriptions.Item>
           <Descriptions.Item label="Description">{props.detail.description}</Descriptions.Item>
         </Descriptions>
