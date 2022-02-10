@@ -15,12 +15,12 @@ import CustomerListPage from "./views/CustomerPage/CustomerListPage.js"; // 고�
 import CustomerUpdatePage from "./views/CustomerPage/CustomerUpdatePage.js"; // 고객수정
 import DetailCustomerPage from "./views/CustomerPage/DetailCustomerPage.js"; // 고객상세
 import ListAlipayPage from "./views/PaymentPage/ListAlipayPage.js"; // Alipay 결제결과 리스트
+import ListWechatPage from "./views/PaymentPage/ListWechatPage.js"; // Wechat 결제결과 리스트
 import UploadCSVUnivaPayCastPage from "./views/CsvPage/UploadCSVUnivaPayCastPage.js"; // CSV Upload
 import ContactUsPage from "./views/SendMailPage/ContactUsPage.js"; // 문의
 import NoticeMailPage from "./views/SendMailPage/NoticeMailPage.js"; // 고객메일
 import VirtualReservationPage from "./views/VirtualReservationPage/VirtualReservationPage.js"; // 가상예약
 import CartPage from "./views/CartPage/CartPage.js"; // 카트페이지
-
 
 // 결제결과 테스트
 import AlipayTestPaymentResult from './views/PaymentPage/AlipayTestPaymentResult';
@@ -57,6 +57,7 @@ function App() {
           <Route exact path="/payment/wechat" component={Auth(WechatTestPaymentResult, null)} />
           
           <Route exact path="/payment/alipay/list" component={Auth(ListAlipayPage, true)} />
+          <Route exact path="/payment/wechat/list" component={Auth(ListWechatPage, true)} />
 
         </Switch>
       </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { List, Avatar, Icon, Button } from 'antd';
+import { List, Avatar, Icon } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { CUSTOMER_SERVER } from '../../Config.js';
 // CORS 대책

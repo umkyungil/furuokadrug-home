@@ -4,23 +4,23 @@ import { useDispatch } from 'react-redux';
 import { deleteCustomer } from '../../../../_actions/customer_actions';
 import { useHistory } from 'react-router-dom';
 
-function CustomerInfo(props) {
+function AlipayInfo(props) {
   const history = useHistory();
   const dispatch = useDispatch();
   const deleteHandler = () => {
     dispatch(deleteCustomer(props.detail._id))
       .then(response => {
         if (response.payload.success) {
-          history.push("/customer/list");
+          history.push("/alipay/list");
         } else {
-          alert("Failed to delete customer information.")
+          alert("Failed to delete alipay information.")
         }
       }
     )
   }
   
   const listHandler = () => {
-    history.push("/customer/list");
+    history.push("/alipay/list");
   }
   
   return (
@@ -40,7 +40,7 @@ function CustomerInfo(props) {
       <br />
       <div style={{ display: 'flex', justifyContent: 'center' }} >
         <Button size="large" shape="round" type="primary" onClick={listHandler}>
-          Customer List
+          Alipay List
         </Button>
         &nbsp;&nbsp;&nbsp;
         <Button size="large" shape="round" type="danger" onClick={deleteHandler}>
@@ -51,4 +51,4 @@ function CustomerInfo(props) {
   )
 }
 
-export default CustomerInfo
+export default AlipayInfo

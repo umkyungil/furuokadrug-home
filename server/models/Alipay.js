@@ -47,7 +47,7 @@ const AlipaySchema = mongoose.Schema({
 		type:String,
 		maxlength:50
 	}
-})
+}, { timestamps: true })
 
 AlipaySchema.index({
   uniqueField: 'text',

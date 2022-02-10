@@ -30,7 +30,7 @@ function RightMenu(props) {
           <a href="/login">Sign In</a>
         </Menu.Item>
         <Menu.Item key="app">
-          <a href="/register">Sign Up</a>
+          <a href="/userRegister">Sign Up</a>
         </Menu.Item>
       </Menu>
     )
@@ -38,32 +38,38 @@ function RightMenu(props) {
   } else {
     return (
       <Menu mode={props.mode}>
-        <SubMenu title={<span>UnivaPayCast</span>}>
-          <Menu.Item key="uploadCSVUnivaPayCast">
-            <a href="/csv/upload/univaPayCast">Univapay Csv Upload</a>
+        <SubMenu title={<span>Payment</span>}>          
+          <Menu.Item key="alipaySearch">
+            <a href="/payment/alipay/list">Alipay payment list</a>
           </Menu.Item>
-          <Menu.Item key="alipayTestPaymentResult">
-            <a href="/payment/alipay">Alipay test payment result</a>
+          <Menu.Item key="wechatSearch">
+            <a href="/payment/wechat/list">Wechat payment list</a>
           </Menu.Item>
-          <Menu.Item key="wechatTestPaymentResult">
-            <a href="/payment/wechat">Wechat test payment result</a>
+          <Menu.Item key="alipayPayment">
+            <a href="/payment/alipay">Alipay API Test</a>
+          </Menu.Item>
+          <Menu.Item key="wechatPayment">
+            <a href="/payment/wechat">Wechat API Test</a>
           </Menu.Item>
         </SubMenu>  
         <SubMenu title={<span>Data Upload</span>}>
+          <Menu.Item key="csvUpload">
+            <a href="/csv/upload/univaPayCast">Univapay Csv Upload</a>
+          </Menu.Item>
           <Menu.Item key="smaregiUpload">
             <a href="/csv/upload/smaregi">Smaregi Csv Upload</a>
           </Menu.Item>
         </SubMenu>  
         <SubMenu title={<span>Customer</span>}>
-          <Menu.Item key="register">
+          <Menu.Item key="customerRegister">
             <a href="/customer/register">Customer Register</a>
           </Menu.Item>
-          <Menu.Item key="search">
+          <Menu.Item key="customerSearch">
             <a href="/customer/list">Customer List</a>
           </Menu.Item>
         </SubMenu>
         <Menu.Item key="upload">
-          <a href="/product/upload">Product Upload</a>
+          <a href="/product/productUpload">Product Upload</a>
         </Menu.Item>
         <Menu.Item key="cart" style={{paddingBottom:3}}>
           <Badge count={5}>
@@ -84,4 +90,3 @@ function RightMenu(props) {
 }
 
 export default withRouter(RightMenu);
-

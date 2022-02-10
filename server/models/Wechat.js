@@ -56,7 +56,7 @@ const WechatSchema = mongoose.Schema({
 		type:String,
 		maxlength:50
 	}
-})
+}, { timestamps: true })
 
 WechatSchema.index({
   uniqueField: 'text',
