@@ -23,8 +23,6 @@ function ListAlipayPage() {
 			.then(response => {
 					if (response.data.success) {
 						response.data.alipayInfo.map((value, index) => {
-							console.log("value: ", value);
-
 							if (value.rst === "1") {
 								value.rst = "成功";
 							} else {
@@ -34,14 +32,15 @@ function ListAlipayPage() {
 
 						setAlipayInfo([...response.data.alipayInfo]);
 					} else {
-							alert("Failed to get alipay payment info")
+							alert("Failed to get Alipay payment info")
 					}
 			})
 	}
 
-	// 키워드 검색시 고객정보가져오기
+	// Alipay 결제정보 검색
 	const updateSearchTerm = (newSearchTerm) => {
-		console.log(newSearchTerm);
+		console.log("newSearchTerm: ", newSearchTerm);
+
 		let body = {
 			searchTerm: newSearchTerm
 		}
@@ -52,7 +51,6 @@ function ListAlipayPage() {
 
 	return (
 		<div style={{ width:'75%', margin:'3rem auto' }}>
-
 			<div style={{ textAlign:'center' }}>
 				<h2>Alipay Payment Result List</h2>
 			</div>
@@ -71,15 +69,12 @@ function ListAlipayPage() {
 				<List
 					itemLayout="horizontal"
 					dataSource={AlipayInfo}
-					renderItem={data => (
-						<List.Item >
+					renderItem={alipay => (
+						<List.Item actions={[<a href={`/payment/alipay/${alipay._id}`}>detail</a>]}>
 							<List.Item.Meta
-								description={`決済番号 ${data.pid} / 
-															処理結果: ${data.rst} / 
-															管理番号: ${data.ap} / 
-															決済金額(合計): ${data.ta} /
-															Unique Field: ${data.uniqueField}
-														`}
+								description={`決済番号 ${alipay.pid} / 処理結果: ${alipay.rst} / 管理番号: ${alipay.ap} / 決済金額(合計): ${alipay.ta} / 
+															ユニークキー: ${alipay.uniqueField}`
+														}
 								/>
 						</List.Item>
 					)}

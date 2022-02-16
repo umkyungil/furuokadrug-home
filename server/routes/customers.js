@@ -8,7 +8,6 @@ const { Customer } = require("../models/Customer");
 
 // 고객정보 등록
 router.post("/register", (req, res) => {
-
     const customer = new Customer(req.body);
 
     customer.save((err, doc) => {
@@ -42,7 +41,6 @@ router.post("/list", (req, res) => {
 
 // 고객정보 상세조회
 router.get('/customers_by_id', (req, res) => {
-
     let type = req.query.type;
     let customerId = req.query.id;
     // customerId를 이용해서 DB에서 customerId와 같은 고객의 정보를 가져온다
@@ -67,7 +65,6 @@ router.post('/delete', (req, res) => {
 
 // 고객정보 수정
 router.post("/update", (req, res) => {
-
     Customer.updateMany(
         { _id: req.body.id }, 
         { 

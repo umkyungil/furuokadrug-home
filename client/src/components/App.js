@@ -16,6 +16,8 @@ import CustomerUpdatePage from "./views/CustomerPage/CustomerUpdatePage.js"; // 
 import DetailCustomerPage from "./views/CustomerPage/DetailCustomerPage.js"; // 고객상세
 import ListAlipayPage from "./views/PaymentPage/ListAlipayPage.js"; // Alipay 결제결과 리스트
 import ListWechatPage from "./views/PaymentPage/ListWechatPage.js"; // Wechat 결제결과 리스트
+import DetailAlipayPage from "./views/PaymentPage/DetailAlipayPage.js"; // Alipay 결제결과 상세
+import DetailWechatPage from "./views/PaymentPage/DetailWechatPage.js"; // Wechat 결제결과 상세
 import UploadCSVUnivaPayCastPage from "./views/CsvPage/UploadCSVUnivaPayCastPage.js"; // CSV Upload
 import ContactUsPage from "./views/SendMailPage/ContactUsPage.js"; // 문의
 import NoticeMailPage from "./views/SendMailPage/NoticeMailPage.js"; // 고객메일
@@ -58,7 +60,8 @@ function App() {
           
           <Route exact path="/payment/alipay/list" component={Auth(ListAlipayPage, true)} />
           <Route exact path="/payment/wechat/list" component={Auth(ListWechatPage, true)} />
-
+          <Route exact path="/payment/alipay/:alipayId" component={Auth(DetailAlipayPage, true)} />
+          <Route exact path="/payment/wechat/:wechatId" component={Auth(DetailWechatPage, true)} />
         </Switch>
       </div>
       <Footer />

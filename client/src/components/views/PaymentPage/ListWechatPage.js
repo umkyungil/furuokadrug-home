@@ -21,7 +21,6 @@ function ListWechatPage() {
 	const getWechatInfo = (body) => {
 		axios.post(`${PAYMENT_SERVER}/wechat/list`, body)
 			.then(response => {
-
 					if (response.data.success) {
 						response.data.wechatInfo.map((value, index) => {
 							console.log(value);
@@ -34,12 +33,12 @@ function ListWechatPage() {
 
 						setWechatInfo([...response.data.wechatInfo]);
 					} else {
-							alert("Failed to get wechat payment info")
+							alert("Failed to get Wechat payment info")
 					}
 			})
 	}
 
-	// 키워드 검색시 고객정보가져오기
+	// Wechat 결제정보 검색
 	const updateSearchTerm = (newSearchTerm) => {
 		let body = {
 			searchTerm: newSearchTerm
@@ -51,7 +50,6 @@ function ListWechatPage() {
 
 	return (
 		<div style={{ width:'75%', margin:'3rem auto' }}>
-
 			<div style={{ textAlign:'center' }}>
 				<h2>Wechat Payment Result List</h2>
 			</div>
@@ -70,15 +68,11 @@ function ListWechatPage() {
 				<List
 					itemLayout="horizontal"
 					dataSource={WechatInfo}
-					renderItem={data => (
-						<List.Item >
+					renderItem={wechat => (
+						<List.Item actions={[<a href={`/payment/wechat/${wechat._id}`}>detail</a>]}>
 							<List.Item.Meta
-								description={`決済番号 ${data.pid} / 
-															処理結果: ${data.rst} / 
-															管理番号: ${data.ap} / 
-															決済金額(合計): ${data.ta} / 
-															Unique Field: ${data.uniqueField}
-														`}
+								description={`決済番号 ${wechat.pid} / 処理結果: ${wechat.rst} / 管理番号: ${wechat.ap} / 決済金額(合計): ${wechat.ta} 
+								/ ユニークキー: ${wechat.uniqueField}`}
 								/>
 						</List.Item>
 					)}

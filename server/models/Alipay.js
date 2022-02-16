@@ -14,7 +14,7 @@ const AlipaySchema = mongoose.Schema({
 	// 管理番号
 	ap: {
 		type:String,
-		maxlength: 7
+		maxlength: 8
 	},
 	// 決済システムが発行したエラーコード（成功時：ER000000000）
 	ec: {
