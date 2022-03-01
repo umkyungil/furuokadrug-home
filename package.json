@@ -4,7 +4,7 @@
   "description": "react boiler plate",
   "main": "index.js",
   "engines": {
-    "node": "14.17.0",
+    "node": "16.14.0",
     "npm": "8.1.2"
   },
   "scripts": {

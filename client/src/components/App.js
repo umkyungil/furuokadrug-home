@@ -41,7 +41,7 @@ function App() {
         <Switch>           
           <Route exact path="/" component={Auth(LandingPage, null)} />
           <Route exact path="/login" component={Auth(LoginPage, false)} />
-          <Route exact path="/register" component={Auth(UserRegisterPage, false)} />{/* 로그인 사용자 등록 */}
+          <Route exact path="/userRegister" component={Auth(UserRegisterPage, false)} />{/* 로그인 사용자 등록 */}
           <Route exact path="/product/upload" component={Auth(UploadProductPage, true)} />
           <Route exact path="/product/:productId/:language" component={Auth(DetailProductPage, null)} />
           <Route exact path="/product/update/:productId/" component={Auth(UpdateProductPage, null)} />
@@ -50,14 +50,14 @@ function App() {
           <Route exact path="/customer/:customerId" component={Auth(DetailCustomerPage, true)} />
           <Route exact path="/customer/update/:customerId" component={Auth(CustomerUpdatePage, true)} />
           <Route exact path="/csv/upload/univaPayCast" component={Auth(UploadCSVUnivaPayCastPage, true)} />
-          <Route exact path="/mail/contact" component={Auth(ContactUsPage, true)} />
+          <Route exact path="/mail/contact" component={Auth(ContactUsPage, null)} />
           <Route exact path="/mail/notice/:toEmail" component={Auth(NoticeMailPage, true)} />
           <Route exact path="/mail/reservation" component={Auth(VirtualReservationPage, null)} />
           <Route exact path="/user/cart" component={Auth(CartPage, true)} />
 
           {/* Test */}
-          <Route exact path="/payment/alipay" component={Auth(AlipayTestPaymentResult, null)} />
-          <Route exact path="/payment/wechat" component={Auth(WechatTestPaymentResult, null)} />
+          {/* <Route exact path="/payment/alipay" component={Auth(AlipayTestPaymentResult, null)} />
+          <Route exact path="/payment/wechat" component={Auth(WechatTestPaymentResult, null)} /> */}
           
           <Route exact path="/payment/alipay/list" component={Auth(ListAlipayPage, true)} />
           <Route exact path="/payment/wechat/list" component={Auth(ListWechatPage, true)} />

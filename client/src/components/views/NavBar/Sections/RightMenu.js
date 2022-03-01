@@ -32,6 +32,9 @@ function RightMenu(props) {
         <Menu.Item key="app">
           <a href="/userRegister">Sign Up</a>
         </Menu.Item>
+        <Menu.Item key="contact">
+          <a href="/mail/contact">Contact Us</a>
+        </Menu.Item>
       </Menu>
     )
   // login 했을때 메뉴
@@ -45,12 +48,12 @@ function RightMenu(props) {
           <Menu.Item key="wechatSearch">
             <a href="/payment/wechat/list">Wechat payment list</a>
           </Menu.Item>
-          <Menu.Item key="alipayPayment">
+          {/* <Menu.Item key="alipayPayment">
             <a href="/payment/alipay">Alipay API Test</a>
           </Menu.Item>
           <Menu.Item key="wechatPayment">
             <a href="/payment/wechat">Wechat API Test</a>
-          </Menu.Item>
+          </Menu.Item> */}
         </SubMenu>  
         <SubMenu title={<span>Data Upload</span>}>
           <Menu.Item key="csvUpload">
@@ -78,9 +81,7 @@ function RightMenu(props) {
             </a>
           </Badge>
         </Menu.Item>
-        <Menu.Item key="contact">
-          <a href="/mail/contact">Contact Us</a>
-        </Menu.Item>
+        
         <Menu.Item key="logout">
           <a onClick={logoutHandler}>Logout</a>
         </Menu.Item>
