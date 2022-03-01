@@ -29,7 +29,7 @@ function AlipayInfo(props) {
       <br />
       <br />
       <div style={{ display: 'flex', justifyContent: 'center' }} >
-        <Button size="large" shape="round" type="primary" onClick={listHandler}>
+        <Button size="large" onClick={listHandler}>
           Alipay List
         </Button>
       </div>

@@ -69,11 +69,11 @@ function RightMenu(props) {
           </Menu.Item>
         </SubMenu>
         <Menu.Item key="upload">
-          <a href="/product/productUpload">Product Upload</a>
+          <a href="/product/upload">Product Upload</a>
         </Menu.Item>
         <Menu.Item key="cart" style={{paddingBottom:3}}>
           <Badge count={5}>
-            <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'667777'}}>
+            <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
               <Icon type="shopping-cart" style={{fontSize:30, marginBottom:3}} />
             </a>
           </Badge>

@@ -77,11 +77,10 @@ router.get("/logout", auth, (req, res) => {
 
 // 카트에 상품담기
 router.post("/addToCart", auth, (req, res) => {
-    // auth 미들웨어에서 사용자 정보를 request에 담아주기 때문에 rea.user.id에 id정보가 담아져 있다
+    // auth 미들웨어에서 사용자 정보를 request에 담아주기 때문에 req.user.id에 id정보가 담아져 있다
     // User Collection에서 해당 사용자 정보를 가져오기
     User.findOne({_id: req.user._id}, 
         (err, userInfo) => {
-
             // 가져온 정보에서 카트에다 넣으려 하는 상품이 이미 들어 있는지 확인
             let duplicate = false; 
             userInfo.cart.forEach((item) => {
@@ -96,7 +95,7 @@ router.post("/addToCart", auth, (req, res) => {
                 User.findOneAndUpdate(
                     { _id: req.user._id, "cart.id": req.body.productId }, // 사용자를 찾고 사용자의 카트에서 상품을 찾는 조건
                     { $inc: { "cart.$.quantity": 1 } }, // 1을 증가
-                    { new: true }, // 업데이트 된 사용자 정보를 아래 userInfo에서 받기 위한 구문
+                    { new: true }, // 아래 userInfo에서 업데이트 된 사용자 정보를 받기 위한 구문
                     (err, userInfo) => { // 쿼리를 실행한다
                         if(err) return res.status(400).json({ success: false, err })
                         res.status(200).send(userInfo.cart) // 카트 정보만 보낸다

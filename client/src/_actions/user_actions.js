@@ -56,7 +56,7 @@ export function addToCart(id){
 
 // 상세페이지의 카트
 export function getCartItems(cartItems, userCart) {
-
+    // 상품을 한개이상 가지고 와야 하기때문에 type=array
     const request = axios.get(`${PRODUCT_SERVER}/products_by_id=${cartItems}&type=array`)
         .then(response => {
             // CartItem들에 해당하는 정보들을 Product Collection에서 가져온후에

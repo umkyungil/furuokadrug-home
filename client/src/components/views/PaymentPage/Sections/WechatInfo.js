@@ -29,7 +29,7 @@ function WechatInfo(props) {
       <br />
       <br />
       <div style={{ display: 'flex', justifyContent: 'center' }} >
-        <Button size="large" shape="round" type="primary" onClick={listHandler}>
+        <Button size="large" onClick={listHandler}>
           Wechat List
         </Button>
       </div>

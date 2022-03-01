@@ -7,15 +7,18 @@ import { PRODUCT_SERVER } from '../../Config.js';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
+// 상품상세
 function DetailProductPage(props) {
   const productId = props.match.params.productId;
+  const language = props.match.params.language;
+
   const [Product, setProduct] = useState({});
 
   useEffect(() => {    
     axios.get(`${PRODUCT_SERVER}/products_by_id?id=${productId}&type=single`)
       .then(response => {
         if (response.data.success) {
-          // Description Carriage return적용
+          // Description에 Carriage return적용
           let tmpDesc1 = response.data.product[0].description;
           if (tmpDesc1) {
             let tmpDesc2 = tmpDesc1.split('\n').map((txt1, index1) => (
@@ -24,7 +27,7 @@ function DetailProductPage(props) {
             response.data.product[0].description = tmpDesc2;
           }
 
-          // Usage Carriage return 적용
+          // Usage에 Carriage return 적용
           let tmpUsage1 = response.data.product[0].usage;
           if (tmpUsage1) {
             let tmpUsage2 = tmpUsage1.split('\n').map((txt2, index2) => (
@@ -56,7 +59,7 @@ function DetailProductPage(props) {
         </Col>
         <Col lg={12} sm={24}  >
           {/* ProductInfo */}
-          <ProductInfo detail={Product} />
+          <ProductInfo detail={Product} language={language}/>
         </Col>
       </Row>
     </div>

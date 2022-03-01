@@ -19,6 +19,13 @@ function ProductInfo(props) {
   // 금액에 콤마 추가
   const price = Number(props.detail.price).toLocaleString();
   const point = Number(props.detail.point).toLocaleString();
+
+  // language
+  const language = props.language;
+
+
+
+
   // 카트 넣기
   const cartHandler = () => {
     // 필요한 정보를 Cart필드에 넣어준다
@@ -89,13 +96,19 @@ function ProductInfo(props) {
   } else {
     return (
       <div>
-        <Descriptions title="Product Info" bordered>
+        <Descriptions>
           <Descriptions.Item label="Price">{price}</Descriptions.Item>
           <Descriptions.Item label="Point">{props.detail.point}</Descriptions.Item>
-          <Descriptions.Item label="Sold">{props.detail.sold}</Descriptions.Item>
-          <Descriptions.Item label="Description">{props.detail.description}</Descriptions.Item>
+          <Descriptions.Item label="Contents">{props.detail.sold}</Descriptions.Item>          
         </Descriptions>
-        <br />
+        <Collapse defaultActiveKey={['0']}>
+          <Panel header="Description">
+            <Descriptions>
+              <Descriptions.Item>{props.detail.description}</Descriptions.Item>
+            </Descriptions>
+          </Panel>
+        </Collapse>
+        <br />  
         <Collapse defaultActiveKey={['1']}>
           <Panel header="Usage">
             <Descriptions>

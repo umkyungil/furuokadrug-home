@@ -39,11 +39,11 @@ function CustomerInfo(props) {
       <br />
       <br />
       <div style={{ display: 'flex', justifyContent: 'center' }} >
-        <Button size="large" shape="round" type="primary" onClick={listHandler}>
+        <Button size="large" onClick={listHandler}>
           Customer List
         </Button>
         &nbsp;&nbsp;&nbsp;
-        <Button size="large" shape="round" type="danger" onClick={deleteHandler}>
+        <Button size="large" type="danger" onClick={deleteHandler}>
           Delete
         </Button>
       </div>

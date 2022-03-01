@@ -104,13 +104,18 @@ router.post('/products', (req, res) => {
 // 상품상세(상품정보 가져오기), 카트페이지에서 상폼정보 가져오기
 router.get('/products_by_id', (req, res) => {
   let type = req.query.type;
-  let productId = req.query.id;
+  let productIds = req.query.id;
 
   if (type === "array") {
+    // id=1234,1234,1234 로 되어 있는걸 
+    // productIds=['1234','1234']로 배열에 담는다
     let ids = req.query.id.split(',')
+    productIds = ids.map(item => {
+      return item;
+    })
   }
   // productId를 이용해서 DB에서 productId와 같은 상품의 정보를 가져온다
-  Product.find({ _id: productId })
+  Product.find({ _id: { $in: productIds } })
     .populate('writer')
     .exec((err, product) => {
       if (err) return res.status(400).send(err)

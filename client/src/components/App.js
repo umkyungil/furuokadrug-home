@@ -33,17 +33,18 @@ import WechatTestPaymentResult from './views/PaymentPage/WechatTestPaymentResult
 //false  로그인 한 사용자는 안으로 들어갈수 없다
 //3번쩨  인자로 true를 주면 admin만 들어갈수 있다
 function App() {
+
   return (
     <Suspense fallback={(<div>Loading...</div>)}>
       <NavBar />
       <div style={{ paddingTop: '69px', minHeight: 'calc(100vh - 80px)' }}>
-        <Switch> 
+        <Switch>           
           <Route exact path="/" component={Auth(LandingPage, null)} />
           <Route exact path="/login" component={Auth(LoginPage, false)} />
           <Route exact path="/register" component={Auth(UserRegisterPage, false)} />{/* 로그인 사용자 등록 */}
           <Route exact path="/product/upload" component={Auth(UploadProductPage, true)} />
-          <Route exact path="/product/:productId" component={Auth(DetailProductPage, null)} />
-          <Route exact path="/product/update/:productId" component={Auth(UpdateProductPage, null)} />
+          <Route exact path="/product/:productId/:language" component={Auth(DetailProductPage, null)} />
+          <Route exact path="/product/update/:productId/" component={Auth(UpdateProductPage, null)} />
           <Route exact path="/customer/register" component={Auth(CustomerRegisterPage, true)} />
           <Route exact path="/customer/list" component={Auth(CustomerListPage, true)} />
           <Route exact path="/customer/:customerId" component={Auth(DetailCustomerPage, true)} />

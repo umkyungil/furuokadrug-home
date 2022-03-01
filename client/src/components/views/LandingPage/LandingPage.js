@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Icon, Col, Card, Row, Button } from 'antd';
+import { Col, Card, Row, Button } from 'antd';
 import ImageSlider from '../../utils/ImageSlider';
 import Meta from 'antd/lib/card/Meta';
 import CheckBox from './Sections/CheckBox';
@@ -8,6 +8,12 @@ import RadioBox from './Sections/RadioBox';
 import SearchFeature from './Sections/SearchFeature';
 import { continents, price } from './Sections/Datas';
 import { PRODUCT_SERVER } from '../../Config.js';
+// Multi Language
+import { useTranslation } from 'react-i18next';
+import Japanese from '../../images/japanese.png';
+import English from '../../images/english.png';
+import Chinese from '../../images/chinese.png';
+
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -21,6 +27,7 @@ function LandingPage() {
 		price: []
 	})
 	const [SearchTerm, setSearchTerm] = useState("");
+	const [Language, setLanguage] = useState("en");
 
 	useEffect(() => {
 		let body = {
@@ -54,12 +61,12 @@ function LandingPage() {
 	// 더보기 버튼눌렀을때 상품 가져오기
 	const loadMoreHandler = () => {
 		let skip = Skip + Limit;
+		// body 작성
 		let body = {
 			skip: skip,
 			limit: Limit,
 			loadMore: true // 더 보기 버튼을 눌렀다는 flag
-		}
-		
+		}		
 		// 상품 가져오기
 		getProducts(body);
 		// skip정보 status에 보관
@@ -69,14 +76,13 @@ function LandingPage() {
 	// 상품별 카드를 생성
 	const renderCards = Products.map((product, index) => {
 		// 콤마 추가
-		const price = Number(product.price).toLocaleString();
-		
+		const price = Number(product.price).toLocaleString();		
 		// 한 Row는 24사이즈 즉 카드 하나당 6사이즈로 하면 화면에 4개가 표시된다 
 		// lg: 화면이 가장 클때, md: 중간 
 		return <Col lg={6} md={8} xs={24} key={index} > 
 			<Card
 				// ImageSlider에 images라는 이름으로 데이터를 넘김
-				cover={<a href={`/product/${product._id}`}><ImageSlider images={product.images}/></a>} 
+				cover={<a href={`/product/${product._id}/${Language}`}><ImageSlider images={product.images}/></a>} 
 			>
 				<Meta 
 					title={product.title}
@@ -130,8 +136,7 @@ function LandingPage() {
 	}
 
 	// 키워드 검색시 상품 가져오기
-	const updateSearchTerm = (newSearchTerm) => {
-		
+	const updateSearchTerm = (newSearchTerm) => {		
 		let body = {
 			skip:0,
 			limit:Limit,
@@ -141,14 +146,27 @@ function LandingPage() {
 
 		setSkip(0);
 		setSearchTerm(newSearchTerm);
-
 		getProducts(body);
 	}
 
+	// MultiLanguage
+	const {t, i18n} = useTranslation();
+  function langClick(lang) {
+		setLanguage(lang);
+    i18n.changeLanguage(lang);
+  }
+
 	return (
-		<div style={{ width:'75%', margin:'3rem auto' }}>
+		<div style={{ width:'75%', margin:'3rem auto' }}>			 
+			<nav style={{ cursor:'pointer', width:'100', float:'right' }}>
+				<img src={English} width='21' height='21' alt='English' onClick={() => langClick('en')} />
+				&nbsp;
+				<img src={Japanese} width='35' height='35' alt='Japanese' onClick={() => langClick('jp')} />
+				&nbsp;
+				<img src={Chinese} width='24' height='24' alt='Chinese' onClick={() => langClick('cn')} />
+			</nav>
 			<div style={{ textAlign:'center' }}>
-				<h2>Product List<Icon type="rocket" /></h2>
+				<h1><b>{t('Landing.title')}</b></h1>
 			</div>
 
 			{/* Filter */}
@@ -181,7 +199,7 @@ function LandingPage() {
 			{PostSize >= Limit && 
 				<div style={{ display:'flex', justifyContent:'center' }}>
 					{/* <button onClick={loadMoreHandler}>More</button> */}
-					<Button onClick={loadMoreHandler}>More</Button>
+					<Button onClick={loadMoreHandler}>{t('Landing.more')}</Button>
 				</div>
 			}
 		</div>
