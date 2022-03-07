@@ -23,6 +23,7 @@ import ContactUsPage from "./views/SendMailPage/ContactUsPage.js"; // 문의
 import NoticeMailPage from "./views/SendMailPage/NoticeMailPage.js"; // 고객메일
 import VirtualReservationPage from "./views/VirtualReservationPage/VirtualReservationPage.js"; // 가상예약
 import CartPage from "./views/CartPage/CartPage.js"; // 카트페이지
+import LiveStreamingPage from "./views/LiveStreamingPage/LiveStreaming.js"; // 라이브 스트리밍 페이지
 
 // 결제결과 테스트
 import AlipayTestPaymentResult from './views/PaymentPage/AlipayTestPaymentResult';
@@ -63,6 +64,7 @@ function App() {
           <Route exact path="/payment/wechat/list" component={Auth(ListWechatPage, true)} />
           <Route exact path="/payment/alipay/:alipayId" component={Auth(DetailAlipayPage, true)} />
           <Route exact path="/payment/wechat/:wechatId" component={Auth(DetailWechatPage, true)} />
+          <Route exact path="/live" component={Auth(LiveStreamingPage, true)} />
         </Switch>
       </div>
       <Footer />

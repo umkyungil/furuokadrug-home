@@ -43,6 +43,9 @@ function UserRegisterPage(props) {
         email: '',
         lastName: '',
         name: '',
+        address1: '',
+        address2: '',
+        address3: '',
         password: '',
         confirmPassword: ''
       }}
@@ -54,6 +57,8 @@ function UserRegisterPage(props) {
         email: Yup.string()
           .email('Email is invalid')
           .required('Email is required'),
+        address1: Yup.string()          
+          .required('address is required'),
         password: Yup.string()
           .min(6, 'Password must be at least 6 characters')
           .required('Password is required'),
@@ -63,7 +68,6 @@ function UserRegisterPage(props) {
       })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
-
           let dataToSubmit = {
             email: values.email,
             password: values.password,
@@ -131,6 +135,33 @@ function UserRegisterPage(props) {
                 />
                 {errors.email && touched.email && (
                   <div className="input-feedback">{errors.email}</div>
+                )}
+              </Form.Item>
+
+              <Form.Item required label="address1">
+                <Input id="address1" placeholder="Enter your address1" type="text" value={values.lastName} onChange={handleChange} onBlur={handleBlur}
+                  className={ errors.lastName && touched.lastName ? 'text-input error' : 'text-input' }
+                />
+                {errors.lastName && touched.lastName && (
+                  <div className="input-feedback">{errors.lastName}</div>
+                )}
+              </Form.Item>
+
+              <Form.Item required label="address2">
+                <Input id="address2" placeholder="Enter your address2" type="text" value={values.lastName} onChange={handleChange} onBlur={handleBlur}
+                  className={ errors.lastName && touched.lastName ? 'text-input error' : 'text-input' }
+                />
+                {errors.lastName && touched.lastName && (
+                  <div className="input-feedback">{errors.lastName}</div>
+                )}
+              </Form.Item>
+
+              <Form.Item required label="address3">
+                <Input id="address3" placeholder="Enter your address3" type="text" value={values.lastName} onChange={handleChange} onBlur={handleBlur}
+                  className={ errors.lastName && touched.lastName ? 'text-input error' : 'text-input' }
+                />
+                {errors.lastName && touched.lastName && (
+                  <div className="input-feedback">{errors.lastName}</div>
                 )}
               </Form.Item>
 
