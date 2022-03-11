@@ -1,10 +1,8 @@
 import React, { useState } from 'react'
 import Moment from 'moment';
-import { useHistory } from 'react-router-dom';
+import { LIVE_SERVER } from '../../Config';
 
 function LiveStreaming(props) {
-  const history = useHistory();
-
   // TODO: 화면이 두번 호출되서 첫번째는 props 값이 없고 두번째에 들어온다
   // 두번째 호출될때 값이 들어온다
   let URL = "";
@@ -13,8 +11,7 @@ function LiveStreaming(props) {
     const room = Moment(new Date()).format('YYYYMMDD');
     const userId = props.user.userData._id;
     
-    URL ="https://localhost:888/login?name=" + name + "&room=" + room + "&userId=" + userId;
-    // URL ="https://live.furuokadrug.com/login?name=" + name + "&room=" + room + "&userId=" + userId;
+    URL = LIVE_SERVER + "/login?name=" + name + "&room=" + room + "&userId=" + userId;
   }
 
   React.useEffect(() => {
@@ -27,19 +24,16 @@ function LiveStreaming(props) {
       const siam1 = e.data.siam1; // amount
       const uniqueField = e.data.uniqueField;
 
-      console.log("loginUserId: ", loginUserId);
-      
+      const settings = "toolbar=0,menubar=0,scrollbars=auto,resizable=no,height=915,width=412,top=100px,left=100";      
       if (e.data.loginUserId && e.data.siam1) {
         if (type === "alipay") {
           // 결제 페이지 호출
-          let settings = "toolbar=0,menubar=0,scrollbars=auto,resizable=no,height=915,width=412,top=100px,left=100";
           let url = `/payment/alipay/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}`
           window.open(url,"alipay", settings);
         } else if (type === "wechat") {
-          let settings = "toolbar=0,menubar=0,scrollbars=auto,resizable=no,height=770,width=768,top=100px,left=100";
-          let url = `/payment/alipay/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}`
+          // 결제 페이지 호출
+          let url = `/payment/wechat/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}`
           window.open(url,"alipay", settings);
-          //history.push(`/payment/wechat/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}`);
         }
       }
     })
