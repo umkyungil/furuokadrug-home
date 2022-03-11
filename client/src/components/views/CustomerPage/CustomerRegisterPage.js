@@ -38,13 +38,17 @@ function CustomerRegisterPage(props) {
         name: '',
         tel: '',
         email: '',
-        address: '',
+        address1: '',
+        address2: '',
+        address3: '',
         salesman: '',
         point: ''
       }}
       validationSchema={Yup.object().shape({
         name: Yup.string()
           .required('Name is required'),
+        address1: Yup.string()
+          .required('Address1 is required'),
         salesman: Yup.string()
           .required('SalesMan is required')
       })}
@@ -56,7 +60,9 @@ function CustomerRegisterPage(props) {
             name: values.name,
             tel: values.tel,
             email: values.email,
-            address: values.address,
+            address1: values.address1,
+            address2: values.address2,
+            address3: values.address3,
             salesman: values.salesman
           };
 
@@ -132,7 +138,7 @@ function CustomerRegisterPage(props) {
                 )}
               </Form.Item>
 
-              <Form.Item label="Email" hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
+              <Form.Item required label="Email" hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
                 <Input
                   id="email"
                   placeholder="Enter the customer's email"
@@ -147,19 +153,20 @@ function CustomerRegisterPage(props) {
                 )}
               </Form.Item>
 
-              <Form.Item label="Address" validateStatus={errors.address && touched.address ? "error" : 'success'}>
-                <Input
-                  id="address"
-                  placeholder="Enter the customer's address"
-                  type="text"
-                  value={values.address}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={errors.address && touched.address ? 'text-input error' : 'text-input'}
-                />
-                {errors.address && touched.address && (
-                  <div className="input-feedback">{errors.address}</div>
+              <Form.Item required label="Address1" validateStatus={errors.address1 && touched.address1 ? "error" : 'success'}>
+                <Input id="address1" placeholder="Enter the customer's address1" type="text" value={values.address1} onChange={handleChange} onBlur={handleBlur}
+                  className={errors.address1 && touched.address1 ? 'text-input error' : 'text-input'} />
+                {errors.address1 && touched.address1 && (
+                  <div className="input-feedback">{errors.address1}</div>
                 )}
+              </Form.Item>
+
+              <Form.Item label="Address2" validateStatus={errors.address2 && touched.address2 ? "error" : 'success'}>
+                <Input id="address2" placeholder="Enter the customer's address2" type="text" value={values.address2} onChange={handleChange} onBlur={handleBlur} />
+              </Form.Item>
+
+              <Form.Item label="Address3" validateStatus={errors.address3 && touched.address3 ? "error" : 'success'}>
+                <Input id="address3" placeholder="Enter the customer's address3" type="text" value={values.address3} onChange={handleChange} onBlur={handleBlur} />
               </Form.Item>
 
               <Form.Item required label="Salesman" validateStatus={errors.salesman && touched.salesman ? "error" : 'success'}>

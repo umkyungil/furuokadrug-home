@@ -30,7 +30,9 @@ function CustomerInfo(props) {
         <Descriptions.Item label="Smaregi ID">{props.detail.smaregiId}</Descriptions.Item>
         <Descriptions.Item label="Phone number">{props.detail.tel}</Descriptions.Item>
         <Descriptions.Item label="Emal">{props.detail.email}</Descriptions.Item>
-        <Descriptions.Item label="Address">{props.detail.address}</Descriptions.Item>
+        <Descriptions.Item label="Address1">{props.detail.address1}</Descriptions.Item>
+        <Descriptions.Item label="Address2">{props.detail.address2}</Descriptions.Item>
+        <Descriptions.Item label="Address3">{props.detail.address3}</Descriptions.Item>
         <Descriptions.Item label="Salesman">{props.detail.salesman}</Descriptions.Item>
         <Descriptions.Item label="Point">{props.detail.point}</Descriptions.Item>
       </Descriptions>

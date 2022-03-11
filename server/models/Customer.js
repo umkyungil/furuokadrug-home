@@ -22,7 +22,15 @@ const customerSchema = mongoose.Schema({
 		trim:true
 		//unique: 1 
 	},    
-	address: {
+	address1: {
+		type: String,
+		minglength: 100
+	},
+	address2: {
+		type: String,
+		minglength: 100
+	},
+	address3: {
 		type: String,
 		minglength: 100
 	},

@@ -18,6 +18,9 @@ router.get("/auth", auth, (req, res) => {
         email: req.user.email,
         name: req.user.name,
         lastname: req.user.lastname,
+        address1: req.user.address1,
+        address2: req.user.address2,
+        address3: req.user.address3,
         role: req.user.role,
         image: req.user.image,
         cart: req.user.cart,
@@ -75,6 +78,18 @@ router.get("/logout", auth, (req, res) => {
         });
     });
 });
+
+// 로그인 유저 상세조회
+router.get('/users_by_id', (req, res) => {
+    let userId = req.query.id;
+    
+    // userId를 이용해서 DB에서 userId와 같은 고객의 정보를 가져온다
+    User.find({ _id: userId })
+        .exec((err, user) => {
+            if (err) return res.status(400).send(err);
+            return res.status(200).send({success: true, user});
+        })
+})
 
 // 카트에 상품담기
 router.post("/addToCart", auth, (req, res) => {

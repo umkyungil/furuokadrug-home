@@ -12,7 +12,7 @@ const userSchema = mongoose.Schema({
     email: {
         type: String,
         trim: true,
-        unique: 1 
+        unique: 1 // 이메일 중복을 허용 안한다 
     },
     password: {
         type: String,
@@ -22,6 +22,18 @@ const userSchema = mongoose.Schema({
         type: String,
         maxlength: 50
     },
+    address1: {
+		type: String,
+		minglength: 100
+	},
+    address2: {
+		type: String,
+		minglength: 100
+	},
+    address3: {
+		type: String,
+		minglength: 100
+	},
     role : {
         type: Number,
         default: 0 
@@ -44,8 +56,7 @@ const userSchema = mongoose.Schema({
 })
 
 userSchema.pre('save', function( next ) {
-    var user = this;
-    
+    var user = this;    
     if(user.isModified('password')){    
         bcrypt.genSalt(saltRounds, function(err, salt){
             if(err) return next(err);
@@ -86,7 +97,6 @@ userSchema.methods.generateToken = function(cb) {
 
 userSchema.statics.findByToken = function (token, cb) {
     var user = this;
-
     // 토큰을 decode 한다
     jwt.verify(token,'secret', function(err, decode){
         // 유저 아이드를 이용해서 유저를 찾은 다음에

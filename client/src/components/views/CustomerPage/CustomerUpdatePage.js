@@ -39,7 +39,9 @@ function CustomerUpdatePage(props) {
   const [Name, setName] = useState("");
   const [Tel, setTel] = useState("");
   const [Email, setEmail] = useState("");
-  const [Address, setAddress] = useState("");
+  const [Address1, setAddress1] = useState("");
+  const [Address2, setAddress2] = useState("");
+  const [Address3, setAddress3] = useState("");
   const [Salesman, setSalesman] = useState("");
   const [Point, setPoint] = useState("");
 
@@ -57,7 +59,9 @@ function CustomerUpdatePage(props) {
           setName(response.data.customer[0].name);
           setTel(response.data.customer[0].tel);
           setEmail(response.data.customer[0].email);
-          setAddress(response.data.customer[0].address);
+          setAddress1(response.data.customer[0].address1);
+          setAddress2(response.data.customer[0].address2);
+          setAddress3(response.data.customer[0].address3);
           setSalesman(response.data.customer[0].salesman);
           setPoint(response.data.customer[0].point);
         } else {
@@ -78,8 +82,14 @@ function CustomerUpdatePage(props) {
   const emailChangeHandler = (event) => {
     setEmail(event.currentTarget.value);
   }
-  const addressChangehandler = (event) => {
-    setAddress(event.currentTarget.value);
+  const address1Changehandler = (event) => {
+    setAddress1(event.currentTarget.value);
+  }
+  const address2Changehandler = (event) => {
+    setAddress2(event.currentTarget.value);
+  }
+  const address3Changehandler = (event) => {
+    setAddress3(event.currentTarget.value);
   }
   const salesmanChangeHandler = (event) => {
     setSalesman(event.currentTarget.value);
@@ -105,7 +115,9 @@ function CustomerUpdatePage(props) {
             name: Name,
             tel: Tel,
             email: Email,
-            address: Address,
+            address1: Address1,
+            address2: Address2,
+            address3: Address3,
             salesman: Salesman,
             point: Point
           };
@@ -191,19 +203,19 @@ function CustomerUpdatePage(props) {
                 )}
               </Form.Item>
 
-              <Form.Item label="Address" validateStatus={errors.address && touched.address ? "error" : 'success'}>
-                <Input
-                  id="address"
-                  placeholder="Enter the customer's address"
-                  type="text"
-                  value={Address}
-                  onChange={addressChangehandler}
-                  onBlur={handleBlur}
-                  className={errors.address && touched.address ? 'text-input error' : 'text-input'}
-                />
-                {errors.address && touched.address && (
-                  <div className="input-feedback">{errors.address}</div>
+              {/* 주소 */}
+              <Form.Item label="Address1" validateStatus={errors.address1 && touched.address1 ? "error" : 'success'}>
+                <Input id="address1" placeholder="Enter the customer's address1" type="text" value={Address1} onChange={address1Changehandler} onBlur={handleBlur}
+                  className={errors.address1 && touched.address1 ? 'text-input error' : 'text-input'} />
+                {errors.address1 && touched.address1 && (
+                  <div className="input-feedback">{errors.address1}</div>
                 )}
+              </Form.Item>
+              <Form.Item label="Address2" validateStatus={errors.address2 && touched.address2 ? "error" : 'success'}>
+                <Input id="address2" placeholder="Enter the customer's address2" type="text" value={Address2} onChange={address2Changehandler} onBlur={handleBlur} />
+              </Form.Item>
+              <Form.Item label="Address3" validateStatus={errors.address3 && touched.address3 ? "error" : 'success'}>
+                <Input id="address3" placeholder="Enter the customer's address3" type="text" value={Address3} onChange={address3Changehandler} onBlur={handleBlur} />
               </Form.Item>
 
               <Form.Item required label="Salesman" validateStatus={errors.salesman && touched.salesman ? "error" : 'success'}>

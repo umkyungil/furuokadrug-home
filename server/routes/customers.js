@@ -1,4 +1,5 @@
 const express = require('express');
+
 const router = express.Router();
 const { Customer } = require("../models/Customer");
 
@@ -11,6 +12,8 @@ router.post("/register", (req, res) => {
     const customer = new Customer(req.body);
 
     customer.save((err, doc) => {
+
+        console.log("err: ", err);
         if (err) return res.json({ success: false, err });
         return res.status(200).json({
             success: true
@@ -72,7 +75,9 @@ router.post("/update", (req, res) => {
             name: req.body.name,
             tel: req.body.tel,
             email: req.body.email,
-            address: req.body.address,
+            address1: req.body.address1,
+            address2: req.body.address2,
+            address3: req.body.address3,
             salesman: req.body.salesman,
             point:req.body.point
         }, (err, doc) => {
