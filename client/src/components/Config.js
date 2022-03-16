@@ -10,4 +10,4 @@ export const PAYMENT_SERVER = `${MAIN_SERVER}/api/payment`;
 
 // LIVE SERVER
 export const LIVE_SERVER = 'https://localhost:888'
-//export const LIVE_SERVER = 'https://live.furuokadrug.com'
+// export const LIVE_SERVER = 'https://live.furuokadrug.com'

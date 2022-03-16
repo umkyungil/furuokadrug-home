@@ -72,7 +72,7 @@ function UserRegisterPage(props) {
             email: values.email,
             password: values.password,
             name: values.name,
-            lastname: values.lastname,
+            lastName: values.lastName,
             address1: values.address1,
             address2: values.address2,
             address3: values.address3,
