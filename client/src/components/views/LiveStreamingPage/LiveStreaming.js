@@ -13,7 +13,8 @@ function LiveStreaming(props) {
     const room = Moment(new Date()).format('YYYYMMDD');
     const userId = props.user.userData._id;
     // URL설정
-    URL = LIVE_SERVER + "login?name=" + name + "&room=" + room + "&userId=" + userId;
+    URL = LIVE_SERVER + "login?name=" + name + "&room=" + room + "&userId=" + userId + "&type=ec";
+    console.log("URL: ", URL);
   }
 
   React.useEffect(() => {
