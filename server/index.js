@@ -18,13 +18,6 @@ app.use(cookieParser());
 // CORS 설정
 const cors = require('cors')
 app.use(cors({ origin: true, credentials: true }));
-// const whitelist = [`http://localhost:3000`];
-// app.use(
-//   cors({
-//     origin: whitelist,
-//     credentials: true,
-//   })
-// );
 
 // 아래 주소로 오면 해당 라우터로 가라는 지정
 app.use('/api/users', require('./routes/users'));
@@ -33,7 +26,7 @@ app.use('/api/customers', require('./routes/customers'));
 app.use('/api/csv', require('./routes/csv'));
 app.use('/api/sendmail', require('./routes/sendmail'));
 app.use('/api/payment', require('./routes/payment'));
-
+app.use('/api/order', require('./routes/order'));
 app.use('/uploads', express.static('uploads'));
 
 if (process.env.NODE_ENV === "production") {

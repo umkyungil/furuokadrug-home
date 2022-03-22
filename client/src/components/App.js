@@ -57,7 +57,7 @@ function App() {
           {/* 로그인관리 */}
           <Route exact path="/login" component={Auth(LoginPage, false)} />
           {/* 로그인 사용자 등록 */}
-          <Route exact path="/userRegister" component={Auth(UserRegisterPage, false)} />
+          <Route exact path="/Register" component={Auth(UserRegisterPage, false)} />
           {/* 상품관리 */}
           <Route exact path="/product/upload" component={Auth(UploadProductPage, true)} />
           <Route exact path="/product/:productId/:language" component={Auth(DetailProductPage, null)} />

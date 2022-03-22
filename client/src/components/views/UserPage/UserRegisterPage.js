@@ -40,14 +40,15 @@ function UserRegisterPage(props) {
   return (
     <Formik
       initialValues={{
-        email: '',
-        lastName: '',
         name: '',
+        lastName: '',
+        email: '',
+        tel: '',
+        password: '',
+        confirmPassword: '',
         address1: '',
         address2: '',
         address3: '',
-        password: '',
-        confirmPassword: ''
       }}
       validationSchema={Yup.object().shape({
         name: Yup.string()
@@ -57,6 +58,8 @@ function UserRegisterPage(props) {
         email: Yup.string()
           .email('Email is invalid')
           .required('Email is required'),
+        tel: Yup.string()
+          .required('Telephone number is required'),
         address1: Yup.string()          
           .required('address is required'),
         password: Yup.string()
@@ -69,10 +72,11 @@ function UserRegisterPage(props) {
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
           let dataToSubmit = {
-            email: values.email,
-            password: values.password,
             name: values.name,
             lastName: values.lastName,
+            email: values.email,
+            tel: values.tel,
+            password: values.password,
             address1: values.address1,
             address2: values.address2,
             address3: values.address3,
@@ -119,6 +123,14 @@ function UserRegisterPage(props) {
                   className={ errors.email && touched.email ? 'text-input error' : 'text-input' } />
                 {errors.email && touched.email && (
                   <div className="input-feedback">{errors.email}</div>
+                )}
+              </Form.Item>
+
+              <Form.Item required label="Telephone No.">
+                <Input id="tel" placeholder="Enter your tel number" type="text" value={values.tel} onChange={handleChange} onBlur={handleBlur}
+                  className={ errors.tel && touched.tel ? 'text-input error' : 'text-input' } />
+                {errors.tel && touched.tel && (
+                  <div className="input-feedback">{errors.tel}</div>
                 )}
               </Form.Item>
 

@@ -7,6 +7,12 @@ const moment = require("moment");
 const userSchema = mongoose.Schema({
     name: {
         type: String,
+        trim: true,
+        maxlength: 50
+    },
+    lastName: {
+        type: String,
+        trim: true,
         maxlength: 50
     },
     email: {
@@ -14,14 +20,14 @@ const userSchema = mongoose.Schema({
         trim: true,
         unique: 1 // 이메일 중복을 허용 안한다 
     },
+    tel: {
+        type: String,
+        trim: true,
+    },
     password: {
         type: String,
         minglength: 5
-    },
-    lastName: {
-        type: String,
-        maxlength: 50
-    },
+    },    
     address1: {
 		type: String,
 		minglength: 100
