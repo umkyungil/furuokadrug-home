@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const {Alipay} = require('../models/Alipay');
-const {Wechat} = require('../models/Wechat');
-const url = require('url');
-const { moveMessagePortToContext } = require('worker_threads');
+const { Alipay } = require('../models/Alipay');
+const { Wechat } = require('../models/Wechat');
+const { Order } = require('../models/Order');
 
 //=================================
 //             Payment
@@ -15,12 +14,21 @@ router.get('/alipay/register', (req, res) => {
   if (!req.query) {    
     return res.status(200).json({success: true});
   } else {
+    // 결제결과 등록
     const alipay = new Alipay(req.query)
     alipay.save((err) => {
       if (err) return res.status(400).json({success: false, err})
-      return res.status(200).json({success: true});
     })
-  }  
+
+    // 주문정보 업데이트
+    Order.findOneAndUpdate({ sod:req.query.sod, uniqueField:req.query.uniqueField }, { confirm: "確認済み" }, (err, doc) => {
+      if (err) return res.json({ success: false, err });
+      return res.status(200).json({success: true});
+    });
+
+    // 고객 담당자 메일전송
+
+  }
 })
 
 // UnivaPayCast를 통한 Wechat결제결과 등록
@@ -29,11 +37,21 @@ router.get('/wechat/register', (req, res) => {
   if (!req.query) {
     return res.status(200).json({success: true});
   } else {
+    // 결제결과 등록
     const wechat = new Wechat(req.query)
     wechat.save((err) => {
       if (err) return res.status(400).json({success: false, err})
       return res.status(200).json({success: true});
     })
+
+    // 주문정보 업데이트
+    Order.findOneAndUpdate({ sod:req.query.sod, uniqueField:req.query.uniqueField }, { confirm: "確認済み" }, (err, doc) => {
+      if (err) return res.json({ success: false, err });
+      return res.status(200).json({success: true});
+    });
+
+    // 고객 담당자 메일전송
+
   }
 })
 

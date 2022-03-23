@@ -40,7 +40,11 @@ const orderSchema = mongoose.Schema({
     amount: {
         type: String,
         trim: true,
-    },    
+    },
+    confirm: {
+        type: String,
+        trim: true,
+    },
 }, { timestamps: true })
 
 orderSchema.index({

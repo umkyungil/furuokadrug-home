@@ -1,9 +1,7 @@
 import React, {useEffect, useState} from "react";
 import { Form, Input, Button, Radio } from 'antd';
-
 import axios from 'axios';
-import { USER_SERVER } from '../../Config.js';
-import { ORDER_SERVER } from '../../Config.js';
+import { USER_SERVER, ORDER_SERVER } from '../../Config.js';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -30,13 +28,12 @@ const tailFormItemLayout = {
   },
 };
 
-function ConfirmAlipayPaymentPage(props) {
+function ConfirmWechatPage(props) {
   const [UserId, setUserId] = useState("");
   const [Name, setName] = useState("");  
   const [LastName, setLastName] = useState("");
-  const [Tel, setTel] = useState("");
   const [Email, setEmail] = useState("");
-
+  const [Tel, setTel] = useState("");
   // const [Role, setRole] = useState(""); // 차후에 사용 가능
   const [Siam1, setSiam1] = useState("");
   const [Sod, setSod] = useState("");
@@ -81,20 +78,19 @@ function ConfirmAlipayPaymentPage(props) {
           }
           if (response.data.user[0].address3) {
             setAddress3(response.data.user[0].address3);
-          }       
+          }
         } else {
           alert("Failed to get user information.")
         }
       })
   }, [])
 
-  // 배송지 주소
   const addressChangeHandler = (event) => {
     setChangeAddress(event.currentTarget.value);
   }
 
   const body = {
-    type: "alipay",
+    type: "wechat",
     userId: UserId,
     name: Name,
     lastName: LastName,
@@ -105,7 +101,7 @@ function ConfirmAlipayPaymentPage(props) {
     uniqueField: UniqueField,
     amount: Siam1
   }
-  
+
   // 결제처리
   const sendPaymentInfo = (e) => {
     // 주소 라디오 버튼
@@ -124,19 +120,20 @@ function ConfirmAlipayPaymentPage(props) {
         }
       });
 
-    // UPC 데이타 전송(알리페이 결제 처리)
-    let alipay_variable = {
+    let wechat_variable = {
       'sid': sid,
-      'svid': '6',
+      'svid': '23',
       'ptype': '8',
       'job': 'REQUEST',
+      'rt': '4', // wechat만 있는 항목
       'sod': sod,
       'tn': Tel,
-      'em': Email,
+      'em': Email,      
       'lang': 'cn',
       'sinm1': 'Furuokadrug Product',
       'siam1': siam1, // 상품금액
-      'sisf1': '0',   // 배달요금
+      'sisf1': '0',
+      'method': 'QR', // wechat만 있는 항목
       'uniqueField': uniqueField
     }
 
@@ -147,8 +144,8 @@ function ConfirmAlipayPaymentPage(props) {
     const settings = 'resizable=no, status=no, height=' + popupHeight  + ', width=' + popupWidth  + ', left='+ popupX + ', top='+ popupY;
 
     let url = "https://gw.ccps.jp/payment.aspx";
-    Object.keys(alipay_variable).forEach(function(key, index) {
-      url = url + (index === 0 ? "?" : "&") + key + "=" + alipay_variable[key];
+    Object.keys(wechat_variable).forEach(function(key, index) {
+      url = url + (index === 0 ? "?" : "&") + key + "=" + wechat_variable[key];
     });
 
     window.open(url, "_blank", settings);
@@ -156,29 +153,26 @@ function ConfirmAlipayPaymentPage(props) {
 
   return (
     <div className="app">
-      <h2>Alipay payment confirm</h2>
+      <h2>Wechat payment confirm</h2>
       <br />
-      <Form style={{ minWidth: '500px' }} onSubmit={sendPaymentInfo} {...formItemLayout} >
+      <Form style={{ minWidth: '375px' }} onSubmit={sendPaymentInfo} {...formItemLayout} >
         <Form.Item label="Name">
           <Input name="name" type="text" value={Name} readOnly />
         </Form.Item>
         <Form.Item label="LastName">
           <Input name="lastName" type="text" value={LastName} readOnly />
         </Form.Item>
-        <Form.Item label="Tel">
-          <Input name="tel" type="text" value={Tel} readOnly />
-        </Form.Item>
         <Form.Item label="Email">
           <Input name="email" type="text" value={Email} readOnly />
         </Form.Item>
         <Form.Item label="Address">
           <Radio.Group onChange={radioChangeHandler} value={State}>
-              <Radio value={Address1}>{Address1}</Radio><br /><br />
-              <Radio value={Address2}>{Address2}</Radio><br /><br />
-              <Radio value={Address3}>{Address3}</Radio><br /><br />
-              <Radio value={ChangeAddress}>
-                <Input name="changeAddress" type="text" value={ChangeAddress} onChange={addressChangeHandler} />
-              </Radio>
+            <Radio value={Address1}>{Address1}</Radio><br /><br />
+            <Radio value={Address2}>{Address2}</Radio><br /><br />
+            <Radio value={Address3}>{Address3}</Radio><br /><br />
+            <Radio value={ChangeAddress}>
+              <Input width={'100%'} name="changeAddress" type="text" value={ChangeAddress} onChange={addressChangeHandler} />
+            </Radio>
           </Radio.Group>
         </Form.Item>
         {/* <Form.Item label="Address1">
@@ -206,4 +200,4 @@ function ConfirmAlipayPaymentPage(props) {
   );
 };
 
-export default ConfirmAlipayPaymentPage
+export default ConfirmWechatPage

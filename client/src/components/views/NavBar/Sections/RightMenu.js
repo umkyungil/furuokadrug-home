@@ -41,6 +41,11 @@ function RightMenu(props) {
   } else {
     return (
       <Menu mode={props.mode}>
+        <SubMenu title={<span>Order</span>}>          
+          <Menu.Item key="orderSearch">
+            <a href="/order/list">Order list</a>
+          </Menu.Item>
+        </SubMenu>  
         <SubMenu title={<span>Payment</span>}>          
           <Menu.Item key="alipaySearch">
             <a href="/payment/alipay/list">Alipay payment list</a>

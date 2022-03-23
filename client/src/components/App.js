@@ -26,13 +26,16 @@ import ListAlipayPage from "./views/PaymentPage/ListAlipayPage.js"; // Alipay �
 import ListWechatPage from "./views/PaymentPage/ListWechatPage.js"; // Wechat 결제결과 리스트
 import DetailAlipayPage from "./views/PaymentPage/DetailAlipayPage.js"; // Alipay 결제결과 상세
 import DetailWechatPage from "./views/PaymentPage/DetailWechatPage.js"; // Wechat 결제결과 상세
-import ConfirmAlipayPaymentPage from "./views/PaymentPage/ConfirmAlipayPaymentPage"; // Alipay 결제확인
-import ConfirmWechatPaymentPage from "./views/PaymentPage/ConfirmWechatPaymentPage.js"; // Wechat 결제확인
+import ConfirmAlipayPage from "./views/PaymentPage/ConfirmAlipayPage"; // Alipay 결제확인
+import ConfirmWechatPage from "./views/PaymentPage/ConfirmWechatPage.js"; // Wechat 결제확인
 // 메일관리
 import UploadCSVUnivaPayCastPage from "./views/CsvPage/UploadCSVUnivaPayCastPage.js"; // CSV Upload
 import ContactUsPage from "./views/SendMailPage/ContactUsPage.js"; // 문의
 import NoticeMailPage from "./views/SendMailPage/NoticeMailPage.js"; // 고객메일
 import VirtualReservationPage from "./views/VirtualReservationPage/VirtualReservationPage.js"; // 가상예약
+// 주문관리
+import ListOrderPage from "./views/OrderPage/ListOrderPage.js"; // 주문리스트
+import DetailOrderPage from "./views/OrderPage/DetailOrderPage.js"; // 주문상세
 // 카트관리
 import CartPage from "./views/CartPage/CartPage.js"; // 카트페이지
 // 라이브 방송관리
@@ -76,8 +79,11 @@ function App() {
           <Route exact path="/payment/wechat/list" component={Auth(ListWechatPage, true)} />
           <Route exact path="/payment/alipay/:alipayId" component={Auth(DetailAlipayPage, true)} />
           <Route exact path="/payment/wechat/:wechatId" component={Auth(DetailWechatPage, true)} />
-          <Route exact path="/payment/alipay/confirm/:userId/:sid/:sod/:siam1/:uniqueField" component={Auth(ConfirmAlipayPaymentPage, true)} />
-          <Route exact path="/payment/wechat/confirm/:userId/:sid/:sod/:siam1/:uniqueField" component={Auth(ConfirmWechatPaymentPage, true)} />
+          <Route exact path="/payment/alipay/confirm/:userId/:sid/:sod/:siam1/:uniqueField" component={Auth(ConfirmAlipayPage, true)} />
+          <Route exact path="/payment/wechat/confirm/:userId/:sid/:sod/:siam1/:uniqueField" component={Auth(ConfirmWechatPage, true)} />
+          {/* 주문관리 */}
+          <Route exact path="/order/list" component={Auth(ListOrderPage, true)} />
+          <Route exact path="/order/:orderId" component={Auth(DetailOrderPage, true)} />
           {/* CSV */}
           <Route exact path="/csv/upload/univaPayCast" component={Auth(UploadCSVUnivaPayCastPage, true)} />
           {/* 라이브 방송 */}
