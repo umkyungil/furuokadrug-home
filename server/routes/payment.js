@@ -8,7 +8,7 @@ const { Order } = require('../models/Order');
 //             Payment
 //=================================
 
-// UnivaPayCast를 통한 Alipay결제결과 등록
+// UnivaPayCast Alipay 결제결과 등록
 router.get('/alipay/register', (req, res) => {
   // UnivaPayCast 사양에 의해 관리페이지의 킥백에 설정한 주소로 1바이트 문자를 표시하기 위한 조건
   if (!req.query) {    
@@ -17,21 +17,20 @@ router.get('/alipay/register', (req, res) => {
     // 결제결과 등록
     const alipay = new Alipay(req.query)
     alipay.save((err) => {
-      if (err) return res.status(400).json({success: false, err})
-    })
+      if (err) return res.status(400).json({success: false, err});
 
-    // 주문정보 업데이트
-    Order.findOneAndUpdate({ sod:req.query.sod, uniqueField:req.query.uniqueField }, { confirm: "確認済み" }, (err, doc) => {
-      if (err) return res.json({ success: false, err });
+      // 주문정보 업데이트
+      Order.findOneAndUpdate({ sod:req.query.sod, uniqueField:req.query.uniqueField }, { paymentStatus: "入金済み" }, (err, doc) => {
+        if (err) console.log("err: ", err);
+        console.log("Alipay order information update successful");
+      });
+
       return res.status(200).json({success: true});
-    });
-
-    // 고객 담당자 메일전송
-
+    })
   }
 })
 
-// UnivaPayCast를 통한 Wechat결제결과 등록
+// UnivaPayCast Wechat결제결과 등록
 router.get('/wechat/register', (req, res) => {
   // UnivaPayCast 사양에 의해 관리페이지의 킥백에 설정한 주소로 1바이트 문자를 표시하기 위한 조건
   if (!req.query) {
@@ -40,18 +39,16 @@ router.get('/wechat/register', (req, res) => {
     // 결제결과 등록
     const wechat = new Wechat(req.query)
     wechat.save((err) => {
-      if (err) return res.status(400).json({success: false, err})
+      if (err) return res.status(400).json({success: false, err});
+
+      // 주문정보 업데이트
+      Order.findOneAndUpdate({ sod:req.query.sod, uniqueField:req.query.uniqueField }, { paymentStatus: "入金済み" }, (err, doc) => {
+        if (err) console.log("err: ", err);
+        console.log("Wechat order information update successful");
+      });
+
       return res.status(200).json({success: true});
     })
-
-    // 주문정보 업데이트
-    Order.findOneAndUpdate({ sod:req.query.sod, uniqueField:req.query.uniqueField }, { confirm: "確認済み" }, (err, doc) => {
-      if (err) return res.json({ success: false, err });
-      return res.status(200).json({success: true});
-    });
-
-    // 고객 담당자 메일전송
-
   }
 })
 

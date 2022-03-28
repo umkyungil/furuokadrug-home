@@ -30,7 +30,7 @@ function RightMenu(props) {
           <a href="/login">Sign In</a>
         </Menu.Item>
         <Menu.Item key="app">
-          <a href="/userRegister">Sign Up</a>
+          <a href="/register">Sign Up</a>
         </Menu.Item>
         <Menu.Item key="contact">
           <a href="/mail/contact">Contact Us</a>

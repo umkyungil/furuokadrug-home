@@ -41,7 +41,15 @@ const orderSchema = mongoose.Schema({
         type: String,
         trim: true,
     },
-    confirm: {
+    stepName: {
+        type: String,
+        trim: true,
+    },
+    paymentStatus: {
+        type: String,
+        trim: true,
+    },    
+    deliveryStatus: {
         type: String,
         trim: true,
     },

@@ -143,4 +143,24 @@ router.post("/addToCart", auth, (req, res) => {
     // 상품이 이미 있지 않을때
 });
 
+// 사용자정보 조회
+router.post("/list", (req, res) => {
+    let term = req.body.searchTerm;
+
+    if (term) {
+        User.find({ "name": { '$regex': term },})
+        .skip(req.body.skip)
+        .exec((err, userInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, userInfo})
+        });
+    } else {
+        User.find().exec((err, userInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, userInfo})
+        });
+    }
+    
+});
+
 module.exports = router;

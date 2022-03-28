@@ -42,7 +42,8 @@ function ConfirmAlipayPage(props) {
   const [Address2, setAddress2] = useState("");
   const [Address3, setAddress3] = useState("");
   const [ChangeAddress, setChangeAddress] = useState("");
-  const [State, setState] = useState(""); // Radio 값
+  const [SelectedAddress, setSelectedAddress] = useState(""); // Radio 값
+  const [StepName, setStepName] = useState("");
 
   // query string 취득
   const userId = props.match.params.userId;
@@ -50,10 +51,11 @@ function ConfirmAlipayPage(props) {
   const sod = props.match.params.sod;
   const siam1 = props.match.params.siam1;
   const uniqueField = props.match.params.uniqueField;
+  const stepName = props.match.params.stepName;
 
   // Radio 값 저장
   const radioChangeHandler = e => {
-    setState(e.target.value);
+    setSelectedAddress(e.target.value);
   };
 
   // 로그인 유저정보 취득
@@ -69,7 +71,7 @@ function ConfirmAlipayPage(props) {
           setSiam1(siam1);
           setSod(sod); // live streaming에서 date.toISOString()로 셋팅한 값
           setUniqueField(uniqueField);
-          // setRole(response.data.user[0].role);
+          //setRole(response.data.user[0].role);
 
           // 주소
           setAddress1(response.data.user[0].address1);
@@ -78,18 +80,48 @@ function ConfirmAlipayPage(props) {
           }
           if (response.data.user[0].address3) {
             setAddress3(response.data.user[0].address3);
-          }       
+          }
+
+          // live streaming의 step이름으로 step정보취득
+          getStepInfo(stepName)
+
         } else {
           alert("Failed to get user information.")
         }
       })
   }, [])
 
+  // step 정보취득
+  const getStepInfo = (stepName) => {
+    console.log("stepName: ", stepName);
+
+    if (stepName) {
+      let body = {
+        searchTerm: stepName
+      }
+      
+      axios.post(`${USER_SERVER}/list`, body)
+        .then(response => {
+            if (response.data.success) {
+              if (response.data.userInfo.length === 1 && response.data.userInfo[0].role !== "0") {
+                setStepName(response.data.userInfo[0].name + " " + response.data.userInfo[0].lastName);
+              } else {
+                setStepName("");
+              }
+            } else {
+              alert("Failed to get step information.")
+            }
+        }
+      )
+    }
+  }
+
   // 배송지 주소
   const addressChangeHandler = (event) => {
     setChangeAddress(event.currentTarget.value);
   }
 
+  const state = "未確認";
   const body = {
     type: "alipay",
     userId: UserId,
@@ -97,21 +129,24 @@ function ConfirmAlipayPage(props) {
     lastName: LastName,
     tel: Tel,
     email: Email,
-    address: State,
+    address: SelectedAddress,
     sod: Sod,
     uniqueField: UniqueField,
-    amount: Siam1
+    amount: Siam1,
+    stepName: StepName,
+    paymentStatus: state,
+    deliveryStatus: state
   }
   
   // 결제처리
   const sendPaymentInfo = (e) => {
     // 주소 라디오 버튼
-    if (State === "") {
+    if (SelectedAddress === "") {
       alert("Please select or enter an address")
       return;
     }
 
-    // 배송정보 등록
+    // 주문정보 등록
     axios.post(`${ORDER_SERVER}/register`, body)
       .then(response => {
         if (response.data.success) {
@@ -137,6 +172,7 @@ function ConfirmAlipayPage(props) {
       'uniqueField': uniqueField
     }
 
+    // 화면 중앙정렬
     var popupWidth = 550;
     var popupHeight = 915;
     var popupX = (window.screen.width / 2) - (popupWidth / 2);
@@ -169,27 +205,19 @@ function ConfirmAlipayPage(props) {
           <Input name="email" type="text" value={Email} readOnly />
         </Form.Item>
         <Form.Item label="Address">
-          <Radio.Group onChange={radioChangeHandler} value={State}>
-              <Radio value={Address1}>{Address1}</Radio><br /><br />
-              <Radio value={Address2}>{Address2}</Radio><br /><br />
-              <Radio value={Address3}>{Address3}</Radio><br /><br />
-              <Radio value={ChangeAddress}>
-                <Input name="changeAddress" type="text" value={ChangeAddress} onChange={addressChangeHandler} />
-              </Radio>
+          <Radio.Group onChange={radioChangeHandler} value={SelectedAddress}>
+            <Radio value={Address1}>{Address1}</Radio><br /><br />
+            { Address2 !== "" && <Radio value={Address2}>{Address2}</Radio> }
+            { Address2 !== "" && <br /> }
+            { Address2 !== "" && <br /> }
+            { Address3 !== "" && <Radio value={Address3}>{Address3}</Radio> }
+            { Address3 !== "" && <br /> }
+            { Address3 !== "" && <br /> }
+            <Radio value={ChangeAddress}>
+              <Input name="changeAddress" type="text" value={ChangeAddress} onChange={addressChangeHandler} />
+            </Radio>
           </Radio.Group>
         </Form.Item>
-        {/* <Form.Item label="Address1">
-          <Input name="address1" type="text" value={Address1} readOnly />
-        </Form.Item>
-        <Form.Item label="Address2">
-          <Input name="address2" type="text" value={Address2} readOnly />
-        </Form.Item>
-        <Form.Item label="Address3">
-          <Input name="address3" type="text" value={Address3} readOnly />
-        </Form.Item>
-        <Form.Item label="Shipping address">
-          <Input name="changeAddress" placeholder="Please enter change shipping address" type="text" value={ChangeAddress} onChange={addressChangeHandler} />
-        </Form.Item> */}
         <Form.Item label="Amount">
           <Input name="amount" type="text" value={Number(Siam1).toLocaleString()} readOnly />
         </Form.Item>

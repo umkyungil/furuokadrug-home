@@ -19,10 +19,11 @@ function OrderInfo(props) {
         <Descriptions.Item label="Phone number">{props.detail.tel}</Descriptions.Item>
         <Descriptions.Item label="E-mal">{props.detail.email}</Descriptions.Item>
         <Descriptions.Item label="Shipping address">{props.detail.address}</Descriptions.Item>
-        <Descriptions.Item label="Sod">{props.detail.sod}</Descriptions.Item>
+        <Descriptions.Item label="Payment time">{props.detail.sod}</Descriptions.Item>
         <Descriptions.Item label="UniqueField">{props.detail.uniqueField}</Descriptions.Item>
         <Descriptions.Item label="Amount">{props.detail.amount}</Descriptions.Item>
-        <Descriptions.Item label="Confirm">{props.detail.confirm}</Descriptions.Item>
+        <Descriptions.Item label="Payment">{props.detail.paymentStatus}</Descriptions.Item>
+        <Descriptions.Item label="Delivery">{props.detail.deliveryStatus}</Descriptions.Item>
       </Descriptions>
 
       <br />

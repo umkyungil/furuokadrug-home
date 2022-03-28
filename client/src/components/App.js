@@ -60,7 +60,7 @@ function App() {
           {/* 로그인관리 */}
           <Route exact path="/login" component={Auth(LoginPage, false)} />
           {/* 로그인 사용자 등록 */}
-          <Route exact path="/Register" component={Auth(UserRegisterPage, false)} />
+          <Route exact path="/register" component={Auth(UserRegisterPage, false)} />
           {/* 상품관리 */}
           <Route exact path="/product/upload" component={Auth(UploadProductPage, true)} />
           <Route exact path="/product/:productId/:language" component={Auth(DetailProductPage, null)} />
@@ -79,10 +79,11 @@ function App() {
           <Route exact path="/payment/wechat/list" component={Auth(ListWechatPage, true)} />
           <Route exact path="/payment/alipay/:alipayId" component={Auth(DetailAlipayPage, true)} />
           <Route exact path="/payment/wechat/:wechatId" component={Auth(DetailWechatPage, true)} />
-          <Route exact path="/payment/alipay/confirm/:userId/:sid/:sod/:siam1/:uniqueField" component={Auth(ConfirmAlipayPage, true)} />
-          <Route exact path="/payment/wechat/confirm/:userId/:sid/:sod/:siam1/:uniqueField" component={Auth(ConfirmWechatPage, true)} />
+          <Route exact path="/payment/alipay/confirm/:userId/:sid/:sod/:siam1/:uniqueField/:stepName" component={Auth(ConfirmAlipayPage, true)} />
+          <Route exact path="/payment/wechat/confirm/:userId/:sid/:sod/:siam1/:uniqueField/:stepName" component={Auth(ConfirmWechatPage, true)} />
           {/* 주문관리 */}
           <Route exact path="/order/list" component={Auth(ListOrderPage, true)} />
+          <Route exact path="/order/list/:orderId" component={Auth(ListOrderPage, true)} />
           <Route exact path="/order/:orderId" component={Auth(DetailOrderPage, true)} />
           {/* CSV */}
           <Route exact path="/csv/upload/univaPayCast" component={Auth(UploadCSVUnivaPayCastPage, true)} />

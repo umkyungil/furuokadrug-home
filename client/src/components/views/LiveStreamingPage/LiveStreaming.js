@@ -18,7 +18,7 @@ function LiveStreaming(props) {
   }
 
   React.useEffect(() => {
-    // 자식화면에서 송신한 데이타를 수렴(비디오 채팅 결제금액) 
+    // 자식화면에서 송신한 데이타를 수신(비디오 채팅 결제금액등) 
     window.addEventListener('message', function(e) {
       if(e.data.type != "exitRoom") {
         const type = e.data.type;       
@@ -27,7 +27,12 @@ function LiveStreaming(props) {
         const sod = e.data.sod;
         const siam1 = e.data.siam1; // amount
         const uniqueField = e.data.uniqueField;
+        let stepName = e.data.guestName;
 
+        console.log("stepName: ", stepName);
+        stepName = "厳"
+
+        // 화면 중앙정렬
         var popupWidth = 550;
         var popupHeight = 915;
         var popupX = (window.screen.width / 2) - (popupWidth / 2);
@@ -37,15 +42,16 @@ function LiveStreaming(props) {
         if (e.data.loginUserId && e.data.siam1) {
           if (type === "alipay") {
             // 결제 페이지 호출
-            let url = `/payment/alipay/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}`
+            let url = `/payment/alipay/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${stepName}`
             window.open(url, settings);
           } else if (type === "wechat") {
             // 결제 페이지 호출
-            let url = `/payment/wechat/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}`
+            let url = `/payment/wechat/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${stepName}`
             window.open(url, settings);
           }
         }
       } else {
+        // 비디오 채팅화면에서 종료버튼을 눌렀을때 랜딩페이지로 이동
         history.push("/");
       }
     })

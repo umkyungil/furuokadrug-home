@@ -14,7 +14,7 @@ function DetailOrderPage(props) {
     axios.get(`${ORDER_SERVER}/orders_by_id?id=${orderId}`)
       .then(response => {
         if (response.data.success) {
-          setOrder(response.data.order[0])
+          setOrder(response.data.orders[0])
         } else {
           alert("Failed to get order information.")
         }
