@@ -9,7 +9,7 @@ const customerSchema = mongoose.Schema({
 		type:String,
 		maxlength:50
 	},
-	lastname: {
+	lastName: {
 		type:String,
 		maxlength: 50
 	},
@@ -46,12 +46,12 @@ const customerSchema = mongoose.Schema({
 
 customerSchema.index({
   name: 'text',
-  lastname: 'text',
+  lastName: 'text',
 	salesman: 'text'
 }, {
   weights: {
     name: 5,
-    lastname: 1,
+    lastName: 1,
 		salesman: 1
   }
 })

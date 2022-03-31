@@ -107,7 +107,7 @@ function ListOrderPage(props) {
 							<List.Item.Meta
 								description={`決済種類: ${order.type} / 名前: ${order.name} ${order.lastName} / メール: ${order.email} / 
 								決済金額: ¥${Number(order.amount).toLocaleString()} / 決済確認: ${order.paymentStatus} / 
-								配送確認: ${order.deliveryStatus} / 接客者: ${order.stepName} `}
+								配送確認: ${order.deliveryStatus} / 接客担当: ${order.staffName} `}
 								/>
 						</List.Item>
 					)}

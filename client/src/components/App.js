@@ -8,8 +8,11 @@ import NavBar from "./views/NavBar/NavBar.js";
 import Footer from "./views/Footer/Footer.js";
 // 로그인 관리
 import LoginPage from "./views/LoginPage/LoginPage.js"; // 로그인
-// 로그인 사용자 등록
+// 사용자관리
 import UserRegisterPage from "./views/UserPage/UserRegisterPage.js";
+import UserListPage from "./views/UserPage/UserListPage.js"; // 고객리스트
+import UserUpdatePage from "./views/UserPage/UserUpdatePage.js"; // 고객수정
+import UserDetailPage from "./views/UserPage/UserDetailPage.js"; // 고객상세
 // 초기페이지
 import LandingPage from "./views/LandingPage/LandingPage.js";
 // 상품관리
@@ -59,8 +62,11 @@ function App() {
           <Route exact path="/" component={Auth(LandingPage, null)} />
           {/* 로그인관리 */}
           <Route exact path="/login" component={Auth(LoginPage, false)} />
-          {/* 로그인 사용자 등록 */}
-          <Route exact path="/register" component={Auth(UserRegisterPage, false)} />
+          {/* 사용자관리 */}
+          <Route exact path="/register" component={Auth(UserRegisterPage, null)} />          
+          <Route exact path="/user/list" component={Auth(UserListPage, true)} />
+          <Route exact path="/user/:userId" component={Auth(UserDetailPage, true)} />
+          <Route exact path="/user/update/:userId" component={Auth(UserUpdatePage, true)} />
           {/* 상품관리 */}
           <Route exact path="/product/upload" component={Auth(UploadProductPage, true)} />
           <Route exact path="/product/:productId/:language" component={Auth(DetailProductPage, null)} />
@@ -79,8 +85,8 @@ function App() {
           <Route exact path="/payment/wechat/list" component={Auth(ListWechatPage, true)} />
           <Route exact path="/payment/alipay/:alipayId" component={Auth(DetailAlipayPage, true)} />
           <Route exact path="/payment/wechat/:wechatId" component={Auth(DetailWechatPage, true)} />
-          <Route exact path="/payment/alipay/confirm/:userId/:sid/:sod/:siam1/:uniqueField/:stepName" component={Auth(ConfirmAlipayPage, true)} />
-          <Route exact path="/payment/wechat/confirm/:userId/:sid/:sod/:siam1/:uniqueField/:stepName" component={Auth(ConfirmWechatPage, true)} />
+          <Route exact path="/payment/alipay/confirm/:userId/:sid/:sod/:siam1/:uniqueField/:staffName" component={Auth(ConfirmAlipayPage, true)} />
+          <Route exact path="/payment/wechat/confirm/:userId/:sid/:sod/:siam1/:uniqueField/:staffName" component={Auth(ConfirmWechatPage, true)} />
           {/* 주문관리 */}
           <Route exact path="/order/list" component={Auth(ListOrderPage, true)} />
           <Route exact path="/order/list/:orderId" component={Auth(ListOrderPage, true)} />

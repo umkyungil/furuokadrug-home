@@ -17,7 +17,7 @@ function AlipayInfo(props) {
         <Descriptions.Item label="管理番号">{props.detail.ap}</Descriptions.Item>
         <Descriptions.Item label="エラーコード">{props.detail.ec}</Descriptions.Item>
         <Descriptions.Item label="店舗オーだ番号(日付)">{props.detail.sod}</Descriptions.Item>
-        <Descriptions.Item label="決済金額(合計)">￥{props.detail.ta}</Descriptions.Item>
+        <Descriptions.Item label="決済金額(合計)">￥{Number(props.detail.ta).toLocaleString()}</Descriptions.Item>
         <Descriptions.Item label="決済ジョブ">{props.detail.job}</Descriptions.Item>
         <Descriptions.Item label="決済オーだ番号">{props.detail.pod1}</Descriptions.Item>
         <Descriptions.Item label="ユニークキー">{props.detail.uniqueField}</Descriptions.Item>

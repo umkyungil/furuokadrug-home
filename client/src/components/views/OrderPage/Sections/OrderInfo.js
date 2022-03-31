@@ -21,9 +21,9 @@ function OrderInfo(props) {
         <Descriptions.Item label="Shipping address">{props.detail.address}</Descriptions.Item>
         <Descriptions.Item label="Payment time">{props.detail.sod}</Descriptions.Item>
         <Descriptions.Item label="UniqueField">{props.detail.uniqueField}</Descriptions.Item>
-        <Descriptions.Item label="Amount">{props.detail.amount}</Descriptions.Item>
-        <Descriptions.Item label="Payment">{props.detail.paymentStatus}</Descriptions.Item>
-        <Descriptions.Item label="Delivery">{props.detail.deliveryStatus}</Descriptions.Item>
+        <Descriptions.Item label="Amount">{Number(props.detail.amount).toLocaleString()}</Descriptions.Item>
+        <Descriptions.Item label="Payment state">{props.detail.paymentStatus}</Descriptions.Item>
+        <Descriptions.Item label="Delivery state">{props.detail.deliveryStatus}</Descriptions.Item>
       </Descriptions>
 
       <br />

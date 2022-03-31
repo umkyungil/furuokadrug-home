@@ -72,7 +72,7 @@ function ListAlipayPage() {
 					renderItem={alipay => (
 						<List.Item actions={[<a href={`/payment/alipay/${alipay._id}`}>detail</a>]}>
 							<List.Item.Meta
-								description={`決済番号 ${alipay.pid} / 処理結果: ${alipay.rst} / 管理番号: ${alipay.ap} / 決済金額(合計): ${alipay.ta} / 
+								description={`決済番号 ${alipay.pid} / 処理結果: ${alipay.rst} / 管理番号: ${alipay.ap} / 決済金額(合計): ${Number(alipay.ta).toLocaleString()} / 
 															ユニークキー: ${alipay.uniqueField}`
 														}
 								/>

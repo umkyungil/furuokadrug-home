@@ -43,7 +43,7 @@ function ConfirmWechatPage(props) {
   const [Address3, setAddress3] = useState("");
   const [ChangeAddress, setChangeAddress] = useState("");
   const [SelectedAddress, setSelectedAddress] = useState(""); // Radio 값
-  const [StepName, setStepName] = useState("");
+  const [StaffName, setStaffName] = useState("");
 
   // query string 취득
   const userId = props.match.params.userId;
@@ -51,7 +51,7 @@ function ConfirmWechatPage(props) {
   const sod = props.match.params.sod;
   const siam1 = props.match.params.siam1;
   const uniqueField = props.match.params.uniqueField;
-  const stepName = props.match.params.stepName;
+  const staffName = props.match.params.staffName;
 
   // Radio 값 저장
   const radioChangeHandler = e => {
@@ -83,7 +83,7 @@ function ConfirmWechatPage(props) {
           }
 
           // live streaming의 step이름으로 step정보취득
-          getStepInfo(stepName)
+          getStaffInfo(staffName)
 
         } else {
           alert("Failed to get user information.")
@@ -92,21 +92,21 @@ function ConfirmWechatPage(props) {
   }, [])
 
   // step 정보취득
-  const getStepInfo = (stepName) => {
-    console.log("stepName: ", stepName);
+  const getStaffInfo = (staffName) => {
+    console.log("staffName: ", staffName);
 
-    if (stepName) {
+    if (staffName) {
       let body = {
-        searchTerm: stepName
+        searchTerm: staffName
       }
       
       axios.post(`${USER_SERVER}/list`, body)
         .then(response => {
             if (response.data.success) {
               if (response.data.userInfo.length === 1 && response.data.userInfo[0].role !== "0") {
-                setStepName(response.data.userInfo[0].name + " " + response.data.userInfo[0].lastName);
+                setStaffName(response.data.userInfo[0].name + " " + response.data.userInfo[0].lastName);
               } else {
-                setStepName("");
+                setStaffName("");
               }
             } else {
               alert("Failed to get step information.")
@@ -122,7 +122,7 @@ function ConfirmWechatPage(props) {
 
   const state = "未確認";
   const body = {
-    type: "wechat",
+    type: "Wechat",
     userId: UserId,
     name: Name,
     lastName: LastName,
@@ -132,7 +132,7 @@ function ConfirmWechatPage(props) {
     sod: Sod,
     uniqueField: UniqueField,
     amount: Siam1,
-    stepName: StepName,
+    staffName: StaffName,
     paymentStatus: state,
     deliveryStatus: state
   }

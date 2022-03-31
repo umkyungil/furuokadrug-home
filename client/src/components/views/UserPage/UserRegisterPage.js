@@ -4,6 +4,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { registerUser } from "../../../_actions/user_actions";
 import { useDispatch } from "react-redux";
+import { useHistory } from 'react-router-dom';
 
 import {
   Form,
@@ -36,6 +37,10 @@ const tailFormItemLayout = {
 
 function UserRegisterPage(props) {
   const dispatch = useDispatch();
+  const history = useHistory();
+  const listHandler = () => {
+    history.push("/user/list");
+  }
 
   return (
     <Formik
@@ -168,6 +173,9 @@ function UserRegisterPage(props) {
               </Form.Item>
 
               <Form.Item {...tailFormItemLayout}>
+                <Button onClick={listHandler}>
+                  User List
+                </Button>&nbsp;&nbsp;
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
                   Submit
                 </Button>

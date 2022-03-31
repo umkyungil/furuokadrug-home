@@ -13,8 +13,11 @@ function LiveStreaming(props) {
     const room = Moment(new Date()).format('YYYYMMDD');
     const userId = props.user.userData._id;
     // URL설정
-    URL = LIVE_SERVER + "meet?name=" + name + "&room=" + room + "&userId=" + userId + "&type=ec";
-    console.log("url: ", URL);
+    // if (props.user.userData.role === 0) {
+      URL = LIVE_SERVER + "meet?name=" + name + "&room=" + room + "&userId=" + userId + "&type=ec";
+    // } else {
+    //   URL = LIVE_SERVER;
+    // }
   }
 
   React.useEffect(() => {
@@ -27,27 +30,17 @@ function LiveStreaming(props) {
         const sod = e.data.sod;
         const siam1 = e.data.siam1; // amount
         const uniqueField = e.data.uniqueField;
-        let stepName = e.data.guestName;
-
-        console.log("stepName: ", stepName);
-        stepName = "厳"
-
-        // 화면 중앙정렬
-        var popupWidth = 550;
-        var popupHeight = 915;
-        var popupX = (window.screen.width / 2) - (popupWidth / 2);
-        var popupY= (window.screen.height / 2) - (popupHeight / 2);
-        const settings = 'resizable=no, status=no, height=' + popupHeight  + ', width=' + popupWidth  + ', left='+ popupX + ', top='+ popupY; 
-
+        let staffName = e.data.guestName;
+        
         if (e.data.loginUserId && e.data.siam1) {
           if (type === "alipay") {
             // 결제 페이지 호출
-            let url = `/payment/alipay/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${stepName}`
-            window.open(url, settings);
+            let url = `/payment/alipay/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${staffName}`
+            window.open(url);
           } else if (type === "wechat") {
             // 결제 페이지 호출
-            let url = `/payment/wechat/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${stepName}`
-            window.open(url, settings);
+            let url = `/payment/wechat/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${staffName}`
+            window.open(url);
           }
         }
       } else {
@@ -67,8 +60,6 @@ function LiveStreaming(props) {
           width: '100%',
           height: '100%',
         }} allow="microphone; camera" src={URL} frameBorder="0" scrolling="yes"/>
-      {/* responsive 대응하지 않은 화면 */}
-      {/* <iframe id={video} allow="microphone; camera" width="1900" height="800" src={URL} frameBorder="0" scrolling="yes" /> */}
     </div>
   )
 }

@@ -138,7 +138,7 @@ function CustomerRegisterPage(props) {
                 )}
               </Form.Item>
 
-              <Form.Item required label="Email" hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
+              <Form.Item required label="E-mail" hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
                 <Input
                   id="email"
                   placeholder="Enter the customer's email"

@@ -71,7 +71,7 @@ function ListWechatPage() {
 					renderItem={wechat => (
 						<List.Item actions={[<a href={`/payment/wechat/${wechat._id}`}>detail</a>]}>
 							<List.Item.Meta
-								description={`決済番号 ${wechat.pid} / 処理結果: ${wechat.rst} / 管理番号: ${wechat.ap} / 決済金額(合計): ${wechat.ta} 
+								description={`決済番号 ${wechat.pid} / 処理結果: ${wechat.rst} / 管理番号: ${wechat.ap} / 決済金額(合計): ${Number(wechat.ta).toLocaleString()} 
 								/ ユニークキー: ${wechat.uniqueField}`}
 								/>
 						</List.Item>

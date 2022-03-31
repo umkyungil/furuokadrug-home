@@ -41,7 +41,7 @@ const orderSchema = mongoose.Schema({
         type: String,
         trim: true,
     },
-    stepName: {
+    staffName: {
         type: String,
         trim: true,
     },

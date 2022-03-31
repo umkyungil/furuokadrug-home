@@ -13,11 +13,11 @@ router.get("/auth", auth, (req, res) => {
     // role : 0 일반유저 role : 0이 아니면 관리자
     res.status(200).json({
         _id: req.user._id,
-        isAdmin: req.user.role === 0 ? false : true,
+        isAdmin: req.user.role === 2 ? true : false,
         isAuth: true,
         email: req.user.email,
         name: req.user.name,
-        lastname: req.user.lastname,
+        lastName: req.user.lastName,
         address1: req.user.address1,
         address2: req.user.address2,
         address3: req.user.address3,
@@ -26,18 +26,6 @@ router.get("/auth", auth, (req, res) => {
         cart: req.user.cart,
         history: req.user.history,
         room: req.user.room,
-    });
-});
-
-// 사용자 등록
-router.post("/register", (req, res) => {
-    const user = new User(req.body);
-
-    user.save((err, doc) => {
-        if (err) return res.json({ success: false, err });
-        return res.status(200).json({
-            success: true
-        });
     });
 });
 
@@ -79,7 +67,69 @@ router.get("/logout", auth, (req, res) => {
     });
 });
 
-// 로그인 유저 상세조회
+// 사용자 등록
+router.post("/register", (req, res) => {
+    const user = new User(req.body);
+
+    user.save((err, doc) => {
+        if (err) return res.json({ success: false, err });
+        return res.status(200).json({
+            success: true
+        });
+    });
+});
+
+// 사용자 조회
+router.post("/list", (req, res) => {
+    let term = req.body.searchTerm;
+
+    if (term) {
+        User.find({ "name": { '$regex': term },})
+        .skip(req.body.skip)
+        .exec((err, userInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, userInfo})
+        });
+    } else {
+        User.find().exec((err, userInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, userInfo})
+        });
+    }    
+});
+
+// 사용자 수정
+router.post("/update", (req, res) => {
+    User.updateMany(
+        { _id: req.body.id },
+        {   
+            name: req.body.name,
+            lastName: req.body.lastName, 
+            tel: req.body.tel,
+            address1: req.body.address1,
+            address2: req.body.address2,
+            address3: req.body.address3,
+            role: req.body.role,
+        }, (err, doc) => {
+        if (err) return res.json({ success: false, err });
+        return res.status(200).send({
+            success: true
+        });
+    });
+});
+
+// 사용자 삭제
+router.post('/delete', (req, res) => {
+    let userId = req.body.userId;
+    
+    User.remove({ _id: userId })
+        .exec((err, user) => {
+            if (err) return res.status(400).send(err)
+            return res.status(200).send({success: true, user});
+        })
+})
+
+// 사용자 상세조회
 router.get('/users_by_id', (req, res) => {
     let userId = req.query.id;
     
@@ -141,26 +191,6 @@ router.post("/addToCart", auth, (req, res) => {
     // 상품이 이미 있을때
 
     // 상품이 이미 있지 않을때
-});
-
-// 사용자정보 조회
-router.post("/list", (req, res) => {
-    let term = req.body.searchTerm;
-
-    if (term) {
-        User.find({ "name": { '$regex': term },})
-        .skip(req.body.skip)
-        .exec((err, userInfo) => {
-            if (err) return res.status(400).json({success: false, err});
-            return res.status(200).json({ success: true, userInfo})
-        });
-    } else {
-        User.find().exec((err, userInfo) => {
-            if (err) return res.status(400).json({success: false, err});
-            return res.status(200).json({ success: true, userInfo})
-        });
-    }
-    
 });
 
 module.exports = router;

@@ -188,7 +188,7 @@ function CustomerUpdatePage(props) {
                 )}
               </Form.Item>
 
-              <Form.Item label="Email" hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
+              <Form.Item label="E-mail" hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
                 <Input
                   id="email"
                   placeholder="Enter the customer's email"

@@ -19,6 +19,7 @@
     "react-dom": "^16.8.6",
     "react-dropzone": "^11.4.2",
     "react-file-reader": "^1.1.4",
+    "react-hook-form": "^7.28.1",
     "react-i18next": "^11.15.5",
     "react-icons": "^3.7.0",
     "react-image-gallery": "^1.2.7",

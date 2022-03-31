@@ -1,16 +1,39 @@
 import axios from 'axios';
-import { LOGIN_USER, REGISTER_USER, AUTH_USER, LOGOUT_USER, ADD_TO_CART, GET_CART_ITEMS } from './types';
+import { LOGIN_USER, REGISTER_USER, UPDATE_USER, DELETE_USER, AUTH_USER, LOGOUT_USER, ADD_TO_CART, GET_CART_ITEMS } from './types';
 import { USER_SERVER, PRODUCT_SERVER } from '../components/Config.js';
 
 // CORS 대책
 axios.defaults.withCredentials = true;
 
+// 사용자 등록
 export function registerUser(dataToSubmit){
     const request = axios.post(`${USER_SERVER}/register`,dataToSubmit)
         .then(response => response.data);
     // 리턴을 하면 리듀서로 넘어간다
     return {
         type: REGISTER_USER,
+        payload: request
+    }
+}
+
+// 사용자 삭제
+export function deleteUser(id){
+    const body = {userId : id}
+
+    const request = axios.post(`${USER_SERVER}/delete`, body)
+        .then(response => response.data);
+    return {
+        type: DELETE_USER,
+        payload: request
+    }
+}
+
+// 사용자 갱신
+export function updateUser(dataToSubmit){
+    const request = axios.post(`${USER_SERVER}/update`, dataToSubmit)
+        .then(response => response.data);    
+    return {
+        type: UPDATE_USER,
         payload: request
     }
 }

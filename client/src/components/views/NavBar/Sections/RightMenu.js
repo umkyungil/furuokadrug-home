@@ -22,8 +22,18 @@ function RightMenu(props) {
     });
   };
 
-  // login 하지 않았을때 메뉴
-  if (user.userData && !user.userData.isAuth) {
+  const chatHandler = () => {
+    let href = "https://umkyungil.github.io/furuokadrug-twitter/#/";
+    let w = 450;
+    let h = 800;
+    let xPos = (document.body.offsetWidth-w); //오른쪽 정렬
+    let yPos = (document.body.offsetHeight/2) - (h/2);
+
+    window.open(href, "pop_name", "width="+w+", height="+h+", left="+xPos+", top="+yPos+", menubar=yes, status=yes, titlebar=yes, resizable=yes");
+  };
+
+  // login 하지 않았을때
+  if (user.userData  && !user.userData.isAuth) {
     return (
       <Menu mode={props.mode}>
         <Menu.Item key="mail">
@@ -39,45 +49,118 @@ function RightMenu(props) {
     )
   // login 했을때 메뉴
   } else {
+    if (user.userData) {
+      // 스텝
+      if (user.userData.role === 1) {
+        return (
+          <Menu mode={props.mode}>
+            <Menu.Item key="chat">
+              <a onClick={chatHandler}>Chat</a>
+            </Menu.Item>
+            <Menu.Item key="live">
+              <a href="/live">Live Streaming</a>
+            </Menu.Item>
+            <Menu.Item key="list">
+              <a href="/order/list">Order list</a>
+            </Menu.Item>
+            <SubMenu title={<span>Payment</span>}>          
+              <Menu.Item key="alipayList">
+                <a href="/payment/alipay/list">Alipay payment list</a>
+              </Menu.Item>
+              <Menu.Item key="wechatList">
+                <a href="/payment/wechat/list">Wechat payment list</a>
+              </Menu.Item>
+            </SubMenu>
+            <SubMenu title={<span>Customer</span>}>
+              <Menu.Item key="register">
+                <a href="/customer/register">Customer Register</a>
+              </Menu.Item>
+              <Menu.Item key="list">
+                <a href="/customer/list">Customer List</a>
+              </Menu.Item>
+            </SubMenu>
+            <Menu.Item key="cart" style={{paddingBottom:3}}>
+              <Badge count={5}>
+                <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
+                  <Icon type="shopping-cart" style={{fontSize:30, marginBottom:3}} />
+                </a>
+              </Badge>
+            </Menu.Item>          
+            <Menu.Item key="logout">
+              <a onClick={logoutHandler}>Logout</a>
+            </Menu.Item>
+          </Menu>
+        )
+      // 관리자
+      } else if (user.userData.role === 2) {
+        return (
+          <Menu mode={props.mode}>
+            <Menu.Item key="chat">
+              <a onClick={chatHandler}>Chat</a>
+            </Menu.Item>
+            <Menu.Item key="live">
+              <a href="/live">Live Streaming</a>
+            </Menu.Item>
+            <Menu.Item key="list">
+              <a href="/order/list">Order list</a>
+            </Menu.Item>
+            <SubMenu title={<span>Payment</span>}>          
+              <Menu.Item key="alipayList">
+                <a href="/payment/alipay/list">Alipay payment list</a>
+              </Menu.Item>
+              <Menu.Item key="wechatList">
+                <a href="/payment/wechat/list">Wechat payment list</a>
+              </Menu.Item>
+            </SubMenu>
+            <SubMenu title={<span>Data Upload</span>}>
+              <Menu.Item key="csvUpload">
+                <a href="/csv/upload/univaPayCast">UnivaPay Csv Upload</a>
+              </Menu.Item>
+            </SubMenu>          
+            <SubMenu title={<span>Customer</span>}>
+              <Menu.Item key="customerRegister">
+                <a href="/customer/register">Customer Register</a>
+              </Menu.Item>
+              <Menu.Item key="customerList">
+                <a href="/customer/list">Customer List</a>
+              </Menu.Item>
+            </SubMenu>
+            <Menu.Item key="upload">
+              <a href="/product/upload">Product Upload</a>
+            </Menu.Item>
+            <SubMenu title={<span>User</span>}>
+              <Menu.Item key="userRegister">
+                <a href="/register">User Register</a>
+              </Menu.Item>
+              <Menu.Item key="userList">
+                <a href="/user/list">User List</a>
+              </Menu.Item>
+            </SubMenu>            
+            <Menu.Item key="cart" style={{paddingBottom:3}}>
+              <Badge count={5}>
+                <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
+                  <Icon type="shopping-cart" style={{fontSize:30, marginBottom:3}} />
+                </a>
+              </Badge>
+            </Menu.Item>          
+            <Menu.Item key="logout">
+              <a onClick={logoutHandler}>Logout</a>
+            </Menu.Item>
+          </Menu>
+        )
+      }
+    }    
+    // 일반 사용자
     return (
       <Menu mode={props.mode}>
-        <SubMenu title={<span>Order</span>}>          
-          <Menu.Item key="orderSearch">
-            <a href="/order/list">Order list</a>
-          </Menu.Item>
-        </SubMenu>  
-        <SubMenu title={<span>Payment</span>}>          
-          <Menu.Item key="alipaySearch">
-            <a href="/payment/alipay/list">Alipay payment list</a>
-          </Menu.Item>
-          <Menu.Item key="wechatSearch">
-            <a href="/payment/wechat/list">Wechat payment list</a>
-          </Menu.Item>
-          {/* <Menu.Item key="alipayPayment">
-            <a href="/payment/alipay">Alipay API Test</a>
-          </Menu.Item>
-          <Menu.Item key="wechatPayment">
-            <a href="/payment/wechat">Wechat API Test</a>
-          </Menu.Item> */}
-        </SubMenu>  
-        <SubMenu title={<span>Data Upload</span>}>
-          <Menu.Item key="csvUpload">
-            <a href="/csv/upload/univaPayCast">Univapay Csv Upload</a>
-          </Menu.Item>
-          <Menu.Item key="smaregiUpload">
-            <a href="/csv/upload/smaregi">Smaregi Csv Upload</a>
-          </Menu.Item>
-        </SubMenu>  
-        <SubMenu title={<span>Customer</span>}>
-          <Menu.Item key="customerRegister">
-            <a href="/customer/register">Customer Register</a>
-          </Menu.Item>
-          <Menu.Item key="customerSearch">
-            <a href="/customer/list">Customer List</a>
-          </Menu.Item>
-        </SubMenu>
-        <Menu.Item key="upload">
-          <a href="/product/upload">Product Upload</a>
+        <Menu.Item key="chat">
+          <a onClick={chatHandler}>Chat</a>
+        </Menu.Item>
+        <Menu.Item key="live">
+          <a href="/live">Live Streaming</a>
+        </Menu.Item>
+        <Menu.Item key="list">
+          <a href="/order/list">Order list</a>
         </Menu.Item>
         <Menu.Item key="cart" style={{paddingBottom:3}}>
           <Badge count={5}>
@@ -85,14 +168,12 @@ function RightMenu(props) {
               <Icon type="shopping-cart" style={{fontSize:30, marginBottom:3}} />
             </a>
           </Badge>
-        </Menu.Item>
-        
+        </Menu.Item>          
         <Menu.Item key="logout">
           <a onClick={logoutHandler}>Logout</a>
         </Menu.Item>
       </Menu>
-    )
+    )    
   }
 }
-
 export default withRouter(RightMenu);
