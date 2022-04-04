@@ -109,10 +109,10 @@ function VirtualReservationPage(props) {
           <Input name="reservationDate" placeholder="Please select a reservation date" type="datetime-local" value={ReservationDate} onChange={reservationDateHandler} required />
         </Form.Item>
         <Form.Item label="Interested Item" required>
-          <TextArea maxLength={100} name="interestedItem" label="Interested" style={{ height: 120, minWidth: '500px' }} value={InterestedItem} onChange={interestedItemHandler} 
+          <TextArea maxLength={500} name="interestedItem" label="Interested" style={{ height: 120, minWidth: '375px' }} value={InterestedItem} onChange={interestedItemHandler} 
             placeholder="Please enter the item you are interested in." required />
         </Form.Item>
-        <Form.Item label="Email">
+        <Form.Item label="Email" required>
         <Input name="email" placeholder="Please enter your email address" type="email" value={Email} onChange={emailHandler} required />
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>

@@ -29,8 +29,8 @@ function LiveStreaming(props) {
         const sid = e.data.sid;
         const sod = e.data.sod;
         const siam1 = e.data.siam1; // amount
-        const uniqueField = e.data.uniqueField;
-        let staffName = e.data.guestName;
+        const uniqueField = encodeURIComponent(e.data.uniqueField);
+        let staffName = encodeURIComponent(e.data.guestName);
         
         if (e.data.loginUserId && e.data.siam1) {
           if (type === "alipay") {

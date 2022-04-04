@@ -50,8 +50,8 @@ function ConfirmAlipayPage(props) {
   const sid = props.match.params.sid;
   const sod = props.match.params.sod;
   const siam1 = props.match.params.siam1;
-  const uniqueField = props.match.params.uniqueField;
-  const staffName = props.match.params.staffName;
+  const uniqueField = decodeURIComponent(props.match.params.uniqueField);
+  const staffName = decodeURIComponent(props.match.params.staffName);
 
   // Radio 값 저장
   const radioChangeHandler = e => {

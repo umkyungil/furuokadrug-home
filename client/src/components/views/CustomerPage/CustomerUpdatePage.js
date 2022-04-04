@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { Form, Input, Button } from 'antd';
 import axios from 'axios';
 import { CUSTOMER_SERVER } from '../../Config.js';
+import { useHistory } from 'react-router-dom';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -98,17 +99,20 @@ function CustomerUpdatePage(props) {
     setPoint(event.currentTarget.value);
   }
 
+  const history = useHistory();
+  const listHandler = () => {
+    history.push("/customer/list");
+  }
+
   return (
     <Formik
-      initialValues={{ smaregiId: '', name: '', tel: '', email: '', address: '', salesman: '', point: '' }}
-      validationSchema={Yup.object().shape({
-        //name: Yup.string().required('Name is required'),
-        //salesman: Yup.string().required('SalesMan is required')
-      })}
-
+      // initialValues={{ smaregiId: '', name: '', tel: '', email: '', address: '', salesman: '', point: '' }}
+      // validationSchema={Yup.object().shape({
+        // name: Yup.string().required('Name is required'),
+        // salesman: Yup.string().required('SalesMan is required')
+      // })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
-
           let dataToSubmit = {
             id: Id,
             smaregiId: SmaregiId,
@@ -122,13 +126,39 @@ function CustomerUpdatePage(props) {
             point: Point
           };
 
-          dispatch(updateCustomer(dataToSubmit)).then(response => {
-            if (response.payload.success) {
-              props.history.push("/customer/list");
-            } else {
-              alert(response.payload.err.errmsg)
-            }
-          })
+          let bol = true;
+          if (Name === "" ) {                        
+            alert("Name is required");
+            bol = false;
+          }
+
+          if (Tel === "" ) {                        
+            alert("Telephone number is required");
+            bol = false;
+          }
+          if (Email === "" ) {                        
+            alert("Email is required");
+            bol = false;
+          }
+          if (Address1 === "" ) {                        
+            alert("Address1 is required");
+            bol = false;
+          }
+          if (Salesman === "" ) {                        
+            alert("Salesman is required");
+            bol = false;
+          }
+
+          if (bol) {
+            dispatch(updateCustomer(dataToSubmit)).then(response => {
+              if (response.payload.success) {
+                props.history.push("/customer/list");
+              } else {
+                console.log(response.payload.err);
+                alert("This is a registered email.")
+              }
+            })
+          }
 
           setSubmitting(false);
         }, 500);
@@ -142,113 +172,47 @@ function CustomerUpdatePage(props) {
             <h2>Customer Update</h2>
             <br />
             <Form style={{ minWidth: '375px' }} {...formItemLayout} onSubmit={handleSubmit} >
-
               <Form.Item label="Smaregi ID">
-                <Input
-                  id="smaregiId"
-                  placeholder="Enter the customer's Smaregi id"
-                  type="text"
-                  value={SmaregiId}
-                  onChange={smaregiIdChangeHandler}
-                  onBlur={handleBlur}
-                  className={errors.smaregiId && touched.smaregiId ? 'text-input error' : 'text-input'}
-                />
-                {errors.smaregiId && touched.smaregiId && (
-                  <div className="input-feedback">{errors.smaregiId}</div>
-                )}
+                <Input id="smaregiId" placeholder="Enter the customer's Smaregi id" type="text" value={SmaregiId} 
+                  onChange={smaregiIdChangeHandler} onBlur={handleBlur} required />
               </Form.Item>
-
               <Form.Item required label="Name">
-                <Input
-                  id="name"
-                  placeholder="Enter the customer's name"
-                  type="text"
-                  value={Name}
-                  onChange={nameChangeHandler}
-                  onBlur={handleBlur}
-                  className={errors.name && touched.name ? 'text-input error' : 'text-input'}
-                />
-                {errors.name && touched.name && (
-                  <div className="input-feedback">{errors.name}</div>
-                )}
+                <Input id="name" placeholder="Enter the customer's name" type="text" value={Name} 
+                  onChange={nameChangeHandler} onBlur={handleBlur} required />
               </Form.Item>
-
-              <Form.Item label="Phone number" validateStatus={errors.tel && touched.tel ? "error" : 'success'}>
-                <Input
-                  id="tel"
-                  placeholder="Enter the customer's phone number"
-                  type="text"
-                  value={Tel}
-                  onChange={telChangeHandler}
-                  onBlur={handleBlur}
-                  className={errors.tel && touched.tel ? 'text-input error' : 'text-input'}
-                />
-                {errors.tel && touched.tel && (
-                  <div className="input-feedback">{errors.tel}</div>
-                )}
+              <Form.Item required label="Phone number" >
+                <Input id="tel" placeholder="Enter the customer's phone number" type="text" value={Tel}
+                  onChange={telChangeHandler} onBlur={handleBlur} required/>
               </Form.Item>
-
-              <Form.Item label="E-mail" hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
-                <Input
-                  id="email"
-                  placeholder="Enter the customer's email"
-                  type="email"
-                  value={Email}
-                  onChange={emailChangeHandler}
-                  onBlur={handleBlur}
-                  className={errors.email && touched.email ? 'text-input error' : 'text-input'}
-                />
-                {errors.email && touched.email && (
-                  <div className="input-feedback">{errors.email}</div>
-                )}
+              <Form.Item required label="E-mail" >
+                <Input id="email" placeholder="Enter the customer's email" type="email" value={Email}
+                  onChange={emailChangeHandler} onBlur={handleBlur} required/>
               </Form.Item>
-
               {/* 주소 */}
-              <Form.Item label="Address1" validateStatus={errors.address1 && touched.address1 ? "error" : 'success'}>
-                <Input id="address1" placeholder="Enter the customer's address1" type="text" value={Address1} onChange={address1Changehandler} onBlur={handleBlur}
-                  className={errors.address1 && touched.address1 ? 'text-input error' : 'text-input'} />
-                {errors.address1 && touched.address1 && (
-                  <div className="input-feedback">{errors.address1}</div>
-                )}
+              <Form.Item required label="Address1" >
+                <Input id="address1" placeholder="Enter the customer's address1" type="text" value={Address1} 
+                  onChange={address1Changehandler} onBlur={handleBlur} required />
               </Form.Item>
-              <Form.Item label="Address2" validateStatus={errors.address2 && touched.address2 ? "error" : 'success'}>
-                <Input id="address2" placeholder="Enter the customer's address2" type="text" value={Address2} onChange={address2Changehandler} onBlur={handleBlur} />
+              <Form.Item label="Address2" >
+                <Input id="address2" placeholder="Enter the customer's address2" type="text" value={Address2} 
+                  onChange={address2Changehandler} onBlur={handleBlur} />
               </Form.Item>
-              <Form.Item label="Address3" validateStatus={errors.address3 && touched.address3 ? "error" : 'success'}>
-                <Input id="address3" placeholder="Enter the customer's address3" type="text" value={Address3} onChange={address3Changehandler} onBlur={handleBlur} />
+              <Form.Item label="Address3" >
+                <Input id="address3" placeholder="Enter the customer's address3" type="text" value={Address3} 
+                  onChange={address3Changehandler} onBlur={handleBlur} />
               </Form.Item>
-
-              <Form.Item required label="Salesman" validateStatus={errors.salesman && touched.salesman ? "error" : 'success'}>
-                <Input
-                  id="salesman"
-                  placeholder="Enter your sales representative"
-                  type="text"
-                  value={Salesman}
-                  onChange={salesmanChangeHandler}
-                  onBlur={handleBlur}
-                  className={errors.salesman && touched.salesman ? 'text-input error' : 'text-input'}
-                />
-                {errors.salesman && touched.salesman && (
-                  <div className="input-feedback">{errors.salesman}</div>
-                )}
+              <Form.Item required label="Salesman" >
+                <Input id="salesman" placeholder="Enter your sales representative" type="text" value={Salesman}
+                  onChange={salesmanChangeHandler} onBlur={handleBlur} />
               </Form.Item>
-
-              <Form.Item label="Point" validateStatus={errors.point && touched.point ? "error" : 'success'}>
-                <Input
-                  id="point"
-                  placeholder="Enter your sales representative"
-                  type="text"
-                  value={Point}
-                  onChange={pointChangeHandler}
-                  onBlur={handleBlur}
-                  className={errors.point && touched.point ? 'text-input error' : 'text-input'}
-                />
-                {errors.point && touched.point && (
-                  <div className="input-feedback">{errors.point}</div>
-                )}
+              <Form.Item label="Point" >
+                <Input id="point" placeholder="Enter your sales representative" type="text" value={Point}
+                  onChange={pointChangeHandler} onBlur={handleBlur} />
               </Form.Item>
-
               <Form.Item {...tailFormItemLayout}>
+                <Button onClick={listHandler}>
+                  Customer List
+                </Button>&nbsp;&nbsp;
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
                   Submit
                 </Button>

@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { Order } = require('../models/Order');
+const { User } = require('../models/User');
+const { Alipay } = require('../models/Alipay');
+const { Wechat } = require('../models/Wechat');
 
 //=================================
 //             Order
@@ -21,19 +24,50 @@ router.post("/register", (req, res) => {
 // 주문정보 조회
 router.post("/list", (req, res) => {
   let term = req.body.searchTerm;
+  const userId = req.body.id;
+    
+  if (userId !== "") {
+    // 사용자 정보 검색
+    User.findOne({ _id: userId }, function(err, result) {
+      if (err) {
+        console.log("err");
+        return res.status(400).json({success: false, err});
+      }
 
-  if (term) {
-    Order.find({ "name": { '$regex': term },})
-    .skip(req.body.skip)
-    .exec((err, orderInfo) => {
-      if (err) return res.status(400).json({success: false, err});
-      return res.status(200).json({ success: true, orderInfo})
-    });
+      // 관리자 또는 스텝인 경우
+      if (result.role !== 0) {
+        if (term) {
+          Order.find({ "name": { '$regex': term },})
+          .skip(req.body.skip)
+          .exec((err, orderInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, orderInfo})
+          });
+        } else {
+          Order.find().exec((err, orderInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, orderInfo})
+          });
+        }
+      // 일반 사용자인 경우
+      } else {
+        if (term) {
+          Order.find({ "userId": userId, "name": { '$regex': term } })
+          .exec((err, orderInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, orderInfo})
+          });
+        } else {
+          Order.find({ "userId": userId })
+          .exec((err, orderInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, orderInfo})
+          });
+        }
+      }
+    })
   } else {
-    Order.find().exec((err, orderInfo) => {
-      if (err) return res.status(400).json({success: false, err});
-      return res.status(200).json({ success: true, orderInfo})
-    });
+    return res.status(400).json({success: false});
   }
 });
 
@@ -63,5 +97,31 @@ router.get("/deliveryStatus", (req, res) => {
     });
   });
 });
+
+// 주문정보 삭제
+router.post('/delete', (req, res) => {
+  let orderId = req.body.orderId;
+  let uniqueField = req.body.uniqueField;
+  let type = req.body.type;
+  
+  Order.remove({ _id: orderId })
+    .exec((err, order) => {
+        if (err) return res.status(400).send(err);
+
+        // 결제정보 삭제
+        if (type === "Alipay") {
+          Alipay.remove({ uniqueField: uniqueField }, function(err, alipay) {
+            if (err) return res.status(400).json({success: false, err});
+            console.log("Alipay remove success");
+          })          
+        } else if (type === "Wechat") {
+          Wechat.remove({ uniqueField: uniqueField }, function(err, wechat) {
+            if (err) return res.status(400).json({success: false, err});
+            console.log("Wechat remove success");
+          })          
+        }
+        return res.status(200).send({success: true, order});
+    })
+})
 
 module.exports = router;
