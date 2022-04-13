@@ -1,13 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Descriptions } from 'antd';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { ORDER_SERVER } from '../../../Config.js';
 import { useSelector } from "react-redux";
+import { useTranslation } from 'react-i18next';
 
 function OrderInfo(props) {
   const history = useHistory();
   const user = useSelector(state => state.user)
+
+  useEffect(() => {
+    // 다국적언어 설정
+    setLanguage(localStorage.getItem("i18nextLng"));
+  }, [])
   
   function deleteHandler() {
     // 주문정보 및 결제정보 삭제
@@ -26,24 +32,30 @@ function OrderInfo(props) {
     history.push("/order/list");
   }
 
+  // 다국적언어
+	const {t, i18n} = useTranslation();
+  function setLanguage(lang) {
+    i18n.changeLanguage(lang);		
+  }
+
   if (user.userData) {
 		if (user.userData.role === 1) {
       return (
         <div>
           <Descriptions>
-            <Descriptions.Item label="Type">{props.detail.type}</Descriptions.Item>
-            <Descriptions.Item label="User ID">{props.detail.userId}</Descriptions.Item>
-            <Descriptions.Item label="Name">{props.detail.name}</Descriptions.Item>
-            <Descriptions.Item label="LastName">{props.detail.lastName}</Descriptions.Item>
-            <Descriptions.Item label="Phone number">{props.detail.tel}</Descriptions.Item>
-            <Descriptions.Item label="E-mal">{props.detail.email}</Descriptions.Item>
-            <Descriptions.Item label="Shipping address">{props.detail.address}</Descriptions.Item>
-            <Descriptions.Item label="Payment time">{props.detail.sod}</Descriptions.Item>
-            <Descriptions.Item label="UniqueField">{props.detail.uniqueField}</Descriptions.Item>
-            <Descriptions.Item label="Amount">￥{Number(props.detail.amount).toLocaleString()}</Descriptions.Item>
-            <Descriptions.Item label="Payment state">{props.detail.paymentStatus}</Descriptions.Item>
-            <Descriptions.Item label="Delivery state">{props.detail.deliveryStatus}</Descriptions.Item>
-            <Descriptions.Item label="Service staff">{props.detail.staffName}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.type')}>{props.detail.type}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.userId')}>{props.detail.userId}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.name')}>{props.detail.name}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.lastName')}>{props.detail.lastName}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.tel')}>{props.detail.tel}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.email')}>{props.detail.email}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.shippingAddress')}>{props.detail.address}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.paymentTime')}>{props.detail.sod}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.uniqueField')}>{props.detail.uniqueField}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.amount')}>￥{Number(props.detail.amount).toLocaleString()}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.paymentStatus')}>{props.detail.paymentStatus}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.deliveryStatus')}>{props.detail.deliveryStatus}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.serviceStaff')}>{props.detail.staffName}</Descriptions.Item>
           </Descriptions>
 
           <br />
@@ -60,19 +72,19 @@ function OrderInfo(props) {
       return (
         <div>
           <Descriptions>
-            <Descriptions.Item label="Type">{props.detail.type}</Descriptions.Item>
-            <Descriptions.Item label="User ID">{props.detail.userId}</Descriptions.Item>
-            <Descriptions.Item label="Name">{props.detail.name}</Descriptions.Item>
-            <Descriptions.Item label="LastName">{props.detail.lastName}</Descriptions.Item>
-            <Descriptions.Item label="Phone number">{props.detail.tel}</Descriptions.Item>
-            <Descriptions.Item label="E-mal">{props.detail.email}</Descriptions.Item>
-            <Descriptions.Item label="Shipping address">{props.detail.address}</Descriptions.Item>
-            <Descriptions.Item label="Payment time">{props.detail.sod}</Descriptions.Item>
-            <Descriptions.Item label="UniqueField">{props.detail.uniqueField}</Descriptions.Item>
-            <Descriptions.Item label="Amount">￥{Number(props.detail.amount).toLocaleString()}</Descriptions.Item>
-            <Descriptions.Item label="Payment state">{props.detail.paymentStatus}</Descriptions.Item>
-            <Descriptions.Item label="Delivery state">{props.detail.deliveryStatus}</Descriptions.Item>
-            <Descriptions.Item label="Service staff">{props.detail.staffName}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.type')}>{props.detail.type}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.userId')}>{props.detail.userId}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.name')}>{props.detail.name}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.lastName')}>{props.detail.lastName}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.tel')}>{props.detail.tel}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.email')}>{props.detail.email}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.shippingAddress')}>{props.detail.address}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.paymentTime')}>{props.detail.sod}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.uniqueField')}>{props.detail.uniqueField}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.amount')}>￥{Number(props.detail.amount).toLocaleString()}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.paymentStatus')}>{props.detail.paymentStatus}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.deliveryStatus')}>{props.detail.deliveryStatus}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.serviceStaff')}>{props.detail.staffName}</Descriptions.Item>
           </Descriptions>
 
           <br />
@@ -94,19 +106,19 @@ function OrderInfo(props) {
     return (
       <div>
         <Descriptions>
-          <Descriptions.Item label="Type">{props.detail.type}</Descriptions.Item>
-          <Descriptions.Item label="User ID">{props.detail.userId}</Descriptions.Item>
-          <Descriptions.Item label="Name">{props.detail.name}</Descriptions.Item>
-          <Descriptions.Item label="LastName">{props.detail.lastName}</Descriptions.Item>
-          <Descriptions.Item label="Phone number">{props.detail.tel}</Descriptions.Item>
-          <Descriptions.Item label="E-mal">{props.detail.email}</Descriptions.Item>
-          <Descriptions.Item label="Shipping address">{props.detail.address}</Descriptions.Item>
-          <Descriptions.Item label="Payment time">{props.detail.sod}</Descriptions.Item>
-          <Descriptions.Item label="UniqueField">{props.detail.uniqueField}</Descriptions.Item>
-          <Descriptions.Item label="Amount">￥{Number(props.detail.amount).toLocaleString()}</Descriptions.Item>
-          <Descriptions.Item label="Payment state">{props.detail.paymentStatus}</Descriptions.Item>
-          <Descriptions.Item label="Delivery state">{props.detail.deliveryStatus}</Descriptions.Item>
-          <Descriptions.Item label="Service staff">{props.detail.staffName}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.type')}>{props.detail.type}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.userId')}>{props.detail.userId}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.name')}>{props.detail.name}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.lastName')}>{props.detail.lastName}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.tel')}>{props.detail.tel}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.email')}>{props.detail.email}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.shippingAddress')}>{props.detail.address}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.paymentTime')}>{props.detail.sod}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.uniqueField')}>{props.detail.uniqueField}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.amount')}>￥{Number(props.detail.amount).toLocaleString()}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.paymentStatus')}>{props.detail.paymentStatus}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.deliveryStatus')}>{props.detail.deliveryStatus}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.serviceStaff')}>{props.detail.staffName}</Descriptions.Item>
         </Descriptions>
 
         <br />

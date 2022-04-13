@@ -7,6 +7,7 @@ import { Form, Input, Button } from 'antd';
 import axios from 'axios';
 import { CUSTOMER_SERVER } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -53,7 +54,6 @@ function CustomerUpdatePage(props) {
   useEffect(() => {
     axios.get(`${CUSTOMER_SERVER}/customers_by_id?id=${customerId}&type=single`)
       .then(response => {
-
         if (response.data.success) {
           setId(response.data.customer[0]._id);
           setSmaregiId(response.data.customer[0].smaregiId);
@@ -65,6 +65,8 @@ function CustomerUpdatePage(props) {
           setAddress3(response.data.customer[0].address3);
           setSalesman(response.data.customer[0].salesman);
           setPoint(response.data.customer[0].point);
+          // 다국적언어
+          setLanguage(localStorage.getItem("i18nextLng"));
         } else {
           alert("Failed to get customer information.")
         }
@@ -102,6 +104,12 @@ function CustomerUpdatePage(props) {
   const history = useHistory();
   const listHandler = () => {
     history.push("/customer/list");
+  }
+
+  // 다국적언어 설정
+	const {t, i18n} = useTranslation();
+  function setLanguage(lang) {
+    i18n.changeLanguage(lang);
   }
 
   return (
@@ -166,46 +174,45 @@ function CustomerUpdatePage(props) {
     >
       {props => {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
-
         return (
           <div className="app">
-            <h2>Customer Update</h2>
+            <h1>{t('Customer.updateTitle')}</h1>
             <br />
             <Form style={{ minWidth: '375px' }} {...formItemLayout} onSubmit={handleSubmit} >
-              <Form.Item label="Smaregi ID">
+              <Form.Item label={t('Customer.smaregi')}>
                 <Input id="smaregiId" placeholder="Enter the customer's Smaregi id" type="text" value={SmaregiId} 
                   onChange={smaregiIdChangeHandler} onBlur={handleBlur} required />
               </Form.Item>
-              <Form.Item required label="Name">
+              <Form.Item required label={t('Customer.name')}>
                 <Input id="name" placeholder="Enter the customer's name" type="text" value={Name} 
                   onChange={nameChangeHandler} onBlur={handleBlur} required />
               </Form.Item>
-              <Form.Item required label="Phone number" >
+              <Form.Item required label={t('Customer.tel')} >
                 <Input id="tel" placeholder="Enter the customer's phone number" type="text" value={Tel}
                   onChange={telChangeHandler} onBlur={handleBlur} required/>
               </Form.Item>
-              <Form.Item required label="E-mail" >
+              <Form.Item required label={t('Customer.email')} >
                 <Input id="email" placeholder="Enter the customer's email" type="email" value={Email}
                   onChange={emailChangeHandler} onBlur={handleBlur} required/>
               </Form.Item>
               {/* 주소 */}
-              <Form.Item required label="Address1" >
+              <Form.Item required label={t('Customer.address1')} >
                 <Input id="address1" placeholder="Enter the customer's address1" type="text" value={Address1} 
                   onChange={address1Changehandler} onBlur={handleBlur} required />
               </Form.Item>
-              <Form.Item label="Address2" >
+              <Form.Item label={t('Customer.address2')} >
                 <Input id="address2" placeholder="Enter the customer's address2" type="text" value={Address2} 
                   onChange={address2Changehandler} onBlur={handleBlur} />
               </Form.Item>
-              <Form.Item label="Address3" >
+              <Form.Item label={t('Customer.address3')} >
                 <Input id="address3" placeholder="Enter the customer's address3" type="text" value={Address3} 
                   onChange={address3Changehandler} onBlur={handleBlur} />
               </Form.Item>
-              <Form.Item required label="Salesman" >
+              <Form.Item required label={t('Customer.salesman')} >
                 <Input id="salesman" placeholder="Enter your sales representative" type="text" value={Salesman}
                   onChange={salesmanChangeHandler} onBlur={handleBlur} />
               </Form.Item>
-              <Form.Item label="Point" >
+              <Form.Item label={t('Customer.point')} >
                 <Input id="point" placeholder="Enter your sales representative" type="text" value={Point}
                   onChange={pointChangeHandler} onBlur={handleBlur} />
               </Form.Item>

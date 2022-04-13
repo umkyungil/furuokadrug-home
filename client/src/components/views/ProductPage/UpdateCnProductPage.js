@@ -9,23 +9,21 @@ axios.defaults.withCredentials = true;
 
 const { TextArea } = Input;
 const Continents = [
-  {key:1, value: "Skin Care"},
-  {key:2, value: "Eye Care"},
-  {key:3, value: "Hair Care"},
-  {key:4, value: "Others"},
-  {key:5, value: "Supplement"},
-  {key:6, value: "Men's"}
+  {key:1, value: "皮肤护理"},
+  {key:2, value: "眼睛护理"},
+  {key:3, value: "头发护理"},
+  {key:4, value: "其他"},
+  {key:5, value: "补充"},
+  {key:6, value: "男士的"}
 ]
 
-function UpdateProductPage(props) {  
+function UpdateCnProductPage(props) {  
   const [Title, setTitle] = useState("");
   const [Description, setDescription] = useState("");
   const [Usage, setUsage] = useState("");
   const [Price, setPrice] = useState(0);
   const [Point, setPoint] = useState(0);
   const [Continent, setContinent] = useState(1);
-  const [Images, setImages] = useState([]);
-  const [OldImages, setOldImages] = useState([]);
 
   // QueryString에서 상품아이디 취득
   const productId = props.match.params.productId;
@@ -34,7 +32,6 @@ function UpdateProductPage(props) {
     axios.get(`${PRODUCT_SERVER}/products_by_id?id=${productId}&type=single`)
       .then(response => {
         if (response.data.success) {
-          setOldImages(response.data.product[0].images);
           setTitle(response.data.product[0].title);
           setDescription(response.data.product[0].description);
           setUsage(response.data.product[0].usage);
@@ -43,7 +40,7 @@ function UpdateProductPage(props) {
           setContinent(response.data.product[0].continents);
 
           // 다국적언어 설정
-		      setLanguage(localStorage.getItem("i18nextLng"));
+		      setLanguage("cn");
         } else {
           alert("Failed to get product information")
         }
@@ -68,9 +65,7 @@ function UpdateProductPage(props) {
   const continentChangeHandler = (event) => {
     setContinent(event.currentTarget.value);
   }
-  const updateImages = (newImages) => {
-    setImages(newImages);
-  }
+
   // Submit
   const submitHandler = (event) => {
     event.preventDefault();
@@ -80,7 +75,6 @@ function UpdateProductPage(props) {
     if (!Description) return alert("Please enter a product description");
     if (!Usage) return alert("Please enter a product usage");
     if (Number(Price) < 0) return alert("Please check the price");
-    if (Images.length < 1) return alert("Please select an image");
     if (Number(Point) < 0) return alert("Please check the point");
 
     // 숫자만 있는지 확인
@@ -101,12 +95,10 @@ function UpdateProductPage(props) {
       usage: Usage,
       price: Price,
       point: Point,
-      images: Images,
-      oldImages: OldImages,
       continents: Continent
     }
 
-    axios.post(`${PRODUCT_SERVER}/update`, body)
+    axios.post(`${PRODUCT_SERVER}/en/update`, body)
       .then(response => {
         if (response.data.success) {
           alert('Product update was successful.');
@@ -127,21 +119,9 @@ function UpdateProductPage(props) {
   return (
     <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <h1>{t('Product.updateTitle')}</h1>
+        <h1>{t('Product.updateTitle')}(Chinese)</h1>
       </div>
-
       <Form onSubmit={submitHandler}>
-        {/* DropZone*/}
-        <FileUpload refreshFunction={updateImages} />
-
-        <br />
-        <label style={{color: 'red'}}>Existing images will be deleted</label>
-        <br />
-        {OldImages.map((image, index) => (
-          <img key={index} src={`${image}`} width="70" height="70" />
-        ))}
-        <br />
-        <br />
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.title')}</label>
         <Input onChange={titleChangeHandler} value={Title} />
         <br />
@@ -179,4 +159,4 @@ function UpdateProductPage(props) {
   )
 }
 
-export default UpdateProductPage
+export default UpdateCnProductPage

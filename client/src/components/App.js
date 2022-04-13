@@ -18,6 +18,8 @@ import LandingPage from "./views/LandingPage/LandingPage.js";
 // 상품관리
 import DetailProductPage from "./views/ProductPage/DetailProductPage.js"; // 상품상세
 import UpdateProductPage from "./views/ProductPage/UpdateProductPage.js"; // 상품수정
+import UpdateEnProductPage from "./views/ProductPage/UpdateEnProductPage.js"; // 상품수정(영어)
+import UpdateCnProductPage from "./views/ProductPage/UpdateCnProductPage.js"; // 상품수정(중국어)
 import UploadProductPage from "./views/ProductPage/UploadProductPage.js"; // 상품등록
 // 고객관리
 import CustomerRegisterPage from "./views/CustomerPage/CustomerRegisterPage.js"; // 고객등록
@@ -43,6 +45,8 @@ import DetailOrderPage from "./views/OrderPage/DetailOrderPage.js"; // 주문상
 import CartPage from "./views/CartPage/CartPage.js"; // 카트페이지
 // 라이브 방송관리
 import LiveStreamingPage from "./views/LiveStreamingPage/LiveStreaming.js"; // 라이브 스트리밍 페이지
+// 404 페이지
+import NotFoundPage from "./views/NotFound.js";
 
 // 결제결과 테스트
 import AlipayTestPaymentResult from './views/PaymentPage/AlipayTestPaymentResult';
@@ -53,12 +57,11 @@ import WechatTestPaymentResult from './views/PaymentPage/WechatTestPaymentResult
 //false  로그인 한 사용자는 안으로 들어갈수 없다
 //3번쩨  인자로 true를 주면 admin만 들어갈수 있다
 function App() {
-
   return (
     <Suspense fallback={(<div>Loading...</div>)}>
       <NavBar />
       <div style={{ paddingTop: '69px', minHeight: 'calc(100vh - 80px)' }}>
-        <Switch>           
+        <Switch>
           <Route exact path="/" component={Auth(LandingPage, null)} />
           {/* 로그인관리 */}
           <Route exact path="/login" component={Auth(LoginPage, false)} />
@@ -69,8 +72,11 @@ function App() {
           <Route exact path="/user/update/:userId" component={Auth(UserUpdatePage, true)} />
           {/* 상품관리 */}
           <Route exact path="/product/upload" component={Auth(UploadProductPage, true)} />
-          <Route exact path="/product/:productId/:language" component={Auth(DetailProductPage, null)} />
+          <Route exact path="/product/:productId" component={Auth(DetailProductPage, null)} />
           <Route exact path="/product/update/:productId/" component={Auth(UpdateProductPage, null)} />
+          <Route exact path="/product/update/en/:productId/" component={Auth(UpdateEnProductPage, null)} />
+          <Route exact path="/product/update/cn/:productId/" component={Auth(UpdateCnProductPage, null)} />
+
           {/* 고객관리 */}
           <Route exact path="/customer/register" component={Auth(CustomerRegisterPage, true)} />
           <Route exact path="/customer/list" component={Auth(CustomerListPage, true)} />
@@ -97,6 +103,8 @@ function App() {
           <Route exact path="/live" component={Auth(LiveStreamingPage, true)} />
           {/* 카트관리 */}
           <Route exact path="/user/cart" component={Auth(CartPage, true)} />
+          {/* 404 Not Found */}
+          <Route path={"*"} component={NotFoundPage}/>
 
           {/* Test */}
           {/* <Route exact path="/payment/alipay" component={Auth(AlipayTestPaymentResult, null)} />

@@ -17,7 +17,7 @@ const Continents = [
   {key:6, value: "Men's"}
 ]
 
-function UpdateProductPage(props) {  
+function UpdateProductEnPage(props) {  
   const [Title, setTitle] = useState("");
   const [Description, setDescription] = useState("");
   const [Usage, setUsage] = useState("");
@@ -43,7 +43,7 @@ function UpdateProductPage(props) {
           setContinent(response.data.product[0].continents);
 
           // 다국적언어 설정
-		      setLanguage(localStorage.getItem("i18nextLng"));
+		      setLanguage("en");
         } else {
           alert("Failed to get product information")
         }
@@ -179,4 +179,4 @@ function UpdateProductPage(props) {
   )
 }
 
-export default UpdateProductPage
+export default UpdateProductEnPage

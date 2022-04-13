@@ -1,6 +1,51 @@
 {
   "Landing": {
-    "title": "Product List",
-    "more": "More"
+    "title": "Product Information List"
+  },
+  "Product": {
+    "uploadTitle": "Upload Product",
+    "updateTitle": "Update Product",
+    "detailTitle": "Product Detail",
+    "title": "Title",
+    "description": "Description",
+    "howToUse": "How To Use",
+    "price": "Price",
+    "point": "Point",
+    "contents": "Contents",
+    "itemSelection": "Item Selection",
+    "priceSelection": "Price Selection"
+  },
+  "Customer": {
+    "listTitle": "Customer Information List",
+    "regTitle": "Customer Information Register",
+    "updateTitle": "Customer Information Update",
+    "detailTitle": "Customer Detail",
+    "smaregi": "Smaregi ID",
+    "name": "Name",
+    "tel": "Tel",
+    "email": "E-mail",
+    "address1": "Address1",
+    "address2": "Address2",
+    "address3": "Address3",
+    "salesman": "Salesman",
+    "point": "point"
+  },
+  "Order": {
+    "listTitle": "Order Information List",
+    "regTitle": "Order Information Register",
+    "detailTitle": "Order Detail",
+    "type": "Type",
+    "name": "Name",    
+    "email": "E-mail",
+    "amount": "Amount",
+    "paymentStatus": "Payment state",
+    "deliveryStatus": "Delivery state",
+    "userId": "User ID",
+    "staffName": "Service staff",
+    "lastName": "Last name",
+    "tel": "Phone number",
+    "shippingAddress": "Shipping address",
+    "paymentTime": "Payment time",
+    "uniqueField": "Unique field"
   }
 }

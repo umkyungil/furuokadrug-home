@@ -1,14 +1,19 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { Button, Descriptions } from 'antd';
 import { useDispatch } from 'react-redux';
 import { deleteCustomer } from '../../../../_actions/customer_actions';
 import { useHistory } from 'react-router-dom';
 import { useSelector } from "react-redux";
+import { useTranslation } from 'react-i18next';
 
 function CustomerInfo(props) {
   const history = useHistory();
   const user = useSelector(state => state.user)
   const dispatch = useDispatch();
+
+  useEffect(() => {
+		setLanguage(localStorage.getItem("i18nextLng"));
+	}, [])
 
   const deleteHandler = () => {
     dispatch(deleteCustomer(props.detail._id))
@@ -25,21 +30,27 @@ function CustomerInfo(props) {
   const listHandler = () => {
     history.push("/customer/list");
   }
+
+  // 다국적언어 설정
+	const {t, i18n} = useTranslation();
+  function setLanguage(lang) {
+    i18n.changeLanguage(lang);
+  }
   
   if (user.userData) {
 		if (user.userData.role === 1) {
       return (
         <div>
-          <Descriptions>
-            <Descriptions.Item label="Name">{props.detail.name}</Descriptions.Item>
-            <Descriptions.Item label="Smaregi ID">{props.detail.smaregiId}</Descriptions.Item>
-            <Descriptions.Item label="Phone number">{props.detail.tel}</Descriptions.Item>
-            <Descriptions.Item label="Emal">{props.detail.email}</Descriptions.Item>
-            <Descriptions.Item label="Address1">{props.detail.address1}</Descriptions.Item>
-            <Descriptions.Item label="Address2">{props.detail.address2}</Descriptions.Item>
-            <Descriptions.Item label="Address3">{props.detail.address3}</Descriptions.Item>
-            <Descriptions.Item label="Salesman">{props.detail.salesman}</Descriptions.Item>
-            <Descriptions.Item label="Point">{props.detail.point}</Descriptions.Item>
+          <Descriptions>            
+            <Descriptions.Item label={t('Customer.smaregi')}>{props.detail.smaregiId}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.name')}>{props.detail.name}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.tel')}>{props.detail.tel}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.email')}>{props.detail.email}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.address1')}>{props.detail.address1}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.address2')}>{props.detail.address2}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.address3')}>{props.detail.address3}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.salesman')}>{props.detail.salesman}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.point')}>{props.detail.point}</Descriptions.Item>
           </Descriptions>
 
           <br />
@@ -56,15 +67,15 @@ function CustomerInfo(props) {
       return (
         <div>
           <Descriptions>
-            <Descriptions.Item label="Name">{props.detail.name}</Descriptions.Item>
-            <Descriptions.Item label="Smaregi ID">{props.detail.smaregiId}</Descriptions.Item>
-            <Descriptions.Item label="Phone number">{props.detail.tel}</Descriptions.Item>
-            <Descriptions.Item label="Emal">{props.detail.email}</Descriptions.Item>
-            <Descriptions.Item label="Address1">{props.detail.address1}</Descriptions.Item>
-            <Descriptions.Item label="Address2">{props.detail.address2}</Descriptions.Item>
-            <Descriptions.Item label="Address3">{props.detail.address3}</Descriptions.Item>
-            <Descriptions.Item label="Salesman">{props.detail.salesman}</Descriptions.Item>
-            <Descriptions.Item label="Point">{props.detail.point}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.smaregi')}>{props.detail.smaregiId}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.name')}>{props.detail.name}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.tel')}>{props.detail.tel}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.email')}>{props.detail.email}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.address1')}>{props.detail.address1}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.address2')}>{props.detail.address2}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.address3')}>{props.detail.address3}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.salesman')}>{props.detail.salesman}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.point')}>{props.detail.point}</Descriptions.Item>
           </Descriptions>
 
           <br />
@@ -86,15 +97,15 @@ function CustomerInfo(props) {
     return (
       <div>
         <Descriptions>
-          <Descriptions.Item label="Name">{props.detail.name}</Descriptions.Item>
-          <Descriptions.Item label="Smaregi ID">{props.detail.smaregiId}</Descriptions.Item>
-          <Descriptions.Item label="Phone number">{props.detail.tel}</Descriptions.Item>
-          <Descriptions.Item label="Emal">{props.detail.email}</Descriptions.Item>
-          <Descriptions.Item label="Address1">{props.detail.address1}</Descriptions.Item>
-          <Descriptions.Item label="Address2">{props.detail.address2}</Descriptions.Item>
-          <Descriptions.Item label="Address3">{props.detail.address3}</Descriptions.Item>
-          <Descriptions.Item label="Salesman">{props.detail.salesman}</Descriptions.Item>
-          <Descriptions.Item label="Point">{props.detail.point}</Descriptions.Item>
+          <Descriptions.Item label={t('Customer.smaregi')}>{props.detail.smaregiId}</Descriptions.Item>
+          <Descriptions.Item label={t('Customer.name')}>{props.detail.name}</Descriptions.Item>
+          <Descriptions.Item label={t('Customer.tel')}>{props.detail.tel}</Descriptions.Item>
+          <Descriptions.Item label={t('Customer.email')}>{props.detail.email}</Descriptions.Item>
+          <Descriptions.Item label={t('Customer.address1')}>{props.detail.address1}</Descriptions.Item>
+          <Descriptions.Item label={t('Customer.address2')}>{props.detail.address2}</Descriptions.Item>
+          <Descriptions.Item label={t('Customer.address3')}>{props.detail.address3}</Descriptions.Item>
+          <Descriptions.Item label={t('Customer.salesman')}>{props.detail.salesman}</Descriptions.Item>
+          <Descriptions.Item label={t('Customer.point')}>{props.detail.point}</Descriptions.Item>
         </Descriptions>
 
         <br />

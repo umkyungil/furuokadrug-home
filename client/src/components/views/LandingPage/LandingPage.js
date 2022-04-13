@@ -27,13 +27,15 @@ function LandingPage() {
 		price: []
 	})
 	const [SearchTerm, setSearchTerm] = useState("");
-	const [Language, setLanguage] = useState("en");
 
 	useEffect(() => {
 		let body = {
 			skip: Skip,
 			limit: Limit
 		}
+		
+		// 다국적언어 설정
+		setLanguage(localStorage.getItem("i18nextLng"));
 
 		// 상품 가져오기
 		getProducts(body);
@@ -66,7 +68,7 @@ function LandingPage() {
 			skip: skip,
 			limit: Limit,
 			loadMore: true // 더 보기 버튼을 눌렀다는 flag
-		}		
+		}	
 		// 상품 가져오기
 		getProducts(body);
 		// skip정보 status에 보관
@@ -82,7 +84,7 @@ function LandingPage() {
 		return <Col lg={6} md={8} xs={24} key={index} > 
 			<Card
 				// ImageSlider에 images라는 이름으로 데이터를 넘김
-				cover={<a href={`/product/${product._id}/${Language}`}><ImageSlider images={product.images}/></a>} 
+				cover={<a href={`/product/${product._id}`}><ImageSlider images={product.images}/></a>} 
 			>
 				<Meta 
 					title={product.title}
@@ -149,24 +151,24 @@ function LandingPage() {
 		getProducts(body);
 	}
 
-	// MultiLanguage
+	// 다국적언어
 	const {t, i18n} = useTranslation();
-  function langClick(lang) {
-		setLanguage(lang);
+  function setLanguage(lang) {
     i18n.changeLanguage(lang);
   }
 
 	return (
-		<div style={{ width:'75%', margin:'3rem auto' }}>			 
-			<nav style={{ cursor:'pointer', width:'100', float:'right' }}>
-				<img src={English} width='21' height='21' alt='English' onClick={() => langClick('en')} />
+		<div style={{ width:'75%', margin:'3rem auto' }}>
+			{/* 다국어 버튼 */}
+			{/* <nav style={{ cursor:'pointer', width:'100', float:'right' }}>
+				<img src={English} width='21' height='21' alt='English' onClick={() => setLanguage('en')} />
 				&nbsp;
-				<img src={Japanese} width='35' height='35' alt='Japanese' onClick={() => langClick('jp')} />
+				<img src={Japanese} width='35' height='35' alt='Japanese' onClick={() => setLanguage('ja-JP')} />
 				&nbsp;
-				<img src={Chinese} width='24' height='24' alt='Chinese' onClick={() => langClick('cn')} />
-			</nav>
+				<img src={Chinese} width='24' height='24' alt='Chinese' onClick={() => setLanguage('cn')} />
+			</nav> */}
 			<div style={{ textAlign:'center' }}>
-				<h1><b>{t('Landing.title')}</b></h1>
+				<h1>{t('Landing.title')}</h1>
 			</div>
 
 			{/* Filter */}
@@ -199,7 +201,7 @@ function LandingPage() {
 			{PostSize >= Limit && 
 				<div style={{ display:'flex', justifyContent:'center' }}>
 					{/* <button onClick={loadMoreHandler}>More</button> */}
-					<Button onClick={loadMoreHandler}>{t('Landing.more')}</Button>
+					<Button onClick={loadMoreHandler}>More</Button>
 				</div>
 			}
 		</div>

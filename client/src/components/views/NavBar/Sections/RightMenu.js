@@ -15,6 +15,9 @@ function RightMenu(props) {
   const logoutHandler = () => {
     axios.get(`${USER_SERVER}/logout`).then(response => {
       if (response.status === 200) {
+        // 로컬스토리지 사용자 아이디 삭제
+        window.localStorage.removeItem("userId");
+
         props.history.push("/login");
       } else {
         alert('Log Out Failed')
@@ -112,11 +115,6 @@ function RightMenu(props) {
                 <a href="/payment/wechat/list">Wechat payment list</a>
               </Menu.Item>
             </SubMenu>
-            <SubMenu title={<span>Data Upload</span>}>
-              <Menu.Item key="csvUpload">
-                <a href="/csv/upload/univaPayCast">UnivaPay Csv Upload</a>
-              </Menu.Item>
-            </SubMenu>          
             <SubMenu title={<span>Customer</span>}>
               <Menu.Item key="customerRegister">
                 <a href="/customer/register">Customer Register</a>
@@ -125,9 +123,14 @@ function RightMenu(props) {
                 <a href="/customer/list">Customer List</a>
               </Menu.Item>
             </SubMenu>
-            <Menu.Item key="upload">
-              <a href="/product/upload">Product Upload</a>
-            </Menu.Item>
+            <SubMenu title={<span>Upload</span>}>
+              <Menu.Item key="upload">
+                <a href="/product/upload">Product Upload</a>
+              </Menu.Item>
+              <Menu.Item key="csvUpload">
+                <a href="/csv/upload/univaPayCast">UnivaPay Csv Upload</a>
+              </Menu.Item>
+            </SubMenu>
             <SubMenu title={<span>User</span>}>
               <Menu.Item key="userRegister">
                 <a href="/register">User Register</a>
@@ -148,32 +151,47 @@ function RightMenu(props) {
             </Menu.Item>
           </Menu>
         )
+      } else if (user.userData.role === 0) {   
+        // 일반 사용자
+        return (
+          <Menu mode={props.mode}>
+            <Menu.Item key="chat">
+              <a onClick={chatHandler}>Chat</a>
+            </Menu.Item>
+            <Menu.Item key="live">
+              <a href="/live">Live Streaming</a>
+            </Menu.Item>
+            <Menu.Item key="list">
+              <a href="/order/list">Order list</a>
+            </Menu.Item>
+            <Menu.Item key="cart" style={{paddingBottom:3}}>
+              <Badge count={5}>
+                <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
+                  <Icon type="shopping-cart" style={{fontSize:30, marginBottom:3}} />
+                </a>
+              </Badge>
+            </Menu.Item>          
+            <Menu.Item key="logout">
+              <a onClick={logoutHandler}>Logout</a>
+            </Menu.Item>
+          </Menu>
+        )
       }
-    }    
-    // 일반 사용자
-    return (
-      <Menu mode={props.mode}>
-        <Menu.Item key="chat">
-          <a onClick={chatHandler}>Chat</a>
-        </Menu.Item>
-        <Menu.Item key="live">
-          <a href="/live">Live Streaming</a>
-        </Menu.Item>
-        <Menu.Item key="list">
-          <a href="/order/list">Order list</a>
-        </Menu.Item>
-        <Menu.Item key="cart" style={{paddingBottom:3}}>
-          <Badge count={5}>
-            <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
-              <Icon type="shopping-cart" style={{fontSize:30, marginBottom:3}} />
-            </a>
-          </Badge>
-        </Menu.Item>          
-        <Menu.Item key="logout">
-          <a onClick={logoutHandler}>Logout</a>
-        </Menu.Item>
-      </Menu>
-    )    
+    } else {
+      return (
+        <Menu mode={props.mode}>
+          <Menu.Item key="mail">
+            <a href="/login">Sign In</a>
+          </Menu.Item>
+          <Menu.Item key="app">
+            <a href="/register">Sign Up</a>
+          </Menu.Item>
+          <Menu.Item key="contact">
+            <a href="/mail/contact">Contact Us</a>
+          </Menu.Item>
+        </Menu>
+      )
+    }
   }
 }
 export default withRouter(RightMenu);

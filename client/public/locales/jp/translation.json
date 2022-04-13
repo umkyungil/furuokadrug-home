@@ -1,6 +1,51 @@
 {
   "Landing": {
-    "title": "商品一覧",
-    "more": "次へ"
+    "title": "商品情報一覧"
+  },
+  "Product": {
+    "uploadTitle": "商品情報アップロード",
+    "updateTitle": "商品情報更新",
+    "detailTitle": "商品詳細情報",
+    "title": "タイトル",
+    "description": "詳細",
+    "howToUse": "使用方法",
+    "price": "価格",
+    "point": "ポイント",
+    "contents": "容量",
+    "itemSelection": "アイテム",
+    "priceSelection": "価格範囲"
+  },
+  "Customer": {
+    "listTitle": "顧客情報一覧",
+    "regTitle": "顧客情報登録",
+    "updateTitle": "顧客情報更新",
+    "detailTitle": "顧客詳細情報",
+    "smaregi": "スマレジID",
+    "name": "名前",
+    "tel": "電話",
+    "email": "メール",
+    "address1": "アドレス1",
+    "address2": "アドレス2",
+    "address3": "アドレス3",
+    "salesman": "スタッフ",
+    "point": "ポイント"    
+  },
+  "Order": {
+    "listTitle": "注文情報一覧",
+    "regTitle": "注文情報登録",
+    "detailTitle": "注文詳細情報",
+    "type": "決済種類",
+    "name": "名前",
+    "email": "メール",
+    "amount": "決済金額",
+    "paymentStatus": "決済確認",
+    "deliveryStatus": "配送確認",    
+    "userId": "ユーザーID",
+    "staffName": "接客担当",
+    "lastName": "下の名前",
+    "tel": "電話番号",
+    "shippingAddress": "配送地",
+    "paymentTime": "決済時刻",
+    "uniqueField": "決済識別情報"
   }
 }

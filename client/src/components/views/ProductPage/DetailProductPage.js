@@ -10,11 +10,12 @@ axios.defaults.withCredentials = true;
 // 상품상세
 function DetailProductPage(props) {
   const productId = props.match.params.productId;
-  const language = props.match.params.language;
-
   const [Product, setProduct] = useState({});
 
-  useEffect(() => {    
+  console.log("1111111111111111");
+  useEffect(() => {
+
+    console.log("2222222222222222");
     axios.get(`${PRODUCT_SERVER}/products_by_id?id=${productId}&type=single`)
       .then(response => {
         if (response.data.success) {
@@ -59,7 +60,7 @@ function DetailProductPage(props) {
         </Col>
         <Col lg={12} sm={24}  >
           {/* ProductInfo */}
-          <ProductInfo detail={Product} language={language}/>
+          <ProductInfo detail={Product} />
         </Col>
       </Row>
     </div>

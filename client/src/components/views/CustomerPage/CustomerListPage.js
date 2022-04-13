@@ -4,6 +4,7 @@ import axios from 'axios';
 import { List, Avatar, Icon } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { CUSTOMER_SERVER } from '../../Config.js';
+import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -19,6 +20,7 @@ function CustomerListPage() {
 			limit: 8
 		}
 
+		setLanguage(localStorage.getItem("i18nextLng"));
 		getCustomers(body);
 	}, [])
 
@@ -42,7 +44,13 @@ function CustomerListPage() {
 
 		setSearchTerm(newSearchTerm);
 		getCustomers(body);
-	}		
+	}
+
+	// 다국적언어 설정
+	const {t, i18n} = useTranslation();
+  function setLanguage(lang) {
+    i18n.changeLanguage(lang);
+  }
 	
 	if (user.userData) {
 		if (user.userData.role === 1) {
@@ -50,7 +58,7 @@ function CustomerListPage() {
 				<div style={{ width:'75%', margin:'3rem auto' }}>
 
 					<div style={{ textAlign:'center' }}>
-						<h2>Customer List<Icon type="rocket" /></h2>
+						<h1>{t('Customer.listTitle')}</h1>
 					</div>
 
 					{/* Filter */}
@@ -87,7 +95,7 @@ function CustomerListPage() {
 				<div style={{ width:'75%', margin:'3rem auto' }}>
 
 					<div style={{ textAlign:'center' }}>
-						<h2>Customer List<Icon type="rocket" /></h2>
+						<h1>{t('Customer.listTitle')}</h1>
 					</div>
 
 					{/* Filter */}
@@ -126,7 +134,7 @@ function CustomerListPage() {
 			<div style={{ width:'75%', margin:'3rem auto' }}>
 
 				<div style={{ textAlign:'center' }}>
-					<h2>Customer List<Icon type="rocket" /></h2>
+					<h1>{t('Customer.listTitle')}</h1>
 				</div>
 
 				{/* Filter */}

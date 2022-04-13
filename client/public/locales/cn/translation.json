@@ -1,6 +1,51 @@
 {
   "Landing": {
-    "title": "产品列表",
-    "more": "到下一个"
+    "title": "产品信息列表"
+  },
+  "Product": {
+    "uploadTitle": "上传产品",
+    "updateTitle": "产品信息更新",
+    "detailTitle": "产品详情",
+    "title": "标题",
+    "description": "描述",
+    "howToUse": "如何使用",
+    "price": "价格",
+    "point": "观点",
+    "contents": "容量",
+    "itemSelection": "项目选择",
+    "priceSelection": "价格范围"
+  },
+  "Customer": {
+    "listTitle": "客户信息列表",
+    "regTitle": "客户信息登记",
+    "updateTitle": "客户信息更新",
+    "detailTitle": "顾客信息",
+    "smaregi": "Smaregi ID",
+    "name": "姓名",
+    "tel": "电话号码",
+    "email": "电子邮件",
+    "address1": "地址1",
+    "address2": "地址2",
+    "address3": "地址3",
+    "salesman": "服务人员",
+    "point": "观点"
+  },
+  "Order": {
+    "listTitle": "订单信息列表",
+    "regTitle": "订单信息登记",
+    "detailTitle": "订单信息",
+    "type": "付款方式",
+    "name": "姓名",
+    "email": "电子邮件",
+    "amount": "付款金额",
+    "paymentStatus": "支付状态",
+    "deliveryStatus": "邮寄状态",
+    "userId": "用户身份",
+    "staffName": "服务人员",
+    "lastName": "名",
+    "tel": "电话号码",
+    "shippingAddress": "交货地点",
+    "paymentTime": "结算时间",
+    "uniqueField": "支付识别信息"
   }
 }

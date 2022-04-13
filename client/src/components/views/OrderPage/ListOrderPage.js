@@ -3,26 +3,35 @@ import axios from 'axios';
 import { List } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { ORDER_SERVER } from '../../Config.js';
+// Multi Language
+import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function ListOrderPage(props) {
 	const [OrderInfo, setOrderInfo] = useState([]);
 	const [SearchTerm, setSearchTerm] = useState("");
+	// const [OrderType, setOrderType] = useState("");
+	// const [OrderName, setOrderName] = useState("");
+	// const [OrderMail, setOrderMail] = useState("");
+	// const [OrderAmount, setOrderAmount] = useState("");
+	// const [OrderPaymentStatus, setOrderPaymentStatus] = useState("");
+	// const [OrderDeliveryStatus, setOrderDeliveryStatus] = useState("");
+	// const [OrderStaff, setOrderStaff] = useState("");
 
 	// delivery 링크를 눌렀을때 다시 이 화면을 호출하면서 주문id를 보낸다
-	const paramOrderId = props.match.params.orderId;
+	const paramOrderId = props.match.params.orderId;	
 	
 	let userId = localStorage.getItem("userId") ? localStorage.getItem("userId") : '';
 	useEffect(() => {
-		// 로그인시 로컬스토리지에 등록한 사용자 아이디를 취득해서 서버에서 권한을 판별한다
-		
-
 		let body = {
 			skip: 0,
 			limit: 8,
 			id: userId
 		}
+		// 다국적언어 설정
+		setLanguage(localStorage.getItem("i18nextLng"));
+
 		// delivery 링크를 눌렀을때 해당 주문정보의 배달 상태를 변경
 		if(paramOrderId) {
 			// 해당 주문의 지불정보 취득
@@ -84,12 +93,18 @@ function ListOrderPage(props) {
 		getOrderInfo(body);
 	}
 
+	// 다국적언어
+	const {t, i18n} = useTranslation();
+  function setLanguage(lang) {
+    i18n.changeLanguage(lang);		
+  }
+
 	if (props.user.userData) {		
 		if (props.user.userData.role === 0) {
 			return (
 				<div style={{ width:'75%', margin:'3rem auto' }}>
 					<div style={{ textAlign:'center' }}>
-						<h2>Order List</h2>
+						<h1><b>{t('Order.listTitle')}</b></h1>
 					</div>
 
 					{/* Filter */}
@@ -108,13 +123,14 @@ function ListOrderPage(props) {
 							dataSource={OrderInfo}			
 							renderItem={order => (
 								<List.Item >
-									<List.Item.Meta
+									<List.Item.Meta title="test" 
 										description={`決済種類: ${order.type} / 名前: ${order.name} ${order.lastName} / メール: ${order.email} / 
 										決済金額: ¥${Number(order.amount).toLocaleString()} / 決済確認: ${order.paymentStatus} / 
 										配送確認: ${order.deliveryStatus} / 接客担当: ${order.staffName} `}
 										/>
 								</List.Item>
 							)}
+							
 						/>
 					</div>
 			</div>	
@@ -123,7 +139,7 @@ function ListOrderPage(props) {
 			return (
 				<div style={{ width:'75%', margin:'3rem auto' }}>
 					<div style={{ textAlign:'center' }}>
-						<h2>Order List</h2>
+						<h1>{t('Order.listTitle')}</h1>
 					</div>
 	
 					{/* Filter */}
@@ -159,7 +175,7 @@ function ListOrderPage(props) {
 		return (
 			<div style={{ width:'75%', margin:'3rem auto' }}>
 				<div style={{ textAlign:'center' }}>
-					<h2>Order List</h2>
+					<h1>{t('Order.listTitle')}</h1>
 				</div>
 
 				{/* Filter */}

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Form, Input } from 'antd';
 import FileUpload from '../../utils/FileUpload';
 import axios from 'axios';
 import { PRODUCT_SERVER } from '../../Config.js';
+import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -25,6 +26,11 @@ function UploadProductPage(props) {
   const [Point, setPoint] = useState(0);
   const [Continent, setContinent] = useState(1);
   const [Images, setImages] = useState([]);
+
+  useEffect(() => {
+    // 다국적언어 설정
+		setLanguage(localStorage.getItem("i18nextLng"));
+	}, [])
 
   const titleChangeHandler = (event) => {
     setTitle(event.currentTarget.value);
@@ -90,10 +96,16 @@ function UploadProductPage(props) {
       });
   }
 
+  // 다국적언어 설정
+	const {t, i18n} = useTranslation();
+  function setLanguage(lang) {
+    i18n.changeLanguage(lang);
+  }
+
   return (
     <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <h2>Upload Product</h2>
+        <h1>{t('Product.uploadTitle')}</h1>
       </div>
 
       <Form onSubmit={submitHandler}>
@@ -102,27 +114,27 @@ function UploadProductPage(props) {
 
         <br />
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>Title</label>
+        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.title')}</label>
         <Input onChange={titleChangeHandler} value={Title}/>
         <br />
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>Description</label>
+        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.description')}</label>
         <TextArea onChange={descriptionChangeHandler} value={Description}/>
         <br />
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>Usage</label>
+        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.howToUse')}</label>
         <TextArea onChange={usageChangeHandler} value={Usage}/>
         <br />
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>Price($)</label>
+        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.price')}(¥)</label>
         <Input onChange={priceChangeHandler} value={Price}/>
         <br />
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>Point</label>
+        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.point')}</label>
         <Input onChange={pointChangeHandler} value={Point}/>
         <br />
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>Item Selection</label>
+        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.itemSelection')}</label>
         <br />
         <select onChange={continentChangeHandler} value={Continent}>
           {Continents.map(item => (

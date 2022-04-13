@@ -3,6 +3,7 @@ import axios from 'axios';
 import CustomerInfo from './Sections/CustomerInfo'
 import { Row, Col } from 'antd';
 import { CUSTOMER_SERVER } from '../../Config.js';
+import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -15,16 +16,24 @@ function DetailCustomerPage(props) {
       .then(response => {
         if (response.data.success) {
           setCustomer(response.data.customer[0])
+          // 다국적언어
+          setLanguage(localStorage.getItem("i18nextLng"));
         } else {
-          alert("Failed to get customer information.")
+          alert("Failed to get customer information")
         }
       })
   }, [])
 
+  // 다국적언어 설정
+	const {t, i18n} = useTranslation();
+  function setLanguage(lang) {
+    i18n.changeLanguage(lang);
+  }
+
   return (
     <div style={{ width:'100%', padding:'3rem 4rem' }}>
       <div style={{ display:'flex', justifyContent:'center' }}>
-        <h1>Customer Info</h1>
+        <h1>{t('Customer.detailTitle')}</h1>
       </div>
       <br />
       
