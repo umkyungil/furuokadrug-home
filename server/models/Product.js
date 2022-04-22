@@ -10,10 +10,30 @@ const productSchema = mongoose.Schema({
       type: String,
       mongoose: 50
     },
+    chineseTitle: {
+      type: String,
+      mongoose: 50
+    },
+    englishTitle: {
+      type: String,
+      mongoose: 50
+    },
     description: {
       type: String,
     },
+    chineseDescription: {
+      type: String,
+    },
+    englishDescription: {
+      type: String,
+    },
     usage: {
+      type: String,
+    },
+    chineseUsage: {
+      type: String,
+    },
+    englishUsage: {
       type: String,
     },
     price: {
@@ -25,9 +45,7 @@ const productSchema = mongoose.Schema({
       default: []
     },
     sold: {
-      type: Number,
-      maxlength: 10000,
-      default: 0
+      type: String,
     },
     continents: {
       type: Number,

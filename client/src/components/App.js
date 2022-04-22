@@ -18,8 +18,6 @@ import LandingPage from "./views/LandingPage/LandingPage.js";
 // 상품관리
 import DetailProductPage from "./views/ProductPage/DetailProductPage.js"; // 상품상세
 import UpdateProductPage from "./views/ProductPage/UpdateProductPage.js"; // 상품수정
-import UpdateEnProductPage from "./views/ProductPage/UpdateEnProductPage.js"; // 상품수정(영어)
-import UpdateCnProductPage from "./views/ProductPage/UpdateCnProductPage.js"; // 상품수정(중국어)
 import UploadProductPage from "./views/ProductPage/UploadProductPage.js"; // 상품등록
 // 고객관리
 import CustomerRegisterPage from "./views/CustomerPage/CustomerRegisterPage.js"; // 고객등록
@@ -74,9 +72,6 @@ function App() {
           <Route exact path="/product/upload" component={Auth(UploadProductPage, true)} />
           <Route exact path="/product/:productId" component={Auth(DetailProductPage, null)} />
           <Route exact path="/product/update/:productId/" component={Auth(UpdateProductPage, null)} />
-          <Route exact path="/product/update/en/:productId/" component={Auth(UpdateEnProductPage, null)} />
-          <Route exact path="/product/update/cn/:productId/" component={Auth(UpdateCnProductPage, null)} />
-
           {/* 고객관리 */}
           <Route exact path="/customer/register" component={Auth(CustomerRegisterPage, true)} />
           <Route exact path="/customer/list" component={Auth(CustomerListPage, true)} />

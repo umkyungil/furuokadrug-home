@@ -6,9 +6,17 @@
     "uploadTitle": "Upload Product",
     "updateTitle": "Update Product",
     "detailTitle": "Product Detail",
-    "title": "Title",
+    "japaneseTitle": "Title(Japanese)",
+    "englishTitle": "Title(English)",
+    "chineseTitle": "Title(Chinese)",
     "description": "Description",
+    "japaneseDescription": "Description(Japanese)",
+    "englishDescription": "Description(English)",
+    "chineseDescription": "Description(Chinese)",
     "howToUse": "How To Use",
+    "japaneseHowToUse": "How To Use(Japanese)",
+    "englishHowToUse": "How To Use(English)",
+    "chineseHowToUse": "How To Use(Chinese)",
     "price": "Price",
     "point": "Point",
     "contents": "Contents",
@@ -47,5 +55,9 @@
     "shippingAddress": "Shipping address",
     "paymentTime": "Payment time",
     "uniqueField": "Unique field"
+  },
+  "Modal": {
+    "title": "Furuokadrug",
+    "message": "Would you like to call a representative?"
   }
 }

@@ -6,9 +6,17 @@
     "uploadTitle": "商品情報アップロード",
     "updateTitle": "商品情報更新",
     "detailTitle": "商品詳細情報",
-    "title": "タイトル",
+    "japaneseTitle": "タイトル(日本語)",
+    "englishTitle": "タイトル(英語)",
+    "chineseTitle": "タイトル(中国語)",
     "description": "詳細",
+    "japaneseDescription": "詳細(日本語)",
+    "englishDescription": "詳細(英語)",
+    "chineseDescription": "詳細(中国語)",
     "howToUse": "使用方法",
+    "japaneseHowToUse": "使用方法(日本語)",
+    "englishHowToUse": "使用方法(英語)",
+    "chineseHowToUse": "使用方法(中国語)",
     "price": "価格",
     "point": "ポイント",
     "contents": "容量",
@@ -47,5 +55,9 @@
     "shippingAddress": "配送地",
     "paymentTime": "決済時刻",
     "uniqueField": "決済識別情報"
+  },
+  "Modal": {
+    "title": "古岡ドラック",
+    "message": "担当者をお呼びしましょうか"
   }
 }

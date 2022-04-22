@@ -55,7 +55,7 @@ function OrderInfo(props) {
             <Descriptions.Item label={t('Order.amount')}>￥{Number(props.detail.amount).toLocaleString()}</Descriptions.Item>
             <Descriptions.Item label={t('Order.paymentStatus')}>{props.detail.paymentStatus}</Descriptions.Item>
             <Descriptions.Item label={t('Order.deliveryStatus')}>{props.detail.deliveryStatus}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.serviceStaff')}>{props.detail.staffName}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.staffName')}>{props.detail.staffName}</Descriptions.Item>
           </Descriptions>
 
           <br />
@@ -84,7 +84,7 @@ function OrderInfo(props) {
             <Descriptions.Item label={t('Order.amount')}>￥{Number(props.detail.amount).toLocaleString()}</Descriptions.Item>
             <Descriptions.Item label={t('Order.paymentStatus')}>{props.detail.paymentStatus}</Descriptions.Item>
             <Descriptions.Item label={t('Order.deliveryStatus')}>{props.detail.deliveryStatus}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.serviceStaff')}>{props.detail.staffName}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.staffName')}>{props.detail.staffName}</Descriptions.Item>
           </Descriptions>
 
           <br />
@@ -118,7 +118,7 @@ function OrderInfo(props) {
           <Descriptions.Item label={t('Order.amount')}>￥{Number(props.detail.amount).toLocaleString()}</Descriptions.Item>
           <Descriptions.Item label={t('Order.paymentStatus')}>{props.detail.paymentStatus}</Descriptions.Item>
           <Descriptions.Item label={t('Order.deliveryStatus')}>{props.detail.deliveryStatus}</Descriptions.Item>
-          <Descriptions.Item label={t('Order.serviceStaff')}>{props.detail.staffName}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.staffName')}>{props.detail.staffName}</Descriptions.Item>
         </Descriptions>
 
         <br />

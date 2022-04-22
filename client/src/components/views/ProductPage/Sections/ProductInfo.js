@@ -12,12 +12,10 @@ axios.defaults.withCredentials = true;
 
 function ProductInfo(props) {
   const [value, setValue] = React.useState('1');
-  const [i18nextLng, seti18nextLng] = useState("");
   const user = useSelector(state => state.user)
   const history = useHistory();
   const dispatch = useDispatch();
   const { Panel } = Collapse;
-  // 금액에 콤마 추가
   const price = Number(props.detail.price).toLocaleString();
   const point = Number(props.detail.point).toLocaleString();
 
@@ -34,16 +32,6 @@ function ProductInfo(props) {
   // 상품 수정
   const modifyHandler = () => {
     history.push(`/product/update/${props.detail._id}`);
-  }
-
-  // 상품정보를 영어로 수정
-  const modifyHandlerEn = () => {
-    history.push(`/product/update/en/${props.detail._id}`);
-  }
-
-  // 상품정보를 중국어로 수정
-  const modifyHandlerCn = () => {
-    history.push(`/product/update/cn/${props.detail._id}`);
   }
   // 상품 삭제
   const deleteHandler = () => {
@@ -81,14 +69,14 @@ function ProductInfo(props) {
   if (user.userData && !user.userData.isAuth) {
     return (
       <div>
-        <InputNumber min={1} max={10} defaultValue={value} onChange={setValue} />&nbsp;
+        {/* <InputNumber min={1} max={10} defaultValue={value} onChange={setValue} />&nbsp;
         <Button type="primary" onClick={cartHandler}>
           Add Cart
         </Button>
         <br />
-        <br />
-        <Descriptions bordered>
-          <Descriptions.Item label={t('Product.price')}>{price}</Descriptions.Item>
+        <br /> */}
+        <Descriptions>
+          <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
           <Descriptions.Item label={t('Product.point')}>{point}</Descriptions.Item>
           <Descriptions.Item label={t('Product.contents')}>{props.detail.sold}</Descriptions.Item>
         </Descriptions>
@@ -119,7 +107,7 @@ function ProductInfo(props) {
     return (
       <div>
         <Descriptions>
-          <Descriptions.Item label={t('Product.price')}>{price}</Descriptions.Item>
+          <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
           <Descriptions.Item label={t('Product.point')}>{props.detail.point}</Descriptions.Item>
           <Descriptions.Item label={t('Product.contents')}>{props.detail.sold}</Descriptions.Item>          
         </Descriptions>
@@ -150,14 +138,6 @@ function ProductInfo(props) {
           &nbsp;&nbsp;&nbsp;
           <Button type="primary" onClick={modifyHandler}>
             Modify
-          </Button>
-          &nbsp;&nbsp;&nbsp;
-          <Button type="primary" onClick={modifyHandlerEn}>
-            English
-          </Button>
-          &nbsp;&nbsp;&nbsp;
-          <Button type="primary" onClick={modifyHandlerCn}>
-            Chinese
           </Button>
           &nbsp;&nbsp;&nbsp;
           <Button type="danger" onClick={deleteHandler}>

@@ -6,12 +6,18 @@
     "uploadTitle": "上传产品",
     "updateTitle": "产品信息更新",
     "detailTitle": "产品详情",
-    "title": "标题",
+    "japaneseTitle": "标题(日本語)",
+    "englishTitle": "标题(英语)",
+    "chineseTitle": "标题(简体中文)",
     "description": "描述",
+    "englishDescription": "描述(英语)",
+    "chineseDescription": "描述(简体中文)",
     "howToUse": "如何使用",
+    "englishHowToUse": "如何使用(英语)",
+    "chineseHowToUse": "如何使用(简体中文)",
     "price": "价格",
-    "point": "观点",
-    "contents": "容量",
+    "point": "关键点",
+    "contents": "含量",
     "itemSelection": "项目选择",
     "priceSelection": "价格范围"
   },
@@ -28,7 +34,7 @@
     "address2": "地址2",
     "address3": "地址3",
     "salesman": "服务人员",
-    "point": "观点"
+    "point": "关键点"
   },
   "Order": {
     "listTitle": "订单信息列表",
@@ -41,11 +47,15 @@
     "paymentStatus": "支付状态",
     "deliveryStatus": "邮寄状态",
     "userId": "用户身份",
-    "staffName": "服务人员",
+    "staffName": "员工姓名",
     "lastName": "名",
     "tel": "电话号码",
-    "shippingAddress": "交货地点",
+    "shippingAddress": "邮寄地址",
     "paymentTime": "结算时间",
     "uniqueField": "支付识别信息"
+  },
+  "Modal": {
+    "title": "古冈药业",
+    "message": "你想打电话给代表吗？"
   }
 }

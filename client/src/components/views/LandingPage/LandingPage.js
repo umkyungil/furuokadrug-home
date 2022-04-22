@@ -8,12 +8,7 @@ import RadioBox from './Sections/RadioBox';
 import SearchFeature from './Sections/SearchFeature';
 import { continents, price } from './Sections/Datas';
 import { PRODUCT_SERVER } from '../../Config.js';
-// Multi Language
 import { useTranslation } from 'react-i18next';
-import Japanese from '../../images/japanese.png';
-import English from '../../images/english.png';
-import Chinese from '../../images/chinese.png';
-
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -27,6 +22,7 @@ function LandingPage() {
 		price: []
 	})
 	const [SearchTerm, setSearchTerm] = useState("");
+	const [I18nLanguage, setI18nLanguage] = useState("");
 
 	useEffect(() => {
 		let body = {
@@ -34,12 +30,11 @@ function LandingPage() {
 			limit: Limit
 		}
 		
-		// 다국적언어 설정
+		// 다국어 설정
 		setLanguage(localStorage.getItem("i18nextLng"));
-
 		// 상품 가져오기
 		getProducts(body);
-	}, [])
+	}, [localStorage.getItem('i18nextLng')])
 
 	// limit, skip은 mongo의 옵션
 	const getProducts = (body) => {
@@ -48,8 +43,28 @@ function LandingPage() {
 					if (response.data.success) {
 						// 더 보기 버튼인지 확인
 						if (body.loadMore) {
+							if (localStorage.getItem('i18nextLng') === "en") {
+								response.data.productInfo.map((value, index) => {
+									value.title = value.englishTitle;
+								})
+							} else if (localStorage.getItem('i18nextLng') === "cn") {
+								response.data.productInfo.map((value, index) => {
+									value.title = value.chineseTitle;
+								})
+							}
+
 							setProducts([...Products, ...response.data.productInfo]);
 						} else {
+							if (localStorage.getItem('i18nextLng') === "en") {
+								response.data.productInfo.map((value, index) => {
+									value.title = value.englishTitle;
+								})
+							} else if (localStorage.getItem('i18nextLng') === "cn") {
+								response.data.productInfo.map((value, index) => {
+									value.title = value.chineseTitle;
+								})
+							}
+							
 							setProducts(response.data.productInfo);
 						}
 
@@ -155,18 +170,11 @@ function LandingPage() {
 	const {t, i18n} = useTranslation();
   function setLanguage(lang) {
     i18n.changeLanguage(lang);
+		setI18nLanguage(lang);
   }
 
 	return (
 		<div style={{ width:'75%', margin:'3rem auto' }}>
-			{/* 다국어 버튼 */}
-			{/* <nav style={{ cursor:'pointer', width:'100', float:'right' }}>
-				<img src={English} width='21' height='21' alt='English' onClick={() => setLanguage('en')} />
-				&nbsp;
-				<img src={Japanese} width='35' height='35' alt='Japanese' onClick={() => setLanguage('ja-JP')} />
-				&nbsp;
-				<img src={Chinese} width='24' height='24' alt='Chinese' onClick={() => setLanguage('cn')} />
-			</nav> */}
 			<div style={{ textAlign:'center' }}>
 				<h1>{t('Landing.title')}</h1>
 			</div>
@@ -200,7 +208,6 @@ function LandingPage() {
 			{/* PostSize: Product Size */}
 			{PostSize >= Limit && 
 				<div style={{ display:'flex', justifyContent:'center' }}>
-					{/* <button onClick={loadMoreHandler}>More</button> */}
 					<Button onClick={loadMoreHandler}>More</Button>
 				</div>
 			}
