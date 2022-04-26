@@ -63,9 +63,10 @@ function App() {
           <Route exact path="/" component={Auth(LandingPage, null)} />
           {/* 로그인관리 */}
           <Route exact path="/login" component={Auth(LoginPage, false)} />
-          {/* 사용자관리 */}
+          {/* 사용자관리, 카트관리 */}
           <Route exact path="/register" component={Auth(UserRegisterPage, null)} />          
           <Route exact path="/user/list" component={Auth(UserListPage, true)} />
+          <Route exact path="/user/cart" component={Auth(CartPage, true)} />
           <Route exact path="/user/:userId" component={Auth(UserDetailPage, true)} />
           <Route exact path="/user/update/:userId" component={Auth(UserUpdatePage, true)} />
           {/* 상품관리 */}
@@ -96,8 +97,7 @@ function App() {
           <Route exact path="/csv/upload/univaPayCast" component={Auth(UploadCSVUnivaPayCastPage, true)} />
           {/* 라이브 방송 */}
           <Route exact path="/live" component={Auth(LiveStreamingPage, true)} />
-          {/* 카트관리 */}
-          <Route exact path="/user/cart" component={Auth(CartPage, true)} />
+          
           {/* 404 Not Found */}
           <Route path={"*"} component={NotFoundPage}/>
 

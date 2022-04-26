@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { User } = require("../models/User");
 const { auth } = require("../middleware/auth");
+const { Product } = require('../models/Product');
 
 //=================================
 //             User
@@ -187,10 +188,63 @@ router.post("/addToCart", auth, (req, res) => {
                 )
             }
         })
-
-    // 상품이 이미 있을때
-
-    // 상품이 이미 있지 않을때
 });
+
+// 카트의 상품삭제
+router.get('/removeFromCart', auth, (req, res) => {
+    // 카트안의 내가 지우려는 상품을 삭제
+    User.findOneAndUpdate(
+        {_id: req.user._id},
+        {
+            "$pull":
+            {"cart":{"id" : req.query.id}}
+        },
+        { new: true },
+        (err, userInfo) => {
+            let cart = userInfo.cart;
+            // 최신 상품정보에서 상품아이디만 배열에 담는다
+            let array = cart.map(item => {
+                return item.id;
+            })
+
+            // 위의 배열에 담긴 상품아이디로 상품디비에서 최신 상품정보를 가져오기
+            Product.find({ _id: { $in: array } })
+            .populate("writer")
+            .exec((err, productInfo) => {
+                // cartDetail정보를 만들기 위해 productInfo, cart정보를 반환한다
+                // cart: 사용자의 카트 정보
+                // productInfo: 사용자의 카트 정보의 상품아이디로 취득한 상품정보
+                return res.status(200).json({
+                    productInfo,
+                    cart
+                })
+            })
+        }
+    )
+})
+
+router.post('/successBuy', auth, (req, res) => {
+    // User Collection의 History 필드안에 간단한 결제정보 넣어주기
+        let history = [];
+        let transactionData = {};
+
+        req.body.cartDetail.forEach((item) => {
+            history.push({
+                dateOfPurchase: Date.now(),
+                name: item.title,
+                id: item._id,
+                price: item.price,
+                quantity: item.quantity,
+                paymentId: req.body.paymentData.paymentId
+            })
+        })
+
+    // Payment Collection에 자세한 결제정보 넣어주기
+    
+
+    // Product Collection의 sold 필드 정보 업데이트
+
+
+})
 
 module.exports = router;

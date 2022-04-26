@@ -11,10 +11,6 @@ function CustomerInfo(props) {
   const user = useSelector(state => state.user)
   const dispatch = useDispatch();
 
-  useEffect(() => {
-		setLanguage(localStorage.getItem("i18nextLng"));
-	}, [])
-
   const deleteHandler = () => {
     dispatch(deleteCustomer(props.detail._id))
       .then(response => {
@@ -33,9 +29,6 @@ function CustomerInfo(props) {
 
   // 다국적언어 설정
 	const {t, i18n} = useTranslation();
-  function setLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
   
   if (user.userData) {
 		if (user.userData.role === 1) {

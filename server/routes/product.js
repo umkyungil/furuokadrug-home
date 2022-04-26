@@ -106,6 +106,7 @@ router.get('/products_by_id', (req, res) => {
   let type = req.query.type;
   let productIds = req.query.id;
 
+  // 카트의 상품정보들 처리
   if (type === "array") {
     // id=1234,1234,1234 로 되어 있는걸 
     // productIds=['1234','1234']로 배열에 담는다
@@ -114,12 +115,15 @@ router.get('/products_by_id', (req, res) => {
       return item;
     })
   }
-  // productId를 이용해서 DB에서 productId와 같은 상품의 정보를 가져온다
+  // 하나이상의 productId로 상품의 정보들을 가져온다
   Product.find({ _id: { $in: productIds } })
     .populate('writer')
     .exec((err, product) => {
-      if (err) return res.status(400).send(err)
-      return res.status(200).send({success: true, product});
+      if (err) {
+        console.log("err: ", err);
+        return res.status(400).send(err)
+      }
+      return res.status(200).send(product);
     })
 })
 

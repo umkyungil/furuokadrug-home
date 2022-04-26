@@ -21,7 +21,8 @@
     "point": "Point",
     "contents": "Contents",
     "itemSelection": "Item Selection",
-    "priceSelection": "Price Selection"
+    "priceSelection": "Price Selection",
+    "imageMessage": "Existing images will be deleted so please add new ones"
   },
   "Customer": {
     "listTitle": "Customer Information List",
@@ -30,7 +31,7 @@
     "detailTitle": "Customer Detail",
     "smaregi": "Smaregi ID",
     "name": "Name",
-    "tel": "Tel",
+    "tel": "Phone number",
     "email": "E-mail",
     "address1": "Address1",
     "address2": "Address2",
@@ -59,5 +60,23 @@
   "Modal": {
     "title": "Furuokadrug",
     "message": "Would you like to call a representative?"
+  },
+  "Reservation": {
+    "title": "Virtual Reservation",
+    "name": "Name",
+    "wechatId": "Wechat ID",
+    "tel": "Phone number",
+    "date": "Reservation date",
+    "item": "Interested Item",
+    "email": "E-mail"
+  },
+  "Cart": {
+    "title": "My Cart",
+    "image": "Product Image",
+    "quantity": "Product Quantity",
+    "price": "Product Price",
+    "remove": " Remove from cart",
+    "amount": " Total Amount",
+    "unit": "Ea"
   }
 }

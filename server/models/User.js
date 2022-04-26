@@ -58,6 +58,9 @@ const userSchema = mongoose.Schema({
     },
     tokenExp :{
         type: Number
+    },
+    lastLogin :{
+        type: String,
     }
 })
 

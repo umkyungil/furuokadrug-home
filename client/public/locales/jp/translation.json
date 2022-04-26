@@ -21,7 +21,8 @@
     "point": "ポイント",
     "contents": "容量",
     "itemSelection": "アイテム",
-    "priceSelection": "価格範囲"
+    "priceSelection": "価格範囲",
+    "imageMessage": "既存の画像は削除されるので新しい画像を追加してください"
   },
   "Customer": {
     "listTitle": "顧客情報一覧",
@@ -30,7 +31,7 @@
     "detailTitle": "顧客詳細情報",
     "smaregi": "スマレジID",
     "name": "名前",
-    "tel": "電話",
+    "tel": "電話番号",
     "email": "メール",
     "address1": "アドレス1",
     "address2": "アドレス2",
@@ -59,5 +60,23 @@
   "Modal": {
     "title": "古岡ドラック",
     "message": "担当者をお呼びしましょうか"
+  },
+  "Reservation": {
+    "title": "仮想予約",
+    "name": "名前",
+    "wechatId": "Wechat ID",
+    "tel": "電話番号",
+    "date": "予約日",
+    "item": "興味を持ったアイテム",
+    "email": "メール"
+  },
+  "Cart": {
+    "title": "My Cart",
+    "image": "イメージ",
+    "quantity": "数量",
+    "price": "価格",
+    "remove": "削除",
+    "amount": "合計",
+    "unit": "個"
   }
 }

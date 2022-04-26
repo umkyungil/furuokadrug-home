@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { LOGIN_USER, REGISTER_USER, UPDATE_USER, DELETE_USER, AUTH_USER, LOGOUT_USER, ADD_TO_CART, GET_CART_ITEMS } from './types';
+import { LOGIN_USER, REGISTER_USER, UPDATE_USER, DELETE_USER, AUTH_USER, LOGOUT_USER, ADD_TO_CART, 
+    GET_CART_ITEMS, REMOVE_CART_ITEM, ON_SUCCESS_BUY } from './types';
 import { USER_SERVER, PRODUCT_SERVER } from '../components/Config.js';
 
 // CORS 대책
@@ -77,16 +78,55 @@ export function addToCart(id){
     }
 }
 
-// 상세페이지의 카트
+// 카트에 표시할 상품정보 취득
 export function getCartItems(cartItems, userCart) {
     // 상품을 한개이상 가지고 와야 하기때문에 type=array
-    const request = axios.get(`${PRODUCT_SERVER}/products_by_id=${cartItems}&type=array`)
+    const request = axios.get(`${PRODUCT_SERVER}/products_by_id?id=${cartItems}&type=array`)
         .then(response => {
-            // CartItem들에 해당하는 정보들을 Product Collection에서 가져온후에
-            // Quantity 정보를 넣어준다
+            // CartItem들에 해당하는 상품정보들을 가져온후에
+            // 사용자정보에 있는 상품아이디와 동일한 상품정보에  
+            // 사용자 정보의 수량정보를 넣어준다
+            userCart.forEach(cartItem => {
+                response.data.forEach((productDetail, index) => {
+                    if(cartItem.id === productDetail._id) {
+                        response.data[index].quantity = cartItem.quantity
+                    }
+                })
+            })
+            return response.data;
         });
     return {
         type: GET_CART_ITEMS,
+        payload: request
+    }
+}
+
+// 카트 상품삭제
+export function removeCartItem(productId) {
+    const request = axios.get(`${USER_SERVER}/removeFromCart?id=${productId}`)
+        .then(response => {
+            // productInfo, cart정보를 조합해서 CartDetail을 만든다            
+            response.data.cart.forEach(item => {
+                response.data.productInfo.forEach((product, index) => {
+                    if (item.id === product._id) {
+                        response.data.productInfo[index].quantity = item.quantity;
+                    }
+                })
+            })
+            return response.data;
+        });
+    return {
+        type: REMOVE_CART_ITEM,
+        payload: request
+    }
+}
+
+// 카트 상품삭제
+export function onSuccessBuy(data) {
+    const request = axios.post(`${USER_SERVER}/successBuy`, data)
+        .then(response => response.data);
+    return {
+        type: ON_SUCCESS_BUY,
         payload: request
     }
 }

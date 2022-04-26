@@ -20,50 +20,44 @@ function DetailProductPage(props) {
 
     axios.get(`${PRODUCT_SERVER}/products_by_id?id=${productId}&type=single`)
       .then(response => {
-        if (response.data.success) {
-          // 다국적언어에 따라 화면에 표시되는 언어를 설정(타이틀,상세,사용방법)
-          if (localStorage.getItem('i18nextLng') === "en") {
-            response.data.product[0].title = response.data.product[0].englishTitle  
-
-            let tmpEnDesc = response.data.product[0].englishDescription;
-            if (tmpEnDesc) {              
-              response.data.product[0].description = convert(tmpEnDesc);
-            }
-
-            let tmpEnUsage = response.data.product[0].englishUsage;
-            if (tmpEnUsage) {
-              response.data.product[0].usage = convert(tmpEnUsage);
-            }
-          } else if (localStorage.getItem('i18nextLng') === "cn") {
-            response.data.product[0].title = response.data.product[0].chineseTitle  
-
-            let tmpCnDesc = response.data.product[0].chineseDescription;
-            if (tmpCnDesc) {              
-              response.data.product[0].description = convert(tmpCnDesc);
-            }
-
-            let tmpCnUsage = response.data.product[0].chineseUsage;
-            if (tmpCnUsage) {
-              response.data.product[0].usage = convert(tmpCnDesc);
-            }       
-          } else {
-            let tmpJpDesc = response.data.product[0].description;
-            if (tmpJpDesc) {
-              response.data.product[0].description = convert(tmpJpDesc);
-            }
-
-            let tmpJpUsage = response.data.product[0].usage;
-            if (tmpJpUsage) {
-              response.data.product[0].usage = convert(tmpJpUsage);
-            }
-          }  
-          
-          setProduct(response.data.product[0])
-
+        // DB에서 가지고온 데이터를 설정된 다국적언어에 맞게 셋팅
+        if (localStorage.getItem('i18nextLng') === "en") {
+          // 타이틀
+          response.data[0].title = response.data[0].englishTitle;
+          // 설명
+          let tmpEnDesc = response.data[0].englishDescription;
+          if (tmpEnDesc) {              
+            response.data[0].description = convert(tmpEnDesc);
+          }
+          // 사용법
+          let tmpEnUsage = response.data[0].englishUsage;
+          if (tmpEnUsage) {
+            response.data[0].usage = convert(tmpEnUsage);
+          }
+        } else if (localStorage.getItem('i18nextLng') === "cn") {
+          response.data[0].title = response.data[0].chineseTitle  
+          let tmpCnDesc = response.data[0].chineseDescription;
+          if (tmpCnDesc) {              
+            response.data[0].description = convert(tmpCnDesc);
+          }
+          let tmpCnUsage = response.data[0].chineseUsage;
+          if (tmpCnUsage) {
+            response.data.usage = convert(tmpCnDesc);
+          }       
         } else {
-          alert("Failed to get product information.")
-        }
+          let tmpJpDesc = response.data[0].description;
+          if (tmpJpDesc) {
+            response.data[0].description = convert(tmpJpDesc);
+          }
+          let tmpJpUsage = response.data[0].usage;
+          if (tmpJpUsage) {
+            response.data[0].usage = convert(tmpJpUsage);
+          }
+        }  
+        // DB에서 가져온 상품정보를 State에 설정
+        setProduct(response.data[0])
       })
+      .catch(err => alert("Failed to get product information."))
   }, [localStorage.getItem('i18nextLng')])
 
   // 다국어 설정
@@ -81,7 +75,8 @@ function DetailProductPage(props) {
   }
 
   return (
-    <div style={{ width:'90%', padding:'3rem 4rem' }}>
+    // <div style={{ width:'90%', padding:'3rem 4rem' }}>
+    <div style={{ width:'100%', padding:'3rem 4rem' }}>
       <div style={{ display:'flex', justifyContent:'center' }}>
         <h1>{Product.title}</h1>
       </div>

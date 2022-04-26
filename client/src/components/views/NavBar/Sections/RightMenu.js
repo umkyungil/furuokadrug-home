@@ -53,6 +53,13 @@ function RightMenu(props) {
   // login 했을때 메뉴
   } else {
     if (user.userData) {
+
+      // 사용자의 카트 상품갯수 구해서 뱃지갱신
+      let count = 0;
+      for (let i=0; i < user.userData.cart.length; i++) {
+        count = count + user.userData.cart[i].quantity
+      }
+      
       // 스텝
       if (user.userData.role === 1) {
         return (
@@ -82,13 +89,6 @@ function RightMenu(props) {
                 <a href="/customer/list">Customer List</a>
               </Menu.Item>
             </SubMenu>
-            <Menu.Item key="cart" style={{paddingBottom:3}}>
-              <Badge count={5}>
-                <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
-                  <Icon type="shopping-cart" style={{fontSize:30, marginBottom:3}} />
-                </a>
-              </Badge>
-            </Menu.Item>          
             <Menu.Item key="logout">
               <a onClick={logoutHandler}>Logout</a>
             </Menu.Item>
@@ -139,13 +139,6 @@ function RightMenu(props) {
                 <a href="/user/list">User List</a>
               </Menu.Item>
             </SubMenu>            
-            <Menu.Item key="cart" style={{paddingBottom:3}}>
-              <Badge count={5}>
-                <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
-                  <Icon type="shopping-cart" style={{fontSize:30, marginBottom:3}} />
-                </a>
-              </Badge>
-            </Menu.Item>          
             <Menu.Item key="logout">
               <a onClick={logoutHandler}>Logout</a>
             </Menu.Item>
@@ -165,7 +158,7 @@ function RightMenu(props) {
               <a href="/order/list">Order list</a>
             </Menu.Item>
             <Menu.Item key="cart" style={{paddingBottom:3}}>
-              <Badge count={5}>
+              <Badge count={count}>
                 <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
                   <Icon type="shopping-cart" style={{fontSize:30, marginBottom:3}} />
                 </a>

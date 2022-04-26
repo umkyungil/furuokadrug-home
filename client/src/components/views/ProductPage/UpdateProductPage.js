@@ -33,9 +33,9 @@ function UpdateProductPage(props) {
   const [Continent, setContinent] = useState(1);
   const [Images, setImages] = useState([]);
   const [OldImages, setOldImages] = useState([]);
-
   // QueryString에서 상품아이디 취득
   const productId = props.match.params.productId;
+
   // 상품정보 취득
   useEffect(() => {
     // 다국적언어 설정
@@ -43,21 +43,22 @@ function UpdateProductPage(props) {
 
     axios.get(`${PRODUCT_SERVER}/products_by_id?id=${productId}&type=single`)
       .then(response => {
-        if (response.data.success) {
-          setOldImages(response.data.product[0].images);
-          setTitle(response.data.product[0].title);
-          setEnglishTitle(response.data.product[0].englishTitle);
-          setChineseTitle(response.data.product[0].chineseTitle);
-          setDescription(response.data.product[0].description);
-          setEnglishDescription(response.data.product[0].englishDescription);
-          setChineseDescription(response.data.product[0].chineseDescription);
-          setUsage(response.data.product[0].usage);
-          setEnglishUsage(response.data.product[0].englishUsage);
-          setChineseUsage(response.data.product[0].chineseUsage);
-          setContents(response.data.product[0].sold);
-          setPrice(response.data.product[0].price);
-          setPoint(response.data.product[0].point);
-          setContinent(response.data.product[0].continents);          
+        console.log("response: ", response.data);
+        if (response.data) {
+          setOldImages(response.data[0].images);
+          setTitle(response.data[0].title);
+          setEnglishTitle(response.data[0].englishTitle);
+          setChineseTitle(response.data[0].chineseTitle);
+          setDescription(response.data[0].description);
+          setEnglishDescription(response.data[0].englishDescription);
+          setChineseDescription(response.data[0].chineseDescription);
+          setUsage(response.data[0].usage);
+          setEnglishUsage(response.data[0].englishUsage);
+          setChineseUsage(response.data[0].chineseUsage);
+          setContents(response.data[0].sold);
+          setPrice(response.data[0].price);
+          setPoint(response.data[0].point);
+          setContinent(response.data[0].continents);          
         } else {
           alert("Failed to get product information")
         }
@@ -187,14 +188,14 @@ function UpdateProductPage(props) {
         {/* DropZone*/}
         <FileUpload refreshFunction={updateImages} />
         <br />
-        <label style={{color: 'red'}}>Existing images will be deleted</label>
+        <label style={{color: 'red'}}>{t('Product.imageMessage')}</label>
         <br />
         {OldImages.map((image, index) => (
           <img key={index} src={`${image}`} width="70" height="70" />
         ))}
         <br />
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.title')}</label>
+        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.japaneseTitle')}</label>
         <Input onChange={titleHandler} value={Title} />
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.englishTitle')}</label>
         <Input onChange={englishTitleHandler} value={EnglishTitle}/><br />

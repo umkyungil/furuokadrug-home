@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { Form, Input, Button } from 'antd';
 import { MAIL_SERVER } from '../../Config.js';
+import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -34,6 +35,9 @@ const tailFormItemLayout = {
 function VirtualReservationPage(props) {
   const history = useHistory();
 
+    // 다국적언어 설정
+	const {t, i18n} = useTranslation();
+
   // query string 취득  
   let to_email;
   if (props.match.params.toEmail) {
@@ -60,8 +64,7 @@ function VirtualReservationPage(props) {
 
   // 메일 송신
   const sendEmail = (e) => { 
-    e.preventDefault(); 
-    
+    e.preventDefault();    
     axios.post(`${MAIL_SERVER}/reservation`, body)
       .then(response => {
         if (response.data.success) {
@@ -94,25 +97,25 @@ function VirtualReservationPage(props) {
 
   return (
     <div className="app">
-      <h2>Virtual Reservation</h2><br />
+      <h1>{t('Reservation.title')}</h1><br />
       <Form style={{ minWidth: '375px' }} onSubmit={sendEmail} {...formItemLayout} >
-        <Form.Item label="Name" required>
+        <Form.Item label={t('Reservation.name')} required>
           <Input name="name" placeholder="Please enter your name" type="text" value={Name} onChange={nameHandler} required />
         </Form.Item>
-        <Form.Item label="Wechat ID" required>
+        <Form.Item label={t('Reservation.wechatId')} required>
           <Input name="wechatID" placeholder="Please enter your Wechat ID" type="text" value={WechatID} onChange={wechatIDHandler} required />
         </Form.Item>
-        <Form.Item label="Telephone number" required>
+        <Form.Item label={t('Reservation.tel')} required>
           <Input name="telephoneNumber" placeholder="Please enter your phone number" type="text" value={TelephoneNumber} onChange={telephoneNumberHandler} required />
         </Form.Item>
-        <Form.Item label="Reservation date" required>
+        <Form.Item label={t('Reservation.date')} required>
           <Input name="reservationDate" placeholder="Please select a reservation date" type="datetime-local" value={ReservationDate} onChange={reservationDateHandler} required />
         </Form.Item>
-        <Form.Item label="Interested Item" required>
+        <Form.Item label={t('Reservation.item')} required>
           <TextArea maxLength={500} name="interestedItem" label="Interested" style={{ height: 120, minWidth: '375px' }} value={InterestedItem} onChange={interestedItemHandler} 
             placeholder="Please enter the item you are interested in." required />
         </Form.Item>
-        <Form.Item label="Email" required>
+        <Form.Item label={t('Reservation.email')} required>
         <Input name="email" placeholder="Please enter your email address" type="email" value={Email} onChange={emailHandler} required />
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>

@@ -19,7 +19,8 @@
     "point": "关键点",
     "contents": "含量",
     "itemSelection": "项目选择",
-    "priceSelection": "价格范围"
+    "priceSelection": "价格范围",
+    "imageMessage": "现有图片将被删除，请添加新图片"
   },
   "Customer": {
     "listTitle": "客户信息列表",
@@ -57,5 +58,23 @@
   "Modal": {
     "title": "古冈药业",
     "message": "你想打电话给代表吗？"
+  },
+  "Reservation": {
+    "title": "虚拟预订",
+    "name": "姓名",
+    "wechatId": "Wechat ID",
+    "tel": "电话号码",
+    "date": "预订日期",
+    "item": "感兴趣的项目",
+    "email": "电子邮件"
+  },
+  "Cart": {
+    "title": "我的车",
+    "image": "图片",
+    "quantity": "数量",
+    "price": "价格",
+    "remove": "删除",
+    "amount": "总金额",
+    "unit": "Ea"
   }
 }

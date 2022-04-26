@@ -82,7 +82,6 @@ function LiveStreaming(props) {
     room = room + date.getDate().toString();
     room = room + date.getHours().toString();
     room = room + date.getMinutes().toString();
-    room = room + date.getSeconds().toString();
     // 룸인 시간 설정    
     const roomInTime = Moment(date).format('YYYY-MM-DD HH:mm:ss');
     // 메일용의 성명
@@ -113,6 +112,7 @@ function LiveStreaming(props) {
       setBody(body);
       // 일반 사용자의 다이렉트 URL 작성
       setUrl(LIVE_SERVER + "meet?name=" + name + "&lastName=" +  lastName + "&room=" + room + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec");
+      
     // 스텝 및 관리자는 라이브 초기화면을 표시
     } else {
       setUrl(LIVE_SERVER + "login?name=" + name + "&lastName=" +  lastName + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec");

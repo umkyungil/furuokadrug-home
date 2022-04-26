@@ -65,16 +65,121 @@ function ProductInfo(props) {
     i18n.changeLanguage(lang);
   }
 
+  // 로그인 후
+  if (user.userData) {
+    // 일반사용자인 경우
+    if (user.userData.role === 0) {
+      return (
+        <div>
+          <Descriptions>
+            <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
+            <Descriptions.Item label={t('Product.point')}>{props.detail.point}</Descriptions.Item>
+            <Descriptions.Item label={t('Product.contents')}>{props.detail.sold}</Descriptions.Item>          
+          </Descriptions>
+          <Collapse defaultActiveKey={['0']}>
+            <Panel header={t('Product.description')}>
+              <Descriptions>
+                <Descriptions.Item>{props.detail.description}</Descriptions.Item>
+              </Descriptions>
+            </Panel>
+          </Collapse>
+          <br />  
+          <Collapse defaultActiveKey={['1']}>
+            <Panel header={t('Product.howToUse')}>
+              <Descriptions>
+                <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
+              </Descriptions>
+            </Panel>
+          </Collapse>
+          <br />
+          <div style={{ display:'flex', justifyContent:'center' }} >
+            <Button onClick={listHandler}>
+              Product List
+            </Button>
+            &nbsp;&nbsp;&nbsp;
+            <Button type="primary" onClick={cartHandler}>
+              Add to Cart
+            </Button>
+          </div>
+        </div>
+      )
+    // 관리자인 경우
+    } else if (user.userData.role === 2) {
+      return (
+        <div>
+          <Descriptions>
+            <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
+            <Descriptions.Item label={t('Product.point')}>{props.detail.point}</Descriptions.Item>
+            <Descriptions.Item label={t('Product.contents')}>{props.detail.sold}</Descriptions.Item>          
+          </Descriptions>
+          <Collapse defaultActiveKey={['0']}>
+            <Panel header={t('Product.description')}>
+              <Descriptions>
+                <Descriptions.Item>{props.detail.description}</Descriptions.Item>
+              </Descriptions>
+            </Panel>
+          </Collapse>
+          <br />  
+          <Collapse defaultActiveKey={['1']}>
+            <Panel header={t('Product.howToUse')}>
+              <Descriptions>
+                <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
+              </Descriptions>
+            </Panel>
+          </Collapse>
+          <br />
+          <div style={{ display:'flex', justifyContent:'center' }} >
+            <Button onClick={listHandler}>
+              Product List
+            </Button>
+            &nbsp;&nbsp;&nbsp;
+            <Button type="primary" onClick={modifyHandler}>
+              Modify
+            </Button>
+            &nbsp;&nbsp;&nbsp;
+            <Button type="danger" onClick={deleteHandler}>
+              Delete
+            </Button>
+          </div>
+        </div>
+      )
+    // 스텝인 경우
+    } else {
+      return (
+        <div>
+          <Descriptions>
+            <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
+            <Descriptions.Item label={t('Product.point')}>{props.detail.point}</Descriptions.Item>
+            <Descriptions.Item label={t('Product.contents')}>{props.detail.sold}</Descriptions.Item>          
+          </Descriptions>
+          <Collapse defaultActiveKey={['0']}>
+            <Panel header={t('Product.description')}>
+              <Descriptions>
+                <Descriptions.Item>{props.detail.description}</Descriptions.Item>
+              </Descriptions>
+            </Panel>
+          </Collapse>
+          <br />  
+          <Collapse defaultActiveKey={['1']}>
+            <Panel header={t('Product.howToUse')}>
+              <Descriptions>
+                <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
+              </Descriptions>
+            </Panel>
+          </Collapse>
+          <br />
+          <div style={{ display:'flex', justifyContent:'center' }} >
+            <Button onClick={listHandler}>
+              Product List
+            </Button>
+          </div>
+        </div>
+      )
+    }
   // 로그인 전
-  if (user.userData && !user.userData.isAuth) {
+  } else {
     return (
       <div>
-        {/* <InputNumber min={1} max={10} defaultValue={value} onChange={setValue} />&nbsp;
-        <Button type="primary" onClick={cartHandler}>
-          Add Cart
-        </Button>
-        <br />
-        <br /> */}
         <Descriptions>
           <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
           <Descriptions.Item label={t('Product.point')}>{point}</Descriptions.Item>
@@ -99,49 +204,6 @@ function ProductInfo(props) {
         <div style={{ display:'flex', justifyContent:'center' }} >
           <Button size="large" onClick={listHandler}>
             Product List
-          </Button>
-        </div>
-      </div>
-    )
-  } else {
-    return (
-      <div>
-        <Descriptions>
-          <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
-          <Descriptions.Item label={t('Product.point')}>{props.detail.point}</Descriptions.Item>
-          <Descriptions.Item label={t('Product.contents')}>{props.detail.sold}</Descriptions.Item>          
-        </Descriptions>
-        <Collapse defaultActiveKey={['0']}>
-          <Panel header={t('Product.description')}>
-            <Descriptions>
-              <Descriptions.Item>{props.detail.description}</Descriptions.Item>
-            </Descriptions>
-          </Panel>
-        </Collapse>
-        <br />  
-        <Collapse defaultActiveKey={['1']}>
-          <Panel header={t('Product.howToUse')}>
-            <Descriptions>
-              <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
-            </Descriptions>
-          </Panel>
-        </Collapse>
-        <br />
-        <div style={{ display:'flex', justifyContent:'center' }} >
-          <Button onClick={listHandler}>
-            Product List
-          </Button>
-          &nbsp;&nbsp;&nbsp;
-          <Button type="primary" onClick={cartHandler}>
-            Add to Cart
-          </Button>
-          &nbsp;&nbsp;&nbsp;
-          <Button type="primary" onClick={modifyHandler}>
-            Modify
-          </Button>
-          &nbsp;&nbsp;&nbsp;
-          <Button type="danger" onClick={deleteHandler}>
-            Delete
           </Button>
         </div>
       </div>
