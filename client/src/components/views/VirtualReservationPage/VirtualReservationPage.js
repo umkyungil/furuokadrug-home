@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, Alert } from 'antd';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 // CORS 대책
@@ -52,6 +52,8 @@ function VirtualReservationPage(props) {
   const [ReservationDate, setReservationDate] = useState("");
   const [InterestedItem, setInterestedItem] = useState("");
   const [Email, setEmail] = useState("");
+  const [ErrorAlert, setErrorAlert] = useState(false);
+  const [SuccessAlert, setSuccessAlert] = useState(false);
   
   const body = {
     name: Name,
@@ -63,18 +65,28 @@ function VirtualReservationPage(props) {
   }
 
   // 메일 송신
-  const sendEmail = (e) => { 
+  const sendEmail = async (e) => { 
     e.preventDefault();    
-    axios.post(`${MAIL_SERVER}/reservation`, body)
-      .then(response => {
-        if (response.data.success) {
-          alert('The virtual reservation has been received');
-          history.push("/");
-        } else {
-          alert('The virtual reservation has not been received. Please try again later');
-        }
-      });
+    try {
+      const result = await axios.post(`${MAIL_SERVER}/reservation`, body);
+      setSuccessAlert(true);      
+    } catch(err) {
+      console.log("err: ", err);
+      setErrorAlert(true);
+    }
   }
+
+  // 경고메세지
+	const errorHandleClose = () => {
+    setErrorAlert(false);
+    history.push("/");
+
+  };
+  // 성공메세지
+	const successHandleClose = () => {
+    setSuccessAlert(false);
+    history.push("/");
+  };
 
   const nameHandler = (event) => {
     setName(event.currentTarget.value)
@@ -97,6 +109,19 @@ function VirtualReservationPage(props) {
 
   return (
     <div className="app">
+      {/* Alert */}
+      <div>
+        {ErrorAlert ? (
+          <Alert message="The virtual reservation has not been received. Please try again later." type="error" showIcon closable afterClose={errorHandleClose}/>
+        ) : null}
+      </div>
+      <div>
+        {SuccessAlert ? (
+          <Alert message="The virtual reservation has been received." type="success" showIcon closable afterClose={successHandleClose}/>
+        ) : null}
+      </div>
+      <br />
+
       <h1>{t('Reservation.title')}</h1><br />
       <Form style={{ minWidth: '375px' }} onSubmit={sendEmail} {...formItemLayout} >
         <Form.Item label={t('Reservation.name')} required>

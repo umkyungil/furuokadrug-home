@@ -53,11 +53,12 @@ function RightMenu(props) {
   // login 했을때 메뉴
   } else {
     if (user.userData) {
-
       // 사용자의 카트 상품갯수 구해서 뱃지갱신
       let count = 0;
-      for (let i=0; i < user.userData.cart.length; i++) {
-        count = count + user.userData.cart[i].quantity
+      if (user.userData.cart) {
+        for (let i=0; i < user.userData.cart.length; i++) {
+          count = count + user.userData.cart[i].quantity
+        }
       }
       
       // 스텝
@@ -148,6 +149,9 @@ function RightMenu(props) {
         // 일반 사용자
         return (
           <Menu mode={props.mode}>
+            <Menu.Item key="history">
+              <a href="/history">History</a>
+            </Menu.Item>
             <Menu.Item key="chat">
               <a onClick={chatHandler}>Chat</a>
             </Menu.Item>

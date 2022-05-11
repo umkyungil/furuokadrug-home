@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { User } = require("../models/User");
-const { auth } = require("../middleware/auth");
 const { Product } = require('../models/Product');
+const { Payment } = require('../models/Payment');
+
+const { auth } = require("../middleware/auth");
+const async = require('async');
 
 //=================================
 //             User
@@ -39,7 +42,7 @@ router.post("/login", (req, res) => {
                 message: "Auth failed, email not found"
             });
         }
-        // 요청된 이메일이 DB에 있다면 비밀번호가 만즌 비밀번호 인지 확인
+        // 요청된 이메일이 DB에 있다면 비밀번호가 맞는 비밀번호 인지 확인
         user.comparePassword(req.body.password, (err, isMatch) => {
             if (!isMatch)
                 return res.json({ loginSuccess: false, message: "Wrong password" });
@@ -48,11 +51,16 @@ router.post("/login", (req, res) => {
             user.generateToken((err, user) => {
                 if (err) return res.status(400).send(err);
 
-                // 토큰을 저장한다
+                // 토큰을 쿠키에 저장한다
                 res.cookie("w_authExp", user.tokenExp);
                 res.cookie("w_auth", user.token).status(200).json({
                     loginSuccess: true, userId: user._id
                 });
+            });
+
+            // 로그인한 시간을 업데이트
+            User.findOneAndUpdate({ email: req.body.email }, { lastLogin: new Date() }, (err, doc) => {
+                if (err) return res.json({ success: false, err });
             });
         });
     });
@@ -69,15 +77,21 @@ router.get("/logout", auth, (req, res) => {
 });
 
 // 사용자 등록
-router.post("/register", (req, res) => {
-    const user = new User(req.body);
-
-    user.save((err, doc) => {
-        if (err) return res.json({ success: false, err });
-        return res.status(200).json({
-            success: true
-        });
-    });
+router.post("/register", async (req, res) => {
+    try {
+        const user = new User(req.body);
+        const res = await user.save();
+        return res.status(200).json({ success: true})
+        // user.save((err, doc) => {
+        //     if (err) return res.json({ success: false, err });
+        //     return res.status(200).json({
+        //         success: true
+        //     });
+        // });
+    } catch (err) {
+        console.log(err);
+        return res.json({ success: false, err: err.message })
+    }   
 });
 
 // 사용자 조회
@@ -223,28 +237,79 @@ router.get('/removeFromCart', auth, (req, res) => {
     )
 })
 
+// Paypal 결제정보 및 history 저장, 상품판매 카운트 업데이트
 router.post('/successBuy', auth, (req, res) => {
-    // User Collection의 History 필드안에 간단한 결제정보 넣어주기
-        let history = [];
-        let transactionData = {};
-
-        req.body.cartDetail.forEach((item) => {
-            history.push({
-                dateOfPurchase: Date.now(),
-                name: item.title,
-                id: item._id,
-                price: item.price,
-                quantity: item.quantity,
-                paymentId: req.body.paymentData.paymentId
-            })
-        })
-
-    // Payment Collection에 자세한 결제정보 넣어주기
     
+    let history = [];
+    let transactionData = {};
 
-    // Product Collection의 sold 필드 정보 업데이트
+    // 결제한 카트에 담겼던 상품정보를 history에 넣어줌
+    req.body.cartDetail.forEach((item) => {
+        history.push({
+            dateOfPurchase: Date.now(),
+            name: item.title,
+            id: item._id,
+            price: item.price,
+            quantity: item.quantity,
+            paymentId: req.body.paymentData.paymentID
+        })
+    })
 
+    // Payment에 자세한 결제정보 저장
+    // (Payment의 컬럼이 user, data, product로 구성 되어 있다)
+    // user정보
+    transactionData.user = {
+        id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,        
+    }
+    // data정보(Paypal정보를 저장)
+    transactionData.data = req.body.paymentData;
+    // product정보
+    transactionData.product = history;
 
+    // User에 history정보 저장 및 Cart정보 삭제
+    User.findOneAndUpdate(
+        {_id: req.user._id},
+        { $push: { history: history }, $set: {cart: []}},
+        { new: true },
+        (err, user) => {
+            if(err) return res.json({ success: false, err })
+
+            // Payment에 transactionData정보 저장
+            const payment = new Payment(transactionData)
+            payment.save((err, doc) => {
+                if(err) return res.json({ success: false, err })
+
+                // Product의 sold 필드 정보 업데이트
+                // 상품당 몇개를 샀는지 파악 
+                let products = [];
+                doc.product.forEach(item => {
+                    products.push({ id: item.id, quantity: item.quantity })
+                })
+                // Product에 업데이트
+                async.eachSeries(products, (item, callback) => {
+                    Product.updateOne(
+                        {_id: item.id },
+                        {
+                            $inc: {
+                                "sold": item.quantity
+                            }
+                        },
+                        { new: false },
+                        callback
+                    )
+                }, (err) => {
+                    if(err) return res.status(400).json({success: false})
+                    res.status(200).json({
+                        success: true,
+                        cart: user.cart,
+                        cartDetail: []
+                    })
+                })
+            });            
+        }
+    )
 })
 
 module.exports = router;

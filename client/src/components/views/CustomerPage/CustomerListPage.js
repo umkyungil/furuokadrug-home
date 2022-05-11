@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from "react-redux";
 import axios from 'axios';
-import { List, Avatar, Icon } from 'antd';
+import { List, Avatar, Alert } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { CUSTOMER_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function CustomerListPage() {
+	const history = useHistory();
 	const user = useSelector(state => state.user)
-
 	const [Customers, setCustomers] = useState([]);
 	const [SearchTerm, setSearchTerm] = useState("");
 	const [SmaregiId, setSmaregiId] = useState("");
 	const [Tel, setTel] = useState("");
 	const [Email, setEmail] = useState("");
 	const [StaffName, setStaffName] = useState("");
+	const [ErrorAlert, setErrorAlert] = useState(false);
 
 	useEffect(() => {
 		// 다국어 설정
@@ -37,10 +39,16 @@ function CustomerListPage() {
 				if (response.data.success) {
 					setCustomers([...response.data.customerInfo]);
 				} else {
-					alert("Failed to get customers.")
+					setErrorAlert(true);
 				}
 			})
 	}
+
+	// 경고메세지
+	const handleClose = () => {
+    setErrorAlert(false);
+		history.push("/");
+  };
 
 	// 키워드 검색시 해당 고객정보가져오기
 	const updateSearchTerm = (newSearchTerm) => {
@@ -81,6 +89,14 @@ function CustomerListPage() {
 			return (
 				<div style={{ width:'75%', margin:'3rem auto' }}>
 
+					{/* Alert */}
+					<div>
+						{Error ? (
+							<Alert message="Failed to get customers." type="error" showIcon closable afterClose={handleClose}/>
+						) : null}
+					</div>
+					<br />
+
 					<div style={{ textAlign:'center' }}>
 						<h1>{t('Customer.listTitle')}</h1>
 					</div>
@@ -118,6 +134,14 @@ function CustomerListPage() {
 		} else {
 			return (
 				<div style={{ width:'75%', margin:'3rem auto' }}>
+					
+					{/* Alert */}
+					<div>
+						{Error ? (
+							<Alert message="Failed to get customers." type="error" showIcon closable afterClose={handleClose}/>
+						) : null}
+					</div>
+					<br />
 
 					<div style={{ textAlign:'center' }}>
 						<h1>{t('Customer.listTitle')}</h1>
@@ -157,6 +181,14 @@ function CustomerListPage() {
 	} else {
 		return (
 			<div style={{ width:'75%', margin:'3rem auto' }}>
+
+				{/* Alert */}
+				<div>
+					{Error ? (
+						<Alert message="Failed to get customers." type="error" showIcon closable afterClose={handleClose}/>
+					) : null}
+				</div>
+				<br />
 
 				<div style={{ textAlign:'center' }}>
 					<h1>{t('Customer.listTitle')}</h1>

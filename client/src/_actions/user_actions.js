@@ -121,7 +121,7 @@ export function removeCartItem(productId) {
     }
 }
 
-// 카트 상품삭제
+// Paypal결재정보 저장(객체를 파라메터로 받는다)
 export function onSuccessBuy(data) {
     const request = axios.post(`${USER_SERVER}/successBuy`, data)
         .then(response => response.data);

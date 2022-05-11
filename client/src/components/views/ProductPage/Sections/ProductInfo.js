@@ -74,7 +74,7 @@ function ProductInfo(props) {
           <Descriptions>
             <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
             <Descriptions.Item label={t('Product.point')}>{props.detail.point}</Descriptions.Item>
-            <Descriptions.Item label={t('Product.contents')}>{props.detail.sold}</Descriptions.Item>          
+            <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>          
           </Descriptions>
           <Collapse defaultActiveKey={['0']}>
             <Panel header={t('Product.description')}>
@@ -110,7 +110,7 @@ function ProductInfo(props) {
           <Descriptions>
             <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
             <Descriptions.Item label={t('Product.point')}>{props.detail.point}</Descriptions.Item>
-            <Descriptions.Item label={t('Product.contents')}>{props.detail.sold}</Descriptions.Item>          
+            <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>          
           </Descriptions>
           <Collapse defaultActiveKey={['0']}>
             <Panel header={t('Product.description')}>
@@ -150,7 +150,7 @@ function ProductInfo(props) {
           <Descriptions>
             <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
             <Descriptions.Item label={t('Product.point')}>{props.detail.point}</Descriptions.Item>
-            <Descriptions.Item label={t('Product.contents')}>{props.detail.sold}</Descriptions.Item>          
+            <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>          
           </Descriptions>
           <Collapse defaultActiveKey={['0']}>
             <Panel header={t('Product.description')}>
@@ -183,7 +183,7 @@ function ProductInfo(props) {
         <Descriptions>
           <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
           <Descriptions.Item label={t('Product.point')}>{point}</Descriptions.Item>
-          <Descriptions.Item label={t('Product.contents')}>{props.detail.sold}</Descriptions.Item>
+          <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
         </Descriptions>
         <Collapse defaultActiveKey={['0']}>
           <Panel header={t('Product.description')}>

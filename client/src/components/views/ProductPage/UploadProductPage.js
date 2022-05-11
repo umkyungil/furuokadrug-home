@@ -120,7 +120,7 @@ function UploadProductPage(props) {
       usage: Usage,
       englishUsage: EnglishUsage,
       chineseUsage: ChineseUsage,
-      sold: Contents,
+      contents: Contents,
       price: Price,
       point: Point,
       images: Images,

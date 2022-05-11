@@ -55,7 +55,7 @@ function UpdateProductPage(props) {
           setUsage(response.data[0].usage);
           setEnglishUsage(response.data[0].englishUsage);
           setChineseUsage(response.data[0].chineseUsage);
-          setContents(response.data[0].sold);
+          setContents(response.data[0].contents);
           setPrice(response.data[0].price);
           setPoint(response.data[0].point);
           setContinent(response.data[0].continents);          
@@ -147,7 +147,7 @@ function UpdateProductPage(props) {
       usage: Usage,
       englishUsage: EnglishUsage,
       chineseUsage: ChineseUsage,
-      sold: Contents,
+      contents: Contents,
       price: Price,
       point: Point,
       images: Images,

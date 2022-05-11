@@ -60,7 +60,7 @@ const userSchema = mongoose.Schema({
         type: Number
     },
     lastLogin :{
-        type: String,
+        type: Date,
     }
 })
 

@@ -45,6 +45,8 @@ import CartPage from "./views/CartPage/CartPage.js"; // 카트페이지
 import LiveStreamingPage from "./views/LiveStreamingPage/LiveStreaming.js"; // 라이브 스트리밍 페이지
 // 404 페이지
 import NotFoundPage from "./views/NotFound.js";
+// History 페이지
+import HistoryPage from "./views/HistoryPage/HistoryPage.js";
 
 // 결제결과 테스트
 import AlipayTestPaymentResult from './views/PaymentPage/AlipayTestPaymentResult';
@@ -97,9 +99,12 @@ function App() {
           <Route exact path="/csv/upload/univaPayCast" component={Auth(UploadCSVUnivaPayCastPage, true)} />
           {/* 라이브 방송 */}
           <Route exact path="/live" component={Auth(LiveStreamingPage, true)} />
+          {/* History */}
+          <Route exact path="/history" component={Auth(HistoryPage, true)} />
           
           {/* 404 Not Found */}
           <Route path={"*"} component={NotFoundPage}/>
+         
 
           {/* Test */}
           {/* <Route exact path="/payment/alipay" component={Auth(AlipayTestPaymentResult, null)} />

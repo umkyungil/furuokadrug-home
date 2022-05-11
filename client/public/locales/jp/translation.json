@@ -78,5 +78,8 @@
     "remove": "削除",
     "amount": "合計",
     "unit": "個"
+  },
+  "Paypal": {
+    "success": "ご購入が完了しました"
   }
 }

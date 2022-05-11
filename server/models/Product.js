@@ -44,8 +44,12 @@ const productSchema = mongoose.Schema({
       type: Array,
       default: []
     },
-    sold: {
+    contents: {
       type: String,
+    },
+    sold: {
+      type: Number,
+      default: 0
     },
     continents: {
       type: Number,

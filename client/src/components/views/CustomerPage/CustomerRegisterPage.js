@@ -81,7 +81,7 @@ function CustomerRegisterPage(props) {
             if (response.payload.success) {
               props.history.push("/customer/list");
             } else {
-              alert(response.payload.err.errmsg)
+              alert("Customer information registration failed. Please contact the administrator.")
             }
           })
 

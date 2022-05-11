@@ -78,5 +78,8 @@
     "remove": " Remove from cart",
     "amount": " Total Amount",
     "unit": "Ea"
+  },
+  "Paypal": {
+    "success": "Successfully Purchased Items"
   }
 }

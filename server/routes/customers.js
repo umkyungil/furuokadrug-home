@@ -11,9 +11,7 @@ const { Customer } = require("../models/Customer");
 router.post("/register", (req, res) => {
     const customer = new Customer(req.body);
 
-    customer.save((err, doc) => {
-
-        console.log("err: ", err);
+    customer.save((err, doc) => {;
         if (err) return res.json({ success: false, err });
         return res.status(200).json({
             success: true

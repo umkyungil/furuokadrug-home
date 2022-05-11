@@ -25,17 +25,19 @@ router.post("/register", (req, res) => {
 router.post("/list", (req, res) => {
   let term = req.body.searchTerm;
   const userId = req.body.id;
+  const mode = req.body.mode;
+  const userName = req.body.userName;
     
   if (userId !== "") {
     // 사용자 정보 검색
     User.findOne({ _id: userId }, function(err, result) {
       if (err) {
-        console.log("err");
+        console.log("err: ", err);
         return res.status(400).json({success: false, err});
       }
 
-      // 관리자 또는 스텝인 경우
-      if (result.role !== 0) {
+      // 관리자인 경우
+      if (result.role === 2) {
         if (term) {
           Order.find({ "name": { '$regex': term },})
           .skip(req.body.skip)
@@ -49,7 +51,36 @@ router.post("/list", (req, res) => {
             return res.status(200).json({ success: true, orderInfo})
           });
         }
-      // 일반 사용자인 경우
+      // 스텝인 경우
+      } else if (result.role === 1) {
+        console.log("mode: ", mode);
+
+        if (mode === true) {
+          Order.find({ "staffName": { '$regex': userName },})
+            .skip(req.body.skip)
+            .exec((err, orderInfo) => {
+
+              console.log("orderInfo: ", orderInfo);
+
+              if (err) return res.status(400).json({success: false, err});
+              return res.status(200).json({ success: true, orderInfo})
+            });
+        } else {
+          if (term) {
+            Order.find({ "name": { '$regex': term },})
+            .skip(req.body.skip)
+            .exec((err, orderInfo) => {
+              if (err) return res.status(400).json({success: false, err});
+              return res.status(200).json({ success: true, orderInfo})
+            });
+          } else {
+            Order.find().exec((err, orderInfo) => {
+              if (err) return res.status(400).json({success: false, err});
+              return res.status(200).json({ success: true, orderInfo})
+            });
+          }
+        }
+      // 일반 사용자인 경우(자신이 구매한 상품만 취득)
       } else {
         if (term) {
           Order.find({ "userId": userId, "name": { '$regex': term } })
@@ -66,8 +97,6 @@ router.post("/list", (req, res) => {
         }
       }
     })
-  } else {
-    return res.status(400).json({success: false});
   }
 });
 

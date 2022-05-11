@@ -57,13 +57,13 @@ const orderSchema = mongoose.Schema({
 
 orderSchema.index({
     name: 'text',
-    lastName: 'text',
-    email: 'text'
+    email: 'text',
+    staffName: 'text'
 }, {
     weights: {
         name: 5,
-        lastName: 1,
-        uniqueField: 1
+        email: 1,
+        staffName: 1
     }
 })
 
