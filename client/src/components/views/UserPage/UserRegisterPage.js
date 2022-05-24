@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import moment from "moment";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { registerUser } from "../../../_actions/user_actions";
 import { useDispatch } from "react-redux";
 import { useHistory } from 'react-router-dom';
+import { Select } from 'antd';
 
 import {
   Form,
@@ -12,6 +13,7 @@ import {
   Button,
 } from 'antd';
 
+const {Option} = Select;
 const formItemLayout = {
   labelCol: {
     xs: { span: 24 },
@@ -36,10 +38,15 @@ const tailFormItemLayout = {
 };
 
 function UserRegisterPage(props) {
+  const [SelectItem, setSelectItem] = useState("jp");
   const dispatch = useDispatch();
   const history = useHistory();
   const listHandler = () => {
     history.push("/user/list");
+  }
+  
+  const selectHandler = (value) => {
+    setSelectItem(value);
   }
 
   return (
@@ -54,6 +61,7 @@ function UserRegisterPage(props) {
         address1: '',
         address2: '',
         address3: '',
+        language: SelectItem,
       }}
       validationSchema={Yup.object().shape({
         name: Yup.string()
@@ -72,7 +80,7 @@ function UserRegisterPage(props) {
           .required('Password is required'),
         confirmPassword: Yup.string()
           .oneOf([Yup.ref('password'), null], 'Passwords must match')
-          .required('Confirm Password is required')
+          .required('Confirm Password is required'),
       })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
@@ -85,7 +93,8 @@ function UserRegisterPage(props) {
             address1: values.address1,
             address2: values.address2,
             address3: values.address3,
-            image: `http://gravatar.com/avatar/${moment().unix()}?d=identicon`
+            image: `http://gravatar.com/avatar/${moment().unix()}?d=identicon`,
+            language: SelectItem,
           };
 
           dispatch(registerUser(dataToSubmit)).then(response => {
@@ -104,7 +113,7 @@ function UserRegisterPage(props) {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
           <div className="app">
-            <h2>Sign up</h2>
+            <h2>Sign up</h2><br />
             <Form style={{ minWidth: '375px' }} {...formItemLayout} onSubmit={handleSubmit} >
 
               <Form.Item required label="Name">
@@ -153,6 +162,14 @@ function UserRegisterPage(props) {
 
               <Form.Item label="address3">
                 <Input id="address3" placeholder="Enter your address3" type="text" value={values.address3} onChange={handleChange} onBlur={handleBlur} />
+              </Form.Item>
+
+              <Form.Item required label="language">
+                <Select defaultValue="jp" style={{ width: 120 }} onChange={selectHandler}>
+                  <Option value="jp">Japanese</Option>
+                  <Option value="en">English</Option>
+                  <Option value="cn">Chinese</Option>
+                </Select>&nbsp;&nbsp;
               </Form.Item>
 
               <Form.Item required label="Password" hasFeedback validateStatus={errors.password && touched.password ? "error" : 'success'}>

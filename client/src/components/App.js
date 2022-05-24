@@ -31,11 +31,15 @@ import DetailAlipayPage from "./views/PaymentPage/DetailAlipayPage.js"; // Alipa
 import DetailWechatPage from "./views/PaymentPage/DetailWechatPage.js"; // Wechat 결제결과 상세
 import ConfirmAlipayPage from "./views/PaymentPage/ConfirmAlipayPage"; // Alipay 결제확인
 import ConfirmWechatPage from "./views/PaymentPage/ConfirmWechatPage.js"; // Wechat 결제확인
+import ListPaypalPage from "./views/PaymentPage/ListPaypalPage.js"; // Paypal 결제결과 리스트
+import ListPaypalAdminPage from "./views/PaymentPage/ListPaypalAdminPage.js"; // Paypal 관리자 페이지 
 // 메일관리
 import UploadCSVUnivaPayCastPage from "./views/CsvPage/UploadCSVUnivaPayCastPage.js"; // CSV Upload
 import ContactUsPage from "./views/SendMailPage/ContactUsPage.js"; // 문의
 import NoticeMailPage from "./views/SendMailPage/NoticeMailPage.js"; // 고객메일
 import VirtualReservationPage from "./views/VirtualReservationPage/VirtualReservationPage.js"; // 가상예약
+import MailHistoryListPage from "./views/SendMailPage/MailHistoryListPage.js"; // 메일이력 리스트
+import MailHistoryDetailPage from "./views/SendMailPage/MailHistoryDetailPage.js"; // 메일상세
 // 주문관리
 import ListOrderPage from "./views/OrderPage/ListOrderPage.js"; // 주문리스트
 import DetailOrderPage from "./views/OrderPage/DetailOrderPage.js"; // 주문상세
@@ -45,12 +49,6 @@ import CartPage from "./views/CartPage/CartPage.js"; // 카트페이지
 import LiveStreamingPage from "./views/LiveStreamingPage/LiveStreaming.js"; // 라이브 스트리밍 페이지
 // 404 페이지
 import NotFoundPage from "./views/NotFound.js";
-// History 페이지
-import HistoryPage from "./views/HistoryPage/HistoryPage.js";
-
-// 결제결과 테스트
-import AlipayTestPaymentResult from './views/PaymentPage/AlipayTestPaymentResult';
-import WechatTestPaymentResult from './views/PaymentPage/WechatTestPaymentResult';
 
 //null   아무나 안으로 들어갈수 있다
 //true   로그인 한 사용자만 안으로 들어갈수 있다
@@ -81,12 +79,16 @@ function App() {
           <Route exact path="/customer/:customerId" component={Auth(DetailCustomerPage, true)} />
           <Route exact path="/customer/update/:customerId" component={Auth(CustomerUpdatePage, true)} />
           {/* 메일관리 */}
-          <Route exact path="/mail/contact" component={Auth(ContactUsPage, null)} />
           <Route exact path="/mail/notice/:toEmail" component={Auth(NoticeMailPage, true)} />
           <Route exact path="/mail/reservation" component={Auth(VirtualReservationPage, null)} />
+          <Route exact path="/mail/inquiry" component={Auth(ContactUsPage, null)} />
+          <Route exact path="/mail/list" component={Auth(MailHistoryListPage, true)} />
+          <Route exact path="/mail/:mailId" component={Auth(MailHistoryDetailPage, true)} />
           {/* 결제관리 */}
           <Route exact path="/payment/alipay/list" component={Auth(ListAlipayPage, true)} />
           <Route exact path="/payment/wechat/list" component={Auth(ListWechatPage, true)} />
+          <Route exact path="/payment/paypal/list" component={Auth(ListPaypalPage, true)} />
+          <Route exact path="/payment/paypal/admin/list" component={Auth(ListPaypalAdminPage, true)} />
           <Route exact path="/payment/alipay/:alipayId" component={Auth(DetailAlipayPage, true)} />
           <Route exact path="/payment/wechat/:wechatId" component={Auth(DetailWechatPage, true)} />
           <Route exact path="/payment/alipay/confirm/:userId/:sid/:sod/:siam1/:uniqueField/:staffName" component={Auth(ConfirmAlipayPage, true)} />
@@ -99,16 +101,8 @@ function App() {
           <Route exact path="/csv/upload/univaPayCast" component={Auth(UploadCSVUnivaPayCastPage, true)} />
           {/* 라이브 방송 */}
           <Route exact path="/live" component={Auth(LiveStreamingPage, true)} />
-          {/* History */}
-          <Route exact path="/history" component={Auth(HistoryPage, true)} />
-          
           {/* 404 Not Found */}
-          <Route path={"*"} component={NotFoundPage}/>
-         
-
-          {/* Test */}
-          {/* <Route exact path="/payment/alipay" component={Auth(AlipayTestPaymentResult, null)} />
-          <Route exact path="/payment/wechat" component={Auth(WechatTestPaymentResult, null)} /> */}
+          <Route path={"*"} component={NotFoundPage} />
         </Switch>
       </div>
       <Footer />

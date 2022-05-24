@@ -38,6 +38,8 @@ function CustomerListPage() {
 			.then(response => {
 				if (response.data.success) {
 					setCustomers([...response.data.customerInfo]);
+					console.log("ErrorAlert: ", ErrorAlert);
+					setErrorAlert(false);
 				} else {
 					setErrorAlert(true);
 				}
@@ -88,12 +90,11 @@ function CustomerListPage() {
 		if (user.userData.role === 1) {
 			return (
 				<div style={{ width:'75%', margin:'3rem auto' }}>
-
 					{/* Alert */}
 					<div>
-						{Error ? (
+						{ErrorAlert ? 
 							<Alert message="Failed to get customers." type="error" showIcon closable afterClose={handleClose}/>
-						) : null}
+						: null}
 					</div>
 					<br />
 
@@ -137,7 +138,7 @@ function CustomerListPage() {
 					
 					{/* Alert */}
 					<div>
-						{Error ? (
+						{ErrorAlert ? (
 							<Alert message="Failed to get customers." type="error" showIcon closable afterClose={handleClose}/>
 						) : null}
 					</div>
@@ -184,7 +185,7 @@ function CustomerListPage() {
 
 				{/* Alert */}
 				<div>
-					{Error ? (
+					{ErrorAlert ? (
 						<Alert message="Failed to get customers." type="error" showIcon closable afterClose={handleClose}/>
 					) : null}
 				</div>

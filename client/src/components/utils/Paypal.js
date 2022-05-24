@@ -4,7 +4,6 @@ import PaypalExpressBtn from 'react-paypal-express-checkout'
 export default class Paypal extends React.Component {
   render() {
     const onSuccess = (payment) => {
-      console.log("The payment was succeeded!", payment);
       // CartPage의 콜백함수(payment를 파라메터를 대입해서 함수를 실행한다)
       this.props.onSuccess(payment)
     }

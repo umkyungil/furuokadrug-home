@@ -21,20 +21,20 @@ function ListWechatPage() {
 	const getWechatInfo = (body) => {
 		axios.post(`${PAYMENT_SERVER}/wechat/list`, body)
 			.then(response => {
-					if (response.data.success) {
-						response.data.wechatInfo.map((value, index) => {
-							console.log(value);
-							if (value.rst === "1") {
-								value.rst = "成功";
-							} else {
-								value.rst = "失敗";
-							}
-						});
+				if (response.data.success) {
+					response.data.wechatInfo.map((value, index) => {
+						console.log(value);
+						if (value.rst === "1") {
+							value.rst = "成功";
+						} else {
+							value.rst = "失敗";
+						}
+					});
 
-						setWechatInfo([...response.data.wechatInfo]);
-					} else {
-							alert("Failed to get Wechat payment info")
-					}
+					setWechatInfo([...response.data.wechatInfo]);
+				} else {
+						alert("Failed to get Wechat payment info")
+				}
 			})
 	}
 
@@ -51,7 +51,7 @@ function ListWechatPage() {
 	return (
 		<div style={{ width:'75%', margin:'3rem auto' }}>
 			<div style={{ textAlign:'center' }}>
-				<h2>Wechat Payment Result List</h2>
+				<h1>Wechat Payment History</h1>
 			</div>
 
 			{/* Filter */}

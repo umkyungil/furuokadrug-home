@@ -22,6 +22,7 @@ router.get("/auth", auth, (req, res) => {
         email: req.user.email,
         name: req.user.name,
         lastName: req.user.lastName,
+        tel: req.user.tel,
         address1: req.user.address1,
         address2: req.user.address2,
         address3: req.user.address3,
@@ -54,7 +55,8 @@ router.post("/login", (req, res) => {
                 // 토큰을 쿠키에 저장한다
                 res.cookie("w_authExp", user.tokenExp);
                 res.cookie("w_auth", user.token).status(200).json({
-                    loginSuccess: true, userId: user._id
+                    //loginSuccess: true, userId: user._id
+                    loginSuccess: true, userInfo: user
                 });
             });
 
@@ -77,17 +79,15 @@ router.get("/logout", auth, (req, res) => {
 });
 
 // 사용자 등록
-router.post("/register", async (req, res) => {
+router.post("/register", (req, res) => {
     try {
-        const user = new User(req.body);
-        const res = await user.save();
-        return res.status(200).json({ success: true})
-        // user.save((err, doc) => {
-        //     if (err) return res.json({ success: false, err });
-        //     return res.status(200).json({
-        //         success: true
-        //     });
-        // });
+        const user = new User(req.body);        
+        user.save((err, doc) => {
+            if (err) return res.json({ success: false, err });
+            return res.status(200).json({
+                success: true
+            });
+        });
     } catch (err) {
         console.log(err);
         return res.json({ success: false, err: err.message })
@@ -125,6 +125,7 @@ router.post("/update", (req, res) => {
             address2: req.body.address2,
             address3: req.body.address3,
             role: req.body.role,
+            language: req.body.language,
         }, (err, doc) => {
         if (err) return res.json({ success: false, err });
         return res.status(200).send({
@@ -243,10 +244,12 @@ router.post('/successBuy', auth, (req, res) => {
     let history = [];
     let transactionData = {};
 
+    let date = new Date();
+    const dateInfo = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString();
     // 결제한 카트에 담겼던 상품정보를 history에 넣어줌
     req.body.cartDetail.forEach((item) => {
         history.push({
-            dateOfPurchase: Date.now(),
+            dateOfPurchase: dateInfo,
             name: item.title,
             id: item._id,
             price: item.price,
@@ -304,7 +307,8 @@ router.post('/successBuy', auth, (req, res) => {
                     res.status(200).json({
                         success: true,
                         cart: user.cart,
-                        cartDetail: []
+                        cartDetail: [],
+                        payment: doc
                     })
                 })
             });            

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, Alert } from 'antd';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { MAIL_SERVER } from '../../Config.js';
@@ -35,28 +35,34 @@ function ContactUsPage() {
   const [Name, setName] = useState("");
   const [Email, setEmail] = useState("");
   const [Message, setMessage] = useState("");
+  const [ErrorAlert, setErrorAlert] = useState(false);
+  const [SuccessAlert, setSuccessAlert] = useState(false);
 
-  const history = useHistory();
- 
+  const history = useHistory(); 
   const body = {
+    type: 'Inquiry',
+    subject: 'Contact Us',
     name: Name,
-    from: Email,
+    email: Email,
     message: Message
   }
 
   // 메일 송신
-  const sendEmail = (e) => { 
-    e.preventDefault(); 
-    
-    axios.post(`${MAIL_SERVER}/inquiry`, body)
-      .then(response => {
-        if (response.data.success) {
-          alert('Your inquiry email has been received');
-          history.push("/");
-        } else {
-          alert('The inquiry email was not sent. Please try again later');
-        }
-      });
+  const sendEmail = async (e) => { 
+    e.preventDefault();
+    try {
+      const result = await axios.post(`${MAIL_SERVER}/inquiry`, body);
+
+      if (result.data.success) {
+        setSuccessAlert(true);
+      } else {
+        console.log("ContactUsPage err");
+        setErrorAlert(true);
+      }
+    } catch(err) {
+      console.log("ContactUsPage err: ", err);
+      setErrorAlert(true);
+    }
   }
 
   const nameHandler = (event) => {
@@ -68,9 +74,36 @@ function ContactUsPage() {
   const messageHandler = (event) => {
     setMessage(event.currentTarget.value)
   }
+  // 경고메세지
+	const errorHandleClose = () => {
+    setErrorAlert(false);
+    history.push("/");
+  };
+  // 성공메세지
+	const successHandleClose = () => {
+    setSuccessAlert(false);
+    history.push("/");
+  };
+  // Landing pageへ戻る
+  const listHandler = () => {
+    history.push('/')
+  }
 
   return (
     <div className="app">
+      {/* Alert */}
+      <div>
+        {ErrorAlert ? (
+          <Alert message="The inquiry email was not sent. Please try again later" type="error" showIcon closable afterClose={errorHandleClose}/>
+        ) : null}
+      </div>
+      <div style={{ minWidth: '650px' }}>
+        {SuccessAlert ? (
+          <Alert message='Your inquiry email has been received' type="success" showIcon closable afterClose={successHandleClose}/>
+        ) : null}
+      </div>
+      <br />
+
       <h2>Contact Us</h2><br />
       <Form style={{ minWidth: '375px' }} onSubmit={sendEmail} {...formItemLayout} >
         <Form.Item label="Name" required>
@@ -84,6 +117,9 @@ function ContactUsPage() {
           <TextArea maxLength={100} name="message" label="Message" style={{ height: 120, minWidth: '500px' }} value={Message} onChange={messageHandler} placeholder="Please enter your message" required/>
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>
+          <Button onClick={listHandler}>
+            Product List
+          </Button>&nbsp;&nbsp;&nbsp;
           <Button htmlType="submit" type="primary">
             Send
           </Button>

@@ -3,6 +3,8 @@ const router = express.Router();
 const { Alipay } = require('../models/Alipay');
 const { Wechat } = require('../models/Wechat');
 const { Order } = require('../models/Order');
+const { Payment } = require('../models/Payment');
+const moment = require("moment");
 
 //=================================
 //             Payment
@@ -57,69 +59,84 @@ router.post("/alipay/list", (req, res) => {
   let term = req.body.searchTerm;
 
   if (term) {
-    if (term[1] === "" && term[2] === "" && term[3] === "") {
-      Alipay.find({"rst": term[0]})
-      .skip(req.body.skip)
-      .exec((err, alipayInfo) => {
+    // Select 값만 들어온 경우(Select는 ""가 될수 없고 날짜는 From To 같이 들어오게 되어 있다)
+    if (term[1] === "" && term[2] === "") {
+      // term[0] = 0은 전체 검색
+      if (term[0] === '0') {
+        Alipay.find() // rst:0 (All), 1 (success), rst:2 (fail)
+        .skip(req.body.skip)
+        .exec((err, alipayInfo) => {
           if (err) return res.status(400).json({success: false, err});
           return res.status(200).json({ success: true, alipayInfo})
-      });
+        });
+      } else {
+        Alipay.find({"rst": term[0]})
+        .skip(req.body.skip)
+        .exec((err, alipayInfo) => {
+          if (err) return res.status(400).json({success: false, err});
+          return res.status(200).json({ success: true, alipayInfo})
+        });
+      }  
     }
-    if (term[1] != "" && term[2] === "" && term[3] === "") {
-      Alipay.find({"rst":term[0]},{"uniqueField":{'$regex':term[1]}})
-      .skip(req.body.skip)
-      .exec((err, alipayInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, alipayInfo})
-      });
+    // Select, Unique 값만 들어온 경우
+    if (term[1] !== "" && term[2] === "") {
+      if (term[0] === '0') {
+        Alipay.find({"uniqueField":{'$regex':term[1], $options: 'i'}}) // $options: 'i' : 대소문자 구분 안함
+        .skip(req.body.skip)
+        .exec((err, alipayInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, alipayInfo})
+        });
+      } else {
+        Alipay.find({"rst":term[0], "uniqueField":{'$regex':term[1], $options: 'i'}})
+        .skip(req.body.skip)
+        .exec((err, alipayInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, alipayInfo})
+        });
+      }
     }
-    if (term[1] === "" && term[2] != "" && term[3] === "") {
-      Alipay.find({"rst":term[0]},{"createdAt":{$gte: moment(term[2]).toDate()}})
-      .skip(req.body.skip)
-      .exec((err, alipayInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, alipayInfo})
-      });
+    // Select, Unique, 날짜가 들어온 경우(날짜느 form to가 같이 들어오게 되어 있음)
+    if (term[1] !== "" && term[2] !== "") {
+      if (term[0] === '0') {
+        Alipay.find(
+          {"uniqueField":{'$regex':term[1], $options: 'i'}, "createdAt":{$gte: moment(term[2]).toDate()}, $lte: moment(term[3]).toDate()}
+        )
+        .skip(req.body.skip)
+        .exec((err, alipayInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, alipayInfo})
+        });
+      } else {
+        Alipay.find(
+          {"rst":term[0], "uniqueField":{'$regex':term[1], $options: 'i'}, 
+          "createdAt":{$gte: moment(term[2]).toDate()}, $lte: moment(term[3]).toDate()}
+        )
+        .skip(req.body.skip)
+        .exec((err, alipayInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, alipayInfo})
+        });
+      }
     }
-    if (term[1] === "" && term[2] === "" && term[3] != "") {
-      Alipay.find({"rst":term[0]},{"createdAt":{$lte: moment(term[3]).toDate()}})
-      .skip(req.body.skip)
-      .exec((err, alipayInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, alipayInfo})
-      });
-    }
-    if (term[1] != "" && term[2] != "" && term[3] === "") {
-      Alipay.find({"rst":term[0]},{"uniqueField":{'$regex':term[1]}},{"createdAt":{$gte: moment(term[2]).toDate()}})
-      .skip(req.body.skip)
-      .exec((err, alipayInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, alipayInfo})
-      });
-    }
-    if (term[1] != "" && term[2] === "" && term[3] != "") {
-      Alipay.find({"rst":term[0]},{"uniqueField":{'$regex':term[1]}},{"createdAt":{$lte: moment(term[3]).toDate()}})
-      .skip(req.body.skip)
-      .exec((err, alipayInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, alipayInfo})
-      });
-    }
-    if (term[1] === "" && term[2] != "" && term[3] != "") {
-      Alipay.find({"rst":term[0]},{createdAt: {$gte: moment(term[2]).toDate(), $lte: moment(term[3]).toDate()}})
-      .skip(req.body.skip)
-      .exec((err, alipayInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, alipayInfo})
-      });
-    }
-    if (term[1] != "" && term[2] != "" && term[3] != "") {
-      Alipay.find({"rst":term[0]},{"uniqueField":{'$regex':term[1]}},{createdAt: {$gte: moment(term[2]).toDate(), $lte: moment(term[3]).toDate()}})
-      .skip(req.body.skip)
-      .exec((err, alipayInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, alipayInfo})
-      });
+    // Unique만 값이 들어오지 않은 경우
+    if (term[1] === "" && term[2] !== "") {
+      if (term[0] === '0') {
+        // moment(term[2]).toDate():  2022-01-01T08:29:00.000Z
+        Alipay.find({"createdAt":{$gte: moment(term[2]).toDate()}, $lte: moment(term[3]).toDate()})
+        .skip(req.body.skip)
+        .exec((err, alipayInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, alipayInfo})
+        });
+      } else {
+        Alipay.find({"rst":term[0], "createdAt":{$gte: moment(term[2]).toDate()}, $lte: moment(term[3]).toDate()})
+        .skip(req.body.skip)
+        .exec((err, alipayInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, alipayInfo})
+        });
+      }
     }
   } else {
     Alipay.find()
@@ -137,78 +154,93 @@ router.post("/wechat/list", (req, res) => {
   let term = req.body.searchTerm;
 
   if (term) {
-    if (term[1] === "" && term[2] === "" && term[3] === "") {
-      Wechat.find({"rst": term[0]})
-      .skip(req.body.skip)
-      .exec((err, wechatInfo) => {
+    // Select 값만 들어온 경우(Select는 ""가 될수 없고 날짜는 From To 같이 들어오게 되어 있다)
+    if (term[1] === "" && term[2] === "") {
+      // term[0] = 0은 전체 검색
+      if (term[0] === '0') {
+        Wechat.find() // rst:0 (All), 1 (success), rst:2 (fail)
+        .skip(req.body.skip)
+        .exec((err, wechatInfo) => {
           if (err) return res.status(400).json({success: false, err});
           return res.status(200).json({ success: true, wechatInfo})
-      });
+        });
+      } else {
+        Wechat.find({"rst": term[0]})
+        .skip(req.body.skip)
+        .exec((err, wechatInfo) => {
+          if (err) return res.status(400).json({success: false, err});
+          return res.status(200).json({ success: true, wechatInfo})
+        });
+      }  
     }
-    if (term[1] != "" && term[2] === "" && term[3] === "") {
-      Wechat.find({"rst":term[0]},{"uniqueField":{'$regex':term[1]}})
-      .skip(req.body.skip)
-      .exec((err, wechatInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, wechatInfo})
-      });
+    // Select, Unique 값만 들어온 경우
+    if (term[1] !== "" && term[2] === "") {
+      if (term[0] === '0') {
+        Wechat.find({"uniqueField":{'$regex':term[1], $options: 'i'}}) // $options: 'i' : 대소문자 구분 안함
+        .skip(req.body.skip)
+        .exec((err, wechatInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, wechatInfo})
+        });
+      } else {
+        Wechat.find({"rst":term[0], "uniqueField":{'$regex':term[1], $options: 'i'}})
+        .skip(req.body.skip)
+        .exec((err, wechatInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, wechatInfo})
+        });
+      }
     }
-    if (term[1] === "" && term[2] != "" && term[3] === "") {
-      Wechat.find({"rst":term[0]},{"createdAt":{$gte: moment(term[2]).toDate()}})
-      .skip(req.body.skip)
-      .exec((err, wechatInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, wechatInfo})
-      });
+    // Select, Unique, 날짜가 들어온 경우(날짜느 form to가 같이 들어오게 되어 있음)
+    if (term[1] !== "" && term[2] !== "") {
+      if (term[0] === '0') {
+        Wechat.find(
+          {"uniqueField":{'$regex':term[1], $options: 'i'}, "createdAt":{$gte: moment(term[2]).toDate()}, $lte: moment(term[3]).toDate()}
+        )
+        .skip(req.body.skip)
+        .exec((err, wechatInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, wechatInfo})
+        });
+      } else {
+        Wechat.find(
+          {"rst":term[0], "uniqueField":{'$regex':term[1], $options: 'i'}, 
+          "createdAt":{$gte: moment(term[2]).toDate()}, $lte: moment(term[3]).toDate()}
+        )
+        .skip(req.body.skip)
+        .exec((err, wechatInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, wechatInfo})
+        });
+      }
     }
-    if (term[1] === "" && term[2] === "" && term[3] != "") {
-      Wechat.find({"rst":term[0]},{"createdAt":{$lte: moment(term[3]).toDate()}})
-      .skip(req.body.skip)
-      .exec((err, wechatInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, wechatInfo})
-      });
-    }
-    if (term[1] != "" && term[2] != "" && term[3] === "") {
-      Wechat.find({"rst":term[0]},{"uniqueField":{'$regex':term[1]}},{"createdAt":{$gte: moment(term[2]).toDate()}})
-      .skip(req.body.skip)
-      .exec((err, wechatInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, wechatInfo})
-      });
-    }
-    if (term[1] != "" && term[2] === "" && term[3] != "") {
-      Wechat.find({"rst":term[0]},{"uniqueField":{'$regex':term[1]}},{"createdAt":{$lte: moment(term[3]).toDate()}})
-      .skip(req.body.skip)
-      .exec((err, wechatInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, wechatInfo})
-      });
-    }
-    if (term[1] === "" && term[2] != "" && term[3] != "") {
-      Wechat.find({"rst":term[0]},{createdAt: {$gte: moment(term[2]).toDate(), $lte: moment(term[3]).toDate()}})
-      .skip(req.body.skip)
-      .exec((err, wechatInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, wechatInfo})
-      });
-    }
-    if (term[1] != "" && term[2] != "" && term[3] != "") {
-      Wechat.find({"rst":term[0]},{"uniqueField":{'$regex':term[1]}},{createdAt: {$gte: moment(term[2]).toDate(), $lte: moment(term[3]).toDate()}})
-      .skip(req.body.skip)
-      .exec((err, wechatInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, wechatInfo})
-      });
+    // Unique만 값이 들어오지 않은 경우
+    if (term[1] === "" && term[2] !== "") {
+      if (term[0] === '0') {
+        // moment(term[2]).toDate():  2022-01-01T08:29:00.000Z
+        Wechat.find({"createdAt":{$gte: moment(term[2]).toDate()}, $lte: moment(term[3]).toDate()})
+        .skip(req.body.skip)
+        .exec((err, wechatInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, wechatInfo})
+        });
+      } else {
+        Wechat.find({"rst":term[0], "createdAt":{$gte: moment(term[2]).toDate()}, $lte: moment(term[3]).toDate()})
+        .skip(req.body.skip)
+        .exec((err, wechatInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, wechatInfo})
+        });
+      }
     }
   } else {
     Wechat.find()
-      .skip(req.body.skip)
-      .exec((err, wechatInfo) => {
-          if (err) return res.status(400).json({success: false, err});
-          return res.status(200).json({ success: true, wechatInfo})
-      });
-  }
+    .skip(req.body.skip)
+    .exec((err, wechatInfo) => {
+        if (err) return res.status(400).json({success: false, err});
+        return res.status(200).json({ success: true, wechatInfo})
+    });
+  }  
 });
 
 // Alipay 상세조회
@@ -229,6 +261,14 @@ router.get('/wechat_by_id', (req, res) => {
           if (err) return res.status(400).send(err)
           return res.status(200).send({success: true, wechat});
       })
+})
+
+// Paypal 결제결과 조회
+router.get('/paypal/list', (req, res) => {
+  Payment.find().exec((err, paypalInfo) => {
+    if (err) return res.status(400).json({success: false, err});
+      return res.status(200).send({success: true, paypalInfo});
+  })
 })
 
 module.exports = router;

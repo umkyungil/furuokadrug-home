@@ -11,7 +11,7 @@ function SearchFeature(props) {
   const [SearchFromDate, setSearchFromDate] = useState("");
   const [SearchToDate, setSearchToDate] = useState("");
   
-  const stringHandler = (event) => {
+  const uniqueHandler = (event) => {
     setSearchUnique(event.currentTarget.value);
     let arr = [SearchResult, event.currentTarget.value, SearchFromDate, SearchToDate];
     // 부모 컨테이너에 값을 보내기
@@ -25,9 +25,7 @@ function SearchFeature(props) {
     props.refreshFunction(arr);
   }
 
-  const timeHandler = (value, dateString) => {
-    console.log('Selected Time: ', value);
-    console.log('Formatted Selected Time: ', dateString[0], dateString[1]);
+  const dateHandler = (value, dateString) => {
     setSearchFromDate(dateString[0]);
     setSearchToDate(dateString[1]);
     let arr = [SearchResult, SearchUnique, dateString[0], dateString[1]]
@@ -48,14 +46,14 @@ function SearchFeature(props) {
       </Select>&nbsp;&nbsp;
       <Search
         placeholder="Please enter Unique field"
-        onChange={stringHandler}
+        onChange={uniqueHandler}
         style={{ width:200 }}
         value={SearchUnique}
       />&nbsp;&nbsp;
       <RangePicker
         showTime={{ format: 'HH:mm' }}
         format="YYYY-MM-DD HH:mm"
-        onChange={timeHandler}
+        onChange={dateHandler}
         onOk={onOk}
       />
     </div>

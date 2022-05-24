@@ -47,7 +47,15 @@ function LoginPage(props) {
             .then(response => {
               if (response.payload.loginSuccess) {
                 // localStorage에 등록
-                window.localStorage.setItem('userId', response.payload.userId);
+                console.log("response.payload: ", response.payload)
+                window.localStorage.setItem('userId', response.payload.userInfo._id);
+                // 사용자 정보의 언어 속송의 값을 다국어에서 사용하기 위해 로컬스토리지에 셋팅
+                if (response.payload.userInfo.language) {
+                  window.localStorage.setItem('i18nextLng', response.payload.userInfo.language);
+                } else {
+                  window.localStorage.setItem('i18nextLng', 'cn');
+                }                
+
                 if (rememberMe === true) {
                   window.localStorage.setItem('rememberMe', values.id);
                 } else {

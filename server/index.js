@@ -10,6 +10,9 @@ const connect = mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUn
   .then(() => console.log('MongoDB Connected...'))
   .catch(err => console.log(err));
 
+const { Mail } = require("./models/Mail");
+
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -26,34 +29,35 @@ const nodeConfig = require("./config/mailConfig");
 
 // 사용자 취득(3달동안 로그인하지 않은 사용자)
 // 배치 실행(5초 간격)
-schedule.scheduleJob("5 * * * * *", function() {
-  // 3달전 일자 취득
-  let now = new Date();
-  let oneMonthAgo = new Date(now.setMonth(now.getMonth() - 2)).toISOString();
+// schedule.scheduleJob("5 * * * * *", function() {
+//   // 3달전 일자 취득
+//   let now = new Date();
+//   let oneMonthAgo = new Date(now.setMonth(now.getMonth() - 2)).toISOString();
   
-  // 사용자 정보취득
-  User.find({"lastLogin": {$lte: new Date(oneMonthAgo)}, role: 0})
-    .exec((err, userInfos) => {
-      if (err) console.log("error: ", err);
+//   // 사용자 정보취득
+//   User.find({"lastLogin": {$lte: new Date(oneMonthAgo)}, role: 0})
+//     .exec((err, userInfos) => {
+//       if (err) console.log("error: ", err);
       
-      if (userInfos.length > 0) {        
-        for (let i=0; i < userInfos.length; i++) {
-          // 메일설정 및 본문작성
-          let message = userInfos[i].name + " " + userInfos[i].lastName + "様\n"
-          message = message + "ご来訪いただきますよう、何卒よろしくお願いいたします。";
+//       if (userInfos.length > 0) {        
+//         for (let i=0; i < userInfos.length; i++) {
+//           // 메일설정 및 본문작성
+//           let message = userInfos[i].name + " " + userInfos[i].lastName + "様\n"
+//           message = message + "ご来訪いただきますよう、何卒よろしくお願いいたします。";
 
-          const body = {
-            subject: "お知らせ",
-            from: "umkyungil@hirosophy.co.jp", // email
-            to: "umkyungil@hirosophy.co.jp", // userInfos[i].email,
-            message: message
-          }
-          // 메일송신
-          // sendEmail(body);
-        }
-      }
-    })  
-});
+//           const body = {
+//             type: "Batch",
+//             subject: "お知らせ",
+//             from: "umkyungil@hirosophy.co.jp", // email
+//             to: "umkyungil@hirosophy.co.jp", // userInfos[i].email,
+//             message: message
+//           }
+//           // 메일송신
+//           sendEmail(body);
+//         }
+//       }
+//     })  
+// });
 
 // 메일 송신
 function sendEmail(body) {
@@ -76,13 +80,31 @@ function sendEmail(body) {
       text: body.message
   };
 
-  transporter.sendMail(mailOptions, function(error, info){
-      if (error) {
-        console.log("error :", error);
+  transporter.sendMail(mailOptions, function(err, info){
+    try {
+      if (err) {
+          console.log("batch email error: ", err);
+      } else {
+        // 메일 전송 성공시 메일정보 등록
+        const body = {
+            type: body.type,
+            subject: body.subject,
+            to: body.to,
+            from: body.from,
+            message: body.message,
+        }
+
+        const mail = new Mail(body);
+        mail.save((err, doc) => {
+            if (err) {
+                console.log("batch email error: ", err);
+            }
+            console.log("batch email success");
+        });
       }
-      else {
-        console.log("mail success :", info);
-      }
+    } catch(err) {
+      console.log("notice email error: ", err);
+    }
   });
 };
 

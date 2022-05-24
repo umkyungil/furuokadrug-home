@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { Button, Descriptions, Collapse, InputNumber, Space } from 'antd';
+import { Button, Descriptions, Collapse } from 'antd';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../../../../_actions/user_actions';
 import { useHistory } from 'react-router-dom';

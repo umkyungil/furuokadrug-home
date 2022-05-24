@@ -45,8 +45,8 @@ function RightMenu(props) {
         <Menu.Item key="app">
           <a href="/register">Sign Up</a>
         </Menu.Item>
-        <Menu.Item key="contact">
-          <a href="/mail/contact">Contact Us</a>
+        <Menu.Item key="inquiry">
+          <a href="/mail/inquiry">Contact Us</a>
         </Menu.Item>
       </Menu>
     )
@@ -73,13 +73,21 @@ function RightMenu(props) {
             </Menu.Item>
             <Menu.Item key="list">
               <a href="/order/list">Order list</a>
-            </Menu.Item>
+            </Menu.Item>            
+            {/* <SubMenu title={<span>Mail</span>}>          
+              <Menu.Item key="mailList">
+                <a href="/mail/list">Mail History</a>
+              </Menu.Item>
+            </SubMenu> */}
             <SubMenu title={<span>Payment</span>}>          
               <Menu.Item key="alipayList">
-                <a href="/payment/alipay/list">Alipay payment list</a>
+                <a href="/payment/alipay/list">Alipay Payment History</a>
               </Menu.Item>
               <Menu.Item key="wechatList">
-                <a href="/payment/wechat/list">Wechat payment list</a>
+                <a href="/payment/wechat/list">Wechat Payment History</a>
+              </Menu.Item>
+              <Menu.Item key="paypalAdminList">
+                <a href="/payment/paypal/admin/list">Paypal Payment History</a>
               </Menu.Item>
             </SubMenu>
             <SubMenu title={<span>Customer</span>}>
@@ -108,13 +116,21 @@ function RightMenu(props) {
             <Menu.Item key="list">
               <a href="/order/list">Order list</a>
             </Menu.Item>
+            {/* <SubMenu title={<span>Mail</span>}>          
+              <Menu.Item key="mailList">
+                <a href="/mail/list">Mail History</a>
+              </Menu.Item>
+            </SubMenu> */}
             <SubMenu title={<span>Payment</span>}>          
               <Menu.Item key="alipayList">
-                <a href="/payment/alipay/list">Alipay payment list</a>
+                <a href="/payment/alipay/list">Alipay Payment History</a>
               </Menu.Item>
               <Menu.Item key="wechatList">
-                <a href="/payment/wechat/list">Wechat payment list</a>
+                <a href="/payment/wechat/list">Wechat Payment History</a>
               </Menu.Item>
+              <Menu.Item key="paypalAdminList">
+                <a href="/payment/paypal/admin/list">Paypal Payment History</a>
+              </Menu.Item>              
             </SubMenu>
             <SubMenu title={<span>Customer</span>}>
               <Menu.Item key="customerRegister">
@@ -148,15 +164,15 @@ function RightMenu(props) {
       } else if (user.userData.role === 0) {   
         // 일반 사용자
         return (
-          <Menu mode={props.mode}>
-            <Menu.Item key="history">
-              <a href="/history">History</a>
-            </Menu.Item>
+          <Menu mode={props.mode}>            
             <Menu.Item key="chat">
               <a onClick={chatHandler}>Chat</a>
             </Menu.Item>
             <Menu.Item key="live">
               <a href="/live">Live Streaming</a>
+            </Menu.Item>
+            <Menu.Item key="paypalList">
+              <a href="/payment/paypal/list">Paypal list</a>
             </Menu.Item>
             <Menu.Item key="list">
               <a href="/order/list">Order list</a>
@@ -167,7 +183,10 @@ function RightMenu(props) {
                   <Icon type="shopping-cart" style={{fontSize:30, marginBottom:3}} />
                 </a>
               </Badge>
-            </Menu.Item>          
+            </Menu.Item>
+            <Menu.Item key="inquiry">
+              <a href="/mail/inquiry">Contact Us</a>
+            </Menu.Item>
             <Menu.Item key="logout">
               <a onClick={logoutHandler}>Logout</a>
             </Menu.Item>
@@ -183,8 +202,8 @@ function RightMenu(props) {
           <Menu.Item key="app">
             <a href="/register">Sign Up</a>
           </Menu.Item>
-          <Menu.Item key="contact">
-            <a href="/mail/contact">Contact Us</a>
+          <Menu.Item key="inquiry">
+            <a href="/mail/inquiry">Contact Us</a>
           </Menu.Item>
         </Menu>
       )

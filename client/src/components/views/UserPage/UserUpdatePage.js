@@ -40,12 +40,12 @@ function UserUpdatePage(props) {
   const [Id, setId] = useState("");
   const [Name, setName] = useState("");
   const [LastName, setLastName] = useState("");
-  const [Email, setEmail] = useState("");
   const [Tel, setTel] = useState("");  
   const [Address1, setAddress1] = useState("");
   const [Address2, setAddress2] = useState("");
   const [Address3, setAddress3] = useState("");
   const [Role, setRole] = useState(0);
+  const [Language, setLanguage] = useState("");
 
   // query string 취득
   const userId = props.match.params.userId;
@@ -55,15 +55,18 @@ function UserUpdatePage(props) {
     axios.get(`${USER_SERVER}/users_by_id?id=${userId}&type=single`)
       .then(response => {
         if (response.data.success) {
+          console.log("response.data.user[0]: ", response.data.user[0]);
           setId(response.data.user[0]._id);          
           setName(response.data.user[0].name);
           setLastName(response.data.user[0].lastName);
           setTel(response.data.user[0].tel);
-          setEmail(response.data.user[0].email);
           setAddress1(response.data.user[0].address1);
           setAddress2(response.data.user[0].address2);
           setAddress3(response.data.user[0].address3);
           setRole(response.data.user[0].role);
+          setLanguage(response.data.user[0].language);
+
+          console.log("Language: ", Language);
         } else {
           alert("Failed to get user information.")
         }
@@ -90,6 +93,9 @@ function UserUpdatePage(props) {
   }
   const roleHandler = (value) => {
     setRole(value);
+  }
+  const languageHandler = (value) => {
+    setLanguage(value);
   }
 
   const history = useHistory();
@@ -124,7 +130,8 @@ function UserUpdatePage(props) {
             address1: Address1,
             address2: Address2,
             address3: Address3,
-            role: Role
+            role: Role,
+            language: Language
           };
 
           let bol = true;
@@ -144,8 +151,6 @@ function UserUpdatePage(props) {
             alert("Address1 is required");
             bol = false;
           }
-
-          console.log("Role: ", Role);
 
           if(bol) {
             dispatch(updateUser(dataToSubmit)).then(response => {
@@ -195,15 +200,18 @@ function UserUpdatePage(props) {
               </Form.Item>
               {/* 권한 */}
               <Form.Item required label="Role">
-                {/* <select onChange={roleHandler} value={Role} style={{ width: 120 }}>
-                  <option value="0"> user </option>
-                  <option value="1"> staff</option>
-                  <option value="2"> admin </option>
-                </select> */}
                 <Select value={Role.toString()} style={{ width: 120 }} onChange={roleHandler}>
                   <Option value="0">user</Option>
                   <Option value="1">staff</Option>
                   <Option value="2">admin</Option>
+                </Select>
+              </Form.Item>
+              {/* 권한 */}
+              <Form.Item required label="Language">
+                <Select value={Language} style={{ width: 120 }} onChange={languageHandler}>
+                  <Option value="jp">Japanese</Option>
+                  <Option value="en">English</Option>
+                  <Option value="cn">Chinese</Option>
                 </Select>
               </Form.Item>
 

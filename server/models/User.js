@@ -53,6 +53,9 @@ const userSchema = mongoose.Schema({
         default: []
     },
     image: String,
+    language: {
+		type: String
+	},
     token : {
         type: String,
     },

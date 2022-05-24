@@ -22,7 +22,10 @@ export function deleteUser(id){
     const body = {userId : id}
 
     const request = axios.post(`${USER_SERVER}/delete`, body)
-        .then(response => response.data);
+        .then( response => {
+            console.log("response.data: ",response.data);
+            return response.data
+        });
     return {
         type: DELETE_USER,
         payload: request

@@ -80,6 +80,7 @@
     "unit": "Ea"
   },
   "Paypal": {
-    "success": "Successfully Purchased Items"
+    "successAlert": "Successfully Purchased Items",
+    "errorAlert": "An unexpected error has occurred. Contact your system administrator"
   }
 }

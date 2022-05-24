@@ -17,7 +17,6 @@ function LiveStreaming(props) {
   React.useEffect(() => {
     // 다국어 설정
     setLanguage(localStorage.getItem("i18nextLng"));
-
     // 사용자정보 취득
     if (localStorage.getItem("userId")) {
       getUserInfo(localStorage.getItem("userId"))
@@ -107,6 +106,7 @@ function LiveStreaming(props) {
       message = message + "\n【ルームNo      】    "  + room 
       message = message + "\n【ルームイン時刻 】    "  + roomInTime
       const body = {
+        type: "Live",
         subject: "顧客対応の依頼",
         from: email,
         to: "umkyungil@hirosophy.co.jp", //"info@furuokadrug.com", 관리자메일 주소
@@ -132,7 +132,7 @@ function LiveStreaming(props) {
           if (response.data.success) {
             console.log('Notification email has been sent normally');
           } else {
-            alert('The call to the representative is being delayed.\nThank you for making a reservation.');
+            console.log('The call to the representative is being delayed.\nThank you for making a reservation.');
             history.push("/");
           }
         });

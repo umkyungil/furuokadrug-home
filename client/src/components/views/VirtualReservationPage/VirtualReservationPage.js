@@ -56,12 +56,14 @@ function VirtualReservationPage(props) {
   const [SuccessAlert, setSuccessAlert] = useState(false);
   
   const body = {
+    type: 'Reservation',
+    subject: 'Virtual Reservation',
     name: Name,
+    email: Email,
     wechatID: WechatID,
     telephoneNumber: TelephoneNumber,
     reservationDate: ReservationDate,
-    interestedItem: InterestedItem,
-    email: Email
+    interestedItem: InterestedItem
   }
 
   // 메일 송신
@@ -69,25 +71,18 @@ function VirtualReservationPage(props) {
     e.preventDefault();    
     try {
       const result = await axios.post(`${MAIL_SERVER}/reservation`, body);
-      setSuccessAlert(true);      
+      if (result.data.success) {
+        setSuccessAlert(true);
+      } else {
+        console.log("VirtualReservationPage err");
+        setErrorAlert(true);
+      }
     } catch(err) {
-      console.log("err: ", err);
+      console.log("VirtualReservationPage err: ", err);
       setErrorAlert(true);
     }
   }
-
-  // 경고메세지
-	const errorHandleClose = () => {
-    setErrorAlert(false);
-    history.push("/");
-
-  };
-  // 성공메세지
-	const successHandleClose = () => {
-    setSuccessAlert(false);
-    history.push("/");
-  };
-
+  
   const nameHandler = (event) => {
     setName(event.currentTarget.value)
   }
@@ -106,6 +101,20 @@ function VirtualReservationPage(props) {
   const emailHandler = (event) => {
     setEmail(event.currentTarget.value)
   }
+  // 경고메세지
+	const errorHandleClose = () => {
+    setErrorAlert(false);
+    history.push("/");
+  };
+  // 성공메세지
+	const successHandleClose = () => {
+    setSuccessAlert(false);
+    history.push("/");
+  };
+  // Landing pageへ戻る
+  const listHandler = () => {
+    history.push('/')
+  }
 
   return (
     <div className="app">
@@ -115,7 +124,7 @@ function VirtualReservationPage(props) {
           <Alert message="The virtual reservation has not been received. Please try again later." type="error" showIcon closable afterClose={errorHandleClose}/>
         ) : null}
       </div>
-      <div>
+      <div style={{ minWidth: '650px' }}>
         {SuccessAlert ? (
           <Alert message="The virtual reservation has been received." type="success" showIcon closable afterClose={successHandleClose}/>
         ) : null}
@@ -144,9 +153,12 @@ function VirtualReservationPage(props) {
         <Input name="email" placeholder="Please enter your email address" type="email" value={Email} onChange={emailHandler} required />
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>
+          <Button onClick={listHandler}>
+            Product List
+          </Button>&nbsp;&nbsp;&nbsp;
           <Button htmlType="submit" type="primary">
             Send
-          </Button>
+          </Button>          
         </Form.Item>
       </Form>  
     </div>

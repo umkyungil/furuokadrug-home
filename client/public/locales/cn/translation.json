@@ -78,6 +78,7 @@
     "unit": "Ea"
   },
   "Paypal": {
-    "success": "您的购买已完成"
+    "successAlert": "您的购买已完成",
+    "errorAlert": "发生意外的错误。 联系您的系统管理员"
   }
 }

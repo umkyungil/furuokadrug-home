@@ -189,7 +189,7 @@ function ConfirmWechatPage(props) {
 
   return (
     <div className="app">
-      <h2>Wechat payment confirm</h2>
+      <h1>Wechat payment confirm</h1>
       <br />
       <Form style={{ minWidth: '375px' }} onSubmit={sendPaymentInfo} {...formItemLayout} >
         <Form.Item label="Name">
