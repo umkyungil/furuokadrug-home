@@ -11,12 +11,10 @@ function LiveStreaming(props) {
   const [Body, setBody] = useState({});
   const [URL, setUrl] = useState("");
   const [Visible, setVisible] = useState(false);
-  const [Result, setResult] = useState(false);
-  const [I18nLanguage, setI18nLanguage] = useState("");
   
   React.useEffect(() => {
     // 다국어 설정
-    setLanguage(localStorage.getItem("i18nextLng"));
+    setMultiLanguage(localStorage.getItem("i18nextLng"));
     // 사용자정보 취득
     if (localStorage.getItem("userId")) {
       getUserInfo(localStorage.getItem("userId"))
@@ -51,13 +49,12 @@ function LiveStreaming(props) {
         history.push("/");
       }
     })
-  }, [localStorage.getItem('i18nextLng')])
+  }, [])
 
   // 다국어 설정
 	const {t, i18n} = useTranslation();
-  function setLanguage(lang) {
+  function setMultiLanguage(lang) {
     i18n.changeLanguage(lang);
-    setI18nLanguage(lang);
   }
 
   // 사용자 정보 취득
@@ -98,21 +95,12 @@ function LiveStreaming(props) {
       // 모달창 보여주기
       showModal();
       
-      // 관리자에 보낼 메일내용 설정
-      let message = "管理者 様\n"
-      message = message + "\n下記の顧客からライブストリーミングの依頼がございました。\nご対応をお願いいたします。\n";
-      message = message + "------------------------------------------------------------\n";
-      message = message + "\n【顧客名         】    " + fullName
-      message = message + "\n【ルームNo      】    "  + room 
-      message = message + "\n【ルームイン時刻 】    "  + roomInTime
       const body = {
-        type: "Live",
-        subject: "顧客対応の依頼",
         from: email,
-        to: "umkyungil@hirosophy.co.jp", //"info@furuokadrug.com", 관리자메일 주소
-        message: message
-      }
-      
+        fullName: fullName,
+        room: room,
+        roomInTime: roomInTime
+      }      
       // 메일내용 보관
       setBody(body);
       // 일반 사용자의 다이렉트 URL 작성
@@ -127,7 +115,7 @@ function LiveStreaming(props) {
   // 메일 송신
   async function sendEmail() {
     try {
-      await axios.post(`${MAIL_SERVER}/notice`, Body)
+      await axios.post(`${MAIL_SERVER}/live`, Body)
         .then(response => {
           if (response.data.success) {
             console.log('Notification email has been sent normally');

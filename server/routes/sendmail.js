@@ -5,36 +5,55 @@ const nodemailer = require("nodemailer");
 const nodeConfig = require("../config/mailConfig");
 const { Mail } = require("../models/Mail");
 const moment = require("moment");
+const { ADMIN_EMAIL } = require('../config/config');
 
 //=================================
 //          Sendmail
 //=================================
 
-// Customer : 관리자가 고객에세 보내는 메일(사용자 리스트 화면)
-router.post("/notice", auth, (req, res) => {
-    let transporter = nodemailer.createTransport({
-        service: nodeConfig.service,
-        port: nodeConfig.port,
-        host: nodeConfig.host,
-        secure: nodeConfig.secure,
-        requireTLS: nodeConfig.requireTLS,
-        auth: {
-          user: nodeConfig.user, // gmail 계정 아이디를 입력
-          pass: nodeConfig.pass  // gmail 계정의 비밀번호를 입력
-        }
-    });
+const transporter = nodemailer.createTransport({
+    service: nodeConfig.service,
+    port: nodeConfig.port,
+    host: nodeConfig.host,
+    secure: nodeConfig.secure,
+    requireTLS: nodeConfig.requireTLS,
+    auth: {
+      user: nodeConfig.user, // gmail 계정 아이디를 입력
+      pass: nodeConfig.pass  // gmail 계정의 비밀번호를 입력
+    }
+});
 
+// 메일정보 등록
+const registerMailHistory = async (body) => {
+    try {
+        const mail = new Mail(body);
+        await mail.save((err, doc) => {
+            if (err) {
+                console.log("direct email error: ", err);
+                return false;
+            }
+            console.log("direct email success");
+            return true;
+        });    
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+}
+
+// UserList, CustomerList: 관리자가 고객에게 DM으로 메일전송
+router.post("/notice", auth, (req, res) => {
     let mailOptions = {
         from: req.body.from, // 발송 메일 주소 (설정을 해도 위에서 작성한 gmail 계정 아이디로 보내진다) 
-        to: req.body.to , // 수신 메일 주소
-        subject: req.body.subject, // 제목
+        to: req.body.to ,
+        subject: req.body.subject,
         text: req.body.message
     };
 
     transporter.sendMail(mailOptions, function(err, info){
         try {
             if (err) {
-                console.log("notice email error: ", err);
+                console.log("direct email error: ", err);
                 return res.json({ success: false}, err);
             } else {
                 // 메일 전송 성공시 메일정보 등록
@@ -45,43 +64,68 @@ router.post("/notice", auth, (req, res) => {
                     from: req.body.from,
                     message: req.body.message,
                 }
-
-                const mail = new Mail(body);
-                mail.save((err, doc) => {
-                    if (err) {
-                        console.log("notice email error: ", err);
-                        return res.json({ success: false }, err);
-                    }
-                    console.log("notice email success");
-                    return res.json({ success: true });
-                });
+                // 메일정보 등록
+                const result = registerMailHistory(body);
+                if(!result) return res.json({ success: false }, err);
+                return res.status(200).json({ success: true })
             }
         } catch(err) {
-            console.log("notice email error: ", err);
-            return res.json({ success: false }, err);
+            console.log(err);
+            return res.status(500).json({ success: false, message: err.message });
         }
     });
 });
 
-// Contact Us : 고객으로 부터 문의메일 수신
-router.post("/inquiry", (req, res) => {
-    let transporter = nodemailer.createTransport({
-        service: nodeConfig.service,
-        port: nodeConfig.port,
-        host: nodeConfig.host,
-        secure: nodeConfig.secure,
-        requireTLS: nodeConfig.requireTLS,
-        auth: {
-          user: nodeConfig.user, // gmail 계정 아이디를 입력
-          pass: nodeConfig.pass  // gmail 계정의 비밀번호를 입력
-        }
-    });
+// LiveStreaming: 라이브스트리밍에서 사용자가 룸인 했을때 관리자에게 보내는 메일
+router.post("/live", auth, (req, res) => {
+    // 관리자에 보낼 메일내용 설정
+    let message = "管理者 様\n"
+    message += "\n下記の顧客からライブストリーミングの依頼がございました。\nご対応をお願いいたします。\n";
+    message += "------------------------------------------------------------\n";
+    message += "\n【顧客名         】    " + req.body.fullName
+    message += "\n【ルームNo      】    "  + req.body.room 
+    message += "\n【ルームイン時刻 】    "  + req.body.roomInTime
 
     let mailOptions = {
+        from: req.body.from, // 발송 메일 주소 (설정을 해도 위에서 작성한 gmail 계정 아이디로 보내진다) 
+        to: ADMIN_EMAIL,
+        subject: "ライブストリーミング顧客対応の依頼",
+        text: message
+    };
+
+    transporter.sendMail(mailOptions, function(err, info){
+        try {
+            if (err) {
+                console.log("live email error: ", err);
+                return res.json({ success: false}, err);
+            } else {
+                // 메일 전송 성공시 메일정보 등록
+                const body = {
+                    type: "Live",
+                    subject: "ライブストリーミング顧客対応の依頼",
+                    to: ADMIN_EMAIL,
+                    from: req.body.from,
+                    message: message,
+                }
+                // 메일정보 등록
+                const result = registerMailHistory(body);
+                if(!result) return res.json({ success: false }, err);
+                return res.status(200).json({ success: true })
+            }
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({ success: false, message: err.message });
+        }
+    });
+});
+
+// Contact Us: 고객으로 부터 문의메일 수신
+router.post("/inquiry", (req, res) => {
+    let mailOptions = {
         from: req.body.email, // 발송 메일 주소 (설정을 해도 위에서 작성한 gmail 계정 아이디로 보내진다) 
-        to: 'umkyungil@hirosophy.co.jp', //'info@furuokadrug.com', 수신 메일 주소
-        subject: req.body.subject, // 제목
-        text: req.body.message
+        to: ADMIN_EMAIL, // PROD, DEV에 따라 주소가 변경된(config.js)
+        subject: 'お問い合わせ',
+        text: req.body.message // 문의 내용
     };
 
     transporter.sendMail(mailOptions, function(err, info){
@@ -90,58 +134,43 @@ router.post("/inquiry", (req, res) => {
                 console.log("inquiry email error: ", err);
                 return res.json({ success: false}, err);
             } else {
-                // 메일 전송 성공시 메일정보 등록
-                // 문의메일은 로그인하지 않아도 전송이 가능하므로 userId취득이 불가능하다
+                // 메일정보 설정
                 const body = {
-                    type: req.body.type,
-                    subject: req.body.subject,
-                    to: 'umkyungil@hirosophy.co.jp',
+                    type: 'Inquiry',
+                    subject: 'お問い合わせ',
+                    to: ADMIN_EMAIL, // PROD, DEV에 따라 주소가 변경된다(config.js)
                     from: req.body.email,
                     message: req.body.message,
                 }
-
-                const mail = new Mail(body);
-                mail.save((err, doc) => {
-                    if (err) {
-                        console.log("inquiry email error: ", err);
-                        return res.json({ success: false }, err);
-                    }
-                    console.log("inquiry email success");
-                    return res.json({ success: true });
-                });
+                // 메일정보 등록
+                const result = registerMailHistory(body);
+                if(!result) return res.json({ success: false }, err);
+                return res.status(200).json({ success: true })
             }
         } catch (err) {
-            console.log("inquiry email error: ", err);
-            return res.json({ success: false }, err);
+            console.log(err);
+            return res.status(500).json({ success: false, message: err.message });
         }
     });
 });
 
-// Virtual Reservation (고객으로 부터 예약메일 수신)
-router.post("/reservation", (req, res) => {
-    let transporter = nodemailer.createTransport({
-        service: nodeConfig.service,
-        port: nodeConfig.port,
-        host: nodeConfig.host,
-        secure: nodeConfig.secure,
-        requireTLS: nodeConfig.requireTLS,
-        auth: {
-          user: nodeConfig.user, // gmail 계정 아이디를 입력
-          pass: nodeConfig.pass  // gmail 계정의 비밀번호를 입력
-        }
-    }
-    );
+// Virtual Reservation (고객이 예약메일을 관리자에게 송신)
+router.post("/reserve", (req, res) => {
+    // 관리자에 보낼 메일내용 설정
+    let message = "管理者 様\n"
+    message += "\n下記の顧客から仮想予約の依頼がございました。\nご対応をお願いいたします。\n";
+    message += "------------------------------------------------------------\n";
+    message += "\n【顧客名　　　　　　】    " + req.body.name
+    message += "\n【電話番号　　　　　】    " + req.body.telephoneNumber 
+    message += "\n【WeChat ID　　　　】    " + req.body.weChatID
+    message += "\n【予約日　　　　　　】    " + req.body.reservationDate
+    message += "\n【興味があるアイテム】    " + req.body.interestedItem
     // 메일 설정
     let mailOptions = {
         from: req.body.email, // 발송 메일 주소 (설정을 해도 위에서 작성한 gmail 계정 아이디로 보내진다) 
-        to: 'umkyungil@hirosophy.co.jp', //'info@furuokadrug.com', 수신 메일 주소
-        subject: req.body.subject, // 제목
-        text: 
-            `Name : ${req.body.name} \n
-            Telephone number : ${req.body.telephoneNumber} \n
-            Wechat ID : ${req.body.wechatID} \n
-            Reservation Date : ${req.body.reservationDate} \n                
-            Interested Item : ${req.body.interestedItem}`
+        to: ADMIN_EMAIL, // PROD, DEV에 따라 주소가 변경된(config.js)
+        subject: '仮想予約のお問い合わせ', // 제목
+        text: message
     };
     // 메일 전송
     transporter.sendMail(mailOptions, function(err, info){
@@ -150,80 +179,140 @@ router.post("/reservation", (req, res) => {
                 console.log("reservation email error: ", err);
                 return res.json({ success: false}, err);
             } else {
-                // 메일 전송 성공시 메일정보 등록
-                // 예약메일은 로그인하지 않아도 전송이 가능하므로 userId취득이 불가능하다
-                const contents = 'name: ' + req.body.name + ', wechatID: ' + req.body.wechatID + 
-                    ', tel: ' + req.body.telephoneNumber + ', reservation date: ' + req.body.reservationDate + 
-                    ', interested item: ' + req.body.interestedItem
+                // 메일정보 설정
                 const body = {
-                    type: req.body.type,
-                    subject: req.body.subject,
-                    to: 'umkyungil@hirosophy.co.jp',
+                    type: 'Reserve',
+                    subject: '仮想予約のお問い合わせ',
+                    to: ADMIN_EMAIL, // PROD, DEV에 따라 주소가 변경된다(config.js)
                     from: req.body.email,
-                    message: contents,
+                    message: message,
                 }
-
-                const mail = new Mail(body);
-                mail.save((err, doc) => {
-                    if (err) {
-                        console.log("reservation email error: ", err);
-                        return res.json({ success: false }, err);
-                    }
-                    console.log("reservation email success");
-                    return res.json({ success: true });
-                });                
+                // 메일정보 등록
+                const result = registerMailHistory(body);
+                if(!result) return res.json({ success: false }, err);
+                return res.status(200).json({ success: true })
             }
         } catch(err) {
-            console.log("reservation email error: ", err);
-            return res.json({ success: false }, err);
+            console.log(err);
+            return res.status(500).json({ success: false, message: err.message });
         }
     });
+});
 
-    
+// User Registration (회원가입시 가입감사 메일송신)
+router.post("/register", (req, res) => {
+    // 메일 설정
+    let mailOptions = {
+        from: ADMIN_EMAIL, // PROD, DEV에 따라 주소가 변경된(config.js), (설정을 해도 위에서 작성한 gmail 계정 아이디로 보내진다) 
+        to: req.body.email, // 발송 메일 주소
+        subject: '会員登録完了のお知らせ',
+        text: 
+            `
+            ${req.body.name}　様\n\n
+            この度は「FURUOKADRUG」へのご登録、誠にありがとうございます。\n
+            本日より、FURUOKADRUGシステムのサービスがご利用いただけます。\n\n            
+            引き続きFURUOKADRUGをよろしくお願いいたします。\n
+            ご不明な点、お問い合わせは下記ユーザーサポートページをご確認くださいませ。\n\n
+            URL: https://furuokadrug.herokuapp.com/
+            `
+    };
+    // 메일 전송
+    transporter.sendMail(mailOptions, function(err, info){
+        try {
+            if (err) {
+                console.log("register email error: ", err);
+                return res.json({ success: false}, err);
+            } else {
+                // 메일정보 설정
+                const body = {
+                    type: 'Register',
+                    subject: '会員登録完了のお知らせ',
+                    to: req.body.email, 
+                    from: ADMIN_EMAIL, // PROD, DEV에 따라 주소가 변경된다 (설정을 해도 위에서 작성한 gmail 계정 아이디로 보내진다) 
+                    message: mailOptions.text,
+                }
+                // 메일정보 등록    
+                const result = registerMailHistory(body);
+                if(!result) return res.json({ success: false }, err);
+                return res.status(200).json({ success: true })
+            }
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({ success: false, message: err.message });
+        }
+    });
 });
 
 // 메일이력 조회
 router.post("/list", (req, res) => {
-    let term = req.body.searchTerm;
+    try {
+        let term = req.body.searchTerm;
 
-    if (term) {
-        // type과 날짜 값이 들어오지 않은 경우는 term이 없는 경우이기에 별도 조건을 둘 필요가 없다.
-        // type만 값이 들어왔을때
-        if (term[0] !== "" && term[1] === "") {
-            Mail.find({ "type": { '$regex': term, $options: 'i' }})
-            .skip(req.body.skip)
+        // 검색조건 type과 날짜 값이 들어오지 않은 경우는 term이 없는 경우이기에 별도 조건을 둘 필요가 없다.
+        if (term) {
+            if (term[0] !== "") {
+                // type, 날짜값이 들어왔을때
+                if (term[1]) {
+                    const fromDate = new Date(term[1]).toISOString();
+                    const toDate = new Date(term[2]).toISOString();
+
+                    Mail.find
+                    ({ 
+                        "type":{ '$regex':term[0], $options: 'i' }, 
+                        "createdAt":{ $gte: fromDate, $lte: toDate }
+                    })
+                    .sort({ "createdAt": -1 })
+                    .skip(req.body.skip)
+                    .exec((err, mailInfo) => {
+                        if (err) return res.status(400).json({success: false, err});
+                        return res.status(200).json({ success: true, mailInfo})
+                    });
+                // type만 값이 들어왔을때
+                } else {
+                    Mail.find({ "type": {'$regex': term[0], $options: 'i' }})
+                    .sort({ "createdAt": -1 })
+                    .skip(req.body.skip)
+                    .exec((err, mailInfo) => {
+                        if (err) return res.status(400).json({success: false, err});
+                        return res.status(200).json({ success: true, mailInfo})
+                    });
+                }
+            } else {
+                // 날짜값만 들어왔을때
+                if (term[1]) {
+                    const fromDate = new Date(term[1]).toISOString();
+                    const toDate = new Date(term[2]).toISOString();
+
+                    Mail.find({ "createdAt":{$gte: fromDate, $lte: toDate }})
+                    .sort({ "createdAt": -1 })
+                    .skip(req.body.skip)
+                    .exec((err, mailInfo) => {
+                        if (err) return res.status(400).json({success: false, err});
+                        return res.status(200).json({ success: true, mailInfo})
+                    });
+                // 아무런값도 안들어왔을때
+                } else {
+                    Mail.find()
+                    .sort({ "createdAt": -1 })
+                    .exec((err, mailInfo) => {
+                        if (err) return res.status(400).json({success: false, err});
+                        return res.status(200).json({ success: true, mailInfo})
+                    });
+                }
+            }
+        // 조건이 undefined일 경우(초기페이지)
+        } else {
+            Mail.find()
+            .sort({ "createdAt": -1 })
             .exec((err, mailInfo) => {
                 if (err) return res.status(400).json({success: false, err});
                 return res.status(200).json({ success: true, mailInfo})
             });
         }
-        // 날짜만 값이 들어왔을때
-        if (term[0] === "" && term[1] !== "") {
-            Mail.find({"createdAt":{$gte: moment(term[1]).toDate()}, $lte: moment(term[2]).toDate()})
-            .skip(req.body.skip)
-            .exec((err, mailInfo) => {
-                if (err) return res.status(400).json({success: false, err});
-                return res.status(200).json({ success: true, mailInfo})
-            });
-        }
-        // Type과 날짜 값이 들어왔을때
-        if (term[0] !== "" && term[1] !== "") {
-            Mail.find(
-                {"type":{'$regex':term[0], $options: 'i'}, 
-                "createdAt":{$gte: moment(term[1]).toDate()}, $lte: moment(term[1]).toDate()}
-            )
-            .skip(req.body.skip)
-            .exec((err, mailInfo) => {
-                if (err) return res.status(400).json({success: false, err});
-                return res.status(200).json({ success: true, mailInfo})
-            });
-        }
-    } else {
-        Mail.find().exec((err, mailInfo) => {
-            if (err) return res.status(400).json({success: false, err});
-            return res.status(200).json({ success: true, mailInfo})
-        });
-    }    
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ success: false, message: err.message });
+    }
 });
 
 // 메일정보 상세조회

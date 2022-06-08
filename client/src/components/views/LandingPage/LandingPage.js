@@ -21,8 +21,6 @@ function LandingPage() {
 		continents: [],
 		price: []
 	})
-	const [SearchTerm, setSearchTerm] = useState("");
-	const [I18nLanguage, setI18nLanguage] = useState("");
 
 	useEffect(() => {
 		let body = {
@@ -31,10 +29,10 @@ function LandingPage() {
 		}
 		
 		// 다국어 설정
-		setLanguage(localStorage.getItem("i18nextLng"));
+		setMultiLanguage(localStorage.getItem("i18nextLng"));
 		// 상품 가져오기
 		getProducts(body);
-	}, [localStorage.getItem('i18nextLng')])
+	}, [])
 
 	// limit, skip은 mongo의 옵션
 	const getProducts = (body) => {
@@ -162,15 +160,13 @@ function LandingPage() {
 		}
 
 		setSkip(0);
-		setSearchTerm(newSearchTerm);
 		getProducts(body);
 	}
 
 	// 다국적언어
 	const {t, i18n} = useTranslation();
-  function setLanguage(lang) {
+  function setMultiLanguage(lang) {
     i18n.changeLanguage(lang);
-		setI18nLanguage(lang);
   }
 
 	return (

@@ -79,8 +79,8 @@ function App() {
           <Route exact path="/customer/:customerId" component={Auth(DetailCustomerPage, true)} />
           <Route exact path="/customer/update/:customerId" component={Auth(CustomerUpdatePage, true)} />
           {/* 메일관리 */}
-          <Route exact path="/mail/notice/:toEmail" component={Auth(NoticeMailPage, true)} />
-          <Route exact path="/mail/reservation" component={Auth(VirtualReservationPage, null)} />
+          <Route exact path="/mail/notice/:type/:toEmail" component={Auth(NoticeMailPage, true)} />
+          <Route exact path="/mail/reserve" component={Auth(VirtualReservationPage, null)} />
           <Route exact path="/mail/inquiry" component={Auth(ContactUsPage, null)} />
           <Route exact path="/mail/list" component={Auth(MailHistoryListPage, true)} />
           <Route exact path="/mail/:mailId" component={Auth(MailHistoryDetailPage, true)} />

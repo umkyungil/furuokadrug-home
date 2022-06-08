@@ -36,7 +36,7 @@ function UploadProductPage(props) {
 
   useEffect(() => {
     // 다국적언어 설정
-		setLanguage(localStorage.getItem("i18nextLng"));
+		setMultiLanguage(localStorage.getItem("i18nextLng"));
 	}, [])
 
   const titleHandler = (event) => {
@@ -141,7 +141,7 @@ function UploadProductPage(props) {
 
   // 다국어 설정
 	const {t, i18n} = useTranslation();
-  function setLanguage(lang) {
+  function setMultiLanguage(lang) {
     i18n.changeLanguage(lang);
   }
 
@@ -208,7 +208,7 @@ function UploadProductPage(props) {
         <br />
         <br />
         <Button onClick={listHandler}>
-          Product List
+          Landing Page
         </Button>&nbsp;&nbsp;&nbsp;
         <Button htmlType="submit" type="primary">
           Submit

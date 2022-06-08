@@ -12,11 +12,10 @@ axios.defaults.withCredentials = true;
 function DetailProductPage(props) {
   const productId = props.match.params.productId;
   const [Product, setProduct] = useState({});
-  const [I18nLanguage, setI18nLanguage] = useState("");
 
   useEffect(() => {
     // 다국어 설정
-    setLanguage(localStorage.getItem("i18nextLng"));
+    setMultiLanguage(localStorage.getItem("i18nextLng"));
 
     axios.get(`${PRODUCT_SERVER}/products_by_id?id=${productId}&type=single`)
       .then(response => {
@@ -58,13 +57,12 @@ function DetailProductPage(props) {
         setProduct(response.data[0])
       })
       .catch(err => alert("Failed to get product information."))
-  }, [localStorage.getItem('i18nextLng')])
+  }, [])
 
   // 다국어 설정
 	const {t, i18n} = useTranslation();
-  function setLanguage(lang) {
+  function setMultiLanguage(lang) {
     i18n.changeLanguage(lang);
-    setI18nLanguage(lang);
   }
 
   function convert(value) {

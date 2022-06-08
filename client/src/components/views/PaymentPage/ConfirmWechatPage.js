@@ -93,8 +93,6 @@ function ConfirmWechatPage(props) {
 
   // step 정보취득
   const getStaffInfo = (staffName) => {
-    console.log("staffName: ", staffName);
-
     if (staffName) {
       let body = {
         searchTerm: staffName

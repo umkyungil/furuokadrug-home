@@ -5,7 +5,7 @@ const {RangePicker} = DatePicker;
 const {Search} = Input;
 const {Option} = Select;
 
-function SearchFeature(props) {
+function SearchFeatureOfWeChat(props) {
   const [SearchUnique, setSearchUnique] = useState("");
   const [SearchResult, setSearchResult] = useState("0");
   const [SearchFromDate, setSearchFromDate] = useState("");
@@ -44,12 +44,12 @@ function SearchFeature(props) {
         <Option value="1">Success</Option>
         <Option value="2">Fail</Option>
       </Select>&nbsp;&nbsp;
-      <Search
+      {/* <Search
         placeholder="Please enter Unique field"
         onChange={uniqueHandler}
         style={{ width:200 }}
         value={SearchUnique}
-      />&nbsp;&nbsp;
+      />&nbsp;&nbsp; */}
       <RangePicker
         showTime={{ format: 'HH:mm' }}
         format="YYYY-MM-DD HH:mm"
@@ -60,4 +60,4 @@ function SearchFeature(props) {
   )
 }
 
-export default SearchFeature
+export default SearchFeatureOfWeChat

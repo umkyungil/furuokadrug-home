@@ -46,69 +46,86 @@ function CustomerUpdatePage(props) {
   const [Address3, setAddress3] = useState("");
   const [Salesman, setSalesman] = useState("");
   const [Point, setPoint] = useState("");
-
-  // query string 취득
-  const customerId = props.match.params.customerId;
-
-  // 고객정보 취득
+  
   useEffect(() => {
-    axios.get(`${CUSTOMER_SERVER}/customers_by_id?id=${customerId}&type=single`)
-      .then(response => {
-        if (response.data.success) {
-          setId(response.data.customer[0]._id);
-          setSmaregiId(response.data.customer[0].smaregiId);
-          setName(response.data.customer[0].name);
-          setTel(response.data.customer[0].tel);
-          setEmail(response.data.customer[0].email);
-          setAddress1(response.data.customer[0].address1);
-          setAddress2(response.data.customer[0].address2);
-          setAddress3(response.data.customer[0].address3);
-          setSalesman(response.data.customer[0].salesman);
-          setPoint(response.data.customer[0].point);
-          // 다국적언어
-          setLanguage(localStorage.getItem("i18nextLng"));
-        } else {
-          alert("Failed to get customer information.")
-        }
-      })
+    // 다국적언어
+    setMultiLanguage(localStorage.getItem("i18nextLng"));
+    // query string 취득
+    const customerId = props.match.params.customerId;
+    // 고객정보 취득
+    getCustomer(customerId);
   }, [])
 
+  // 고객정보 취득
+  const getCustomer = async (customerId) => {
+    try {
+      const result = await axios.get(`${CUSTOMER_SERVER}/customers_by_id?id=${customerId}&type=single`);
+
+      if (result.data.success) {
+        // 값 대입
+        setId(result.data.customer[0]._id);
+        setSmaregiId(result.data.customer[0].smaregiId);
+        setName(result.data.customer[0].name);
+        setTel(result.data.customer[0].tel);
+        setEmail(result.data.customer[0].email);
+        setAddress1(result.data.customer[0].address1);
+        setAddress2(result.data.customer[0].address2);
+        setAddress3(result.data.customer[0].address3);
+        setSalesman(result.data.customer[0].salesman);
+        setPoint(result.data.customer[0].point);
+      } else {
+        alert("Failed to get customer information.")
+      }
+    } catch (err) {
+      console.log("CustomerUpdatePage err: ",err);
+    }
+  }
+
+  // 스마레지 ID 핸들러
   const smaregiIdChangeHandler = (event) => {
     setSmaregiId(event.currentTarget.value);
   }
+  // 이름 핸들러
   const nameChangeHandler = (event) => {
     setName(event.currentTarget.value);
   }
+  // 전호번호 핸들러
   const telChangeHandler = (event) => {
     setTel(event.currentTarget.value);
   }
+  // 이메일 핸들러
   const emailChangeHandler = (event) => {
     setEmail(event.currentTarget.value);
   }
+  // 주소1 핸들러
   const address1Changehandler = (event) => {
     setAddress1(event.currentTarget.value);
   }
+  // 주소2 핸들러
   const address2Changehandler = (event) => {
     setAddress2(event.currentTarget.value);
   }
+  // 주소3 핸들러
   const address3Changehandler = (event) => {
     setAddress3(event.currentTarget.value);
   }
+  // 스텝 핸들러
   const salesmanChangeHandler = (event) => {
     setSalesman(event.currentTarget.value);
   }
+  // 포인트 핸들러
   const pointChangeHandler = (event) => {
     setPoint(event.currentTarget.value);
   }
 
+  // 고객일람 페이지 이동
   const history = useHistory();
   const listHandler = () => {
     history.push("/customer/list");
   }
-
   // 다국적언어 설정
 	const {t, i18n} = useTranslation();
-  function setLanguage(lang) {
+  function setMultiLanguage(lang) {
     i18n.changeLanguage(lang);
   }
 
@@ -179,7 +196,7 @@ function CustomerUpdatePage(props) {
             <h1>{t('Customer.updateTitle')}</h1>
             <br />
             <Form style={{ minWidth: '375px' }} {...formItemLayout} onSubmit={handleSubmit} >
-              <Form.Item label={t('Customer.smaregi')}>
+              <Form.Item label={t('Customer.smaregiId')}>
                 <Input id="smaregiId" placeholder="Enter the customer's Smaregi id" type="text" value={SmaregiId} 
                   onChange={smaregiIdChangeHandler} onBlur={handleBlur} required />
               </Form.Item>

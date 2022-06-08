@@ -35,7 +35,7 @@ function CustomerInfo(props) {
       return (
         <div>
           <Descriptions>            
-            <Descriptions.Item label={t('Customer.smaregi')}>{props.detail.smaregiId}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.smaregiId')}>{props.detail.smaregiId}</Descriptions.Item>
             <Descriptions.Item label={t('Customer.name')}>{props.detail.name}</Descriptions.Item>
             <Descriptions.Item label={t('Customer.tel')}>{props.detail.tel}</Descriptions.Item>
             <Descriptions.Item label={t('Customer.email')}>{props.detail.email}</Descriptions.Item>
@@ -60,7 +60,7 @@ function CustomerInfo(props) {
       return (
         <div>
           <Descriptions>
-            <Descriptions.Item label={t('Customer.smaregi')}>{props.detail.smaregiId}</Descriptions.Item>
+            <Descriptions.Item label={t('Customer.smaregiId')}>{props.detail.smaregiId}</Descriptions.Item>
             <Descriptions.Item label={t('Customer.name')}>{props.detail.name}</Descriptions.Item>
             <Descriptions.Item label={t('Customer.tel')}>{props.detail.tel}</Descriptions.Item>
             <Descriptions.Item label={t('Customer.email')}>{props.detail.email}</Descriptions.Item>
@@ -90,7 +90,7 @@ function CustomerInfo(props) {
     return (
       <div>
         <Descriptions>
-          <Descriptions.Item label={t('Customer.smaregi')}>{props.detail.smaregiId}</Descriptions.Item>
+          <Descriptions.Item label={t('Customer.smaregiId')}>{props.detail.smaregiId}</Descriptions.Item>
           <Descriptions.Item label={t('Customer.name')}>{props.detail.name}</Descriptions.Item>
           <Descriptions.Item label={t('Customer.tel')}>{props.detail.tel}</Descriptions.Item>
           <Descriptions.Item label={t('Customer.email')}>{props.detail.email}</Descriptions.Item>

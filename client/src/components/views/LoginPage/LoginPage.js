@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { withRouter } from "react-router-dom";
 import { loginUser } from "../../../_actions/user_actions";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Form, Icon, Input, Button, Checkbox, Typography } from 'antd';
 import { useDispatch } from "react-redux";
+import { useTranslation } from 'react-i18next';
 
 const { Title } = Typography;
 
@@ -15,9 +16,20 @@ function LoginPage(props) {
   const [formErrorMessage, setFormErrorMessage] = useState('')
   const [rememberMe, setRememberMe] = useState(rememberMeChecked)
 
-  const handleRememberMe = () => {
-    setRememberMe(!rememberMe)
-  };
+  useEffect(() => {
+		// 다국어 설정
+		setMultiLanguage(localStorage.getItem("i18nextLng"));
+  }, [])
+
+  // 다국어 설정
+  const {t, i18n} = useTranslation();
+  function setMultiLanguage(lang) {
+    i18n.changeLanguage(lang);
+  }
+
+  // const handleRememberMe = () => {
+  //   setRememberMe(!rememberMe)
+  // };
 
   const initialEmail = localStorage.getItem("rememberMe") ? localStorage.getItem("rememberMe") : '';
 
@@ -49,11 +61,11 @@ function LoginPage(props) {
                 // localStorage에 등록
                 console.log("response.payload: ", response.payload)
                 window.localStorage.setItem('userId', response.payload.userInfo._id);
-                // 사용자 정보의 언어 속송의 값을 다국어에서 사용하기 위해 로컬스토리지에 셋팅
+                // 사용자 정보의 언어 속송값을 다국어에서 사용하기 위해 로컬스토리지에 셋팅
                 if (response.payload.userInfo.language) {
                   window.localStorage.setItem('i18nextLng', response.payload.userInfo.language);
                 } else {
-                  window.localStorage.setItem('i18nextLng', 'cn');
+                  window.localStorage.setItem('i18nextLng', 'jp');
                 }                
 
                 if (rememberMe === true) {
@@ -89,7 +101,7 @@ function LoginPage(props) {
         } = props;
         return (
           <div className="app">
-            <Title level={2}>Log In</Title>
+            <h1>{t('Login.title')}</h1>
             
             <form onSubmit={handleSubmit} style={{ width: '350px' }}>
               <Form.Item required>
@@ -138,10 +150,10 @@ function LoginPage(props) {
                   </a> */}
                 <div>
                   <Button type="primary" htmlType="submit" className="login-form-button" style={{ minWidth: '100%' }} disabled={isSubmitting} onSubmit={handleSubmit}>
-                    Log in
+                    {t('Login.title')}
                 </Button>
                 </div>
-                Or <a href="/register">register now!</a>
+                {t('Login.or')} <a href="/register">{t('Login.register')}</a>
               </Form.Item>
             </form>
           </div>

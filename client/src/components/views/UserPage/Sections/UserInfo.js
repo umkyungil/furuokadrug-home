@@ -1,16 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { Button, Descriptions, Tooltip } from 'antd';
 import { useDispatch } from 'react-redux';
 import { deleteUser } from '../../../../_actions/user_actions';
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function UserInfo(props) {
+
+  useEffect(() => {
+		// 다국어 설정
+    setMultiLanguage(localStorage.getItem("i18nextLng"));
+	}, [])
+
+  // 다국어 설정
+  const {t, i18n} = useTranslation();
+  function setMultiLanguage(lang) {
+    i18n.changeLanguage(lang);
+  }
     
   let address1 = "";
   let address2 = "";
   let address3 = "";
   let role = "";
   let language = "";
+  let point = "";
+  let date = "";
 
   // 주소값1 변경
   if (props.detail.address1) {
@@ -37,16 +51,25 @@ function UserInfo(props) {
     }
   }
   // 권한값 변경
-  if (props.detail.role === 0) role = "user";
-  if (props.detail.role === 1) role = "staff";
-  if (props.detail.role === 2) role = "admin";
+  if (props.detail.role === 0) role = "一般ユーザー";
+  if (props.detail.role === 1) role = "スタッフ";
+  if (props.detail.role === 2) role = "管理者";
   // 언어값 변경
-  if (props.detail.language === "en") language = "English";
-  if (props.detail.language === "cn") language = "Chinese";
-  if (props.detail.language === "jp") language = "Japanese";
+  if (props.detail.language === "en") language = "英語";
+  if (props.detail.language === "cn") language = "中国語（簡体）";
+  if (props.detail.language === "jp") language = "日本語";
+  // 포인트 변경
+  if (!props.detail.point || props.detail.point === "") point = "0";
+  // 날짜 변형(date 추가)
+  if (props.detail.lastLogin) {
+    let tmpDate = new Date(props.detail.lastLogin);
+    let lastLoginDate = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
+    date = lastLoginDate.replace('T', ' ').substring(0, 19) + ' (JST)'
+  }
 
   const history = useHistory();
   const dispatch = useDispatch();
+  // 사용자 정보 삭제
   const deleteHandler = () => {
     dispatch(deleteUser(props.detail._id))
       .then(response => {
@@ -66,16 +89,23 @@ function UserInfo(props) {
   return (
     <div>
       <Descriptions>
-        <Descriptions.Item label="Name">{props.detail.name}</Descriptions.Item>
-        <Descriptions.Item label="LastName">{props.detail.lastName}</Descriptions.Item>
-        <Descriptions.Item label="Phone number">{props.detail.tel}</Descriptions.Item>
-        <Descriptions.Item label="E-mal">{props.detail.email}</Descriptions.Item>
-        <Descriptions.Item label="Role">{role}</Descriptions.Item>
-        <Descriptions.Item label="Point">{props.detail.point}</Descriptions.Item>
-        <Descriptions.Item label="Address1"><Tooltip title={props.detail.address1}>{address1}</Tooltip></Descriptions.Item>
-        <Descriptions.Item label="Address2"><Tooltip title={props.detail.address2}>{address2}</Tooltip></Descriptions.Item> 
-        <Descriptions.Item label="Address3"><Tooltip title={props.detail.address3}>{address3}</Tooltip></Descriptions.Item>
-        <Descriptions.Item label="Language">{language}</Descriptions.Item>
+        <Descriptions.Item label={t('User.lastName')}>{props.detail.lastName}</Descriptions.Item>
+        <Descriptions.Item label={t('User.name')}>{props.detail.name}</Descriptions.Item>
+        <Descriptions.Item label={t('User.tel')}>{props.detail.tel}</Descriptions.Item>
+        <Descriptions.Item label={t('User.email')}>{props.detail.email}</Descriptions.Item>
+        <Descriptions.Item label={t('User.role')}>{role}</Descriptions.Item>
+        <Descriptions.Item label={t('User.point')}>{point}</Descriptions.Item>
+        <Descriptions.Item label={t('User.address1')}><Tooltip title={props.detail.address1}>{address1}</Tooltip></Descriptions.Item>
+        <Descriptions.Item label={t('User.receiver1')}>{props.detail.receiver1}</Descriptions.Item>
+        <Descriptions.Item label={t('User.tel1')}>{props.detail.tel1}</Descriptions.Item>
+        <Descriptions.Item label={t('User.address2')}><Tooltip title={props.detail.address2}>{address2}</Tooltip></Descriptions.Item> 
+        <Descriptions.Item label={t('User.receiver2')}>{props.detail.receiver2}</Descriptions.Item>
+        <Descriptions.Item label={t('User.tel2')}>{props.detail.tel2}</Descriptions.Item>
+        <Descriptions.Item label={t('User.address3')}><Tooltip title={props.detail.address3}>{address3}</Tooltip></Descriptions.Item>
+        <Descriptions.Item label={t('User.receiver3')}>{props.detail.receiver3}</Descriptions.Item>
+        <Descriptions.Item label={t('User.tel3')}>{props.detail.tel3}</Descriptions.Item>
+        <Descriptions.Item label={t('User.language')}>{language}</Descriptions.Item>
+        <Descriptions.Item label={t('User.lastLogin')}>{date}</Descriptions.Item>
       </Descriptions>
 
       <br />

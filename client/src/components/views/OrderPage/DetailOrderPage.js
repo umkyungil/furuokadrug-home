@@ -17,7 +17,7 @@ function DetailOrderPage(props) {
         if (response.data.success) {
           setOrder(response.data.orders[0])
           // 다국적언어 설정
-		      setLanguage(localStorage.getItem("i18nextLng"));
+          setMultiLanguage(localStorage.getItem("i18nextLng"));
         } else {
           alert("Failed to get order information.")
         }
@@ -26,7 +26,7 @@ function DetailOrderPage(props) {
 
   // 다국적언어
 	const {t, i18n} = useTranslation();
-  function setLanguage(lang) {
+  function setMultiLanguage(lang) {
     i18n.changeLanguage(lang);		
   }
 

@@ -9,7 +9,7 @@ function CheckBox(props) {
 
   useEffect(() => {
     // 다국적언어 설정
-		setLanguage(localStorage.getItem("i18nextLng"));
+		setMultiLanguage(localStorage.getItem("i18nextLng"));
 	}, [])
 
   const handleToggle = (value) => {
@@ -43,7 +43,7 @@ function CheckBox(props) {
 
   // 다국적언어 설정
 	const {t, i18n} = useTranslation();
-  function setLanguage(lang) {
+  function setMultiLanguage(lang) {
     i18n.changeLanguage(lang);
   }
 

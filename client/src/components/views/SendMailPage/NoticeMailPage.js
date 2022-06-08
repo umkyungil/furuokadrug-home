@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Alert } from 'antd';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { MAIL_SERVER } from '../../Config.js';
+import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -31,7 +32,9 @@ const tailFormItemLayout = {
   },
 };
 
+// ユーザーDirect Mail
 const NoticeMailPage = (props) => { 
+  console.log("props");
   const history = useHistory();
 
   // query string 취득  
@@ -49,8 +52,19 @@ const NoticeMailPage = (props) => {
   const [ErrorAlert, setErrorAlert] = useState(false);
   const [SuccessAlert, setSuccessAlert] = useState(false);
 
+  useEffect(() => {
+    // 다국어 설정
+    setMultiLanguage(localStorage.getItem("i18nextLng"));
+  }, [])
+
+  // 다국어 설정
+  const {t, i18n} = useTranslation();
+  function setMultiLanguage(lang) {
+    i18n.changeLanguage(lang);
+  }
+
   const body = {
-    type: 'Notice',
+    type: props.match.params.type,
     subject: Subject,
     from: FromEmail,
     to: ToEmail,
@@ -58,10 +72,12 @@ const NoticeMailPage = (props) => {
   }
 
   // 메일 송신
-  const sendEmail = async (e) => { 
+  const sendEmail = async (e) => {
     e.preventDefault();
+
     try {
       const result = await axios.post(`${MAIL_SERVER}/notice`, body);
+      console.log("result.data: ", result.data);
       if (result.data.success) {
         setSuccessAlert(true);
       } else {
@@ -116,25 +132,25 @@ const NoticeMailPage = (props) => {
       </div>
       <br />
 
-      <h2>Notice Mail</h2><br />
+      <h1>{t('Mail.noticeTitle')}</h1><br />
       <Form style={{ minWidth: '375px' }} onSubmit={sendEmail} {...formItemLayout} >
-        <Form.Item label="Subject" required>
+        <Form.Item label={t('Mail.subject')} required>
           <Input name="subject" placeholder="Please enter your subject" type="text" value={Subject} onChange={subjectHandler} required/>
         </Form.Item>
 
-        <Form.Item label="From Email">
+        <Form.Item label={t('Mail.from')}>
         <Input name="from-email" placeholder="Please enter your from-email address" type="email" value={FromEmail} onChange={fromEmailHandler} required/>
         </Form.Item>
-        <Form.Item label="To Email" required>
+        <Form.Item label={t('Mail.to')} required>
         <Input name="to-email" placeholder="Please enter your to-email address" type="email" value={ToEmail} onChange={toEmailHandler} required/>
         </Form.Item>
 
-        <Form.Item label="Message" required>
+        <Form.Item label={t('Mail.message')} required>
           <TextArea maxLength={100} name="message" label="Message" style={{ height: 120, minWidth: '500px' }} value={Message} onChange={messageHandler} placeholder="Please enter your message" required/>
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>
           <Button onClick={listHandler}>
-            Product List
+            Landing Page
           </Button>&nbsp;&nbsp;&nbsp;
           <Button htmlType="submit" type="primary">
             Send

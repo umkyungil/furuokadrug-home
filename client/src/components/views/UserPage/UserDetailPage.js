@@ -3,6 +3,7 @@ import axios from 'axios';
 import UserInfo from './Sections/UserInfo'
 import { Row, Col } from 'antd';
 import { USER_SERVER } from '../../Config.js';
+import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -11,20 +12,34 @@ function UserDetailPage(props) {
   const userId = props.match.params.userId;
 
   useEffect(() => {
-    axios.get(`${USER_SERVER}/users_by_id?id=${userId}&type=single`)
-      .then(response => {
-        if (response.data.success) {
-          setUser(response.data.user[0])
-        } else {
-          alert("Failed to get user information.")
-        }
-      })
+    // 다국어 설정
+    setMultiLanguage(localStorage.getItem("i18nextLng"));
+    // 사용자 정보 취득
+    getUser(userId);
   }, [])
+
+  // 다국어 설정
+  const {t, i18n} = useTranslation();
+  function setMultiLanguage(lang) {
+    i18n.changeLanguage(lang);
+  }
+
+  // 사용자 정보 취득
+  const getUser = async (userId) => {
+    try {
+      const result = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}&type=single`);
+      if (result.data.success) {
+        setUser(result.data.user[0])
+      }
+    } catch (err) {
+      console.log("UserDetailPage err: ",err);
+    }
+  }
 
   return (
     <div style={{ width:'100%', padding:'3rem 4rem' }}>
       <div style={{ display:'flex', justifyContent:'center' }}>
-        <h1>User Info</h1>
+        <h1>{t('User.detailTitle')}</h1>
       </div>
       <br />
       

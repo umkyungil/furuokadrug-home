@@ -1,84 +1,136 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { List } from 'antd';
-import SearchFeature from './Sections/SearchFeature';
+import { Table } from 'antd';
+import SearchFeature from './Sections/AlipaySearchFeature';
+import { useTranslation } from 'react-i18next';
 import { PAYMENT_SERVER } from '../../Config.js';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function ListAlipayPage() {
 	const [AlipayInfo, setAlipayInfo] = useState([]);
-	const [SearchTerm, setSearchTerm] = useState("");
 
 	useEffect(() => {
+		// 다국어 설정
+		setMultiLanguage(localStorage.getItem("i18nextLng"));
+
 		let body = {
 			skip: 0,
 			limit: 8
 		}
+		// 알리페이 정보 취득
 		getAlipayInfo(body);
 	}, [])
 
-	const getAlipayInfo = (body) => {
-		axios.post(`${PAYMENT_SERVER}/alipay/list`, body)
-			.then(response => {
-					if (response.data.success) {
-						response.data.alipayInfo.map((value, index) => {
-							if (value.rst === "1") {
-								value.rst = "成功";
-							} else {
-								value.rst = "失敗";
-							}
-						});
+	// 알리페이 정보 취득
+	const getAlipayInfo = async (body) => {
+		let data = [];
+    let count = 0;
 
-						setAlipayInfo([...response.data.alipayInfo]);
-					} else {
-						alert("Failed to get Alipay payment info")
+		try {
+			const result = await axios.post(`${PAYMENT_SERVER}/alipay/list`, body);
+		
+			if (result.data.success) {
+				for (let i=0; i<result.data.alipayInfo.length; i++) {
+					count++;
+					let tmpAlipayInfo = result.data.alipayInfo[i];
+
+					// 결제결과 변형
+					if(tmpAlipayInfo.rst) {
+						if(tmpAlipayInfo.rst === "1") {
+							tmpAlipayInfo.rst = "Success";
+						} else {
+							tmpAlipayInfo.rst = "Fail";
+						}						
 					}
-			})
+					// 결제금액 변형
+					if(tmpAlipayInfo.ta) {
+						tmpAlipayInfo.ta = Number(tmpAlipayInfo.ta).toLocaleString();
+					}
+					// 날짜 추가
+          let tmpDate = new Date(tmpAlipayInfo.createdAt);
+					const date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
+          tmpAlipayInfo.dateOfPurchase = date.replace('T', ' ').substring(0, 19) + ' (JST)';
+					// key 추가
+					tmpAlipayInfo.key = count;
+					data.push(tmpAlipayInfo);
+				}
+
+				setAlipayInfo([...data]);
+			}
+		} catch (err) {
+			console.log("ListAlipayPage err: ",err);
+		}
 	}
 
+	// 다국어 설정
+	const {t, i18n} = useTranslation();
+	function setMultiLanguage(lang) {
+		i18n.changeLanguage(lang);
+	}
 	// Alipay 결제정보 검색
 	const updateSearchTerm = (newSearchTerm) => {
-		let body = {
-			searchTerm: newSearchTerm
-		}
-
-		setSearchTerm(newSearchTerm);
+		let body = { searchTerm: newSearchTerm };
 		getAlipayInfo(body);
 	}
+	// 컬럼정의
+	const columns = [
+    {
+      title: t('Alipay.paymentNumber'),
+      dataIndex: 'pid',
+      key: 'pid'
+    },
+    {
+      title: t('Alipay.result'),
+      dataIndex: 'rst',
+      key: 'rst',
+    },
+    {
+      title: t('Alipay.controlNumber'),
+      dataIndex: 'ap',
+      key: 'ap',
+    },
+    {
+      title: t('Alipay.amount'),
+      dataIndex: 'ta',
+      key: 'ta',
+    },
+    {
+      title: t('Alipay.uniqueKey'),
+      dataIndex: 'uniqueField',
+      key: 'uniqueField',
+    },
+		{
+      title: t('Alipay.date'),
+      dataIndex: 'dateOfPurchase',
+      key: 'dateOfPurchase',
+    },
+		{
+			title: t('Alipay.action'),
+			key: 'action',
+			render: (_, record) => (
+				<>
+					<a href={`/payment/alipay/${record._id}`}>detail</a>
+				</>
+			),
+		},
+  ];
 
 	return (
-		<div style={{ width:'75%', margin:'3rem auto' }}>
-			<div style={{ textAlign:'center' }}>
-				<h1>Alipay Payment History</h1>
+		<div style={{ width:'80%', margin: '3rem auto'}}>
+			<div style={{ textAlign: 'center' }}>
+				<h1>{t('Alipay.listTitle')}</h1>
 			</div>
 
 			{/* Filter */}
 			{/* Search */}
-			<br />
 			<div style={{ display:'flex', justifyContent:'flex-end', margin:'1rem auto' }}>
 				<SearchFeature refreshFunction={updateSearchTerm}/>
 			</div>
-			<br />
-			<br />
 			{/* Search */}
 
-      <div style={{ display:'flex', justifyContent:'center' }}>
-				<List
-					itemLayout="horizontal"
-					dataSource={AlipayInfo}
-					renderItem={alipay => (
-						<List.Item actions={[<a href={`/payment/alipay/${alipay._id}`}>detail</a>]}>
-							<List.Item.Meta
-								description={`決済番号 ${alipay.pid} / 処理結果: ${alipay.rst} / 管理番号: ${alipay.ap} / 決済金額(合計): ${Number(alipay.ta).toLocaleString()} / 
-															ユニークキー: ${alipay.uniqueField}`
-														}
-								/>
-						</List.Item>
-					)}
-				/>
-      </div>
-	</div>	
+			<Table columns={columns} dataSource={AlipayInfo} />
+		</div>
 	)
 }
 

@@ -6,7 +6,7 @@ import { Empty, Button, Result, Alert, Icon } from 'antd';
 import Paypal from '../../utils/Paypal'
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import { SID } from '../../Const';
+import { SID } from '../../Config';
 import { ORDER_SERVER } from '../../Config.js';
 import axios from 'axios';
 
@@ -72,7 +72,7 @@ function CartPage(props) {
         setShowTotal(false);
         setShowSuccess(true);
 
-        // Order정보 저장
+        // Order정보 설정
         const sod = response.payload.payment.createdAt; // Paypal 결제인 경우 Payment의 createdAt
         const uniqueField = response.payload.payment._id;// Paypal 결제인 경우 Payment의 ID
         const address = data.address.country_code + ' ' + data.address.postal_code + ' ' + data.address.state + ' ' + data.address.city + ' ' + data.address.line1;
@@ -92,7 +92,7 @@ function CartPage(props) {
           deliveryStatus: '未確認'
         }
         
-        // 주문정보 등록
+        // Order정보 등록
         axios.post(`${ORDER_SERVER}/register`, body)
         .then(response => {
           if (response.data.success) {
@@ -223,7 +223,7 @@ function CartPage(props) {
       <br />
       <div style={{ display: 'flex', justifyContent: 'center' }} >
         <Button size="large" onClick={listHandler}>
-          Product List
+          Landing Page
         </Button>
       </div>
     </div>

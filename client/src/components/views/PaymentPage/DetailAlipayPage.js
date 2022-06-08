@@ -3,28 +3,43 @@ import axios from 'axios';
 import AlipayInfo from './Sections/AlipayInfo'
 import { Row, Col } from 'antd';
 import { PAYMENT_SERVER } from '../../Config.js';
+import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function DetailAlipayPage(props) {
   const [Alipay, setAlipay] = useState({});
-  const alipayId = props.match.params.alipayId;
 
   useEffect(() => {
-    axios.get(`${PAYMENT_SERVER}/alipay_by_id?id=${alipayId}&type=single`)
-      .then(response => {
-        if (response.data.success) {
-          setAlipay(response.data.alipay[0])
-        } else {
-          alert("Failed to get Alipay payment result information.")
-        }
-      })
+    const alipayId = props.match.params.alipayId;
+    // 알리페이 정보 취득
+    getAlipay(alipayId);
+    // 다국적언어
+    setMultiLanguage(localStorage.getItem("i18nextLng"));
   }, [])
+
+  // 다국적언어 설정
+	const {t, i18n} = useTranslation();
+  function setMultiLanguage(lang) {
+    i18n.changeLanguage(lang);
+  }
+
+  // 알리페이 정보 취득
+  const getAlipay = async (alipayId) => {
+    try {
+      const result = await axios.get(`${PAYMENT_SERVER}/alipay_by_id?id=${alipayId}&type=single`);
+      if (result.data.success) {
+        setAlipay(result.data.alipay[0]);
+      }
+    } catch (err) {
+      console.log("DetailAlipayPage err: ",err);
+    }
+  }
 
   return (
     <div style={{ width:'100%', padding:'3rem 4rem' }}>
       <div style={{ display:'flex', justifyContent:'center' }}>
-        <h1>Alipay payment result</h1>
+        <h1>{t('Alipay.detailTitle')}</h1>
       </div>
       <br />
       

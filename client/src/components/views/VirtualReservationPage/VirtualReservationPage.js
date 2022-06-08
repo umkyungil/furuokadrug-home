@@ -35,7 +35,7 @@ const tailFormItemLayout = {
 function VirtualReservationPage(props) {
   const history = useHistory();
 
-    // 다국적언어 설정
+  // 다국적언어 설정
 	const {t, i18n} = useTranslation();
 
   // query string 취득  
@@ -47,20 +47,17 @@ function VirtualReservationPage(props) {
   }
   
   const [Name, setName] = useState("");
-  const [WechatID, setWechatID] = useState("");
+  const [WeChatID, setWeChatID] = useState("");
   const [TelephoneNumber, setTelephoneNumber] = useState("");
   const [ReservationDate, setReservationDate] = useState("");
   const [InterestedItem, setInterestedItem] = useState("");
   const [Email, setEmail] = useState("");
   const [ErrorAlert, setErrorAlert] = useState(false);
-  const [SuccessAlert, setSuccessAlert] = useState(false);
   
   const body = {
-    type: 'Reservation',
-    subject: 'Virtual Reservation',
     name: Name,
     email: Email,
-    wechatID: WechatID,
+    weChatID: WeChatID,
     telephoneNumber: TelephoneNumber,
     reservationDate: ReservationDate,
     interestedItem: InterestedItem
@@ -68,13 +65,13 @@ function VirtualReservationPage(props) {
 
   // 메일 송신
   const sendEmail = async (e) => { 
-    e.preventDefault();    
+    e.preventDefault();
+
     try {
-      const result = await axios.post(`${MAIL_SERVER}/reservation`, body);
+      const result = await axios.post(`${MAIL_SERVER}/reserve`, body);
       if (result.data.success) {
-        setSuccessAlert(true);
+        history.push("/");
       } else {
-        console.log("VirtualReservationPage err");
         setErrorAlert(true);
       }
     } catch(err) {
@@ -86,8 +83,8 @@ function VirtualReservationPage(props) {
   const nameHandler = (event) => {
     setName(event.currentTarget.value)
   }
-  const wechatIDHandler = (event) => {
-    setWechatID(event.currentTarget.value)
+  const weChatIDHandler = (event) => {
+    setWeChatID(event.currentTarget.value)
   }
   const telephoneNumberHandler = (event) => {
     setTelephoneNumber(event.currentTarget.value)
@@ -101,20 +98,11 @@ function VirtualReservationPage(props) {
   const emailHandler = (event) => {
     setEmail(event.currentTarget.value)
   }
-  // 경고메세지
+  // 에러메세지
 	const errorHandleClose = () => {
     setErrorAlert(false);
     history.push("/");
   };
-  // 성공메세지
-	const successHandleClose = () => {
-    setSuccessAlert(false);
-    history.push("/");
-  };
-  // Landing pageへ戻る
-  const listHandler = () => {
-    history.push('/')
-  }
 
   return (
     <div className="app">
@@ -124,11 +112,6 @@ function VirtualReservationPage(props) {
           <Alert message="The virtual reservation has not been received. Please try again later." type="error" showIcon closable afterClose={errorHandleClose}/>
         ) : null}
       </div>
-      <div style={{ minWidth: '650px' }}>
-        {SuccessAlert ? (
-          <Alert message="The virtual reservation has been received." type="success" showIcon closable afterClose={successHandleClose}/>
-        ) : null}
-      </div>
       <br />
 
       <h1>{t('Reservation.title')}</h1><br />
@@ -136,8 +119,8 @@ function VirtualReservationPage(props) {
         <Form.Item label={t('Reservation.name')} required>
           <Input name="name" placeholder="Please enter your name" type="text" value={Name} onChange={nameHandler} required />
         </Form.Item>
-        <Form.Item label={t('Reservation.wechatId')} required>
-          <Input name="wechatID" placeholder="Please enter your Wechat ID" type="text" value={WechatID} onChange={wechatIDHandler} required />
+        <Form.Item label={t('Reservation.weChatId')} required>
+          <Input name="weChatID" placeholder="Please enter your WeChat ID" type="text" value={WeChatID} onChange={weChatIDHandler} required />
         </Form.Item>
         <Form.Item label={t('Reservation.tel')} required>
           <Input name="telephoneNumber" placeholder="Please enter your phone number" type="text" value={TelephoneNumber} onChange={telephoneNumberHandler} required />
@@ -153,9 +136,6 @@ function VirtualReservationPage(props) {
         <Input name="email" placeholder="Please enter your email address" type="email" value={Email} onChange={emailHandler} required />
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>
-          <Button onClick={listHandler}>
-            Product List
-          </Button>&nbsp;&nbsp;&nbsp;
           <Button htmlType="submit" type="primary">
             Send
           </Button>          

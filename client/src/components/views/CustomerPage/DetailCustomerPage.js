@@ -17,7 +17,7 @@ function DetailCustomerPage(props) {
         if (response.data.success) {
           setCustomer(response.data.customer[0])
           // 다국적언어
-          setLanguage(localStorage.getItem("i18nextLng"));
+          setMultiLanguage(localStorage.getItem("i18nextLng"));
         } else {
           alert("Failed to get customer information")
         }
@@ -26,7 +26,7 @@ function DetailCustomerPage(props) {
 
   // 다국적언어 설정
 	const {t, i18n} = useTranslation();
-  function setLanguage(lang) {
+  function setMultiLanguage(lang) {
     i18n.changeLanguage(lang);
   }
 

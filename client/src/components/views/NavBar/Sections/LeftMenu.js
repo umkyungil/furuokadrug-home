@@ -8,7 +8,7 @@ const SubMenu = Menu.SubMenu;
 function LeftMenu(props) {
   // 다국적언어
 	const {t, i18n} = useTranslation();
-  const setLanguage = (lang) => {
+  const setMultiLanguage = (lang) => {
     i18n.changeLanguage(lang);
   }
 
@@ -17,18 +17,18 @@ function LeftMenu(props) {
       <Menu.Item key="home">
         <a href="/">Home</a>
       </Menu.Item>
-      <Menu.Item key="reservation">
-        <a href="/mail/reservation">Reservation</a>
+      <Menu.Item key="reserve">
+        <a href="/mail/reserve">Reservation</a>
       </Menu.Item>
       <SubMenu title={<span>Language</span>}>          
         <Menu.Item key="english">
-          <span onClick={() => setLanguage('en')}>english</span>
+          <span onClick={() => setMultiLanguage('en')}>English</span>
         </Menu.Item>
         <Menu.Item key="japanese">
-          <span onClick={() => setLanguage('jp')}>japanese</span>
+          <span onClick={() => setMultiLanguage('jp')}>日本語</span>
         </Menu.Item>
         <Menu.Item key="chinese">
-          <span onClick={() => setLanguage('cn')}>chinese</span>
+          <span onClick={() => setMultiLanguage('cn')}>中文（簡体）</span>
         </Menu.Item>
       </SubMenu>
     </Menu>

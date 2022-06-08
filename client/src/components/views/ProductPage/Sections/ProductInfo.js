@@ -21,7 +21,7 @@ function ProductInfo(props) {
 
   useEffect(() => {
     // 다국적언어 설정
-		setLanguage(localStorage.getItem("i18nextLng"));
+		setMultiLanguage(localStorage.getItem("i18nextLng"));
 	}, [])
 
   // 카트 넣기
@@ -61,7 +61,7 @@ function ProductInfo(props) {
 
   // 다국적언어 설정
 	const {t, i18n} = useTranslation();
-  function setLanguage(lang) {
+  function setMultiLanguage(lang) {
     i18n.changeLanguage(lang);
   }
 
@@ -94,7 +94,7 @@ function ProductInfo(props) {
           <br />
           <div style={{ display:'flex', justifyContent:'center' }} >
             <Button onClick={listHandler}>
-              Product List
+            Landing Page
             </Button>
             &nbsp;&nbsp;&nbsp;
             <Button type="primary" onClick={cartHandler}>
@@ -130,7 +130,7 @@ function ProductInfo(props) {
           <br />
           <div style={{ display:'flex', justifyContent:'center' }} >
             <Button onClick={listHandler}>
-              Product List
+            Landing Page
             </Button>
             &nbsp;&nbsp;&nbsp;
             <Button type="primary" onClick={modifyHandler}>
@@ -170,7 +170,7 @@ function ProductInfo(props) {
           <br />
           <div style={{ display:'flex', justifyContent:'center' }} >
             <Button onClick={listHandler}>
-              Product List
+              Landing Page
             </Button>
           </div>
         </div>
@@ -203,7 +203,7 @@ function ProductInfo(props) {
         <br />
         <div style={{ display:'flex', justifyContent:'center' }} >
           <Button size="large" onClick={listHandler}>
-            Product List
+            Landing Page
           </Button>
         </div>
       </div>

@@ -9,7 +9,7 @@ function RadioBox(props) {
 
   useEffect(() => {
     // 다국적언어 설정
-		setLanguage(localStorage.getItem("i18nextLng"));
+		setMultiLanguage(localStorage.getItem("i18nextLng"));
 	}, [])
 
    // props.list && : props.list가 있으면 그 이후의 처리를 한다
@@ -25,7 +25,7 @@ function RadioBox(props) {
 
   // 다국적언어 설정
 	const {t, i18n} = useTranslation();
-  function setLanguage(lang) {
+  function setMultiLanguage(lang) {
     i18n.changeLanguage(lang);
   }
 

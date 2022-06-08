@@ -33,12 +33,12 @@ function CustomerRegisterPage(props) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-		setLanguage(localStorage.getItem("i18nextLng"));
+		setMultiLanguage(localStorage.getItem("i18nextLng"));
 	}, [])
 
   // 다국적언어 설정
 	const {t, i18n} = useTranslation();
-  function setLanguage(lang) {
+  function setMultiLanguage(lang) {
     i18n.changeLanguage(lang);
   }
 
@@ -104,7 +104,7 @@ function CustomerRegisterPage(props) {
             <h1>{t('Customer.regTitle')}</h1><br />
             <Form style={{ minWidth: '375px' }} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 스마레지 아이디 */}
-              <Form.Item label={t('Customer.smaregi')}>
+              <Form.Item label={t('Customer.smaregiId')}>
                 <Input id="smaregiId" placeholder="Enter the customer's Smaregi id" type="text" value={values.smaregiId} onChange={handleChange} onBlur={handleBlur}
                   className={errors.smaregiId && touched.smaregiId ? 'text-input error' : 'text-input'} />
                 {errors.smaregiId && touched.smaregiId && (

@@ -1,67 +1,57 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Descriptions } from 'antd';
 import { useHistory } from 'react-router-dom';
-import { useSelector } from "react-redux";
+import { useTranslation } from 'react-i18next';
 
 function MailHistoryInfo(props) {
   const history = useHistory();
-  const user = useSelector(state => state.user)
-  
+
+  useEffect(() => {
+    // 다국어 설정
+		setMultiLanguage(localStorage.getItem("i18nextLng"));
+  }, [])
+
+  // 다국어 설정
+  const {t, i18n} = useTranslation();
+  function setMultiLanguage(lang) {
+    i18n.changeLanguage(lang);
+  }
+  // 메일 이력리스트 화면에 이동
   const listHandler = () => {
     history.push("/mail/list");
   }
-
-  if (user.userData) {		
-    return (
-      <div>
-        <Descriptions>
-          <Descriptions.Item label="Type">{props.detail.type}</Descriptions.Item>
-          <Descriptions.Item label="Mail ID">{props.detail._id}</Descriptions.Item>
-          <Descriptions.Item label="From">{props.detail.from}</Descriptions.Item>
-          <Descriptions.Item label="To">{props.detail.to}</Descriptions.Item>
-          <Descriptions.Item label="Subject">{props.detail.subject}</Descriptions.Item>          
-          <Descriptions.Item label="Date">{props.detail.createdAt}</Descriptions.Item>          
-        </Descriptions>
-        <Descriptions>
-          <Descriptions.Item label="Message">{props.detail.message}</Descriptions.Item>
-        </Descriptions>
-
-        <br />
-        <br />
-        <br />
-        <div style={{ display: 'flex', justifyContent: 'center' }} >
-          <Button size="large" onClick={listHandler}>
-            Mail History List
-          </Button>
-        </div>
-      </div>
-    )
-  } else {
-    return (
-      <div>
-        <Descriptions>
-          <Descriptions.Item label="Type">{props.detail.type}</Descriptions.Item>
-          <Descriptions.Item label="Mail ID">{props.detail._id}</Descriptions.Item>
-          <Descriptions.Item label="From">{props.detail.from}</Descriptions.Item>
-          <Descriptions.Item label="To">{props.detail.to}</Descriptions.Item>
-          <Descriptions.Item label="Subject">{props.detail.subject}</Descriptions.Item>          
-          <Descriptions.Item label="Date">{props.detail.createdAt}</Descriptions.Item>          
-        </Descriptions>
-        <Descriptions>
-          <Descriptions.Item label="Message">{props.detail.message}</Descriptions.Item>
-        </Descriptions>
-
-        <br />
-        <br />
-        <br />
-        <div style={{ display: 'flex', justifyContent: 'center' }} >
-          <Button size="large" onClick={listHandler}>
-            Mail History List
-          </Button>
-        </div>
-      </div>
-    )
+  // 날짜 변형
+  let createdAt = "";
+  if (props.detail.createdAt) {
+    let tmpDate = new Date(props.detail.createdAt);
+    let date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
+    createdAt = date.replace('T', ' ').substring(0, 19) + ' (JST)';
   }
+	
+  return (
+    <div>
+      <Descriptions>
+        <Descriptions.Item label={t('Mail.type')}>{props.detail.type}</Descriptions.Item>
+        <Descriptions.Item label={t('Mail.mailId')}>{props.detail._id}</Descriptions.Item>
+        <Descriptions.Item label={t('Mail.from')}>{props.detail.from}</Descriptions.Item>
+        <Descriptions.Item label={t('Mail.to')}>{props.detail.to}</Descriptions.Item>
+        <Descriptions.Item label={t('Mail.subject')}>{props.detail.subject}</Descriptions.Item>          
+        <Descriptions.Item label={t('Mail.date')}>{createdAt}</Descriptions.Item>          
+      </Descriptions>
+      <Descriptions>
+        <Descriptions.Item label={t('Mail.message')}>{props.detail.message}</Descriptions.Item>
+      </Descriptions>
+
+      <br />
+      <br />
+      <br />
+      <div style={{ display: 'flex', justifyContent: 'center' }} >
+        <Button size="large" onClick={listHandler}>
+          Mail History List
+        </Button>
+      </div>
+    </div>
+  )
 }
 
 export default MailHistoryInfo

@@ -1,4 +1,25 @@
 {
+  "Login": {
+    "title": "Log in",
+    "register": "register now!",
+    "or": "Or"
+  },
+  "SignUp": {
+    "title": "Sign Up",
+    "name": "Name",
+    "lastName": "Last name",
+    "email": "E-mail",
+    "tel": "Phone number",
+    "address1": "Shipping address1",
+    "address2": "Shipping address2",
+    "address3": "Shipping address3",
+    "addressDetail1": "Address details1",
+    "addressDetail2": "Address details2",
+    "addressDetail3": "Address details3",
+    "language": "Language",
+    "password": "Password",
+    "confirm": "Confirm"
+  },
   "Landing": {
     "title": "Product Information List"
   },
@@ -29,15 +50,16 @@
     "regTitle": "Customer Information Register",
     "updateTitle": "Customer Information Update",
     "detailTitle": "Customer Detail",
-    "smaregi": "Smaregi ID",
+    "smaregiId": "Smaregi ID",
     "name": "Name",
     "tel": "Phone number",
     "email": "E-mail",
-    "address1": "Address1",
-    "address2": "Address2",
-    "address3": "Address3",
+    "address1": "Shipping address1",
+    "address2": "Shipping address2",
+    "address3": "Shipping address3",
     "salesman": "Salesman",
-    "point": "point"
+    "point": "point",
+    "action": "Action"
   },
   "Order": {
     "listTitle": "Order Information List",
@@ -64,7 +86,7 @@
   "Reservation": {
     "title": "Virtual Reservation",
     "name": "Name",
-    "wechatId": "Wechat ID",
+    "weChatId": "WeChat ID",
     "tel": "Phone number",
     "date": "Reservation date",
     "item": "Interested Item",
@@ -80,7 +102,94 @@
     "unit": "Ea"
   },
   "Paypal": {
+    "title": "Paypal Payment History",
+    "paymentId": "Payment ID",
+    "productName": "Product Name",
+    "price": "Price",
+    "quantity": "Quantity",
+    "date": "Date of Purchase",
+    "userName": "User Name",
     "successAlert": "Successfully Purchased Items",
     "errorAlert": "An unexpected error has occurred. Contact your system administrator"
+  },  
+  "User": {
+    "listTitle": "User Information List",
+    "updateTitle": "User Information Update",
+    "detailTitle": "User Detail",
+    "name": "Name",
+    "email": "E-mail",
+    "tel": "Phone number",
+    "language": "Language",
+    "address": "Shipping address",
+    "address1": "Shipping address1",
+    "address2": "Shipping address2",
+    "address3": "Shipping address3",
+    "receiver1": "Receiver name1",
+    "tel1": "Receiver phone1",
+    "receiver2": "Receiver name2",
+    "tel2": "Receiver phone2",
+    "receiver3": "Receiver name3",
+    "tel3": "Receiver phone3",
+    "lastLogin": "Last login",
+    "action": "Action",
+    "point": "point",
+    "lastName": "Last name",
+    "role": "Role"
+  },
+  "Mail": {
+    "listTitle": "Mail History List",
+    "detailTitle": "Mail History Detail",
+    "noticeTitle": "Notice Mail",
+    "type": "Type",
+    "from": "From",
+    "to": "To",
+    "subject": "Subject",
+    "date": "Sending Date",
+    "message": "Message",
+    "action": "Action",
+    "mailId": "Mail ID"
+  },
+  "Contact": {
+    "title": "Contact Us",
+    "name": "Name",
+    "email": "E-mail",
+    "inquiry": "Inquiry details"
+  },
+  "Alipay": {
+    "listTitle": "Alipay Payment History List",
+    "detailTitle": "Alipay Payment History Detail",
+    "paymentNumber": "Payment Number",
+    "result": "Result",
+    "controlNumber": "Control Number",
+    "amount": "Settlement amount",
+    "uniqueKey": "Unique key",
+    "action": "Action",
+    "date": "Date of Purchase",
+    "type": "Type",
+    "err": "Error Code",
+    "shopOrderNumber": "Shop Order Number(Date)",
+    "paymentOrderNumber": "Payment Order Number",
+    "paymentJob": "Payment Job",
+    "createdDate": "Registration Date",
+    "updatedDate": "Update Date"
+  },
+  "Wechat": {
+    "listTitle": "WeChat Payment History List",
+    "detailTitle": "WeChat Payment History Detail",
+    "paymentNumber": "Payment Number",
+    "result": "Result",
+    "controlNumber": "Control Number",
+    "amount": "Settlement amount",
+    "uniqueKey": "Unique key",
+    "action": "Action",
+    "date": "Date of Purchase",
+    "type": "Type",
+    "err": "Error Code",
+    "shopOrderNumber": "Shop Order Number(Date)",
+    "paymentOrderNumber": "Payment Order Number",
+    "paymentJob": "Payment Job",
+    "qrCode": "QR Code",
+    "createdDate": "Registration Date",
+    "updatedDate": "Update Date"
   }
 }

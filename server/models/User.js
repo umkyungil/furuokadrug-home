@@ -7,13 +7,11 @@ const moment = require("moment");
 const userSchema = mongoose.Schema({
     name: {
         type: String,
-        trim: true,
-        maxlength: 50
+        trim: true
     },
     lastName: {
         type: String,
-        trim: true,
-        maxlength: 50
+        trim: true
     },
     email: {
         type: String,
@@ -30,16 +28,38 @@ const userSchema = mongoose.Schema({
     },    
     address1: {
 		type: String,
-		minglength: 100
+        trim: true
 	},
+    receiver1: {
+		type: String,
+        trim: true
+	},
+    tel1: {
+        type: String,
+        trim: true
+    },
     address2: {
 		type: String,
-		minglength: 100
+		trim: true
 	},
+    receiver2: {
+		type: String
+	},
+    tel2: {
+        type: String,
+        trim: true
+    },
     address3: {
 		type: String,
-		minglength: 100
+		trim: true
 	},
+    receiver3: {
+		type: String
+	},
+    tel3: {
+        type: String,
+        trim: true
+    },
     role : {
         type: Number,
         default: 0 

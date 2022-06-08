@@ -39,7 +39,7 @@ function UpdateProductPage(props) {
   // 상품정보 취득
   useEffect(() => {
     // 다국적언어 설정
-    setLanguage(localStorage.getItem("i18nextLng"));
+    setMultiLanguage(localStorage.getItem("i18nextLng"));
 
     axios.get(`${PRODUCT_SERVER}/products_by_id?id=${productId}&type=single`)
       .then(response => {
@@ -63,7 +63,7 @@ function UpdateProductPage(props) {
           alert("Failed to get product information")
         }
       })
-  }, [localStorage.getItem('i18nextLng')])
+  }, [])
 
   const titleHandler = (event) => {
     setTitle(event.currentTarget.value);
@@ -169,7 +169,7 @@ function UpdateProductPage(props) {
 
   // 다국어 설정
 	const {t, i18n} = useTranslation();
-  function setLanguage(lang) {
+  function setMultiLanguage(lang) {
     i18n.changeLanguage(lang);
   }
 
@@ -241,7 +241,7 @@ function UpdateProductPage(props) {
         <br />
         <br />
         <Button onClick={listHandler}>
-          Product List
+          Landing Page
         </Button>&nbsp;&nbsp;&nbsp;
         <Button htmlType="submit" type="primary">
           Submit
