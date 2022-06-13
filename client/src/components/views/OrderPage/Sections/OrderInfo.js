@@ -15,8 +15,8 @@ function OrderInfo(props) {
     setMultiLanguage(localStorage.getItem("i18nextLng"));
   }, [])
   
+  // 주문정보 및 결제정보 삭제
   function deleteHandler() {
-    // 주문정보 및 결제정보 삭제
     let body = {orderId:props.detail._id, type:props.detail.type, uniqueField:props.detail.uniqueField}
 		axios.post(`${ORDER_SERVER}/delete`, body)
       .then(response => {
@@ -45,9 +45,7 @@ function OrderInfo(props) {
   if(props) {
     // 날짜 변형
     if (props.detail.sod) {
-      let tmpSod = new Date(props.detail.sod);
-      let date = new Date(tmpSod.getTime() - (tmpSod.getTimezoneOffset() * 60000)).toISOString();
-      paymentTime = date.replace('T', ' ').substring(0, 19) + ' (JST)';
+      paymentTime = props.detail.sod.replace('T', ' ').substring(0, 19) + ' (JST)';
     }
     // 스텝이름 변형
     if (props.detail.staffName) {
@@ -75,6 +73,8 @@ function OrderInfo(props) {
             <Descriptions.Item label={t('Order.paymentStatus')}>{props.detail.paymentStatus}</Descriptions.Item>
             <Descriptions.Item label={t('Order.deliveryStatus')}>{props.detail.deliveryStatus}</Descriptions.Item>
             <Descriptions.Item label={t('Order.staffName')}>{staffName}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.receiver')}>{props.detail.receiver}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.receiverTel')}>{props.detail.receiverTel}</Descriptions.Item>
           </Descriptions>
 
           <br />
@@ -104,6 +104,8 @@ function OrderInfo(props) {
             <Descriptions.Item label={t('Order.paymentStatus')}>{props.detail.paymentStatus}</Descriptions.Item>
             <Descriptions.Item label={t('Order.deliveryStatus')}>{props.detail.deliveryStatus}</Descriptions.Item>
             <Descriptions.Item label={t('Order.staffName')}>{staffName}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.receiver')}>{props.detail.receiver}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.receiverTel')}>{props.detail.receiverTel}</Descriptions.Item>
           </Descriptions>
 
           <br />
@@ -138,6 +140,8 @@ function OrderInfo(props) {
           <Descriptions.Item label={t('Order.paymentStatus')}>{props.detail.paymentStatus}</Descriptions.Item>
           <Descriptions.Item label={t('Order.deliveryStatus')}>{props.detail.deliveryStatus}</Descriptions.Item>
           <Descriptions.Item label={t('Order.staffName')}>{staffName}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.receiver')}>{props.detail.receiver}</Descriptions.Item>
+          <Descriptions.Item label={t('Order.receiverTel')}>{props.detail.receiverTel}</Descriptions.Item>
         </Descriptions>
 
         <br />

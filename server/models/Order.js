@@ -29,6 +29,14 @@ const orderSchema = mongoose.Schema({
 		type: String,
         trim: true,
 	},
+    receiver: {
+		type: String,
+        trim: true,
+	},
+    receiverTel: {
+		type: String,
+        trim: true,
+	},
     sod: {
         type: String,
         trim: true,
@@ -56,13 +64,13 @@ const orderSchema = mongoose.Schema({
 }, { timestamps: true })
 
 orderSchema.index({
-    name: 'text',
-    email: 'text',
+    deliveryStatus: 'text',
+    sod: 'text',
     staffName: 'text'
 }, {
     weights: {
-        name: 5,
-        email: 1,
+        deliveryStatus: 5,
+        sod: 1,
         staffName: 1
     }
 })

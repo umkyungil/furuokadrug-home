@@ -77,7 +77,9 @@
     "tel": "電話番号",
     "shippingAddress": "配送地",
     "paymentTime": "決済時刻",
-    "uniqueField": "決済識別情報"
+    "uniqueField": "決済識別情報",
+    "receiver": "受取人",
+    "receiverTel": "受取人電話"
   },
   "Modal": {
     "title": "古岡ドラック",

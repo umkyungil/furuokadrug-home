@@ -29,7 +29,7 @@ function ListPaypalPage() {
     i18n.changeLanguage(lang);
   }
 
-  // 사용자의 결제 history정보 취득
+  // 사용자 자신의 결제 history정보 취득
   async function getUserInfo(userId) {
     let data = [];
     let count = 0;
@@ -49,6 +49,12 @@ function ListPaypalPage() {
           // key 추가
           products.key = count;
           data.push(products);
+          // 내림차순 정렬
+          data.sort(function(a, b) {
+            if(a.dateOfPurchase < b.dateOfPurchase) return 1;
+            if(a.dateOfPurchase > b.dateOfPurchase) return -1;
+            if(a.dateOfPurchase === b.dateOfPurchase) return 0;
+          });
 
           setPaypalInfo([...data]);
         }

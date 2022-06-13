@@ -4,6 +4,7 @@
 dev.js
 mailConfig.js
 awsConfig.js
+sesConfig.js
 
 .DS_Store
 

@@ -110,8 +110,8 @@ function ListOrderPage(props) {
     },
 		{
       title: t('Order.paymentTime'),
-      dataIndex: 'sod',
-      key: 'sod',
+      dataIndex: 'paymentTime',
+      key: 'paymentTime',
     },
 		{
 			title: 'Action',
@@ -188,9 +188,10 @@ function ListOrderPage(props) {
 					
 					// 결제날짜 변형
 					if (tmpOrderInfo.sod) {
-						let tmpDate = new Date(tmpOrderInfo.sod);
-						const date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
-						tmpOrderInfo.paymentTime = date.replace('T', ' ').substring(0, 19) + ' (JST)';
+						// let tmpDate = new Date(tmpOrderInfo.sod);
+						// const date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
+						// tmpOrderInfo.paymentTime = date.replace('T', ' ').substring(0, 19) + ' (JST)';
+						tmpOrderInfo.paymentTime = tmpOrderInfo.sod.replace('T', ' ').substring(0, 19) + ' (JST)';
 					}
 					// 일본어의 경우(스텝이름 이외에는 기존 서버에서 셋팅한 값이 일본어 이기에 변경할 필요없다)
 					if (!tmpOrderInfo.staffName) {

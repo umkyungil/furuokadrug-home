@@ -1,7 +1,7 @@
 {
   "name": "react-boiler-plate",
   "version": "1.0.0",
-  "description": "react boiler plate",
+  "description": "Furuokadrug ec system",
   "main": "index.js",
   "engines": {
     "node": "16.14.0",

@@ -57,7 +57,7 @@ function DetailProductPage(props) {
         setProduct(response.data[0])
       })
       .catch(err => alert("Failed to get product information."))
-  }, [])
+  }, [localStorage.getItem("i18nextLng")])
 
   // 다국어 설정
 	const {t, i18n} = useTranslation();

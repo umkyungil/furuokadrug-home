@@ -3,9 +3,11 @@ const router = express.Router();
 const { auth } = require("../middleware/auth");
 const nodemailer = require("nodemailer");
 const nodeConfig = require("../config/mailConfig");
+const AWS = require('aws-sdk');
 const { Mail } = require("../models/Mail");
 const moment = require("moment");
 const { ADMIN_EMAIL } = require('../config/config');
+const sesConfig = require("../config/sesConfig");
 
 //=================================
 //          Sendmail
@@ -120,38 +122,46 @@ router.post("/live", auth, (req, res) => {
 });
 
 // Contact Us: 고객으로 부터 문의메일 수신
-router.post("/inquiry", (req, res) => {
+router.post("/inquiry", async (req, res) => {
+    // AWS SES 접근 보안키
+    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
+    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
+
+    // you may need to adjust the region
+    const ses = new AWS.SES({
+            apiVersion: "2010-12-01",
+            region: "ap-northeast-1", 
+        });
+    const transporter = nodemailer.createTransport({ SES: ses, AWS })
+
     let mailOptions = {
-        from: req.body.email, // 발송 메일 주소 (설정을 해도 위에서 작성한 gmail 계정 아이디로 보내진다) 
+        from: req.body.email,
         to: ADMIN_EMAIL, // PROD, DEV에 따라 주소가 변경된(config.js)
         subject: 'お問い合わせ',
-        text: req.body.message // 문의 내용
+        text: req.body.message
     };
 
-    transporter.sendMail(mailOptions, function(err, info){
-        try {
-            if (err) {
-                console.log("inquiry email error: ", err);
-                return res.json({ success: false}, err);
-            } else {
-                // 메일정보 설정
-                const body = {
-                    type: 'Inquiry',
-                    subject: 'お問い合わせ',
-                    to: ADMIN_EMAIL, // PROD, DEV에 따라 주소가 변경된다(config.js)
-                    from: req.body.email,
-                    message: req.body.message,
-                }
-                // 메일정보 등록
-                const result = registerMailHistory(body);
-                if(!result) return res.json({ success: false }, err);
-                return res.status(200).json({ success: true })
-            }
-        } catch (err) {
-            console.log(err);
-            return res.status(500).json({ success: false, message: err.message });
+    try {
+        const mailResult = await transporter.sendMail(mailOptions);
+        console.log("mailResult: ",mailResult);
+
+        // 메일정보 설정
+        const body = {
+            type: 'Inquiry',
+            subject: 'お問い合わせ',
+            to: ADMIN_EMAIL, // PROD, DEV에 따라 주소가 변경된다(config.js)
+            from: req.body.email,
+            message: req.body.message,
         }
-    });
+        // 메일정보 등록
+        const historyResult = registerMailHistory(body);
+        if(!historyResult) return res.json({ success: false }, err);
+        return res.status(200).json({ success: true })
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ success: false, message: err.message });
+    }
 });
 
 // Virtual Reservation (고객이 예약메일을 관리자에게 송신)

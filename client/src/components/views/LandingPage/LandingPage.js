@@ -23,16 +23,15 @@ function LandingPage() {
 	})
 
 	useEffect(() => {
+		// 다국어 설정
+		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		// 상품 가져오기
 		let body = {
 			skip: Skip,
 			limit: Limit
 		}
-		
-		// 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
-		// 상품 가져오기
 		getProducts(body);
-	}, [])
+	}, [localStorage.getItem("i18nextLng")])
 
 	// limit, skip은 mongo의 옵션
 	const getProducts = (body) => {

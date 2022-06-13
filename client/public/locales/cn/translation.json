@@ -75,7 +75,9 @@
     "tel": "电话号码",
     "shippingAddress": "邮寄地址",
     "paymentTime": "结算时间",
-    "uniqueField": "支付识别信息"
+    "uniqueField": "支付识别信息",
+    "receiver": "接收者",
+    "receiverTel": "收件人电话"
   },
   "Modal": {
     "title": "古冈药业",

@@ -77,7 +77,9 @@
     "tel": "Phone number",
     "shippingAddress": "Shipping address",
     "paymentTime": "Payment time",
-    "uniqueField": "Unique field"
+    "uniqueField": "Unique field",
+    "receiver": "Receiver",
+    "receiverTel": "Recipient phone"
   },
   "Modal": {
     "title": "Furuokadrug",
