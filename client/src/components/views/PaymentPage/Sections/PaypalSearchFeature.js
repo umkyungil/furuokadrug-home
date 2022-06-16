@@ -1,26 +1,11 @@
-import React, {useState} from 'react';
-import {DatePicker, Space, Input, Select} from 'antd';
+import React from 'react';
+import { DatePicker } from 'antd';
 
 const {RangePicker} = DatePicker;
-const {Search} = Input;
-const {Option} = Select;
 
 function PaypalSearchFeature(props) {
-  const [SearchName, setSearchName] = useState("");
-  const [SearchFromDate, setSearchFromDate] = useState("");
-  const [SearchToDate, setSearchToDate] = useState("");
-  
-  const uniqueHandler = (event) => {
-    setSearchName(event.currentTarget.value);
-    let arr = [event.currentTarget.value, SearchFromDate, SearchToDate];
-    // 부모 컨테이너에 값을 보내기
-    props.refreshFunction(arr);
-  }
-
   const dateHandler = (value, dateString) => {
-    setSearchFromDate(dateString[0]);
-    setSearchToDate(dateString[1]);
-    let arr = [SearchName, dateString[0], dateString[1]]
+    let arr = [dateString[0], dateString[1]]
     // 부모 컨테이너에 값을 보내기
     props.refreshFunction(arr);
   }
@@ -31,12 +16,6 @@ function PaypalSearchFeature(props) {
 
   return (
     <div>
-      <Search
-        placeholder="Please enter product name"
-        onChange={uniqueHandler}
-        style={{ width:200 }}
-        value={SearchName}
-      />&nbsp;&nbsp;
       <RangePicker
         showTime={{ format: 'HH:mm' }}
         format="YYYY-MM-DD HH:mm"

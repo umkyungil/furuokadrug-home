@@ -29,6 +29,7 @@ const tailFormItemLayout = {
 };
 
 function ConfirmAlipayPage(props) {
+  // 로그인 사용자 정보
   const [UserId, setUserId] = useState("");
   const [Name, setName] = useState("");  
   const [LastName, setLastName] = useState("");
@@ -140,7 +141,7 @@ function ConfirmAlipayPage(props) {
           }
 
           // live streaming의 step이름으로 step정보취득
-          getStaffInfo(staffName)
+          if (staffName) getStaffInfo(staffName)
 
         } else {
           alert("Failed to get user information.")
@@ -150,25 +151,23 @@ function ConfirmAlipayPage(props) {
 
   // step 정보취득
   const getStaffInfo = (staffName) => {
-    if (staffName) {
-      let body = {
-        searchTerm: staffName
-      }
-      
-      axios.post(`${USER_SERVER}/list`, body)
-        .then(response => {
-            if (response.data.success) {
-              if (response.data.userInfo.length === 1 && response.data.userInfo[0].role !== "0") {
-                setStaffName(response.data.userInfo[0].name + " " + response.data.userInfo[0].lastName);
-              } else {
-                setStaffName("");
-              }
-            } else {
-              alert("Failed to get step information.")
-            }
-        }
-      )
+    let body = {
+      searchTerm: staffName
     }
+    // 성으로 전체 검색해서 권한이 스텝인 사람을 추출
+    axios.post(`${USER_SERVER}/list`, body)
+      .then(response => {
+          if (response.data.success) {
+            if (response.data.userInfo.length === 1 && response.data.userInfo[0].role !== "0") {
+              setStaffName(response.data.userInfo[0].name + " " + response.data.userInfo[0].lastName);
+            } else {
+              setStaffName("");
+            }
+          } else {
+            alert("Failed to get step information.")
+          }
+      }
+    )
   }
 
   // 배송지 주소
@@ -232,7 +231,7 @@ function ConfirmAlipayPage(props) {
       body.receiverTel = ChangeTel;
     }
 
-    // 주문정보 등록(Order)
+    // 주문정보 등록(입금상태는 알리페이 결제성공 데이타 수신하는곳에서 업데이트 함)
     axios.post(`${ORDER_SERVER}/register`, body)
       .then(response => {
         if (response.data.success) {
@@ -313,9 +312,9 @@ function ConfirmAlipayPage(props) {
             { Address3 !== "" && <br /> }
             <Radio value={ChangeAddress}>
               <Input.Group compact>
-                <Input style={{ width: '55%' }} name="changeAddress" type="text" value={ChangeAddress} onChange={addressChangeHandler} />&nbsp;
-                <Input style={{ width: '20%' }} name="changeReceiver" type="text" value={ChangeReceiver} onChange={receiverChangeHandler} />&nbsp;
-                <Input style={{ width: '20%' }} name="changeTel" type="text" value={ChangeTel} onChange={telChangeHandler} />
+                <Input style={{ width: '55%' }} name="changeAddress" type="text" placeholder="Shipping address" value={ChangeAddress} onChange={addressChangeHandler} />&nbsp;
+                <Input style={{ width: '20%' }} name="changeReceiver" type="text" placeholder="Name" value={ChangeReceiver} onChange={receiverChangeHandler} />&nbsp;
+                <Input style={{ width: '20%' }} name="changeTel" type="text" placeholder="Phone" value={ChangeTel} onChange={telChangeHandler} />
               </Input.Group>
             </Radio>
           </Radio.Group>

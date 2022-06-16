@@ -66,6 +66,7 @@ function ListPaypalPage(props) {
   // 결제 정보 취득
   const getPaypalInfo = async (body) => {
     let count = 0;
+
     try {
       const result = await axios.post(`${PAYMENT_SERVER}/paypal/admin/list`, body);
       if (result.data.success) {        
@@ -79,22 +80,26 @@ function ListPaypalPage(props) {
             products.userId = result.data.paypalInfo[i].user[0].id;
             products.userName = result.data.paypalInfo[i].user[0].name;
             // 가격 변형
+            const tmpQuantity = result.data.paypalInfo[i].product[j].quantity;
             let tmpPrice = result.data.paypalInfo[i].product[j].price;
-            products.price = Number(tmpPrice).toLocaleString();
-            // 날짜 변형
-            let tmpDate = result.data.paypalInfo[i].product[j].dateOfPurchase;
-            products.dateOfPurchase = tmpDate.replace('T', ' ').substring(0, 19) + ' (JST)'
+            let total = Number(tmpPrice) * Number(tmpQuantity);
+            products.price = total.toLocaleString();
+            // 날짜 변형(dateOfPurchase는 데이타베이스에 JST 시간으로 등록되서 시간을 계산할 필요가 없다)
+            let tmpDate = new Date(result.data.paypalInfo[i].product[j].dateOfPurchase);
+            const date = tmpDate.toISOString();
+            products.dateOfPurchase = date.replace('T', ' ').substring(0, 19) + ' (JST)'
             // key 추가
             products.key = count;
             data.push(products);
-            // 내림차순 정렬
-            data.sort(function(a, b) {
-              if(a.dateOfPurchase < b.dateOfPurchase) return 1;
-              if(a.dateOfPurchase > b.dateOfPurchase) return -1;
-              if(a.dateOfPurchase === b.dateOfPurchase) return 0;
-            });
           }
         }
+        // 내림차순 정렬
+        data.sort(function(a, b) {
+          if(a.dateOfPurchase < b.dateOfPurchase) return 1;
+          if(a.dateOfPurchase > b.dateOfPurchase) return -1;
+          if(a.dateOfPurchase === b.dateOfPurchase) return 0;
+        });
+
         setPaypalInfo([...data]);
       }
     } catch (err) {

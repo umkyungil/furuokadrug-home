@@ -64,7 +64,7 @@ function CartPage(props) {
     // Paypal 결제정보 및 history 저장, 상품판매 카운트 업데이트
     dispatch(onSuccessBuy({
       paymentData: data, // Paypal에서 결제 성공시 전해주는 데이타
-      cartDetail: props.user.cartDetail // 카트에 있던 상품정보들
+      cartDetail: props.user.cartDetail // 카트에 있던 상품상세정보(카트의 정보가 아닌 상품의 상세정보)
     }))
     .then(response => {
       if(response.payload.success) {
@@ -72,9 +72,12 @@ function CartPage(props) {
         setShowTotal(false);
         setShowSuccess(true);
 
-        // Order정보 설정
-        const sod = response.payload.payment.createdAt; // Paypal 결제인 경우 Payment의 createdAt
-        const uniqueField = response.payload.payment._id;// Paypal 결제인 경우 Payment의 ID
+        // Order정보 등록
+        // sod: 입력할 날짜의 변형 (Paypal 결제인 경우 Payment의 createdAt를 sod로 사용)
+        let tmpDate = new Date(response.payload.payment.createdAt);
+        const date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
+        const sod = date;
+        // 주소는 페이팔에 등록된 주소를 조합애서 설정한다
         const address = data.address.country_code + ' ' + data.address.postal_code + ' ' + data.address.state + ' ' + data.address.city + ' ' + data.address.line1;
         const body = {
           type: "Paypal",
@@ -85,55 +88,84 @@ function CartPage(props) {
           email: data.email,
           address: address,
           sod: sod,
-          uniqueField: uniqueField,
+          // Paypal 결제인 경우 userId를 대입해서 결제 성공시 사용자의 카트정보를 삭제할수 있게 한다
+          // 이메일은 유니크하기 때문에 주문정보 페이지에서 삭제를 가능하도록 추가한다.
+          uniqueField: 'paypal' + '_' + props.user.userData._id + '_' + sod,
           amount: Total,
           staffName: '未確認',
           paymentStatus: '入金済み',
-          deliveryStatus: '未確認'
-        }
+          deliveryStatus: '未確認',
+          receiver: props.user.userData.name + ' ' + props.user.userData.lastName,
+          receiverTel: props.user.userData.tel
+        }        
         
-        // Order정보 등록
         axios.post(`${ORDER_SERVER}/register`, body)
         .then(response => {
           if (response.data.success) {
-            console.log('Shipping information registration success');
+            console.log('Order information registration success');
           } else {
             setErrorAlert(true);
-            console.log('Failed to register shipping information');
+            console.log('Failed to register order information');
           }
         });        
       }
     })
   }
 
+  // Paypal 결제실패시 처리
+  // Payment, User의 카트정보 삭제 처리와 history정보 등록 처리는 안하고,  Order에만 실패결과를 등록한다.
+  const transactionError = () => {
+    // Order정보 등록
+    let tmpDate = new Date();
+    const date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
+    const sod = date;
+    const body = {
+      type: "Paypal",
+      userId: props.user.userData._id,
+      name: props.user.userData.name,
+      lastName: props.user.userData.lastName,
+      tel: props.user.userData.tel,
+      email: props.user.userData.email,
+      // 배송지는 결제처리가 실패했기 때문에 미설정으로 한다
+      address: '未設定',
+      sod: sod,
+      uniqueField: 'paypal' + '_' + props.user.userData._id + '_' + sod, 
+      amount: Total,
+      staffName: '未確認',
+      paymentStatus: '入金失敗',
+      deliveryStatus: '未確認',
+      receiver: '未設定',
+      receiverTel: '未設定'
+    }
+    
+    axios.post(`${ORDER_SERVER}/register`, body)
+    .then(response => {
+      if (response.data.success) {
+        console.log('Order information registration success');
+      } else {
+        setErrorAlert(true);
+        console.log('Failed to register order information');
+      }
+    });
+  }
+
   // 다국적언어 설정
 	const {t, i18n} = useTranslation();
-
+  // 랜딩페이지 이동
   const listHandler = () => {
     history.push("/");
   }
-
   // UPC SOD작성
-  const makeSOD = () => {
+  const getSod = () => {
     let dateInfo = new Date();
     const sod = new Date(dateInfo.getTime() - (dateInfo.getTimezoneOffset() * 60000)).toISOString();
     return sod;
   }
-  // UPC UniqueField 작성
-  const makeUniqueField = (sod, type) => {
-    const uniqueTime = sod.replace('T',' ').substring(0, 19);
-    const classNum = "000000000000";
-    const userName = props.user.userData.name;
-    const tmp = type + '_' + uniqueTime + '_' + classNum + '_' + userName;
-    const uniqueField = encodeURIComponent(tmp);
-    return uniqueField;
-  }
-
   // 알리페이 결제
   const alipayHandler = () => {
     const loginUserId = props.user.userData._id;
-    const sod = makeSOD();
-    const uniqueField = makeUniqueField(sod, 'Alipay')
+    const sod = getSod();
+    const uniqueField = 'paypal' + '_' + loginUserId + '_' + sod;
     const staffName = 'ECSystem';
     const sid = SID
     const siam1 = Total
@@ -146,8 +178,8 @@ function CartPage(props) {
   // 위쳇 결제
   const wechatHandler = () => {
     const loginUserId = props.user.userData._id;
-    const sod = makeSOD();
-    const uniqueField = makeUniqueField(sod, 'Wechat')
+    const sod = getSod();
+    const uniqueField = 'paypal' + '_' + loginUserId + '_' + sod;
     const staffName = 'ECSystem';
     const sid = SID
     const siam1 = Total
@@ -181,7 +213,7 @@ function CartPage(props) {
 
       {ShowTotal ? 
         <div style={{marginTop: '3rem'}}>
-          <h2>{t('Cart.amount')}: ¥{Number(Total).toLocaleString()}</h2>
+          <h2>{t('Cart.amount')}: {Number(Total).toLocaleString()}</h2>
         </div>
         : ShowSuccess ? 
             <Result
@@ -199,6 +231,7 @@ function CartPage(props) {
         <Paypal 
           total={Total} // Paypal 컴포넌트에 프롭스로 가격을 내려준다
           onSuccess={transactionSuccess} // 결제성공시 Paypal결제 정보를 대입받아 실행시킬 메소드를 Paypal 컴포넌트에 프롭스로 보낸다
+          onError={transactionError}
         />
       }
       {ShowTotal && 

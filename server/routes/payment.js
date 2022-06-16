@@ -3,7 +3,9 @@ const router = express.Router();
 const { Alipay } = require('../models/Alipay');
 const { Wechat } = require('../models/Wechat');
 const { Order } = require('../models/Order');
+const { User } = require('../models/User');
 const { Payment } = require('../models/Payment');
+const { Product } = require('../models/Product');
 
 //=================================
 //             Payment
@@ -21,12 +23,56 @@ router.get('/alipay/register', (req, res) => {
       alipay.save((err) => {
         if (err) return res.status(400).json({success: false, err});
 
-        // 주문정보 업데이트
-        Order.findOneAndUpdate({ sod:req.query.sod, uniqueField:req.query.uniqueField }, { paymentStatus: "入金済み" }, (err, doc) => {
-          if (err) console.log("err: ", err);
-          console.log("Alipay order information update successful");
-        });
-
+        // 결제 성공했을 경우
+        if (req.query.rst === "1") {
+          // 주문정보 업데이트
+          Order.findOneAndUpdate(
+            { 
+              sod:req.query.sod, 
+              uniqueField:req.query.uniqueField
+            }, 
+            { paymentStatus: "入金済み" }, 
+            (err, doc) => 
+            {
+              if (err) {
+                console.log("err: ", err);
+              } else {
+                console.log("Alipay order information update successful");
+              }
+            }
+          );
+          // 사용자 카트정보 삭제
+          // 라이브에서 결제했을 경우는 사용자의 카트정보가 없기때문에 카트정보 삭제는 실패함
+          User.findOneAndUpdate(
+            { _id: req.query.uniqueField },
+            { $set: { cart: [] }},
+            (err, user) => {
+              if(err) {
+                console.log("Failed to delete user's cart information");
+              } else {
+                console.log("You have successfully deleted the user's cart information");
+              }
+            }
+          )
+        // 결제 실패했을 경우
+        } else {
+          // 주문정보 업데이트 (실패했을 경우는 카트정보는 삭제하지 않는다.)
+          Order.findOneAndUpdate(
+            { 
+              sod:req.query.sod, 
+              uniqueField:req.query.uniqueField 
+            }, 
+            { paymentStatus: "入金失敗" }, 
+            (err, doc) => {
+              if (err) {
+                console.log("err: ", err);
+              } else {
+                console.log("Alipay order information update successful");
+              }
+            }
+          );
+        }
+        
         return res.status(200).json({success: true});
       })
     }
@@ -37,25 +83,145 @@ router.get('/alipay/register', (req, res) => {
 })
 
 // UnivaPayCast Wechat결제결과 등록
-router.get('/wechat/register', (req, res) => {
+router.get('/wechat/register', async (req, res) => {
   try {
     // UnivaPayCast 사양에 의해 관리페이지의 킥백에 설정한 주소로 1바이트 문자를 표시하기 위한 조건
     if (!req.query) {
       return res.status(200).json({success: true});
     } else {
       // 결제결과 등록
-      const wechat = new Wechat(req.query)
-      wechat.save((err) => {
-        if (err) return res.status(400).json({success: false, err});
+      const weChat = new Wechat(req.query)
+      await weChat.save();        
 
+      // 결제 성공했을 경우
+      if (req.query.rst === "1") {
         // 주문정보 업데이트
-        Order.findOneAndUpdate({ sod:req.query.sod, uniqueField:req.query.uniqueField }, { paymentStatus: "入金済み" }, (err, doc) => {
-          if (err) console.log("err: ", err);
-          console.log("Wechat order information update successful");
-        });
+        const orderInfo = await Order.findOneAndUpdate(
+          { sod:req.query.sod, uniqueField:req.query.uniqueField }, 
+          { paymentStatus: "入金済み" },
+          { new: true }
+        );        
 
-        return res.status(200).json({success: true});
-      })
+        // 카트에서 위쳇결제인 경우만 사용자의 카트정보를 삭제한다.
+        // 카트에서 위쳇결제인 경우 유니크키가 paypal_userId_userId_email로 구성되어 있다 
+        let str = req.query.uniqueField;
+        let arr = str.split('_');
+        if (arr[0].trim() === "paypal") {
+          let history = [];
+          let paymentData = [];
+          let transactionData = {};
+
+          // 사용자 정보 가져오기
+          let userId = arr[1];              
+          const userInfo = await User.findOne({ _id: userId });
+          let cartInfos = userInfo.cart;
+
+          // 상품아이디만 배열에 담는다
+          await cartInfos.map(async cartItem => {
+            // 상품정보 가져오기
+            const productInfo = await Product.find({ _id: cartItem.id }).populate("writer");
+            // 결제한 카트에 담겼던 상품정보를 history에 넣어줌
+            let date = new Date();
+            const dateInfo = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString();
+            history.push({
+              dateOfPurchase: dateInfo,
+              name: productInfo.title,
+              id: productInfo._id,
+              price: productInfo.price,
+              quantity: cartItem.quantity,
+              paymentId: req.query.pid // WeChat Payment ID(pid)
+            })
+          })
+
+          // data정보(WeChat정보를 Paypal 정보의 항목에 저장)
+          paymentData.push({
+            paid: req.query.rst,
+            cancelled: false,
+            payerID: '未設定',
+            paymentID: req.query.pid,
+            paymentToken: '未設定',
+            returnUrl: '未設定',
+            address: {
+              recipient_name: orderInfo.receiver,
+              line1: orderInfo.address,
+              city: "",
+              state: "",
+              postal_code: "",
+              country_code: ""
+            },
+            email: userInfo.email
+          })
+            
+          // user정보
+          transactionData.user = {
+            id: userInfo._id,
+            name: userInfo.name,
+            email: userInfo.email,        
+          }
+          // data정보(Paypal정보를 저장)
+          transactionData.data = paymentData;
+          // product정보
+          transactionData.product = history;
+
+          // User에 history정보 저장 및 Cart정보 삭제
+          const userUpdate = await User.findOneAndUpdate(
+            {_id: userId},
+            { $push: { history: history }, $set: {cart: []}},
+            { new: true }
+          ) 
+
+          // Payment에 transactionData정보 저장
+          const payment = new Payment(transactionData)
+          const paymentSave = await payment.save();
+
+          // Product의 sold 필드 정보 업데이트
+          // 상품당 몇개를 샀는지 파악 
+          let products = [];
+          paymentSave.product.forEach(item => {
+            products.push({ id: item.id, quantity: item.quantity })
+          })
+          // Product에 업데이트
+          async.eachSeries(products, (item, callback) => {
+            Product.updateOne(
+              {_id: item.id },
+              {
+                $inc: {
+                    "sold": item.quantity
+                }
+              },
+              { new: false },
+              callback
+            )
+          }, (err) => {
+            if(err) return res.status(400).json({success: false})
+            res.status(200).json({
+                success: true,
+                cart: user.cart,
+                cartDetail: [],
+                payment: doc
+            })
+          })
+        }
+      // 결제 실패했을 경우
+      } else {
+        // 주문정보 업데이트 (실패했을 경우는 카트정보는 삭제하지 않는다.)
+        Order.findOneAndUpdate(
+          { 
+            sod:req.query.sod, 
+            uniqueField:req.query.uniqueField 
+          }, 
+          { paymentStatus: "入金失敗" }, 
+          (err, doc) => {
+            if (err) {
+              console.log("err: ", err);
+            } else {
+              console.log("Alipay order information update successful");
+            }
+          }
+        );
+      }
+
+      return res.status(200).json({success: true});
     }
   } catch (err) {
     console.log(err);
@@ -76,7 +242,6 @@ router.post("/alipay/list", (req, res) => {
         if (term[0] === '0') {
           Alipay.find() // rst:0 (All), 1 (success), rst:2 (fail)
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, alipayInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, alipayInfo})
@@ -84,7 +249,6 @@ router.post("/alipay/list", (req, res) => {
         } else {
           Alipay.find({"rst": term[0]})
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, alipayInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, alipayInfo})
@@ -96,7 +260,6 @@ router.post("/alipay/list", (req, res) => {
         if (term[0] === '0') {
           Alipay.find({ "uniqueField":{'$regex':term[1], $options: 'i' }})
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, alipayInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, alipayInfo})
@@ -104,7 +267,6 @@ router.post("/alipay/list", (req, res) => {
         } else {
           Alipay.find({"rst":term[0], "uniqueField":{'$regex':term[1], $options: 'i'}})
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, alipayInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, alipayInfo})
@@ -123,7 +285,6 @@ router.post("/alipay/list", (req, res) => {
             "createdAt":{$gte: fromDate, $lte: toDate }
           })
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, alipayInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, alipayInfo})
@@ -136,7 +297,6 @@ router.post("/alipay/list", (req, res) => {
             "createdAt":{$gte: fromDate, $lte: toDate }
           })
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, alipayInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, alipayInfo})
@@ -151,7 +311,6 @@ router.post("/alipay/list", (req, res) => {
         if (term[0] === '0') {
           Alipay.find({ "createdAt":{$gte: fromDate, $lte: toDate }})
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, alipayInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, alipayInfo})
@@ -159,7 +318,6 @@ router.post("/alipay/list", (req, res) => {
         } else {
           Alipay.find({ "rst":term[0], "createdAt":{$gte: fromDate, $lte: toDate }})
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, alipayInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, alipayInfo})
@@ -169,7 +327,6 @@ router.post("/alipay/list", (req, res) => {
     } else {
       Alipay.find()
       .sort({ "createdAt": -1 })
-      .skip(req.body.skip)
       .exec((err, alipayInfo) => {
         if (err) return res.status(400).json({success: false, err});
         return res.status(200).json({ success: true, alipayInfo})
@@ -194,7 +351,6 @@ router.post("/wechat/list", (req, res) => {
         if (term[0] === '0') {
           Wechat.find() // rst:0 (All), 1 (success), rst:2 (fail)
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, wechatInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, wechatInfo})
@@ -202,7 +358,6 @@ router.post("/wechat/list", (req, res) => {
         } else {
           Wechat.find({"rst": term[0]})
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, wechatInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, wechatInfo})
@@ -214,7 +369,6 @@ router.post("/wechat/list", (req, res) => {
         if (term[0] === '0') {
           Wechat.find({ "uniqueField":{'$regex':term[1], $options: 'i' }})
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, wechatInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, wechatInfo})
@@ -222,7 +376,6 @@ router.post("/wechat/list", (req, res) => {
         } else {
           Wechat.find({ "rst":term[0], "uniqueField":{'$regex':term[1], $options: 'i' }})
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, wechatInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, wechatInfo})
@@ -241,7 +394,6 @@ router.post("/wechat/list", (req, res) => {
             "createdAt":{ $gte: fromDate, $lte: toDate }
           })
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, wechatInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, wechatInfo})
@@ -254,7 +406,6 @@ router.post("/wechat/list", (req, res) => {
             "createdAt":{ $gte: fromDate, $lte: toDate }
           })
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, wechatInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, wechatInfo})
@@ -269,7 +420,6 @@ router.post("/wechat/list", (req, res) => {
         if (term[0] === '0') {
           Wechat.find({ "createdAt":{ $gte: fromDate, $lte: toDate }})
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, wechatInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, wechatInfo})
@@ -277,7 +427,6 @@ router.post("/wechat/list", (req, res) => {
         } else {
           Wechat.find({ "rst":term[0], "createdAt":{ $gte: fromDate, $lte: toDate }})
           .sort({ "createdAt": -1 })
-          .skip(req.body.skip)
           .exec((err, wechatInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, wechatInfo})
@@ -287,7 +436,6 @@ router.post("/wechat/list", (req, res) => {
     } else {
       Wechat.find()
       .sort({ "createdAt": -1 })
-      .skip(req.body.skip)
       .exec((err, wechatInfo) => {
         if (err) return res.status(400).json({success: false, err});
         return res.status(200).json({ success: true, wechatInfo})
@@ -338,20 +486,23 @@ router.post('/paypal/admin/list', (req, res) => {
       if (term[0] !== "") {
         // 사용자 이름, 날짜값이 들어왔을때
         if (term[1]) {
+          const fromDate = new Date(term[1]).toISOString();
+          const toDate = new Date(term[2]).toISOString();
+
           Payment.find
           ({
             "user":{"$elemMatch": {"name": {"$regex": term[0], $options: 'i'}}}, 
-            "createdAt":{$gte: term[1], $lte: term[2]}
+            "createdAt":{$gte: fromDate, $lte: toDate}
           })
-          .skip(req.body.skip)
+          .sort({ "createdAt": -1 })
           .exec((err, paypalInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, paypalInfo})
           });
         // 사용자 이름만 들어왔을때
         } else {
-          Payment.find({"user":{"$elemMatch": {"name": {"$regex": term[0], $options: 'i'}}}})
-          .skip(req.body.skip)
+          Payment.find({ "user":{ "$elemMatch": { "name": {"$regex": term[0], $options: 'i' }}}})
+          .sort({ "createdAt": -1 })
           .exec((err, paypalInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, paypalInfo})
@@ -360,15 +511,20 @@ router.post('/paypal/admin/list', (req, res) => {
       } else {
         // 날짜값만 들어왔을때
         if (term[1]) {
-          Payment.find({"createdAt":{$gte: term[1], $lte: term[2]}})
-          .skip(req.body.skip)
+          const fromDate = new Date(term[1]).toISOString();
+          const toDate = new Date(term[2]).toISOString();
+
+          Payment.find({ "createdAt":{$gte: fromDate, $lte: toDate }})
+          .sort({ "createdAt": -1 })
           .exec((err, paypalInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, paypalInfo})
           });
         // 아무런값도 안들어왔을때
         } else {
-          Payment.find().exec((err, paypalInfo) => {
+          Payment.find()
+          .sort({ "createdAt": -1 })
+          .exec((err, paypalInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, paypalInfo})
           });
@@ -376,7 +532,9 @@ router.post('/paypal/admin/list', (req, res) => {
       }
     // 조건이 undefined일 경우(초기페이지)
     } else {
-      Payment.find().exec((err, paypalInfo) => {
+      Payment.find()
+      .sort({ "createdAt": -1 })
+      .exec((err, paypalInfo) => {
         if (err) return res.status(400).json({success: false, err});
         return res.status(200).json({ success: true, paypalInfo})
       });
@@ -388,16 +546,17 @@ router.post('/paypal/admin/list', (req, res) => {
 })
 
 // Paypal 일반사용자 결제결과 조회
-router.get('/paypal/list', (req, res) => {
-  try {
-    Payment.find().exec((err, paypalInfo) => {
-      if (err) return res.status(400).json({success: false, err});
-      return res.status(200).send({success: true, paypalInfo});
-    })
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ success: false, message: err.message });
-  }
-})
+// 현재는 사용자 이력정보에서 리스트를 보여주고 있어서 사용하지 않음
+// router.get('/paypal/list', (req, res) => {
+//   try {
+//     Payment.find().exec((err, paypalInfo) => {
+//       if (err) return res.status(400).json({success: false, err});
+//       return res.status(200).send({success: true, paypalInfo});
+//     })
+//   } catch (err) {
+//     console.log(err);
+//     return res.status(500).json({ success: false, message: err.message });
+//   }
+// })
 
 module.exports = router;

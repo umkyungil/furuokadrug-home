@@ -14,13 +14,13 @@ function UserCardBlock(props) {
     props.products && props.products.map((product, index) => (
       <tr key={index}>
         <td>
-          <img style={{width: '60px', height: '60px'}} alt="product" src={renderCartImages(product.images)} />
+          <img style={{width: '120px', height: '120px'}} alt="product" src={renderCartImages(product.images)} />
         </td>
         <td>
           {product.quantity} {t('Cart.unit')}
         </td>
         <td>
-          ¥ {Number(product.price).toLocaleString()}
+          {Number(product.price).toLocaleString()}
         </td>
         <td>
           <button onClick={() => props.removeItem(product._id)}>

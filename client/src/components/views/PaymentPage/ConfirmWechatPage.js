@@ -140,7 +140,7 @@ function ConfirmWechatPage(props) {
           }
 
           // live streaming의 step이름으로 step정보취득
-          getStaffInfo(staffName)
+          if (staffName) getStaffInfo(staffName)
 
         } else {
           alert("Failed to get user information.")
@@ -150,25 +150,23 @@ function ConfirmWechatPage(props) {
 
   // step 정보취득
   const getStaffInfo = (staffName) => {
-    if (staffName) {
-      let body = {
-        searchTerm: staffName
-      }
-      
-      axios.post(`${USER_SERVER}/list`, body)
-        .then(response => {
-            if (response.data.success) {
-              if (response.data.userInfo.length === 1 && response.data.userInfo[0].role !== "0") {
-                setStaffName(response.data.userInfo[0].name + " " + response.data.userInfo[0].lastName);
-              } else {
-                setStaffName("");
-              }
-            } else {
-              alert("Failed to get step information.")
-            }
-        }
-      )
+    let body = {
+      searchTerm: staffName
     }
+    // 성으로 전체 검색해서 권한이 스텝인 사람을 추출
+    axios.post(`${USER_SERVER}/list`, body)
+      .then(response => {
+          if (response.data.success) {
+            if (response.data.userInfo.length === 1 && response.data.userInfo[0].role !== "0") {
+              setStaffName(response.data.userInfo[0].name + " " + response.data.userInfo[0].lastName);
+            } else {
+              setStaffName("");
+            }
+          } else {
+            alert("Failed to get step information.")
+          }
+      }
+    )
   }
 
   // 배송지 주소
@@ -312,9 +310,9 @@ function ConfirmWechatPage(props) {
             { Address3 !== "" && <br /> }
             <Radio value={ChangeAddress}>
               <Input.Group compact>
-                <Input style={{ width: '55%' }} name="changeAddress" type="text" value={ChangeAddress} onChange={addressChangeHandler} />&nbsp;
-                <Input style={{ width: '20%' }} name="changeReceiver" type="text" value={ChangeReceiver} onChange={receiverChangeHandler} />&nbsp;
-                <Input style={{ width: '20%' }} name="changeTel" type="text" value={ChangeTel} onChange={telChangeHandler} />
+                <Input style={{ width: '55%' }} name="changeAddress" type="text" placeholder="Shipping address" value={ChangeAddress} onChange={addressChangeHandler} />&nbsp;
+                <Input style={{ width: '20%' }} name="changeReceiver" type="text" placeholder="Name" value={ChangeReceiver} onChange={receiverChangeHandler} />&nbsp;
+                <Input style={{ width: '20%' }} name="changeTel" type="text" placeholder="Phone" value={ChangeTel} onChange={telChangeHandler} />
               </Input.Group>
             </Radio>
           </Radio.Group>

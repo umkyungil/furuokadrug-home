@@ -14,6 +14,7 @@ export default class Paypal extends React.Component {
 
     const onError = (err) => {
       console.log("Error!", err);
+      this.props.onError(err)
     }
 
     let env = 'sandbox';

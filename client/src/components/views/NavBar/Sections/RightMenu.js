@@ -91,7 +91,7 @@ function RightMenu(props) {
                 <a href="/payment/wechat/list">WeChat Payment History</a>
               </Menu.Item>
               <Menu.Item key="paypalAdminList">
-                <a href="/payment/paypal/admin/list">Paypal Payment History</a>
+                <a href="/payment/paypal/admin/list">Cart Payment History</a>
               </Menu.Item>
             </SubMenu>
             <SubMenu title={<span>Customer</span>}>
@@ -133,7 +133,7 @@ function RightMenu(props) {
                 <a href="/payment/wechat/list">WeChat Payment History</a>
               </Menu.Item>
               <Menu.Item key="paypalAdminList">
-                <a href="/payment/paypal/admin/list">Paypal Payment History</a>
+                <a href="/payment/paypal/admin/list">Cart Payment History</a>
               </Menu.Item>              
             </SubMenu>
             <SubMenu title={<span>Customer</span>}>
@@ -176,7 +176,7 @@ function RightMenu(props) {
               <a href="/live">Live Streaming</a>
             </Menu.Item>
             <Menu.Item key="paypalList">
-              <a href="/payment/paypal/list">Paypal List</a>
+              <a href="/payment/paypal/list">Cart Payment List</a>
             </Menu.Item>
             <Menu.Item key="list">
               <a href="/order/list">Order list</a>

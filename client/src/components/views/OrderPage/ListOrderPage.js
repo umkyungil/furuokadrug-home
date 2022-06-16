@@ -186,6 +186,8 @@ function ListOrderPage(props) {
 					count++;
 					let tmpOrderInfo = result.data.orderInfo[i];
 					
+					// 가격 변형
+					tmpOrderInfo.amount = Number(tmpOrderInfo.amount).toLocaleString();
 					// 결제날짜 변형
 					if (tmpOrderInfo.sod) {
 						// let tmpDate = new Date(tmpOrderInfo.sod);

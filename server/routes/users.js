@@ -323,7 +323,7 @@ router.post('/successBuy', auth, (req, res) => {
         // product정보
         transactionData.product = history;
 
-        // User에 history정보 저장 및 Cart정보 삭제
+        // User에 history정보 저장 및 Cart정보는 삭제
         User.findOneAndUpdate(
             {_id: req.user._id},
             { $push: { history: history }, $set: {cart: []}},

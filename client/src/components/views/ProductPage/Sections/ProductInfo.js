@@ -72,7 +72,7 @@ function ProductInfo(props) {
       return (
         <div>
           <Descriptions>
-            <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
+            <Descriptions.Item label={t('Product.price')}>{price}</Descriptions.Item>
             <Descriptions.Item label={t('Product.point')}>{props.detail.point}</Descriptions.Item>
             <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>          
           </Descriptions>
@@ -108,7 +108,7 @@ function ProductInfo(props) {
       return (
         <div>
           <Descriptions>
-            <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
+            <Descriptions.Item label={t('Product.price')}>{price}</Descriptions.Item>
             <Descriptions.Item label={t('Product.point')}>{props.detail.point}</Descriptions.Item>
             <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>          
           </Descriptions>
@@ -148,7 +148,7 @@ function ProductInfo(props) {
       return (
         <div>
           <Descriptions>
-            <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
+            <Descriptions.Item label={t('Product.price')}>{price}</Descriptions.Item>
             <Descriptions.Item label={t('Product.point')}>{props.detail.point}</Descriptions.Item>
             <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>          
           </Descriptions>
@@ -181,7 +181,7 @@ function ProductInfo(props) {
     return (
       <div>
         <Descriptions>
-          <Descriptions.Item label={t('Product.price')}>{price} 円</Descriptions.Item>
+          <Descriptions.Item label={t('Product.price')}>{price}</Descriptions.Item>
           <Descriptions.Item label={t('Product.point')}>{point}</Descriptions.Item>
           <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
         </Descriptions>

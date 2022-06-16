@@ -130,8 +130,10 @@ router.post("/list", (req, res) => {
           }
           // 전체 조건값이 들어온 경우
           if (term[1] !== "" && term[2] !== "" && term[3] !== "") {
-            const fromDate = new Date(term[3]).toISOString();
-            const toDate = new Date(term[4]).toISOString();
+            let tmpFrom = new Date(term[3]);
+						const fromDate = new Date(tmpFrom.getTime() - (tmpFrom.getTimezoneOffset() * 60000)).toISOString();
+            let tmpTo = new Date(term[4]);
+						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
             if (term[0] === '0') {
               Order.find
@@ -188,8 +190,10 @@ router.post("/list", (req, res) => {
           }
           // Delivery status, staff name, 결제일만 들어온 경우
           if (term[1] === "" && term[2] !== "" && term[3] !== "") {
-            const fromDate = new Date(term[3]).toISOString();
-            const toDate = new Date(term[4]).toISOString();
+            let tmpFrom = new Date(term[3]);
+						const fromDate = new Date(tmpFrom.getTime() - (tmpFrom.getTimezoneOffset() * 60000)).toISOString();
+            let tmpTo = new Date(term[4]);
+						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
             if (term[0] === '0') {
               Order.find
@@ -220,8 +224,10 @@ router.post("/list", (req, res) => {
           }
           // Delivery status, user name, 결제일만 들어온 경우
           if (term[1] !== "" && term[2] === "" && term[3] !== "") {
-            const fromDate = new Date(term[3]).toISOString();
-            const toDate = new Date(term[4]).toISOString();
+            let tmpFrom = new Date(term[3]);
+						const fromDate = new Date(tmpFrom.getTime() - (tmpFrom.getTimezoneOffset() * 60000)).toISOString();
+            let tmpTo = new Date(term[4]);
+						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
             if (term[0] === '0') {
               Order.find
@@ -252,8 +258,10 @@ router.post("/list", (req, res) => {
           }
           // Delivery status, 결제일만 들어온 경우
           if (term[1] === "" && term[2] === "" && term[3] !== "") {
-            const fromDate = new Date(term[3]).toISOString();
-            const toDate = new Date(term[4]).toISOString();
+            let tmpFrom = new Date(term[3]);
+						const fromDate = new Date(tmpFrom.getTime() - (tmpFrom.getTimezoneOffset() * 60000)).toISOString();
+            let tmpTo = new Date(term[4]);
+						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
             if (term[0] === '0') {
               Order.find({ "sod":{ $gte: fromDate, $lte: toDate }})
@@ -385,8 +393,10 @@ router.post("/list", (req, res) => {
             }
             // 전체 조건값이 들어온 경우
             if (term[1] !== "" && term[2] !== "" && term[3] !== "") {
-              const fromDate = new Date(term[3]).toISOString();
-              const toDate = new Date(term[4]).toISOString();
+              let tmpFrom = new Date(term[3]);
+              const fromDate = new Date(tmpFrom.getTime() - (tmpFrom.getTimezoneOffset() * 60000)).toISOString();
+              let tmpTo = new Date(term[4]);
+              const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
               if (term[0] === '0') {
                 Order.find
@@ -443,8 +453,10 @@ router.post("/list", (req, res) => {
             }
             // Delivery status, staff name, 결제일만 들어온 경우
             if (term[1] === "" && term[2] !== "" && term[3] !== "") {
-              const fromDate = new Date(term[3]).toISOString();
-              const toDate = new Date(term[4]).toISOString();
+              let tmpFrom = new Date(term[3]);
+              const fromDate = new Date(tmpFrom.getTime() - (tmpFrom.getTimezoneOffset() * 60000)).toISOString();
+              let tmpTo = new Date(term[4]);
+              const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
               if (term[0] === '0') {
                 Order.find
@@ -475,8 +487,10 @@ router.post("/list", (req, res) => {
             }
             // Delivery status, user name, 결제일만 들어온 경우
             if (term[1] !== "" && term[2] === "" && term[3] !== "") {
-              const fromDate = new Date(term[3]).toISOString();
-              const toDate = new Date(term[4]).toISOString();
+              let tmpFrom = new Date(term[3]);
+              const fromDate = new Date(tmpFrom.getTime() - (tmpFrom.getTimezoneOffset() * 60000)).toISOString();
+              let tmpTo = new Date(term[4]);
+              const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
               if (term[0] === '0') {
                 Order.find
@@ -507,8 +521,10 @@ router.post("/list", (req, res) => {
             }
             // Delivery status, 결제일만 들어온 경우
             if (term[1] === "" && term[2] === "" && term[3] !== "") {
-              const fromDate = new Date(term[3]).toISOString();
-              const toDate = new Date(term[4]).toISOString();
+              let tmpFrom = new Date(term[3]);
+              const fromDate = new Date(tmpFrom.getTime() - (tmpFrom.getTimezoneOffset() * 60000)).toISOString();
+              let tmpTo = new Date(term[4]);
+              const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
               if (term[0] === '0') {
                 Order.find({ "sod":{ $gte: fromDate, $lte: toDate }})
@@ -546,13 +562,15 @@ router.post("/list", (req, res) => {
       } else {
         // 조건검색
         if (term) {
-          // 배달상태 값 변형
+          // 배달상태 값 변형(화면에서 보내는 값을 변형)
           let tmpDelivery = "";
           if (term[0] === "1") {
             tmpDelivery = "配送手続き完了";
           } else if(term[0] === "2") {
             tmpDelivery = "未確認";
           }
+
+          console.log("term: ", term);
 
           // Delivery status 값만 들어온 경우
           // Delivery status(Select)는 ""가 될수 없고 날짜는 From To가 같이 들어오게 되어 있어서 term[3]의 유무만 체크하면 된다
@@ -642,8 +660,10 @@ router.post("/list", (req, res) => {
           }
           // 전체 조건값이 들어온 경우
           if (term[1] !== "" && term[2] !== "" && term[3] !== "") {
-            const fromDate = new Date(term[3]).toISOString();
-            const toDate = new Date(term[4]).toISOString();
+            let tmpFrom = new Date(term[3]);
+						const fromDate = new Date(tmpFrom.getTime() - (tmpFrom.getTimezoneOffset() * 60000)).toISOString();
+            let tmpTo = new Date(term[4]);
+						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
             if (term[0] === '0') {
               Order.find
@@ -707,8 +727,10 @@ router.post("/list", (req, res) => {
           }
           // Delivery status, staff name, 결제일만 들어온 경우
           if (term[1] === "" && term[2] !== "" && term[3] !== "") {
-            const fromDate = new Date(term[3]).toISOString();
-            const toDate = new Date(term[4]).toISOString();
+            let tmpFrom = new Date(term[3]);
+						const fromDate = new Date(tmpFrom.getTime() - (tmpFrom.getTimezoneOffset() * 60000)).toISOString();
+            let tmpTo = new Date(term[4]);
+						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
             if (term[0] === '0') {
               Order.find
@@ -741,9 +763,11 @@ router.post("/list", (req, res) => {
           }
           // Delivery status, user name, 결제일만 들어온 경우
           if (term[1] !== "" && term[2] === "" && term[3] !== "") {
-            const fromDate = new Date(term[3]).toISOString();
-            const toDate = new Date(term[4]).toISOString();
-
+            let tmpFrom = new Date(term[3]);
+						const fromDate = new Date(tmpFrom.getTime() - (tmpFrom.getTimezoneOffset() * 60000)).toISOString();
+            let tmpTo = new Date(term[4]);
+						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
+            
             if (term[0] === '0') {
               Order.find
               ({
@@ -775,8 +799,10 @@ router.post("/list", (req, res) => {
           }
           // Delivery status, 결제일만 들어온 경우
           if (term[1] === "" && term[2] === "" && term[3] !== "") {
-            const fromDate = new Date(term[3]).toISOString();
-            const toDate = new Date(term[4]).toISOString();
+            let tmpFrom = new Date(term[3]);
+						const fromDate = new Date(tmpFrom.getTime() - (tmpFrom.getTimezoneOffset() * 60000)).toISOString();
+            let tmpTo = new Date(term[4]);
+						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
             if (term[0] === '0') {
               Order.find
