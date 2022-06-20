@@ -75,6 +75,7 @@ function CartPage(props) {
         // Order정보 등록
         // sod: 입력할 날짜의 변형 (Paypal 결제인 경우 Payment의 createdAt를 sod로 사용)
         let tmpDate = new Date(response.payload.payment.createdAt);
+        let uniqueDate = tmpDate.getFullYear() + "-" + (tmpDate.getMonth() + 1) + "-" + tmpDate.getDate() + "-" + tmpDate.getHours() + "-" + tmpDate.getMinutes();
         const date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
         const sod = date;
         // 주소는 페이팔에 등록된 주소를 조합애서 설정한다
@@ -90,7 +91,7 @@ function CartPage(props) {
           sod: sod,
           // Paypal 결제인 경우 userId를 대입해서 결제 성공시 사용자의 카트정보를 삭제할수 있게 한다
           // 이메일은 유니크하기 때문에 주문정보 페이지에서 삭제를 가능하도록 추가한다.
-          uniqueField: 'paypal' + '_' + props.user.userData._id + '_' + sod,
+          uniqueField: 'paypal' + '_' + props.user.userData._id + '_' + uniqueDate,
           amount: Total,
           staffName: '未確認',
           paymentStatus: '入金済み',
@@ -117,6 +118,7 @@ function CartPage(props) {
   const transactionError = () => {
     // Order정보 등록
     let tmpDate = new Date();
+    let uniqueDate = tmpDate.getFullYear() + "-" + (tmpDate.getMonth() + 1) + "-" + tmpDate.getDate() + "-" + tmpDate.getHours() + "-" + tmpDate.getMinutes();
     const date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
     const sod = date;
     const body = {
@@ -129,7 +131,7 @@ function CartPage(props) {
       // 배송지는 결제처리가 실패했기 때문에 미설정으로 한다
       address: '未設定',
       sod: sod,
-      uniqueField: 'paypal' + '_' + props.user.userData._id + '_' + sod, 
+      uniqueField: 'paypal' + '_' + props.user.userData._id + '_' + uniqueDate, 
       amount: Total,
       staffName: '未確認',
       paymentStatus: '入金失敗',
@@ -155,17 +157,13 @@ function CartPage(props) {
   const listHandler = () => {
     history.push("/");
   }
-  // UPC SOD작성
-  const getSod = () => {
-    let dateInfo = new Date();
-    const sod = new Date(dateInfo.getTime() - (dateInfo.getTimezoneOffset() * 60000)).toISOString();
-    return sod;
-  }
   // 알리페이 결제
   const alipayHandler = () => {
+    let dateInfo = new Date();
+    const sod = new Date(dateInfo.getTime() - (dateInfo.getTimezoneOffset() * 60000)).toISOString();
+    let uniqueDate = dateInfo.getFullYear() + "-" + (dateInfo.getMonth() + 1) + "-" + dateInfo.getDate() + "-" + dateInfo.getHours() + "-" + dateInfo.getMinutes();
     const loginUserId = props.user.userData._id;
-    const sod = getSod();
-    const uniqueField = 'paypal' + '_' + loginUserId + '_' + sod;
+    const uniqueField = 'cart' + '_' + loginUserId + '_' + uniqueDate;
     const staffName = 'ECSystem';
     const sid = SID
     const siam1 = Total
@@ -173,13 +171,18 @@ function CartPage(props) {
     let url = '/payment/alipay/confirm/'
     url = url + loginUserId + '/' + sid + '/' + sod + '/' + siam1 + '/' + uniqueField + '/' + staffName;
     window.open(url);
+
+    // 주문정보 화면으로 이동하기 때문에 카트창은 닫는다
+    window.close();
   }
 
   // 위쳇 결제
   const wechatHandler = () => {
+    let dateInfo = new Date();
+    const sod = new Date(dateInfo.getTime() - (dateInfo.getTimezoneOffset() * 60000)).toISOString();
+    let uniqueDate = dateInfo.getFullYear() + "-" + (dateInfo.getMonth() + 1) + "-" + dateInfo.getDate() + "-" + dateInfo.getHours() + "-" + dateInfo.getMinutes();
     const loginUserId = props.user.userData._id;
-    const sod = getSod();
-    const uniqueField = 'paypal' + '_' + loginUserId + '_' + sod;
+    const uniqueField = 'cart' + '_' + loginUserId + '_' + uniqueDate;
     const staffName = 'ECSystem';
     const sid = SID
     const siam1 = Total
@@ -187,13 +190,15 @@ function CartPage(props) {
     let url = '/payment/wechat/confirm/'
     url = url + loginUserId + '/' + sid + '/' + sod + '/' + siam1 + '/' + uniqueField + '/' + staffName;
     window.open(url);
+
+    // 주문정보 화면으로 이동하기 때문에 카트창은 닫는다
+    window.close();
   }
 
   // 경고메세지
 	const errorHandleClose = () => {
     setErrorAlert(false);
     history.push("/");
-
   };
 
   return (

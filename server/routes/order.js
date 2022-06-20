@@ -570,8 +570,6 @@ router.post("/list", (req, res) => {
             tmpDelivery = "未確認";
           }
 
-          console.log("term: ", term);
-
           // Delivery status 값만 들어온 경우
           // Delivery status(Select)는 ""가 될수 없고 날짜는 From To가 같이 들어오게 되어 있어서 term[3]의 유무만 체크하면 된다
           if (term[1] === "" && term[2] === "" && term[3] === "") {

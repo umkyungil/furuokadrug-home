@@ -1,7 +1,9 @@
 import React, {useEffect, useState} from "react";
 import { Form, Input, Button, Radio, Tooltip } from 'antd';
 import axios from 'axios';
-import { USER_SERVER, ORDER_SERVER } from '../../Config.js';
+import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER } from '../../Config.js';
+import { useHistory } from 'react-router-dom';
+import swal from 'sweetalert'
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -56,6 +58,8 @@ function ConfirmWechatPage(props) {
   const [SelectedAddress, setSelectedAddress] = useState(""); // Radio 선택된 값
   const [StaffName, setStaffName] = useState("");
 
+  const history = useHistory();
+
   // query string 취득
   const userId = props.match.params.userId;
   const sid = props.match.params.sid;
@@ -68,105 +72,112 @@ function ConfirmWechatPage(props) {
   const radioChangeHandler = e => {
     setSelectedAddress(e.target.value);
   };
-
-  // 로그인 유저정보 취득
+  
   useEffect(() => {
-    axios.get(`${USER_SERVER}/users_by_id?id=${userId}`)
-      .then(response => {
-        if (response.data.success) {
-          setName(response.data.user[0].name);
-          setLastName(response.data.user[0].lastName);
-          setEmail(response.data.user[0].email);
-          setTel(response.data.user[0].tel)
-          setUserId(userId);
-          setSiam1(siam1);
-          setSod(sod); // live streaming에서 셋팅한 값
-          setUniqueField(uniqueField);
-          //setRole(response.data.user[0].role);
-
-          // 주소1
-          if (response.data.user[0].address1) {
-            setAddress1(response.data.user[0].address1);
-            let address1 = response.data.user[0].address1;
-            if (address1.length > 10) {
-              address1 = address1.slice(0, 10)
-              address1 = address1 + "...";
-              setShortAddress1(address1);
-            }
-          }
-          // 수신자1
-          if (response.data.user[0].receiver1) {
-            setReceiver1(response.data.user[0].receiver1);
-          }
-          // 수신자 전화번호1
-          if (response.data.user[0].tel1) {
-            setTel1(response.data.user[0].tel1);
-          }
-          // 주소2
-          if (response.data.user[0].address2) {
-            setAddress2(response.data.user[0].address2);
-            let address2 = response.data.user[0].address2;
-            if (address2.length > 10) {
-              address2 = address2.slice(0, 10)
-              address2 = address2 + "...";
-              setShortAddress2(address2);
-            }
-          }
-          // 수신자2
-          if (response.data.user[0].receiver2) {
-            setReceiver2(response.data.user[0].receiver2);
-          }
-          // 수신자 전화번호2
-          if (response.data.user[0].tel2) {
-            setTel2(response.data.user[0].tel2);
-          }
-          // 주소3
-          if (response.data.user[0].address3) {
-            setAddress3(response.data.user[0].address3);
-            let address3 = response.data.user[0].address3;
-            if (address3.length > 10) {
-              address3 = address3.slice(0, 10);
-              address3 = address3 + "...";
-              setShortAddress3(address3);
-            }
-          }
-          // 수신자3
-          if (response.data.user[0].receiver3) {
-            setReceiver3(response.data.user[0].receiver3);
-          }
-          //수신자 전화번호3
-          if (response.data.user[0].tel3) {
-            setTel3(response.data.user[0].tel3);
-          }
-
-          // live streaming의 step이름으로 step정보취득
-          if (staffName) getStaffInfo(staffName)
-
-        } else {
-          alert("Failed to get user information.")
-        }
-      })
+    getUserInfo();
   }, [])
 
+  // 로그인 유저정보 취득
+  const getUserInfo = async () => {
+    const userResult = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}`);
+      
+    if (userResult.data.success) {
+      setName(userResult.data.user[0].name);
+      setLastName(userResult.data.user[0].lastName);
+      setEmail(userResult.data.user[0].email);
+      setTel(userResult.data.user[0].tel)
+      setUserId(userId);
+      setSiam1(siam1);
+      setSod(sod); // live streaming에서 셋팅한 값
+      setUniqueField(uniqueField);
+      //setRole(userResult.data.user[0].role);
+
+      // 주소1
+      if (userResult.data.user[0].address1) {
+        setAddress1(userResult.data.user[0].address1);
+        let address1 = userResult.data.user[0].address1;
+        if (address1.length > 10) {
+          address1 = address1.slice(0, 10)
+          address1 = address1 + "...";
+          setShortAddress1(address1);
+        }
+      }
+      // 수신자1
+      if (userResult.data.user[0].receiver1) {
+        setReceiver1(userResult.data.user[0].receiver1);
+      }
+      // 수신자 전화번호1
+      if (userResult.data.user[0].tel1) {
+        setTel1(userResult.data.user[0].tel1);
+      }
+      // 주소2
+      if (userResult.data.user[0].address2) {
+        setAddress2(userResult.data.user[0].address2);
+        let address2 = userResult.data.user[0].address2;
+        if (address2.length > 10) {
+          address2 = address2.slice(0, 10)
+          address2 = address2 + "...";
+          setShortAddress2(address2);
+        }
+      }
+      // 수신자2
+      if (userResult.data.user[0].receiver2) {
+        setReceiver2(userResult.data.user[0].receiver2);
+      }
+      // 수신자 전화번호2
+      if (userResult.data.user[0].tel2) {
+        setTel2(userResult.data.user[0].tel2);
+      }
+      // 주소3
+      if (userResult.data.user[0].address3) {
+        setAddress3(userResult.data.user[0].address3);
+        let address3 = userResult.data.user[0].address3;
+        if (address3.length > 10) {
+          address3 = address3.slice(0, 10);
+          address3 = address3 + "...";
+          setShortAddress3(address3);
+        }
+      }
+      // 수신자3
+      if (userResult.data.user[0].receiver3) {
+        setReceiver3(userResult.data.user[0].receiver3);
+      }
+      //수신자 전화번호3
+      if (userResult.data.user[0].tel3) {
+        setTel3(userResult.data.user[0].tel3);
+      }
+
+      // live streaming에서 전달받은 step이름으로 step정보취득
+      // cart페이지에서 전달된 스텝이름은 'ECSystem'이라서 스텝이름을 
+      // 검색할 필요가 없다
+      if (staffName) {
+        if (staffName !== 'ECSystem') {
+          getStaffInfo(staffName)
+        }
+      }
+    } else {
+      alert("Failed to get user information.")
+    }
+  }
+
   // step 정보취득
-  const getStaffInfo = (staffName) => {
+  const getStaffInfo = async (staffName) => {
     let body = {
       searchTerm: staffName
     }
     // 성으로 전체 검색해서 권한이 스텝인 사람을 추출
-    axios.post(`${USER_SERVER}/list`, body)
-      .then(response => {
-          if (response.data.success) {
-            if (response.data.userInfo.length === 1 && response.data.userInfo[0].role !== "0") {
-              setStaffName(response.data.userInfo[0].name + " " + response.data.userInfo[0].lastName);
-            } else {
-              setStaffName("");
-            }
-          } else {
-            alert("Failed to get step information.")
-          }
+    // 동명이인인 경우는 첫번째 사람의 이름으로 설정한다
+    const staffResult = await axios.post(`${USER_SERVER}/list`, body);
+
+    if (staffResult.data.success) {
+      if (staffResult.data.userInfo.length > 0 && staffResult.data.userInfo[0].role !== "0") {
+        setStaffName(staffResult.data.userInfo[0].name + " " + staffResult.data.userInfo[0].lastName);
+      } else {
+        setStaffName("未確認");
       }
-    )
+    } else {
+      alert("Failed to get step information.")
+    }
   }
 
   // 배송지 주소
@@ -182,26 +193,25 @@ function ConfirmWechatPage(props) {
     setChangeTel(event.currentTarget.value);
   }
 
-  const state = "未確認";
-  const body = {
-    type: "Wechat",
-    userId: UserId,
-    name: Name,
-    lastName: LastName,
-    tel: Tel,
-    email: Email,
-    address: SelectedAddress,
-    sod: Sod,
-    uniqueField: UniqueField,
-    amount: Siam1,
-    staffName: StaffName,
-    paymentStatus: state,
-    deliveryStatus: state
-  }
-
   // 결제처리
-  const sendPaymentInfo = (e) => {
+  const sendPaymentInfo = async (e) => {
     e.preventDefault(); 
+
+    const body = {
+      type: "Wechat",
+      userId: UserId,
+      name: Name,
+      lastName: LastName,
+      tel: Tel,
+      email: Email,
+      address: SelectedAddress,
+      sod: Sod,
+      uniqueField: UniqueField,
+      amount: Siam1,
+      staffName: StaffName,
+      paymentStatus: "未確認",
+      deliveryStatus: "未確認"
+    }
 
     // 주소 라디오 버튼
     if (SelectedAddress === "") {
@@ -230,15 +240,17 @@ function ConfirmWechatPage(props) {
       body.receiverTel = ChangeTel;
     }
 
-    // 주문정보 등록(Order)
-    axios.post(`${ORDER_SERVER}/register`, body)
-      .then(response => {
-        if (response.data.success) {
-          alert('Shipping information registration success');
-        } else {
-          alert('Failed to register shipping information. Please try again later');
-        }
-      });
+    // 주문정보 등록(입금상태는 위쳇 결제성공 데이타 수신하는곳에서 업데이트 함)
+    const orderResult = await axios.post(`${ORDER_SERVER}/register`, body);
+    if (orderResult.data.success) {
+      console.log('Shipping information registration success');
+    } else {
+      console.log('Failed to register shipping information. Please try again later');
+    }
+
+    // ##########################TEST##########################
+    // const paymentResult = axios.get(`${PAYMENT_SERVER}/wechat/register?rst=1&uniqueField=${UniqueField}`);
+    // ##########################TEST##########################
 
     // UPC 데이타 전송(위쳇 결제 처리)
     let wechat_variable = {
@@ -255,7 +267,7 @@ function ConfirmWechatPage(props) {
       'siam1': siam1, // 상품금액
       'sisf1': '0',
       'method': 'QR', // wechat만 있는 항목
-      'uniqueField': uniqueField
+      'uniqueField': UniqueField
     }
 
     // 화면 중앙정렬 
@@ -270,14 +282,54 @@ function ConfirmWechatPage(props) {
       url = url + (index === 0 ? "?" : "&") + key + "=" + wechat_variable[key];
     });
 
-    window.open(url, "_blank", settings);
+    // UPC 결제 팝업창을 닫는지 1초마다 확인, 닫았을때 화면을 이동 또는 조건에 따라 탭을 종료한다.
+    const openDialog = (url, settings, closeCallback) => {
+      let win = window.open(url, "_blank", settings);
+      let interval = window.setInterval(function() {
+        try {
+          if (win == null || win.closed) {
+            window.clearInterval(interval);
+            closeCallback(win);
+          }
+        } catch (e) {}
+      }, 1000);
+      return win;
+    };
+
+    openDialog(url, settings, async function(win) {
+      //팝업 종료 후 실행 할 코드
+      // window.location.reload();
+
+      // swal({
+      //   title: "Success",
+      //   text: "Shipping information registration!",
+      //   icon: "success",
+      //   button: "Aww yiss!",
+      // }).then((value) => {
+      //   window.location.reload();
+      //   history.push("/user/cart");
+      // });
+
+      // 카트 페이지에서 호출된 경우는 카트페이지로 이동한다
+      // 라이브 스트리밍에서 페이지가 호출된 경우 결제팝업이 닫혀지면
+      // 이 창도 닫아서 라이브화면만 남긴다
+      setTimeout(() => {
+        if (staffName) {
+          if (staffName === 'ECSystem') {
+            history.push("/user/cart");
+          } else {
+            window.close();
+          }
+        }
+      }, 3000);
+    });
   }
 
   return (
     <div className="app">
       <h1>Wechat payment confirm</h1>
       <br />
-      <Form style={{ minWidth: '375px' }} onSubmit={sendPaymentInfo} {...formItemLayout} >
+      <Form style={{ minWidth: '500px' }} onSubmit={sendPaymentInfo} {...formItemLayout} >
         <Form.Item label="Name">
           <Input name="name" type="text" value={Name} readOnly />
         </Form.Item>
