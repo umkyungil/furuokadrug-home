@@ -3,7 +3,6 @@ import { Form, Input, Button, Radio, Tooltip } from 'antd';
 import axios from 'axios';
 import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
-import swal from 'sweetalert'
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -88,9 +87,15 @@ function ConfirmWechatPage(props) {
       setTel(userResult.data.user[0].tel)
       setUserId(userId);
       setSiam1(siam1);
-      setSod(sod); // live streaming에서 셋팅한 값
+
+      let arr = uniqueField.split('_');
+      if (arr[0].trim() === "cart") {
+        setSod(arr[2].trim()); // 상태에는 uniqueKey의 날짜를 대입
+      } else {
+        setSod(sod); // Live인 경우 날짜가 돌아오기 때문에 그대로 대입 
+      }
+      
       setUniqueField(uniqueField);
-      //setRole(userResult.data.user[0].role);
 
       // 주소1
       if (userResult.data.user[0].address1) {
@@ -151,12 +156,16 @@ function ConfirmWechatPage(props) {
       // cart페이지에서 전달된 스텝이름은 'ECSystem'이라서 스텝이름을 
       // 검색할 필요가 없다
       if (staffName) {
-        if (staffName !== 'ECSystem') {
-          getStaffInfo(staffName)
+        if (staffName === 'ECSystem') {
+          setStaffName("ECSystem")
+        } else {
+          getStaffInfo(staffName);
         }
+      } else {
+        setStaffName("未設定")
       }
     } else {
-      alert("Failed to get user information.")
+      console.log("Failed to get user information.")
     }
   }
 
@@ -240,17 +249,13 @@ function ConfirmWechatPage(props) {
       body.receiverTel = ChangeTel;
     }
 
-    // 주문정보 등록(입금상태는 위쳇 결제성공 데이타 수신하는곳에서 업데이트 함)
-    const orderResult = await axios.post(`${ORDER_SERVER}/register`, body);
-    if (orderResult.data.success) {
+    // 임시주문정보 저장
+    const tmpOrderResult = await axios.post(`${ORDER_SERVER}/tmpRegister`, body);
+    if (tmpOrderResult.data.success) {
       console.log('Shipping information registration success');
     } else {
       console.log('Failed to register shipping information. Please try again later');
     }
-
-    // ##########################TEST##########################
-    // const paymentResult = axios.get(`${PAYMENT_SERVER}/wechat/register?rst=1&uniqueField=${UniqueField}`);
-    // ##########################TEST##########################
 
     // UPC 데이타 전송(위쳇 결제 처리)
     let wechat_variable = {
@@ -259,9 +264,9 @@ function ConfirmWechatPage(props) {
       'ptype': '8',
       'job': 'REQUEST',
       'rt': '4', // wechat만 있는 항목
-      'sod': sod,
+      'sod': sod,  // 카트인 경우 포인트 & 라이브인 경우는 결제일이 들어있음
       'tn': Tel,
-      'em': Email,      
+      'em': Email,
       'lang': 'cn',
       'sinm1': 'Furuokadrug Product',
       'siam1': siam1, // 상품금액
@@ -299,30 +304,19 @@ function ConfirmWechatPage(props) {
     openDialog(url, settings, async function(win) {
       //팝업 종료 후 실행 할 코드
       // window.location.reload();
-
-      // swal({
-      //   title: "Success",
-      //   text: "Shipping information registration!",
-      //   icon: "success",
-      //   button: "Aww yiss!",
-      // }).then((value) => {
-      //   window.location.reload();
-      //   history.push("/user/cart");
-      // });
-
-      // 카트 페이지에서 호출된 경우는 카트페이지로 이동한다
-      // 라이브 스트리밍에서 페이지가 호출된 경우 결제팝업이 닫혀지면
-      // 이 창도 닫아서 라이브화면만 남긴다
-      setTimeout(() => {
-        if (staffName) {
-          if (staffName === 'ECSystem') {
-            history.push("/user/cart");
-          } else {
-            window.close();
-          }
+      
+      if (staffName) {
+        if (staffName === 'ECSystem') {
+          history.push("/");
+        } else {
+          window.close();
         }
-      }, 3000);
+      }
     });
+
+    // ##########################TEST##########################
+    // const paymentResult = axios.get(`${PAYMENT_SERVER}/wechat/register?rst=1&pid=1239&sod=${sod}&uniqueField=${UniqueField}`);
+    // ##########################TEST##########################
   }
 
   return (

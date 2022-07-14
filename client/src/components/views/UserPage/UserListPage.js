@@ -49,15 +49,20 @@ function UserListPage() {
       dataIndex: 'chgLanguage',
       key: 'chgLanguage',
     },
-		{
-      title: t('User.address'),
-      dataIndex: 'shortAddress',
-      key: 'shortAddress',
-    },
+		// {
+    //   title: t('User.address'),
+    //   dataIndex: 'shortAddress',
+    //   key: 'shortAddress',
+    // },
     {
       title: t('User.lastLogin'),
       dataIndex: 'date',
       key: 'data',
+    },
+		{
+      title: t('User.deletedAt'),
+      dataIndex: 'delDate',
+      key: 'delDate',
     },    
 		{
 			title: t('User.action'),
@@ -96,21 +101,30 @@ function UserListPage() {
 						}
 						result.data.userInfo[i].chgLanguage = tmpLanguage;
 					}
-					// 주소1 길이 조정(shortAddress 추가)
-					let tmpAddress = result.data.userInfo[i].address1;
-					if (tmpAddress) {
-						if (tmpAddress.length > 21) {
-							tmpAddress = tmpAddress.slice(0, 21)
-							tmpAddress = tmpAddress + "...";
-						}
-						result.data.userInfo[i].shortAddress = tmpAddress;
-					}
-					// 날짜 변형(date 추가)
+					// // 주소1 길이 조정(shortAddress 추가)
+					// let tmpAddress = result.data.userInfo[i].address1;
+					// if (tmpAddress) {
+					// 	if (tmpAddress.length > 21) {
+					// 		tmpAddress = tmpAddress.slice(0, 21)
+					// 		tmpAddress = tmpAddress + "...";
+					// 	}
+					// 	result.data.userInfo[i].shortAddress = tmpAddress;
+					// }
+					// 최근 로그인날짜 변형(date 추가)
 					if(result.data.userInfo[i].lastLogin) {
 						let tmpDate = new Date(result.data.userInfo[i].lastLogin);
 						const date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
 						result.data.userInfo[i].date = date.replace('T', ' ').substring(0, 19) + ' (JST)';
 					}
+					// 삭제날짜 변형(delDate 추가)
+					if(result.data.userInfo[i].deletedAt) {
+						let tmpDate = new Date(result.data.userInfo[i].deletedAt);
+						const date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
+						result.data.userInfo[i].delDate = date.replace('T', ' ').substring(0, 19) + ' (JST)';
+					} else {
+						result.data.userInfo[i].delDate = '無し';
+					}
+
 					// 메일전송　타입추가(Notice 메일전송시 customer list와 구분하기 위한 타입)
 					result.data.userInfo[i].type = 'User';
 					// key 추가

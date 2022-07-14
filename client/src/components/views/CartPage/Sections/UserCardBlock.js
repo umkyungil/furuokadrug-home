@@ -1,5 +1,6 @@
 import React from 'react'
 import "./UserCardBlock.css"
+import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 function UserCardBlock(props) {
@@ -23,9 +24,9 @@ function UserCardBlock(props) {
           {Number(product.price).toLocaleString()}
         </td>
         <td>
-          <button onClick={() => props.removeItem(product._id)}>
-            Remove
-          </button>
+          <Button onClick={() => props.removeItem(product._id)}>
+            remove
+          </Button>
         </td>
       </tr>
     ))

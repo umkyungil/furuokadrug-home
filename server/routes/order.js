@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Order } = require('../models/Order');
+const { TmpOrder } = require('../models/TmpOrder');
 const { User } = require('../models/User');
 const { Alipay } = require('../models/Alipay');
 const { Wechat } = require('../models/Wechat');
@@ -15,6 +16,23 @@ router.post("/register", (req, res) => {
     const order = new Order(req.body);
 
     order.save((err, doc) => {
+      if (err) return res.json({ success: false, err });
+      return res.status(200).json({
+        success: true
+      });
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 임시 주문정보 등록
+router.post("/tmpRegister", (req, res) => {
+  try {
+    const tmpOrder = new TmpOrder(req.body);
+
+    tmpOrder.save((err, doc) => {
       if (err) return res.json({ success: false, err });
       return res.status(200).json({
         success: true

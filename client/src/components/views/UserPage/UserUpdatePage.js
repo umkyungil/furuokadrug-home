@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { updateUser } from "../../../_actions/user_actions";
 import { useDispatch } from "react-redux";
-import { Form, Input, Button, Select } from 'antd';
+import { Form, Input, Button, Select, Checkbox } from 'antd';
 import axios from 'axios';
 import { USER_SERVER } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
@@ -53,6 +53,7 @@ function UserUpdatePage(props) {
   const [Tel3, setTel3] = useState("");
   const [Role, setRole] = useState(0);
   const [Language, setLanguage] = useState("");
+  const [Checked, setChecked] = useState(false);
 
   useEffect(() => {
     // 다국적언어
@@ -84,6 +85,11 @@ function UserUpdatePage(props) {
         setTel3(result.data.user[0].tel3);
         setRole(result.data.user[0].role);
         setLanguage(result.data.user[0].language);
+        if (result.data.user[0].deletedAt) {
+          setChecked(true)
+        } else {
+          setChecked(false)
+        }
       } else {
         alert("Failed to get user information.")
       }      
@@ -134,6 +140,9 @@ function UserUpdatePage(props) {
   const languageHandler = (value) => {
     setLanguage(value);
   }
+  const deletedHandler = (e) => {
+    setChecked(e.target.checked);
+  };
   
   // 사용자일람 페이지 이동
   const history = useHistory();
@@ -180,9 +189,11 @@ function UserUpdatePage(props) {
             receiver3: Receiver3,
             tel3: Tel3,
             role: Role,
-            language: Language
+            language: Language,
+            deletedAt: Checked,
           };
 
+          // 필수항목 체크
           let bol = true;
           if(Name) {
             if (Name === "" ) {                        
@@ -319,13 +330,17 @@ function UserUpdatePage(props) {
                   <Option value="2">admin</Option>
                 </Select>
               </Form.Item>
-              {/* 권한 */}
+              {/* 언어 */}
               <Form.Item required label={t('User.language')}>
                 <Select value={Language} style={{ width: 120 }} onChange={languageHandler}>
-                  <Option value="jp">Japanese</Option>
+                  <Option value="jp">日本語</Option>
                   <Option value="en">English</Option>
-                  <Option value="cn">Chinese</Option>
+                  <Option value="cn">中文（簡体）</Option>
                 </Select>
+              </Form.Item>
+              {/* 삭제일 */}
+              <Form.Item label={t('User.deletedAt')}>
+                <Checkbox checked={Checked} onChange={deletedHandler}>※Please check if you want to delete</Checkbox>
               </Form.Item>
 
               <Form.Item {...tailFormItemLayout}>

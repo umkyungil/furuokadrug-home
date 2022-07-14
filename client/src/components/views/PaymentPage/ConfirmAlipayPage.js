@@ -3,7 +3,7 @@ import { Form, Input, Button, Radio, Tooltip } from 'antd';
 import axios from 'axios';
 import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
-import swal from 'sweetalert'
+
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -36,7 +36,6 @@ function ConfirmAlipayPage(props) {
   const [LastName, setLastName] = useState("");
   const [Email, setEmail] = useState("");
   const [Tel, setTel] = useState("");
-  // const [Role, setRole] = useState("");
   const [Siam1, setSiam1] = useState("");
   const [Sod, setSod] = useState("");
   const [UniqueField, setUniqueField] = useState("");
@@ -88,9 +87,15 @@ function ConfirmAlipayPage(props) {
       setTel(userResult.data.user[0].tel)
       setUserId(userId);
       setSiam1(siam1);
-      setSod(sod); // live streaming에서 셋팅한 값
+
+      let arr = uniqueField.split('_');
+      if (arr[0].trim() === "cart") {
+        setSod(arr[2].trim()); // 상태에는 uniqueKey의 날짜를 대입
+      } else {
+        setSod(sod); // Live인 경우 날짜가 돌아오기 때문에 그대로 대입 
+      }
+      
       setUniqueField(uniqueField);
-      //setRole(userResult.data.user[0].role);
 
       // 주소1
       if (userResult.data.user[0].address1) {
@@ -151,12 +156,16 @@ function ConfirmAlipayPage(props) {
       // cart페이지에서 전달된 스텝이름은 'ECSystem'이라서 스텝이름을 
       // 검색할 필요가 없다
       if (staffName) {
-        if (staffName !== 'ECSystem') {
-          getStaffInfo(staffName)
+        if (staffName === 'ECSystem') {
+          setStaffName("ECSystem")
+        } else {
+          getStaffInfo(staffName);
         }
+      } else {
+        setStaffName("未設定")
       }
     } else {
-      alert("Failed to get user information.")
+      console.log("Failed to get user information.")
     } 
   }
 
@@ -176,7 +185,7 @@ function ConfirmAlipayPage(props) {
         setStaffName("未確認");
       }
     } else {
-      alert("Failed to get step information.")
+      console.log("Failed to get step information.")
     }
   }
 
@@ -192,7 +201,6 @@ function ConfirmAlipayPage(props) {
   const telChangeHandler = (event) => {
     setChangeTel(event.currentTarget.value);
   }
-  
   // 결제처리
   const sendPaymentInfo = async (e) => {
     e.preventDefault();
@@ -239,26 +247,22 @@ function ConfirmAlipayPage(props) {
       body.receiver = ChangeReceiver;
       body.receiverTel = ChangeTel;
     }
-
-    // 주문정보 등록(입금상태는 알리페이 결제성공 데이타 수신하는곳에서 업데이트 함)
-    const orderResult = await axios.post(`${ORDER_SERVER}/register`, body);
-    if (orderResult.data.success) {
+    
+    // 임시주문정보 저장
+    const tmpOrderResult = await axios.post(`${ORDER_SERVER}/tmpRegister`, body);
+    if (tmpOrderResult.data.success) {
       console.log('Shipping information registration success');
     } else {
       console.log('Failed to register shipping information. Please try again later');
     }
-
-    // ##########################TEST##########################
-    // const paymentResult = await axios.get(`${PAYMENT_SERVER}/alipay/register?rst=1&uniqueField=${UniqueField}`);
-    // ##########################TEST##########################
-
+    
     // UPC 데이타 전송(알리페이 결제 처리)
     let alipay_variable = {
       'sid': sid,
       'svid': '6',
       'ptype': '8',
       'job': 'REQUEST',
-      'sod': sod,
+      'sod': sod, // 카트결제인 경우 포인트 & 라이브인 경우는 결제일이 들어있음
       'tn': Tel,
       'em': Email,
       'lang': 'cn',
@@ -297,16 +301,19 @@ function ConfirmAlipayPage(props) {
     openDialog(url, settings, async function(win) {
       // 라이브 스트리밍에서 페이지가 호출된 경우 결제팝업이 닫혀지면
       // 이 창도 닫아서 라이브화면만 남긴다
-      setTimeout(() => {
-        if (staffName) {
-          if (staffName === 'ECSystem') {
-            history.push("/user/cart");
-          } else {
-            window.close();
-          }
+      if (staffName) {
+        if (staffName === 'ECSystem') {
+          history.push("/");
+        } else {
+          window.close();
         }
-      }, 3000);
+      }
     });
+
+    // ##########################TEST##########################
+    // const paymentResult = await axios.get(`${PAYMENT_SERVER}/alipay/register?rst=1&pid=1239&sod=${Sod}&uniqueField=${UniqueField}`);
+    // ##########################TEST##########################
+
   }
 
   return (

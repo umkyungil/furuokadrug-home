@@ -84,8 +84,18 @@ const userSchema = mongoose.Schema({
     },
     lastLogin :{
         type: Date,
+    },
+    deletedAt :{
+        type: Date,
+    },
+    passwordChangedAt :{
+        type: Date,
+    },
+    myPoint: {
+      type: Number,
+      default: 0
     }
-})
+}, { timestamps: true })
 
 userSchema.pre('save', function( next ) {
     var user = this;    
@@ -95,12 +105,12 @@ userSchema.pre('save', function( next ) {
     
             bcrypt.hash(user.password, salt, function(err, hash){
                 if(err) return next(err);
-                user.password = hash 
-                next()
+                user.password = hash;
+                next();
             })
         })
     } else {
-        next()
+        next();
     }
 });
 

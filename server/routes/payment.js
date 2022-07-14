@@ -3,8 +3,10 @@ const router = express.Router();
 const { Alipay } = require('../models/Alipay');
 const { Wechat } = require('../models/Wechat');
 const { Order } = require('../models/Order');
+const { TmpOrder } = require('../models/TmpOrder');
 const { User } = require('../models/User');
 const { Payment } = require('../models/Payment');
+const { TmpPayment } = require('../models/TmpPayment');
 const { Product } = require('../models/Product');
 const async = require('async');
 
@@ -15,129 +17,168 @@ const async = require('async');
 // UnivaPayCast Alipay 결제결과 등록
 router.get('/alipay/register', async (req, res) => {
   try {
-    // UnivaPayCast 사양에 의해 관리페이지의 킥백에 설정한 주소로 1바이트 문자를 표시하기 위한 조건
-    if (!req.query) {    
+    // UnivaPayCast 사양에 의해 관리페이지의 킥백에 설정한 주소로 
+    // 1바이트 문자를 표시하기 위한 조건
+    if (!req.query) {
       return res.status(200).json({success: true});
     } else {
-      // 결제결과 등록
-      const alipay = new Alipay(req.query)
-      await alipay.save();
-
       // 결제 성공했을 경우
       if (req.query.rst === "1") {
-        // 주문정보 업데이트
-        const orderInfo = await Order.findOneAndUpdate(
-          { uniqueField:req.query.uniqueField },
-          { paymentStatus: "入金済み" },
-          { new: true }
-        );
+        // 카트결제인 경우 sod의 포인트값을 추출
+        let point = 0;
+        let tmpStr = req.query.uniqueField;
+        let tmpArr = tmpStr.split('_');
+        if (tmpArr[0].trim() === "cart") {
+          if (req.query.sod) {
+            point = Number(req.query.sod);
+          }
+          // 카트에서 결제는 sod에 포인트를 대입했기에 결과값이 날라온 시간으로 변경
+          let date = new Date();
+          req.query.sod = date.toLocaleString('ja-JP'); 
+        }
+
+        // Alipay에 결제결과 등록
+        const alipay = new Alipay(req.query)
+        await alipay.save();
+
+        // 임시 주문정보 가져오기
+        const tmpOrderInfo = await TmpOrder.findOne({ uniqueField: req.query.uniqueField });
+
+        // 주문정보 설정
+        const body = {
+          type: tmpOrderInfo.type,
+          userId: tmpOrderInfo.userId,
+          name: tmpOrderInfo.name,
+          lastName: tmpOrderInfo.lastName,
+          tel: tmpOrderInfo.tel,
+          email: tmpOrderInfo.email,
+          address: tmpOrderInfo.address,
+          receiver: tmpOrderInfo.receiver,
+          receiverTel: tmpOrderInfo.receiverTel,
+          sod: tmpOrderInfo.sod,
+          uniqueField: tmpOrderInfo.uniqueField,
+          amount: tmpOrderInfo.amount,
+          staffName: tmpOrderInfo.staffName,
+          paymentStatus: '入金済み',
+          deliveryStatus: tmpOrderInfo.deliveryStatus
+        }
+
+        // 주문정보 저장
+        const order = new Order(body);
+        const orderInfo = await order.save();
+
+        // 임시 주문정보 삭제
+        await TmpOrder.findOneAndDelete({ uniqueField: req.query.uniqueField });
         
-        // 카트에서 AliPay결제인 경우만 사용자의 카트정보를 삭제한다.
+        // 카트 Alipay결제인 경우만 TmpPayment 정보 취득
         let str = req.query.uniqueField;
         let arr = str.split('_');
         if (arr[0].trim() === "cart") {
-          let history = [];
+          // Payment에 저장할 새로운 data정보 셋팅
           let paymentData = [];
-          let transactionData = {};
-
-          // 사용자 정보 가져오기
-          let userId = arr[1];
-          const userInfo = await User.findOne({ _id: userId });
-          let cartInfos = userInfo.cart;
-
-          // 상품아이디만 배열에 담는다
-          for (let i=0; i<cartInfos.length; i++) {
-            const productInfo = await Product.find({ _id: cartInfos[i].id }).populate("writer");
-
-            // 결제한 카트에 담겼던 상품정보를 history에 넣어줌
-            let date = new Date();
-            const dateInfo = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString();
-            history.push({
-              dateOfPurchase: dateInfo,
-              name: productInfo[0].title,
-              id: productInfo[0]._id,
-              price: productInfo[0].price,
-              quantity: cartInfos[i].quantity,
-              paymentId: req.query.pid // Alipay Payment ID(pid)
-            })
-          }
-
-          // data정보(Alipay정보를 Paypal 정보의 항목에 저장)
           paymentData.push({
-            paid: req.query.rst,
+            address: {
+              city: '未設定',
+              country_code: "未設定",
+              line1: orderInfo.address,
+              postal_code: '未設定',
+              recipient_name: orderInfo.receiver,
+              state: '未設定',
+            },
             cancelled: false,
+            email: '未設定',
+            paid: true,
             payerID: '未設定',
-            paymentID: req.query.pid,
+            paymentID: req.query.pid, // 실제 결제ID
             paymentToken: '未設定',
             returnUrl: '未設定',
-            address: {
-              recipient_name: orderInfo.receiver,
-              line1: orderInfo.address,
-              city: "",
-              state: "",
-              postal_code: "",
-              country_code: ""
-            },
-            email: userInfo.email
-          })
-            
-          // user정보
-          transactionData.user = {
-            id: userInfo._id,
-            name: userInfo.name,
-            email: userInfo.email,        
+          });
+
+          // 카트 AliPay결제인 경우만 uniqueKey에 PaymentId가 들어온다
+          const paymentId = arr[1];
+
+          // TmpPayment 가져오기
+          const tmpPaymentInfo = await TmpPayment.findOne({ _id: paymentId })
+
+          // 구매상품 모든곳에 Alipay 결제ID 설정
+          for(let i=0; i<tmpPaymentInfo.product.length; i++) {
+            tmpPaymentInfo.product[i].paymentId = req.query.pid;
           }
-          // data정보(Paypal정보를 저장)
+
+          // 임시 결제정보 삭제
+          await TmpPayment.findOneAndDelete({ _id: paymentId });
+
+          // 결제정보 설정
+          let transactionData = {};
+          transactionData.user = tmpPaymentInfo.user[0];
           transactionData.data = paymentData;
-          // product정보
-          transactionData.product = history;
+          transactionData.product = tmpPaymentInfo.product;
 
-          // User에 history정보 저장 및 Cart정보 삭제
-          const userUpdate = await User.findOneAndUpdate(
-            {_id: userId},
-            { $push: { history: history }, $set: {cart: []}},
-            { new: true }
-          )
-
-          // Payment에 transactionData정보 저장
-          const payment = new Payment(transactionData)
-          const paymentSave = await payment.save();
-
-          // Product의 sold 필드 정보 업데이트
-          // 상품당 몇개를 샀는지 파악 
-          let products = [];
-          paymentSave.product.forEach(item => {
-            products.push({ id: item.id, quantity: item.quantity })
-          })
-
-          // Product에 업데이트
-          async.eachSeries(products, (item, callback) => {
-            Product.updateOne(
-              { _id: item.id },
-              { $inc: { "sold": item.quantity }},
-              { new: false },
-              callback
-            )
-          }, (err) => {
-            if(err) console.log("err: ", err);
-          })
-        }
-      // 결제 실패했을 경우
+          // User의 history paymentId 정보추가 및 포인트 누적
+          User.findOneAndUpdate(
+            { _id: tmpPaymentInfo.user[0].id },
+            { $push: { history: tmpPaymentInfo.product }, $set: { myPoint: point }},
+            { new: true },
+            (err, user) => {
+              if(err) {
+                console.log("user update failed: ", err);
+              } else {
+                // Payment에 transactionData정보 저장
+                const payment = new Payment(transactionData)
+                payment.save((err, doc) => {
+                    if(err) {
+                      console.log("payment update failed: ", err);
+                    } else {
+                      // Product의 sold 필드 정보 업데이트
+                      // 상품당 몇개를 샀는지 파악 
+                      let products = [];
+                      doc.product.forEach(item => {
+                          products.push({ id: item.id, quantity: item.quantity })
+                      })
+                      // Product에 구매수량 업데이트
+                      async.eachSeries(products, (item, callback) => {
+                        Product.updateOne(
+                          {_id: item.id },
+                          {
+                              $inc: {
+                                  "sold": item.quantity
+                              }
+                          },
+                          { new: false },
+                          callback
+                        )
+                      }, (err) => {
+                        if(err) {
+                          console.log("payment update failed: ", err);
+                        } else {
+                          console.log("payment update success");
+                        }
+                      })
+                    }
+                });            
+              } 
+            }
+        )}
       } else {
-        // 주문정보 업데이트 (실패했을 경우는 카트정보는 삭제하지 않는다.)
-        const orderInfo = await Order.findOneAndUpdate(
-          { uniqueField:req.query.uniqueField },
-          { paymentStatus: "入金失敗" },
-          { new: true }
-        );
-      }
+        // 임시 주문정보 삭제
+        // await TmpOrder.findOneAndDelete({ uniqueField: req.query.uniqueField });
 
-      return res.status(200).json({success: true});
+        // 카트 AliPay결제인 경우 임시 계약정보 삭제
+        // let str = req.query.uniqueField;
+        // let arr = str.split('_');
+        // if (arr[0].trim() === "cart") {
+        //   // 임시 계약정보 삭제 (uniqueKey의 PaymentId를 사용)
+        //   const paymentId = arr[1];
+        //   const paymentInfo = await TmpPayment.findOneAndDelete({ _id: paymentId })
+        // }
+
+        console.log("Alipay payment failed.");
+      }
     }
   } catch (err) {
     console.log(err);
     return res.status(500).json({ success: false, message: err.message });
-  }
+  } 
 })
 
 // UnivaPayCast Wechat결제결과 등록
@@ -147,124 +188,162 @@ router.get('/wechat/register', async (req, res) => {
     if (!req.query) {
       return res.status(200).json({success: true});
     } else {
-      // 결제결과 등록
-      const weChat = new Wechat(req.query)
-      await weChat.save();
-
       // 결제 성공했을 경우
       if (req.query.rst === "1") {
-        // 주문정보 업데이트
-        const orderInfo = await Order.findOneAndUpdate(
-          { uniqueField:req.query.uniqueField },
-          { paymentStatus: "入金済み" },
-          { new: true }
-        );
+        // 카트결제인 경우 sod의 포인트값을 추출
+        let point = 0;
+        let tmpStr = req.query.uniqueField;
+        let tmpArr = tmpStr.split('_');
+        if (tmpArr[0].trim() === "cart") {
+          if (req.query.sod) {
+            point = Number(req.query.sod);
+          }
+          console.log("point: ", point);
+          
+          // 카트에서 결제는 sod에 포인트를 대입했기에 결과값이 날라온 시간으로 변경
+          let date = new Date();
+          req.query.sod = date.toLocaleString('ja-JP'); 
+        }
         
-        // 카트에서 WeChat결제인 경우만 사용자의 카트정보를 삭제한다.
+		    // Wechat에 결제결과 등록
+        const wechat = new Wechat(req.query)
+        await wechat.save();
+
+        // 임시 주문정보 가져오기
+        const tmpOrderInfo = await TmpOrder.findOne({ uniqueField: req.query.uniqueField });
+
+        // 주문정보 설정
+        const body = {
+          type: tmpOrderInfo.type,
+          userId: tmpOrderInfo.userId,
+          name: tmpOrderInfo.name,
+          lastName: tmpOrderInfo.lastName,
+          tel: tmpOrderInfo.tel,
+          email: tmpOrderInfo.email,
+          address: tmpOrderInfo.address,
+          receiver: tmpOrderInfo.receiver,
+          receiverTel: tmpOrderInfo.receiverTel,
+          sod: tmpOrderInfo.sod,
+          uniqueField: tmpOrderInfo.uniqueField,
+          amount: tmpOrderInfo.amount,
+          staffName: tmpOrderInfo.staffName,
+          paymentStatus: '入金済み',
+          deliveryStatus: tmpOrderInfo.deliveryStatus
+        }
+
+        // 주문정보 저장
+        const order = new Order(body);
+        const orderInfo = await order.save();
+
+        // 임시 주문정보 삭제
+        await TmpOrder.findOneAndDelete({ uniqueField: req.query.uniqueField });
+
+        // 카트 WeChat결제인 경우만 TmpPayment 정보 취득
         let str = req.query.uniqueField;
         let arr = str.split('_');
-        if (arr[0].trim() === "cart") {
-          let history = [];
+        if (arr[0].trim() === "cart") {          
+          // Payment에 저장할 새로운 data정보 셋팅
           let paymentData = [];
-          let transactionData = {};
-
-          // 사용자 정보 가져오기
-          let userId = arr[1];
-          const userInfo = await User.findOne({ _id: userId });
-          let cartInfos = userInfo.cart;
-
-          // 상품아이디만 배열에 담는다
-          for (let i=0; i<cartInfos.length; i++) {
-            const productInfo = await Product.find({ _id: cartInfos[i].id }).populate("writer");
-
-            // 결제한 카트에 담겼던 상품정보를 history에 넣어줌
-            let date = new Date();
-            const dateInfo = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString();
-            history.push({
-              dateOfPurchase: dateInfo,
-              name: productInfo[0].title,
-              id: productInfo[0]._id,
-              price: productInfo[0].price,
-              quantity: cartInfos[i].quantity,
-              paymentId: req.query.pid // WeChat Payment ID(pid)
-            })
-          }
-
-          // data정보(WeChat정보를 Paypal 정보의 항목에 저장)
           paymentData.push({
-            paid: req.query.rst,
+            address: {
+              city: '未設定',
+              country_code: "未設定",
+              line1: orderInfo.address,
+              postal_code: '未設定',
+              recipient_name: orderInfo.receiver,
+              state: '未設定',
+            },
             cancelled: false,
+            email: '未設定',
+            paid: true,
             payerID: '未設定',
-            paymentID: req.query.pid,
+            paymentID: req.query.pid, // 실제 결제ID
             paymentToken: '未設定',
             returnUrl: '未設定',
-            address: {
-              recipient_name: orderInfo.receiver,
-              line1: orderInfo.address,
-              city: "",
-              state: "",
-              postal_code: "",
-              country_code: ""
-            },
-            email: userInfo.email
-          })
-            
-          // user정보
-          transactionData.user = {
-            id: userInfo._id,
-            name: userInfo.name,
-            email: userInfo.email,        
+          });
+
+          // 카트 WeChat결제인 경우만 uniqueKey에 PaymentId가 들어온다
+          const paymentId = arr[1];
+
+          // TmpPayment 가져오기
+          const tmpPaymentInfo = await TmpPayment.findOne({ _id: paymentId })
+
+          // 구매상품 모든곳에 WeChat 결제ID 설정
+          for(let i=0; i<tmpPaymentInfo.product.length; i++) {
+            tmpPaymentInfo.product[i].paymentId = req.query.pid;
           }
-          // data정보(Paypal정보를 저장)
+
+          // 임시 결제정보 삭제
+          await TmpPayment.findOneAndDelete({ _id: paymentId });
+
+          // 결제정보 설정
+          let transactionData = {};
+          transactionData.user = tmpPaymentInfo.user[0];
           transactionData.data = paymentData;
-          // product정보
-          transactionData.product = history;
+          transactionData.product = tmpPaymentInfo.product;
 
-          // User에 history정보 저장 및 Cart정보 삭제
-          const userUpdate = await User.findOneAndUpdate(
-            {_id: userId},
-            { $push: { history: history }, $set: {cart: []}},
-            { new: true }
-          )
-
-          // Payment에 transactionData정보 저장
-          const payment = new Payment(transactionData)
-          const paymentSave = await payment.save();
-
-          // Product의 sold 필드 정보 업데이트
-          // 상품당 몇개를 샀는지 파악 
-          let products = [];
-          paymentSave.product.forEach(item => {
-            products.push({ id: item.id, quantity: item.quantity })
-          })
-
-          // Product에 업데이트
-          async.eachSeries(products, (item, callback) => {
-            Product.updateOne(
-              { _id: item.id },
-              { $inc: { "sold": item.quantity }},
-              { new: false },
-              callback
-            )
-          }, (err) => {
-            if(err) console.log("err: ", err);
-          })
-        }
-      // 결제 실패했을 경우
+          // User의 history paymentId 정보추가 및 포인트 누적
+          User.findOneAndUpdate(
+          { _id: tmpPaymentInfo.user[0].id },
+          { $push: { history: tmpPaymentInfo.product }, $set: { myPoint: point }},
+          { new: true },
+          (err, user) => {
+            if(err) {
+              console.log("user update failed: ", err);
+            } else {
+              // Payment에 transactionData 정보 저장
+              const payment = new Payment(transactionData)
+              payment.save((err, doc) => {
+                  if(err) {
+                    console.log("payment update failed: ", err);
+                  } else {
+                    // Product의 sold 필드 정보 업데이트
+                    // 상품당 몇개를 샀는지 파악 
+                    let products = [];
+                    doc.product.forEach(item => {
+                        products.push({ id: item.id, quantity: item.quantity })
+                    })
+                    // Product에 구매수량 업데이트
+                    async.eachSeries(products, (item, callback) => {
+                      Product.updateOne(
+                        {_id: item.id },
+                        {
+                            $inc: {
+                                "sold": item.quantity
+                            }
+                        },
+                        { new: false },
+                        callback
+                      )
+                    }, (err) => {
+                      if(err) {
+                        console.log("payment update failed: ", err);
+                      } else {
+                        console.log("payment update success");
+                      }
+                    })
+                  }
+              });            
+            } 
+          }
+        )}
       } else {
-        // 주문정보 업데이트 (실패했을 경우는 카트정보는 삭제하지 않는다.)
-        const orderInfo = await Order.findOneAndUpdate(
-          { uniqueField:req.query.uniqueField },
-          { paymentStatus: "入金失敗" },
-          { new: true }
-        );
-      }
+        // 임시 주문정보 삭제
+        // await TmpOrder.findOneAndDelete({ uniqueField: req.query.uniqueField });
 
-      return res.status(200).json({success: true});
+        // 카트 WeChat결제인 경우 임시 계약정보 삭제
+        // let str = req.query.uniqueField;
+        // let arr = str.split('_');
+        // if (arr[0].trim() === "cart") {
+        //   const paymentId = arr[1];
+        //   const paymentInfo = await TmpPayment.findOneAndDelete({ _id: paymentId })
+        // }
+
+        console.log("WeChat payment failed.");
+      }
     }
   } catch (err) {
-    console.log(err);
-    return res.status(500).json({ success: false, message: err.message });
+    console.log("WeChat payment failed: ", err);
   }
 })
 

@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import moment from "moment";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { registerUser } from "../../../_actions/user_actions";
+import { preregisterConfirmUser } from "../../../_actions/user_actions";
 import { useDispatch } from "react-redux";
 import { useHistory } from 'react-router-dom';
 import { Select, Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { MAIL_SERVER } from '../../Config';
+import { MAIL_SERVER, USER_SERVER } from '../../Config';
 import axios from 'axios';
+import swal from 'sweetalert'
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -36,14 +37,23 @@ const tailFormItemLayout = {
   },
 };
 
-function UserRegisterPage(props) {
-  const [SelectItem, setSelectItem] = useState("jp");
+function UserPreregisterConfirmPage(props) {
+  const [Id, setId] = useState("");
+  const [Name, setName] = useState("");
+  const [LastName, setLastName] = useState("");
+  const [Language, setLanguage] = useState("");
+  const [Email, setEmail] = useState("");
+
   const dispatch = useDispatch();
   const history = useHistory();
 
   useEffect(() => {
 		// 다국어 설정
 		setMultiLanguage(localStorage.getItem("i18nextLng"));
+    // query string 취득
+    const userId = props.match.params.userId;
+    // 사용자 정보 취득
+    getUser(userId);
   }, [])
 
   // 다국어 설정
@@ -54,28 +64,63 @@ function UserRegisterPage(props) {
   // Landing pageへ戻る
   const listHandler = () => {
     history.push("/");
-  }  
-  // 언어 설정
-  const selectHandler = (value) => {
-    setSelectItem(value);
+  }
+  // 핸들러
+  const languageHandler = (value) => {
+    setLanguage(value);
   }
 
-  // 메일 송신 & 메일 이력등록
+  // 사용자 정보 취득
+  const getUser = async (userId) => {
+    try {
+      const result = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}&type=single`);
+      
+      if (result.data.success) {
+        setId(userId);
+        setName(result.data.user[0].name);
+        setEmail(result.data.user[0].email);
+        setLastName(result.data.user[0].lastName);
+        setLanguage(result.data.user[0].language);
+      } else {
+        swal({
+          title: "Failed to retrieve user information",
+          text: "Please contact the administrator.",
+          icon: "error",
+          button: "OK",
+        }).then((value) => {
+          history.push("/");
+        });
+      }      
+    } catch (err) {
+      swal({
+        title: "Failed to retrieve user information",
+        text: "Please contact the administrator.",
+        icon: "error",
+        button: "OK",
+      }).then((value) => {
+        history.push("/");
+      });
+      console.log("UserPreregisterConfirmPage err: ",err);
+    }
+  }
+
+  // 메일송신 & 메일 이력등록
   const sendEmail = async (dataToSubmit) => {
     const body = {
       name: dataToSubmit.name,
       email: dataToSubmit.email
     }
-
     try {
       const result = await axios.post(`${MAIL_SERVER}/register`, body);
-      if (result.data.success) {
-        history.push("/user/list");
-      } else {
-        console.log("UserRegisterPage: Failed to send mail");
-      }
+
+      if (!result.data.success) {
+        console.log("UserPreregisterConfirmPage: Failed to send mail");
+        return false;
+      } 
+      return true;
     } catch(err) {
-      console.log("UserRegisterPage err: ", err);
+      console.log("UserPreregisterConfirmPage err: ", err);
+      return false;
     }
   }
 
@@ -84,7 +129,6 @@ function UserRegisterPage(props) {
       initialValues={{
         name: '',
         lastName: '',
-        email: '',
         tel: '',
         password: '',
         confirmPassword: '',
@@ -97,16 +141,9 @@ function UserRegisterPage(props) {
         address3: '',
         receiver3: '',
         tel3: '',
-        language: SelectItem
+        language: ''
       }}
       validationSchema={Yup.object().shape({
-        name: Yup.string()
-          .required('Name is required'),
-        lastName: Yup.string()
-          .required('Last Name is required'),
-        email: Yup.string()
-          .email('Email is invalid')
-          .required('Email is required'),
         tel: Yup.string()
           .required('Telephone number is required'),
         address1: Yup.string()          
@@ -125,9 +162,10 @@ function UserRegisterPage(props) {
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
           let dataToSubmit = {
-            name: values.name,
-            lastName: values.lastName,
-            email: values.email,
+            userId: Id,
+            name: Name,
+            lastName: LastName,
+            email: Email,
             tel: values.tel,
             password: values.password,
             address1: values.address1,
@@ -139,20 +177,58 @@ function UserRegisterPage(props) {
             address3: values.address3,
             receiver3: values.receiver3,
             tel3: values.tel3,
+            role: '0',
             image: `http://gravatar.com/avatar/${moment().unix()}?d=identicon`,
-            language: SelectItem,
+            language: Language,
             deletedAt: ''
           };
 
-          dispatch(registerUser(dataToSubmit)).then(response => {
+          dispatch(preregisterConfirmUser(dataToSubmit))
+          .then(response => {
             if (response.payload.success) {
               // 회원가입 성공시 메일 전송
-              sendEmail(dataToSubmit)
-              // 로그인 페이지에
-              props.history.push("/login");
+              const mailResult = sendEmail(dataToSubmit);
+              mailResult.then((res) => {
+                if (res) {
+                  swal({
+                    title: "Success",
+                    text: "Membership registration has been completed.",
+                    icon: "success",
+                    button: "OK",
+                  }).then((value) => {
+                    props.history.push("/login");
+                  });
+                } else {
+                  swal({
+                    title: "Membership registration failed.",
+                    text: "Please inquire at the Contact Us.",
+                    icon: "error",
+                    button: "OK",
+                  }).then((value) => {
+                    history.push("/");
+                  });
+                }
+              });
             } else {
-              alert(response.payload.err.errmsg)
+              swal({
+                title: "Membership registration failed.",
+                text: "Please inquire at the Contact Us.",
+                icon: "error",
+                button: "OK",
+              }).then((value) => {
+                history.push("/");
+              });
             }
+          })
+          .catch( function(err) {
+            swal({
+              title: "Timed out",
+              text: "Request user registration again.\nPlease try again later.",
+              icon: "error",
+              button: "OK",
+            }).then((value) => {
+              history.push("/");
+            })
           })
 
           setSubmitting(false);
@@ -165,35 +241,23 @@ function UserRegisterPage(props) {
           <div className="app">
             <h1>{t('SignUp.title')}</h1><br />
             <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
-              {/* 이름 */}
-              <Form.Item required label={t('SignUp.name')} style={{ marginBottom: 0, }} >
-                {/* 이름 */}
-                <Form.Item name="name" required style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
-                  <Input id="name" placeholder="Enter your name" type="text" value={values.name} onChange={handleChange} onBlur={handleBlur} 
-                    className={ errors.name && touched.name ? 'text-input error' : 'text-input' } />
-                  {errors.name && touched.address1 && (
-                    <div className="input-feedback">{errors.name}</div>
-                  )}
-                </Form.Item>
+              {/* 이름 */}  
+              <Form.Item label={t('SignUp.name')} style={{ marginBottom: 0, }} >
                 {/* 성 */}
-                <Form.Item name="lastName" required style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
-                  <Input id="lastName" placeholder="Enter your last Name" type="text" value={values.lastName} onChange={handleChange} onBlur={handleBlur}
-                    className={ errors.lastName && touched.lastName ? 'text-input error' : 'text-input' } />
-                  {errors.lastName && touched.lastName && (
-                    <div className="input-feedback">{errors.lastName}</div>
-                  )}
+                <Form.Item name="name" style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
+                  <Input id="name" placeholder="Enter your name" type="text" value={Name} readOnly />
+                </Form.Item>
+                {/* 이름 */}
+                <Form.Item name="lastName" style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
+                  <Input id="lastName" placeholder="Enter your last Name" type="text" value={LastName} readOnly />
                 </Form.Item>
               </Form.Item>
               {/* 메일주소 */}
-              <Form.Item required label={t('SignUp.email')} hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
-                <Input id="email" placeholder="Enter your Email" type="email" value={values.email} onChange={handleChange} onBlur={handleBlur}
-                  className={ errors.email && touched.email ? 'text-input error' : 'text-input' } />
-                {errors.email && touched.email && (
-                  <div className="input-feedback">{errors.email}</div>
-                )}
+              <Form.Item label={t('SignUp.email')}  >
+                <Input id="email" placeholder="Enter your Email" type="email" value={Email} readOnly/>
               </Form.Item>
               {/* 전화번호 */}
-              <Form.Item required label={t('SignUp.tel')}>
+              <Form.Item required label={t('SignUp.tel')} >
                 <Input id="tel" placeholder="Enter your tel number" type="text" value={values.tel} onChange={handleChange} onBlur={handleBlur}
                   className={ errors.tel && touched.tel ? 'text-input error' : 'text-input' } />
                 {errors.tel && touched.tel && (
@@ -202,7 +266,7 @@ function UserRegisterPage(props) {
               </Form.Item>
 
               {/* 배송지 주소1 */}
-              <Form.Item required label={t('SignUp.address1')}>
+              <Form.Item required label={t('SignUp.address1')} >
                 <Input id="address1" placeholder="Enter your shipping address" type="text" value={values.address1} onChange={handleChange} onBlur={handleBlur}
                   className={ errors.address1 && touched.address1 ? 'text-input error' : 'text-input' } />
                 {errors.address1 && touched.address1 && (
@@ -229,7 +293,7 @@ function UserRegisterPage(props) {
                 </Form.Item>
               </Form.Item>
               {/* 배송지 주소2 */}
-              <Form.Item label={t('SignUp.address2')}>
+              <Form.Item label={t('SignUp.address2')} >
                 <Input id="address2" placeholder="Enter your address2" type="text" value={values.address2} onChange={handleChange} onBlur={handleBlur} />
               </Form.Item>
               {/* 배송지 주소2 상세*/}
@@ -243,9 +307,8 @@ function UserRegisterPage(props) {
                   <Input id="tel2" placeholder="Phone number" type="text" value={values.tel2} onChange={handleChange} onBlur={handleBlur} />
                 </Form.Item>
               </Form.Item>
-
-              {/* 주소3 */}
-              <Form.Item label={t('SignUp.address3')}>
+              {/* 배송지 주소3 */}
+              <Form.Item label={t('SignUp.address3')} >
                 <Input id="address3" placeholder="Enter your address3" type="text" value={values.address3} onChange={handleChange} onBlur={handleBlur} />
               </Form.Item>
               {/* 배송지 주소3 상세 */}
@@ -260,15 +323,15 @@ function UserRegisterPage(props) {
                 </Form.Item>
               </Form.Item>
               {/* 언어 */}
-              <Form.Item required label={t('SignUp.language')}>
-                <Select defaultValue="jp" style={{ width: 120 }} onChange={selectHandler}>
+              <Form.Item required label={t('SignUp.language')} >
+                <Select value={Language} style={{ width: 120 }} onChange={languageHandler}>
                   <Option value="jp">日本語</Option>
                   <Option value="en">English</Option>
                   <Option value="cn">中文（簡体）</Option>
                 </Select>&nbsp;&nbsp;
               </Form.Item>
               {/* 비밀번호 */}
-              <Form.Item required label={t('SignUp.password')} hasFeedback validateStatus={errors.password && touched.password ? "error" : 'success'}>
+              <Form.Item required label={t('SignUp.password')} hasFeedback validateStatus={errors.password && touched.password ? "error" : 'success'} >
                 <Input id="password" placeholder="Enter your password" type="password" value={values.password} onChange={handleChange} onBlur={handleBlur}
                   className={ errors.password && touched.password ? 'text-input error' : 'text-input' } />
                 {errors.password && touched.password && (
@@ -301,4 +364,4 @@ function UserRegisterPage(props) {
   );
 };
 
-export default UserRegisterPage
+export default UserPreregisterConfirmPage

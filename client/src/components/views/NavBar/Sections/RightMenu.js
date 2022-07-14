@@ -47,7 +47,7 @@ function RightMenu(props) {
           <a href="/login">Sign In</a>
         </Menu.Item>
         <Menu.Item key="up">
-          <a href="/register">Sign Up</a>
+          <a href="/preregister">Sign Up</a>
         </Menu.Item>
         <Menu.Item key="contact">
           <a href="/mail/inquiry">Contact Us</a>
@@ -204,7 +204,7 @@ function RightMenu(props) {
             <a href="/login">Sign In</a>
           </Menu.Item>
           <Menu.Item key="app">
-            <a href="/register">Sign Up</a>
+            <a href="/preregister">Sign Up</a>
           </Menu.Item>
           <Menu.Item key="inquiry">
             <a href="/mail/inquiry">Contact Us</a>

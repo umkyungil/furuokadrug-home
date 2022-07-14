@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from "react-redux";
 import axios from 'axios';
-import { List, Avatar, Alert, Table } from 'antd';
+import { Table } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { CUSTOMER_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
-import { useHistory } from 'react-router-dom';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function CustomerListPage() {
-	const history = useHistory();
-	const user = useSelector(state => state.user)
 	const [Customers, setCustomers] = useState([]);
 
 	useEffect(() => {

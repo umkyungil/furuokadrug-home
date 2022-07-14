@@ -52,7 +52,7 @@ function ListOrderPage(props) {
 		// Order정보 취득
 		getOrderInfo(body);
 
-	}, [])
+	}, [DeliveryStatusChange])
 
 	// 다국어 설정
 	const {t, i18n} = useTranslation();

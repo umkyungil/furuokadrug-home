@@ -1,6 +1,20 @@
 import axios from 'axios';
-import { LOGIN_USER, REGISTER_USER, UPDATE_USER, DELETE_USER, AUTH_USER, LOGOUT_USER, ADD_TO_CART, 
-    GET_CART_ITEMS, REMOVE_CART_ITEM, ON_SUCCESS_BUY } from './types';
+import { 
+    LOGIN_USER, 
+    REGISTER_USER, 
+    PREREGISTER_USER, 
+    PREREGISTER_CONFIRM_USER, 
+    UPDATE_USER, 
+    DELETE_USER, 
+    AUTH_USER, 
+    LOGOUT_USER, 
+    ADD_TO_CART, 
+    GET_CART_ITEMS, 
+    REMOVE_CART_ITEM, 
+    ON_SUCCESS_BUY,
+    ON_SUCCESS_BUY_TMP,
+    PASSWORD_CONFIRM
+ } from './types';
 import { USER_SERVER, PRODUCT_SERVER } from '../components/Config.js';
 
 // CORS 대책
@@ -13,6 +27,39 @@ export function registerUser(dataToSubmit){
     // 리턴을 하면 리듀서로 넘어간다
     return {
         type: REGISTER_USER,
+        payload: request
+    }
+}
+
+// 임시사용자 등록 
+export function preregisterUser(dataToSubmit){
+    const request = axios.post(`${USER_SERVER}/preregister`,dataToSubmit)
+        .then(response => response.data);
+    
+    return {
+        type: PREREGISTER_USER,
+        payload: request
+    }
+}
+
+// 임시사용자 확인등록
+export function preregisterConfirmUser(dataToSubmit){
+    const request = axios.post(`${USER_SERVER}/preregisterConfirm`,dataToSubmit)
+        .then(response => response.data);
+    
+    return {
+        type: PREREGISTER_CONFIRM_USER,
+        payload: request
+    }
+}
+
+// 비밀번호 변경
+export function passwordConfirm(dataToSubmit){
+    const request = axios.post(`${USER_SERVER}/passwordConfirm`,dataToSubmit)
+        .then(response => response.data);
+    
+    return {
+        type: PASSWORD_CONFIRM,
         payload: request
     }
 }
@@ -53,7 +100,9 @@ export function loginUser(dataToSubmit){
 
 export function auth(){
     const request = axios.get(`${USER_SERVER}/auth`)
-        .then(response => response.data);
+        .then(response => {
+            return response.data
+        });
     return {
         type: AUTH_USER,
         payload: request
@@ -130,6 +179,16 @@ export function onSuccessBuy(data) {
         .then(response => response.data);
     return {
         type: ON_SUCCESS_BUY,
+        payload: request
+    }
+}
+
+// Paypal결재정보 저장(객체를 파라메터로 받는다)
+export function onSuccessBuyTmp(data) {
+    const request = axios.post(`${USER_SERVER}/successBuyTmp`, data)
+        .then(response => response.data);
+    return {
+        type: ON_SUCCESS_BUY_TMP,
         payload: request
     }
 }

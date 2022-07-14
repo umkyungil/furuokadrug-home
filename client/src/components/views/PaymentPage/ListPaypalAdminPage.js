@@ -72,20 +72,22 @@ function ListPaypalPage(props) {
       if (result.data.success) {        
         let data = [];
 
-        for (let i=0; i<result.data.paypalInfo.length; i++) {
+        const paypalInfo = result.data.paypalInfo;
+
+        for (let i=0; i<paypalInfo.length; i++) {
           count++
-          for (let j=0; j<result.data.paypalInfo[i].product.length; j++) {
+          for (let j=0; j<paypalInfo[i].product.length; j++) {
             count++
-            let products = result.data.paypalInfo[i].product[j];
-            products.userId = result.data.paypalInfo[i].user[0].id;
-            products.userName = result.data.paypalInfo[i].user[0].name;
+            let products = paypalInfo[i].product[j];
+            products.userId = paypalInfo[i].user[0].id;
+            products.userName = paypalInfo[i].user[0].name;
             // 가격 변형
-            const tmpQuantity = result.data.paypalInfo[i].product[j].quantity;
-            let tmpPrice = result.data.paypalInfo[i].product[j].price;
+            const tmpQuantity = paypalInfo[i].product[j].quantity;
+            let tmpPrice = paypalInfo[i].product[j].price;
             let total = Number(tmpPrice) * Number(tmpQuantity);
             products.price = total.toLocaleString();
             // 날짜 변형(dateOfPurchase는 데이타베이스에 JST 시간으로 등록되서 시간을 계산할 필요가 없다)
-            let tmpDate = new Date(result.data.paypalInfo[i].product[j].dateOfPurchase);
+            let tmpDate = new Date(paypalInfo[i].product[j].dateOfPurchase);
             const date = tmpDate.toISOString();
             products.dateOfPurchase = date.replace('T', ' ').substring(0, 19) + ' (JST)'
             // key 추가

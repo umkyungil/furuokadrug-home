@@ -5,6 +5,8 @@ import axios from 'axios';
 import { USER_SERVER } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
 import SearchFeature from './Sections/PaypalSearchFeature';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 function ListPaypalPage() {
   const [PaypalInfo, setPaypalInfo] = useState([]);

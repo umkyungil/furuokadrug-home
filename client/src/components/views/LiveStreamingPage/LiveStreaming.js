@@ -5,6 +5,8 @@ import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 function LiveStreaming(props) {
   const history = useHistory();

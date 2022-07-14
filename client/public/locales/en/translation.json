@@ -1,8 +1,14 @@
 {
   "Login": {
     "title": "Log in",
-    "register": "register now!",
+    "register": "Register now!",
     "or": "Or"
+  },
+  "Password": {
+    "title": "Change Password",
+    "downTitle": "Change password!",
+    "subTitle": "Change Password Confirm",
+    "password": "Password"
   },
   "SignUp": {
     "title": "Sign Up",
@@ -97,11 +103,16 @@
   "Cart": {
     "title": "My Cart",
     "image": "Product Image",
-    "quantity": "Product Quantity",
-    "price": "Product Price",
-    "remove": "Remove from cart",
-    "amount": "Total Amount (JPY)",
-    "unit": "Ea"
+    "quantity": "Quantity",
+    "price": "Price",
+    "remove": "Remove cart",
+    "unit": "Ea",
+    "totalPaymentAmount": "Total payment amount (JPY)",
+    "availablePoints": "Available points",
+    "availableCoupons": "Available Coupons",
+    "TotalPointsSelectedProducts": "Total points of selected products",
+    "TotalAmountSelectedProducts": "Total amount of selected products (JPY)",
+    "discountAmount": "Discount amount (JPY)"
   },
   "Paypal": {
     "title": "Cart Payment History",
@@ -136,7 +147,8 @@
     "action": "Action",
     "point": "point",
     "lastName": "Last name",
-    "role": "Role"
+    "role": "Role",
+    "deletedAt": "Date of invalidation"
   },
   "Mail": {
     "listTitle": "Mail History List",

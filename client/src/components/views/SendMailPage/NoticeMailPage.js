@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+import swal from 'sweetalert'
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -49,9 +50,7 @@ const NoticeMailPage = (props) => {
   const [FromEmail, setFromEmail] = useState("info@furuokadrug.com");
   const [ToEmail, setToEmail] = useState(to_email);
   const [Message, setMessage] = useState("");
-  const [ErrorAlert, setErrorAlert] = useState(false);
-  const [SuccessAlert, setSuccessAlert] = useState(false);
-
+  
   useEffect(() => {
     // 다국어 설정
     setMultiLanguage(localStorage.getItem("i18nextLng"));
@@ -79,14 +78,35 @@ const NoticeMailPage = (props) => {
       const result = await axios.post(`${MAIL_SERVER}/notice`, body);
       console.log("result.data: ", result.data);
       if (result.data.success) {
-        setSuccessAlert(true);
+        swal({
+          title: "Success",
+          text: "The mail has been sent",
+          icon: "success",
+          button: "OK",
+        }).then((value) => {
+          history.push("/");
+        });
       } else {
         console.log("NoticeMailPage err");
-        setErrorAlert(true);
+        swal({
+          title: "Failed",
+          text: "Please try again after a while",
+          icon: "error",
+          button: "OK",
+        }).then((value) => {
+          history.push("/");
+        });
       }
     } catch(err) {
       console.log("NoticeMailPage err: ", err);
-      setErrorAlert(true);
+      swal({
+        title: "Failed",
+        text: "Please try again after a while",
+        icon: "error",
+        button: "OK",
+      }).then((value) => {
+        history.push("/");
+      });
     }
   }
 
@@ -102,16 +122,6 @@ const NoticeMailPage = (props) => {
   const messageHandler = (event) => {
     setMessage(event.currentTarget.value)
   }
-  // 경고메세지
-	const errorHandleClose = () => {
-    setErrorAlert(false);
-    history.push("/");
-  };
-  // 성공메세지
-	const successHandleClose = () => {
-    setSuccessAlert(false);
-    history.push("/");
-  };
   // Landing pageへ戻る
   const listHandler = () => {
     history.push('/')
@@ -119,19 +129,6 @@ const NoticeMailPage = (props) => {
 
   return (
     <div className="app">
-      {/* Alert */}
-      <div>
-        {ErrorAlert ? (
-          <Alert message="Failed to send notification mail" type="error" showIcon closable afterClose={errorHandleClose}/>
-        ) : null}
-      </div>
-      <div style={{ minWidth: '650px' }}>
-        {SuccessAlert ? (
-          <Alert message='Notification email has been sent normally' type="success" showIcon closable afterClose={successHandleClose}/>
-        ) : null}
-      </div>
-      <br />
-
       <h1>{t('Mail.noticeTitle')}</h1><br />
       <Form style={{ minWidth: '375px' }} onSubmit={sendEmail} {...formItemLayout} >
         <Form.Item label={t('Mail.subject')} required>

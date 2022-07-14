@@ -9,10 +9,14 @@ import Footer from "./views/Footer/Footer.js";
 // 로그인 관리
 import LoginPage from "./views/LoginPage/LoginPage.js"; // 로그인
 // 사용자관리
-import UserRegisterPage from "./views/UserPage/UserRegisterPage.js";
-import UserListPage from "./views/UserPage/UserListPage.js"; // 고객리스트
-import UserUpdatePage from "./views/UserPage/UserUpdatePage.js"; // 고객수정
-import UserDetailPage from "./views/UserPage/UserDetailPage.js"; // 고객상세
+import UserRegisterPage from "./views/UserPage/UserRegisterPage.js"; // 사용자 등록
+import UserListPage from "./views/UserPage/UserListPage.js"; // 사용자 리스트
+import UserUpdatePage from "./views/UserPage/UserUpdatePage.js"; // 사용자 수정
+import UserDetailPage from "./views/UserPage/UserDetailPage.js"; // 사용자 상세
+import UserPreregisterPage from "./views/UserPage/UserPreregisterPage.js"; // 임시사용자 등록
+import UserPreregisterConfirmPage from "./views/UserPage/UserPreregisterConfirmPage.js"; // 임시사용자 수정
+import UserPasswordChangePage from "./views/UserPage/UserPasswordChangePage.js"; // 사용자 비밀번호 변경 안내메일
+import UserPasswordConfirmPage from "./views/UserPage/UserPasswordConfirmPage.js"; // 사용자 비밀번호 변경
 // 초기페이지
 import LandingPage from "./views/LandingPage/LandingPage.js";
 // 상품관리
@@ -64,11 +68,15 @@ function App() {
           {/* 로그인관리 */}
           <Route exact path="/login" component={Auth(LoginPage, false)} />
           {/* 사용자관리, 카트관리 */}
-          <Route exact path="/register" component={Auth(UserRegisterPage, null)} />          
+          <Route exact path="/register" component={Auth(UserRegisterPage, null)} />
           <Route exact path="/user/list" component={Auth(UserListPage, true)} />
           <Route exact path="/user/cart" component={Auth(CartPage, true)} />
           <Route exact path="/user/:userId" component={Auth(UserDetailPage, true)} />
           <Route exact path="/user/update/:userId" component={Auth(UserUpdatePage, true)} />
+          <Route exact path="/preregister" component={Auth(UserPreregisterPage, null)} />
+          <Route exact path="/user/preregisterConfirm/:userId" component={UserPreregisterConfirmPage} />
+          <Route exact path="/passwordChange" component={Auth(UserPasswordChangePage)} />
+          <Route exact path="/user/confirm/:userId" component={UserPasswordConfirmPage} />
           {/* 상품관리 */}
           <Route exact path="/product/upload" component={Auth(UploadProductPage, true)} />
           <Route exact path="/product/:productId" component={Auth(DetailProductPage, null)} />

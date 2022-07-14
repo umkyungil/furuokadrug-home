@@ -3,11 +3,9 @@ import { withRouter } from "react-router-dom";
 import { loginUser } from "../../../_actions/user_actions";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { Form, Icon, Input, Button, Checkbox, Typography } from 'antd';
+import { Form, Icon, Input, Button } from 'antd';
 import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
-
-const { Title } = Typography;
 
 function LoginPage(props) {
   const dispatch = useDispatch();
@@ -59,7 +57,6 @@ function LoginPage(props) {
             .then(response => {
               if (response.payload.loginSuccess) {
                 // localStorage에 등록
-                console.log("response.payload: ", response.payload)
                 window.localStorage.setItem('userId', response.payload.userInfo._id);
                 // 사용자 정보의 언어 속송값을 다국어에서 사용하기 위해 로컬스토리지에 셋팅
                 if (response.payload.userInfo.language) {
@@ -153,7 +150,9 @@ function LoginPage(props) {
                     {t('Login.title')}
                 </Button>
                 </div>
-                {t('Login.or')} <a href="/register">{t('Login.register')}</a>
+                {t('Login.or')} <a href="/preregister">{t('Login.register')}</a>
+                &nbsp;&nbsp;&nbsp;
+                <a href="/passwordChange">{t('Password.downTitle')}</a>
               </Form.Item>
             </form>
           </div>

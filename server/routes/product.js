@@ -123,7 +123,7 @@ router.get('/products_by_id', (req, res) => {
         return item;
       })
     }
-    // 하나이상의 productId로 상품의 정보들을 가져온다
+    // 하나 이상의 productId로 상품의 정보들을 가져온다
     Product.find({ _id: { $in: productIds } })
     .populate('writer')
     .exec((err, product) => {

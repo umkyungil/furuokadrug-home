@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
-import { Form, Input, Button, Alert } from 'antd';
+import { Form, Input, Button } from 'antd';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+import swal from 'sweetalert'
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -34,9 +35,7 @@ const tailFormItemLayout = {
 
 function VirtualReservationPage(props) {
   const history = useHistory();
-
-  // 다국적언어 설정
-	const {t, i18n} = useTranslation();
+  const {t, i18n} = useTranslation();
 
   // query string 취득  
   let to_email;
@@ -52,7 +51,6 @@ function VirtualReservationPage(props) {
   const [ReservationDate, setReservationDate] = useState("");
   const [InterestedItem, setInterestedItem] = useState("");
   const [Email, setEmail] = useState("");
-  const [ErrorAlert, setErrorAlert] = useState(false);
   
   const body = {
     name: Name,
@@ -70,13 +68,34 @@ function VirtualReservationPage(props) {
     try {
       const result = await axios.post(`${MAIL_SERVER}/reserve`, body);
       if (result.data.success) {
-        history.push("/");
+        swal({
+          title: "Success",
+          text: "Your virtual reservation has been received.",
+          icon: "success",
+          button: "OK",
+        }).then((value) => {
+          history.push("/");
+        });
       } else {
-        setErrorAlert(true);
+        swal({
+          title: "Failed",
+          text: "Please try again after a while",
+          icon: "error",
+          button: "OK",
+        }).then((value) => {
+          history.push("/");
+        });
       }
     } catch(err) {
       console.log("VirtualReservationPage err: ", err);
-      setErrorAlert(true);
+      swal({
+        title: "Failed",
+        text: "Please try again after a while",
+        icon: "error",
+        button: "OK",
+      }).then((value) => {
+        history.push("/");
+      });
     }
   }
   
@@ -98,22 +117,9 @@ function VirtualReservationPage(props) {
   const emailHandler = (event) => {
     setEmail(event.currentTarget.value)
   }
-  // 에러메세지
-	const errorHandleClose = () => {
-    setErrorAlert(false);
-    history.push("/");
-  };
 
   return (
     <div className="app">
-      {/* Alert */}
-      <div>
-        {ErrorAlert ? (
-          <Alert message="The virtual reservation has not been received. Please try again later." type="error" showIcon closable afterClose={errorHandleClose}/>
-        ) : null}
-      </div>
-      <br />
-
       <h1>{t('Reservation.title')}</h1><br />
       <Form style={{ minWidth: '375px' }} onSubmit={sendEmail} {...formItemLayout} >
         <Form.Item label={t('Reservation.name')} required>

@@ -4,6 +4,12 @@
     "register": "今すぐ登録!",
     "or": "または"
   },
+  "Password": {
+    "title": "パスワード変更",
+    "downTitle": "パスワード変更!",
+    "subTitle": "パスワード変更確認",
+    "password": "パスワード"
+  },
   "SignUp": {
     "title": "サインアップ",
     "name": "名前",
@@ -96,12 +102,17 @@
   },
   "Cart": {
     "title": "My Cart",
-    "image": "イメージ",
-    "quantity": "数量",
-    "price": "価格",
-    "remove": "削除",
-    "amount": "合計 (JPY)",
-    "unit": "個"
+    "image": "商品イメージ",
+    "quantity": "商品数量",
+    "price": "商品価格",
+    "remove": "商品削除",
+    "unit": "個",
+    "totalPaymentAmount": "合計金額 (JPY)",
+    "availablePoints": "利用可能なポイント",
+    "availableCoupons": "利用可能なクーポン",
+    "TotalPointsSelectedProducts": "選択した商品のポイント合計",
+    "TotalAmountSelectedProducts": "選択した商品の合計額 (JPY)",
+    "discountAmount": "割引額 (JPY)"
   },
   "Paypal": {
     "title": "Cart決済履歴",
@@ -136,7 +147,8 @@
     "action": "アクション",
     "point": "ポイント",
     "lastName": "苗字",
-    "role": "権限"
+    "role": "権限",
+    "deletedAt": "無効になった日付"
   },
   "Mail": {
     "listTitle": "メール履歴一覧",

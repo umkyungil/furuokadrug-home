@@ -4,6 +4,12 @@
     "register": "注册!",
     "or": "或"
   },
+  "Password": {
+    "title": "更改密码",
+    "downTitle": "更改密码!",
+    "subTitle": "密码更改确认",
+    "password": "密码"
+  },
   "SignUp": {
     "title": "注册",
     "name": "姓名",
@@ -94,12 +100,17 @@
   },
   "Cart": {
     "title": "我的车",
-    "image": "图片",
-    "quantity": "数量",
-    "price": "价格",
-    "remove": "删除",
-    "amount": "总金额 (JPY)",
-    "unit": "Ea"
+    "image": "产品图片",
+    "quantity": "产品数量",
+    "price": "产品价格",
+    "remove": "产品删除",
+    "unit": "Ea",
+    "totalPaymentAmount": "总金额 (JPY)",
+    "availablePoints": "可用积分",
+    "availableCoupons": "可用优惠券",
+    "TotalPointsSelectedProducts": "所选产品的总分",
+    "TotalAmountSelectedProducts": "所选产品价格 (JPY)",
+    "discountAmount": "折扣金额 (JPY)"
   },
   "Paypal": {
     "title": "Cart支付历史",
@@ -134,7 +145,8 @@
     "action": "行动",
     "point": "观点",
     "lastName": "姓",
-    "role": "权威"
+    "role": "权威",
+    "deletedAt": "失效日期"
   },
   "Mail": {
     "listTitle": "邮件历史列表",

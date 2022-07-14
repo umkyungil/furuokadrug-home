@@ -1,19 +1,18 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Button, Descriptions } from 'antd';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { ORDER_SERVER } from '../../../Config.js';
 import { useSelector } from "react-redux";
 import { useTranslation } from 'react-i18next';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 function OrderInfo(props) {
   const history = useHistory();
   const user = useSelector(state => state.user)
-
-  useEffect(() => {
-    // 다국적언어 설정
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
-  }, [])
+  // 다국적언어
+	const {t, i18n} = useTranslation();
   
   // 주문정보 및 결제정보 삭제
   function deleteHandler() {
@@ -33,16 +32,9 @@ function OrderInfo(props) {
     history.push("/order/list");
   }
 
-  // 다국적언어
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);		
-  }
-
   // 데이타 변형
   let paymentTime = "";
   let staffName = "";
-  let amount = "";
   if(props) {
     // 날짜 변형
     if (props.detail.sod) {

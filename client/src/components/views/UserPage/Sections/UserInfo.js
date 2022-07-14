@@ -24,7 +24,8 @@ function UserInfo(props) {
   let role = "";
   let language = "";
   let point = "";
-  let date = "";
+  let lastDate = "";
+  let delDate = "";
 
   // 주소값1 변경
   if (props.detail.address1) {
@@ -60,11 +61,21 @@ function UserInfo(props) {
   if (props.detail.language === "jp") language = "日本語";
   // 포인트 변경
   if (!props.detail.point || props.detail.point === "") point = "0";
-  // 날짜 변형(date 추가)
+  // 최근 로그인날짜 변형(date 추가)
   if (props.detail.lastLogin) {
     let tmpDate = new Date(props.detail.lastLogin);
     let lastLoginDate = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
-    date = lastLoginDate.replace('T', ' ').substring(0, 19) + ' (JST)'
+    lastDate = lastLoginDate.replace('T', ' ').substring(0, 19) + ' (JST)';
+  } else {
+    lastDate = '無し';
+  }
+  // 삭제날짜 변형(delDate 추가)
+  if (props.detail.deletedAt) {
+    let tmpDate = new Date(props.detail.deletedAt);
+    let deletedDate = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
+    delDate = deletedDate.replace('T', ' ').substring(0, 19) + ' (JST)';
+  } else {
+    delDate = '無し';
   }
 
   const history = useHistory();
@@ -105,7 +116,8 @@ function UserInfo(props) {
         <Descriptions.Item label={t('User.receiver3')}>{props.detail.receiver3}</Descriptions.Item>
         <Descriptions.Item label={t('User.tel3')}>{props.detail.tel3}</Descriptions.Item>
         <Descriptions.Item label={t('User.language')}>{language}</Descriptions.Item>
-        <Descriptions.Item label={t('User.lastLogin')}>{date}</Descriptions.Item>
+        <Descriptions.Item label={t('User.lastLogin')}>{lastDate}</Descriptions.Item>
+        <Descriptions.Item label={t('User.deletedAt')}>{delDate}</Descriptions.Item>
       </Descriptions>
 
       <br />

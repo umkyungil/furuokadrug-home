@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+import swal from 'sweetalert'
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -36,7 +37,6 @@ function ContactUsPage() {
   const [Name, setName] = useState("");
   const [Email, setEmail] = useState("");
   const [Message, setMessage] = useState("");
-  const [ErrorAlert, setErrorAlert] = useState(false);
   const history = useHistory(); 
 
   useEffect(() => {
@@ -50,27 +50,48 @@ function ContactUsPage() {
     i18n.changeLanguage(lang);
   }
 
+  const body = {
+    name: Name,
+    email: Email,
+    message: Message
+  }
+
   // 메일 송신
   const sendEmail = async (e) => { 
     e.preventDefault();
-
-    const body = {
-      name: Name,
-      email: Email,
-      message: Message
-    }
 
     try {
       const result = await axios.post(`${MAIL_SERVER}/inquiry`, body);
 
       if (result.data.success) {
-        history.push("/");
+        swal({
+          title: "Success",
+          text: "The mail has been sent",
+          icon: "success",
+          button: "OK",
+        }).then((value) => {
+          history.push("/");
+        });
       } else {
-        setErrorAlert(true);
+        swal({
+          title: "Failed",
+          text: "Please try again after a while",
+          icon: "error",
+          button: "OK",
+        }).then((value) => {
+          history.push("/");
+        });
       }
     } catch(err) {
       console.log("ContactUsPage err: ", err);
-      setErrorAlert(true);
+      swal({
+        title: "Failed",
+        text: "Please try again after a while",
+        icon: "error",
+        button: "OK",
+      }).then((value) => {
+        history.push("/");
+      });
     }
   }
   // 이름 이벤트핸들러
@@ -85,11 +106,6 @@ function ContactUsPage() {
   const messageHandler = (event) => {
     setMessage(event.currentTarget.value)
   }
-  // 에러메세지
-	const errorHandleClose = () => {
-    setErrorAlert(false);
-    history.push("/");
-  };
   // Landing pageへ戻る
   const listHandler = () => {
     history.push('/')
@@ -97,14 +113,6 @@ function ContactUsPage() {
 
   return (
     <div className="app">
-      {/* Alert */}
-      <div>
-        {ErrorAlert ? (
-          <Alert message="The inquiry email was not sent. Please try again later" type="error" showIcon closable afterClose={errorHandleClose}/>
-        ) : null}
-      </div>
-      <br />
-
       <h1>{t('Contact.title')}</h1><br />
       <Form style={{ minWidth: '375px' }} onSubmit={sendEmail} {...formItemLayout} >
         <Form.Item label={t('Contact.name')} required>
