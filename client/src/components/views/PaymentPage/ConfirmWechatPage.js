@@ -62,7 +62,7 @@ function ConfirmWechatPage(props) {
   // query string 취득
   const userId = props.match.params.userId;
   const sid = props.match.params.sid;
-  const sod = props.match.params.sod;
+  const sod = decodeURIComponent(props.match.params.sod);
   const siam1 = props.match.params.siam1;
   const uniqueField = decodeURIComponent(props.match.params.uniqueField);
   const staffName = decodeURIComponent(props.match.params.staffName);

@@ -7,7 +7,7 @@ const SubMenu = Menu.SubMenu;
 
 function LeftMenu(props) {
   // 다국적언어
-	const {t, i18n} = useTranslation();
+	const {i18n} = useTranslation();
   const setMultiLanguage = (lang) => {
     i18n.changeLanguage(lang);
   }

@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {DatePicker, Input, Select} from 'antd';
 
 const {RangePicker} = DatePicker;
-const {Search} = Input;
 const {Option} = Select;
 
 function WeChatSearchFeature(props) {
@@ -11,13 +10,6 @@ function WeChatSearchFeature(props) {
   const [SearchFromDate, setSearchFromDate] = useState("");
   const [SearchToDate, setSearchToDate] = useState("");
   
-  const uniqueHandler = (event) => {
-    setSearchUnique(event.currentTarget.value);
-    let arr = [SearchResult, event.currentTarget.value, SearchFromDate, SearchToDate];
-    // 부모 컨테이너에 값을 보내기
-    props.refreshFunction(arr);
-  }
-
   const selectHandler = (value) => {
     setSearchResult(value);
     let arr = [value, SearchUnique, SearchFromDate, SearchToDate];
@@ -44,12 +36,6 @@ function WeChatSearchFeature(props) {
         <Option value="1">Success</Option>
         <Option value="2">Fail</Option>
       </Select>&nbsp;&nbsp;
-      {/* <Search
-        placeholder="Please enter Unique field"
-        onChange={uniqueHandler}
-        style={{ width:200 }}
-        value={SearchUnique}
-      />&nbsp;&nbsp; */}
       <RangePicker
         showTime={{ format: 'HH:mm' }}
         format="YYYY-MM-DD HH:mm"

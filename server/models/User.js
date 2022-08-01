@@ -92,8 +92,8 @@ const userSchema = mongoose.Schema({
         type: Date,
     },
     myPoint: {
-      type: Number,
-      default: 0
+        type: Number,
+        default: 0
     }
 }, { timestamps: true })
 

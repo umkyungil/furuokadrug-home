@@ -29,3 +29,5 @@ export const MAIL_SERVER = `${MAIN_SERVER}/api/sendmail`;
 export const CSV_SERVER = `${MAIN_SERVER}/api/csv`;
 export const PAYMENT_SERVER = `${MAIN_SERVER}/api/payment`;
 export const ORDER_SERVER = `${MAIN_SERVER}/api/order`;
+export const COUPON_SERVER = `${MAIN_SERVER}/api/coupon`;
+export const POINT_SERVER = `${MAIN_SERVER}/api/point`;

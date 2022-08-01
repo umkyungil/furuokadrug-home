@@ -7,9 +7,8 @@ import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-function UserListPage() {
+function CouponListPage() {
 	const [Users, setUsers] = useState([]);
-	const [ShowButton, setShowButton] = useState(false);
 
 	useEffect(() => {
 		// 다국어 설정
@@ -72,8 +71,7 @@ function UserListPage() {
 				<>
 					<a href={`/user/${record._id}`}>detail</a>&nbsp;&nbsp;
 					<a href={`/user/update/${record._id}`}>edit</a>&nbsp;&nbsp;
-					<a href={`/mail/notice/${record.type}/${record.email}`}>email</a>&nbsp;&nbsp;
-					<a href={`/point/list/${record._id}`}>point</a>
+					<a href={`/mail/notice/${record.type}/${record.email}`}>email</a>
 				</>
 			),
 		},
@@ -133,12 +131,11 @@ function UserListPage() {
           result.data.userInfo[i].key = count;
 					data.push(result.data.userInfo[i]);
 				}
-
-				setUsers([...data]);
 				
+				setUsers([...data]);
 			}
 		} catch (err) {
-			console.log("UserListPage err: ",err);
+			console.log("CouponListPage err: ",err);
 		}
 	}
 
@@ -169,4 +166,4 @@ function UserListPage() {
 	)
 }
 
-export default UserListPage
+export default CouponListPage

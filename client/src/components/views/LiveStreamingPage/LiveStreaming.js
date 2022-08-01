@@ -11,7 +11,7 @@ axios.defaults.withCredentials = true;
 function LiveStreaming(props) {
   const history = useHistory();
   const [Body, setBody] = useState({});
-  const [URL, setUrl] = useState("");
+  // const [URL, setUrl] = useState("");
   const [Visible, setVisible] = useState(false);
   
   React.useEffect(() => {
@@ -25,8 +25,9 @@ function LiveStreaming(props) {
       history.push("/login");
     }
     
-    // 자식화면에서 송신한 데이타를 수신(비디오 채팅 결제금액등) 
+    // 자식화면에서 보낸 데이타를 수신 (결제금액등) 
     window.addEventListener('message', function(e) {
+      // 비디오 채팅에서 결제버튼 클릭 했을때
       if(e.data.type != "exitRoom") {
         const type = e.data.type;       
         const loginUserId = e.data.loginUserId; // ECSystem 로그인 유저ID
@@ -66,7 +67,8 @@ function LiveStreaming(props) {
         .then(response => {
           if (response.data.success) {
             // 모달 뛰우고 메일및 주소정보 설정
-            process(response.data.user[0]._id, response.data.user[0].name, response.data.user[0].lastName, response.data.user[0].email, response.data.user[0].role)
+            process(response.data.user[0]._id, response.data.user[0].name, response.data.user[0].lastName, response.data.user[0].email, response.data.user[0].role);
+            
           } else {
             alert("Failed to get user information.")
           }
@@ -105,12 +107,24 @@ function LiveStreaming(props) {
       }      
       // 메일내용 보관
       setBody(body);
-      // 일반 사용자의 다이렉트 URL 작성
-      setUrl(LIVE_SERVER + "meet?name=" + name + "&lastName=" +  lastName + "&room=" + room + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec");
+      // URL작성: 일반 사용자는 룸에 들어간 화면을 표시
+      // setUrl(LIVE_SERVER + "meet?name=" + name + "&lastName=" +  lastName + "&room=" + room + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec");
 
-    // 스텝 및 관리자는 라이브 초기화면을 표시
+      // 추가 수정
+      const url = LIVE_SERVER + "meet?name=" + name + "&lastName=" +  lastName + "&room=" + room + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec";
+      window.open(url ,'_blank', "fullscreen=yes");
+
+      history.push("/");
+
+    // URL작성: 스텝 및 관리자는 라이브 로그인 화면을 표시
     } else {
-      setUrl(LIVE_SERVER + "login?name=" + name + "&lastName=" +  lastName + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec");
+      // setUrl(LIVE_SERVER + "login?name=" + name + "&lastName=" +  lastName + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec");
+
+      // 추가 수정
+      const url = LIVE_SERVER + "login?name=" + name + "&lastName=" +  lastName + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec";
+      window.open(url ,'_blank', "fullscreen=yes");
+
+      history.push("/");
     }
   }  
 
@@ -156,14 +170,20 @@ function LiveStreaming(props) {
       >
         <p>{t('Modal.message')}</p>
       </Modal>
-      <iframe style={{
+      {/* <iframe style={{
           position: 'absolute',
           top: '0',
           left: '0',
           right: '0',
           width: '100%',
           height: '100%',
-        }} allow="microphone; camera" src={URL} frameBorder="0" scrolling="yes"/>
+        }} allow="microphone; camera" src={URL} frameBorder="0" scrolling="yes"/> */}
+
+        {/* Object 태그사용 */}
+        {/* <object data= {URL} type="text/html"  
+          style={{ position: 'absolute', top: '0', left: '0', right: '0', width: '100%', height: '100%' }} 
+          allow="microphone; camera" frameborder="0" scrolling="yes">
+        </object> */}
     </div>
   )
 }

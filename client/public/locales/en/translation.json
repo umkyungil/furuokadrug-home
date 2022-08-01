@@ -110,8 +110,8 @@
     "totalPaymentAmount": "Total payment amount (JPY)",
     "availablePoints": "Available points",
     "availableCoupons": "Available Coupons",
-    "TotalPointsSelectedProducts": "Total points of selected products",
-    "TotalAmountSelectedProducts": "Total amount of selected products (JPY)",
+    "acquisitionPoints": "Acquisition points",
+    "totalAmountSelectedProducts": "Total amount of selected products (JPY)",
     "discountAmount": "Discount amount (JPY)"
   },
   "Paypal": {
@@ -205,5 +205,31 @@
     "qrCode": "QR Code",
     "createdDate": "Registration Date",
     "updatedDate": "Update Date"
+  },
+  "Coupon": {
+    "listTitle": "Coupon Information List",
+    "regTitle": "Coupon Information Register",
+    "updateTitle": "Coupon Information Update",
+    "code": "Code",
+    "description": "Description",
+    "active": "Active",
+    "expirationPeriod": "Expiration period",
+    "discountRate": "Discount rate"
+  },
+  "Point": {
+    "listTitle": "Point Information List",
+    "seq": "Seq",
+    "subSeq": "Sub seq",
+    "point": "Point",
+    "remainingPoints": "Remaining points",
+    "usePoint": "Point calculation",
+    "dspUsePoint": "Points used",
+    "description": "Description",
+    "validFrom": "Acquisition date",
+    "validTo": "Expiration period",
+    "dateUsed": "Date used",
+    "name": "Name",
+    "lastName": "Last name",
+    "totalPoints": "Total Points"
   }
 }

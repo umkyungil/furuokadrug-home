@@ -17,10 +17,10 @@ export default class Paypal extends React.Component {
       this.props.onError(err)
     }
 
+    // 환경및 금액 설정
     let env = 'sandbox';
     let currency = 'JPY';
     let total = this.props.total; // 카트페이지의 프롭스
-
     const client = {
       sandbox: 'AXPs50Sbc6RHQtToi9SCeh2t9ApIinzGFi4CvI8E_4RR02ROTsO5uVHTT6np1Ric2TgouucvaQYrCem_',
       production: 'your production app id',
@@ -41,6 +41,7 @@ export default class Paypal extends React.Component {
           shape: 'rect',
           label: 'checkout'
         }}
-      />);
+      />
+    );
   }    
 }

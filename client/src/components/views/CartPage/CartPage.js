@@ -7,10 +7,9 @@ import Paypal from '../../utils/Paypal'
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { SID } from '../../Config';
-import { ORDER_SERVER, USER_SERVER } from '../../Config.js';
+import { ORDER_SERVER } from '../../Config.js';
 import axios from 'axios';
 import swal from 'sweetalert'
-import { set } from 'mongoose';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -67,8 +66,9 @@ function CartPage(props) {
     let totalPoint = 0;
     cartDetail.map(item => {
       total += parseInt(item.price,10) * item.quantity;
-      totalPoint += parseInt(item.point,10) * item.quantity;
     })
+
+    totalPoint = parseInt(total/100)
 
     setTotal(total);
     setFinalTotal(total);
@@ -93,17 +93,19 @@ function CartPage(props) {
     // 업데이트할 포인트 계산
     let grantPoint = 0;
     if (UsePoint) {
-      // 포인트를 사용한 경우 [기존포인트 - 사용한 포인트]를 누적한다
+      // 포인트를 사용한 경우 [기존포인트 - 사용할 포인트]를 누적한다
       grantPoint = FinalTotalPoint;
     } else {
-      // 포인트를 사용하지 않을경우 기존 [포인트 + 상품의 총 포인트]를 누적한다
+      // 포인트를 사용하지 않을경우 기존 [기존포인트 + 구매 상품의 총 포인트]를 누적한다
       grantPoint = FinalTotalPoint + FinalProductTotalPoint;
     }
     // Paypal 결제정보 및 history 저장, 상품판매 카운트 업데이트
     dispatch(onSuccessBuy({
       paymentData: data, // Paypal에서 결제 성공시 전해주는 데이타
       cartDetail: props.user.cartDetail, // 카트에 있던 상품 상세정보(카트의 정보가 아닌 상품의 상세정보)
-      totalPoint: grantPoint
+      pointToUse: UsePoint,
+      productPoint: FinalProductTotalPoint, // 포인트를 사용하지 않을경우 구매상품의 포인트 합계를 포인트 이력 테이블에 등록
+      totalPoint: grantPoint // 사용자 테이블에 계산된 포인트 등록
     }))
     .then(response => {
       if(response.payload.success) {
@@ -196,7 +198,7 @@ function CartPage(props) {
       if(response.payload.success) {
         const tmpPaymentId = response.payload.payment._id;
         let dateInfo = new Date();
-        const sod = grantPoint; // 카트결제시 sod에 포인트대입
+        const sod = 'cart' + '_' + UsePoint + '_' + FinalProductTotalPoint + '_' + grantPoint; // 카트결제시 sod에 포인트 대입
         let uniqueDate = dateInfo.getFullYear() + "-" + (dateInfo.getMonth() + 1) + "-" + dateInfo.getDate() + "-" + dateInfo.getHours() + "-" + dateInfo.getMinutes();
         const loginUserId = props.user.userData._id;
         const uniqueField = 'cart' + '_' + tmpPaymentId + '_' + uniqueDate;
@@ -208,13 +210,13 @@ function CartPage(props) {
         url = url + loginUserId + '/' + sid + '/' + sod + '/' + siam1 + '/' + uniqueField + '/' + staffName;
         window.open(url);
 
-        // 주문정보 화면으로 이동하기 때문에 카트창은 닫는다
+        // 주문정보 화면으로 이동하기 때문에 부모창인 카트창은 닫는다
         window.close();
       }
     })
   } 
 
-  // WeChat 결제
+   // WeChat 결제
   const weChatHandler = () => {
     // 결제정보 설정
     const data = {
@@ -254,7 +256,7 @@ function CartPage(props) {
       if(response.payload.success) {
         const tmpPaymentId = response.payload.payment._id;
         let dateInfo = new Date();
-        const sod = grantPoint; // 카트결제시 sod에 포인트대입
+        const sod = 'cart' + '_' + UsePoint + '_' + FinalProductTotalPoint + '_' + grantPoint; // 카트결제시 sod에 포인트 대입
         let uniqueDate = dateInfo.getFullYear() + "-" + (dateInfo.getMonth() + 1) + "-" + dateInfo.getDate() + "-" + dateInfo.getHours() + "-" + dateInfo.getMinutes();
         const loginUserId = props.user.userData._id;
         const uniqueField = 'cart' + '_' + tmpPaymentId + '_' + uniqueDate;
@@ -271,49 +273,37 @@ function CartPage(props) {
       }
     })
   }
-  
-  const pointButtonHandler = () => {
-    setUsePoint(MyPoint);
-    // 총금액을 변경한다
-    setFinalTotal(Total - MyPoint)
-    // 포인트를 변경한다
-    setFinalTotalPoint(0)
-    // 포인트를 사용해서 물건을 구매할 경우 구매상품의 포인트는 누적을 안한다.
-    setFinalProductTotalPoint(0);
-  }
 
   const pointInputHandler = (e) => {
     let point = 0;
 
     if (e.target.value) point = e.target.value;
     
+    // 입력한 포인트 체크
     if (point < 0) {
       alert("check the point");
-      setFinalTotal(Total);
-      setFinalTotalPoint(MyPoint);
-      setUsePoint(0);
+      setFinalTotal(Total); // 총 금액은 계산전 금액을 대입한다
+      setFinalTotalPoint(MyPoint); // 총 포인트는 기존 포인트를 대입한다
+      setUsePoint(0); // 사용할 포인트는 0를 대입한다
       return false;
     }
     if (point > MyPoint) {
       alert("check the point");
       setFinalTotal(Total);
       setFinalTotalPoint(MyPoint);
-      setUsePoint(0);;
+      setUsePoint(0);
       return false;
-    }
-    
+    }    
+
     // 사용할 포인트 저장
     setUsePoint(point);
     // 총금액을 변경한다
     setFinalTotal(Total - point)
-    // 포인트 계산
+    // 사용가능한 포인트 계산(기존 포인트 - 사용할 포인트)
     setFinalTotalPoint(MyPoint - point)
-    // 포인트를 사용해서 물건을 구매할 경우 구매상품의 포인트는 누적을 안한다.
-    if (point > 0) {
-      setFinalProductTotalPoint(0);
-    } else {
-      setFinalProductTotalPoint(ProductTotalPoint);
-    }
+    // 포인트를 사용할 경우 구매상품의 포인트는 누적을 안한다.
+    setFinalProductTotalPoint(ProductTotalPoint);
+    
   }
 
   return (
@@ -325,15 +315,17 @@ function CartPage(props) {
       </div>
       {ShowTotal ? 
         <div style={{marginTop: '3rem'}}>
+          {/* 사용가능한 포인트(기존 포인트 - 사용할 포인트) */}
           <span style={{color:"gray"}}>{t('Cart.availablePoints')}:&nbsp;{Number(FinalTotalPoint).toLocaleString()}</span>&nbsp;&nbsp;&nbsp;&nbsp;
-          <span style={{color:"gray"}}>{t('Cart.TotalPointsSelectedProducts')}:&nbsp;{Number(FinalProductTotalPoint).toLocaleString()}</span><br />
-          <Input id="point" type='number' value={UsePoint} placeholder="Enter the points to use" onChange={pointInputHandler}  style={{width: '180px'}}/>&nbsp;
-          <Button type="dashed" onClick={pointButtonHandler}>full use</Button><br /><br />
+          {/* 구매상품의 포인트 합계 */}
+          <span style={{color:"gray"}}>{t('Cart.acquisitionPoints')}:&nbsp;{Number(FinalProductTotalPoint).toLocaleString()}</span><br />
+          {/* 사용할 포인트 */}
+          <Input id="point" type='number' value={UsePoint} placeholder="Enter the points to use" onChange={pointInputHandler}  style={{width: '180px'}}/>&nbsp;<br /><br />
 
           {/* <span style={{color:"gray"}}>{t('Cart.availableCoupons')}</span><br />
           <Input id="coupon" placeholder="Enter the coupons to use" onChange={pointInputHandler} value={UsePoint} style={{width: '260px'}}/><br /><br /> */}
 
-          <span style={{color:"gray"}}>{t('Cart.TotalAmountSelectedProducts')}: {Number(Total).toLocaleString()}</span>&nbsp;&nbsp;&nbsp;&nbsp;
+          <span style={{color:"gray"}}>{t('Cart.totalAmountSelectedProducts')}: {Number(Total).toLocaleString()}</span>&nbsp;&nbsp;&nbsp;&nbsp;
           <span style={{color:"red"}}>{t('Cart.discountAmount')}: {Number(UsePoint).toLocaleString()}</span>
           <h2>{t('Cart.totalPaymentAmount')}: {Number(FinalTotal).toLocaleString()}</h2>
           <br />
@@ -352,7 +344,7 @@ function CartPage(props) {
 
       {ShowTotal && 
         <Paypal 
-          total={Total} // Paypal 컴포넌트에 프롭스로 가격을 내려준다
+          total={FinalTotal} // Paypal 컴포넌트에 프롭스로 가격을 내려준다
           onSuccess={transactionSuccess} // 결제성공시 Paypal결제 정보를 대입받아 실행시킬 메소드를 Paypal 컴포넌트에 프롭스로 보낸다
         />
       }

@@ -270,6 +270,8 @@ app.use('/api/csv', require('./routes/csv'));
 app.use('/api/sendmail', require('./routes/sendmail'));
 app.use('/api/payment', require('./routes/payment'));
 app.use('/api/order', require('./routes/order'));
+app.use('/api/coupon', require('./routes/coupon'));
+app.use('/api/point', require('./routes/point'));
 app.use('/uploads', express.static('uploads'));
 
 if (process.env.NODE_ENV === "production") {

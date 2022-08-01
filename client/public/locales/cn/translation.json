@@ -108,8 +108,8 @@
     "totalPaymentAmount": "总金额 (JPY)",
     "availablePoints": "可用积分",
     "availableCoupons": "可用优惠券",
-    "TotalPointsSelectedProducts": "所选产品的总分",
-    "TotalAmountSelectedProducts": "所选产品价格 (JPY)",
+    "acquisitionPoints": "采集点",
+    "totalAmountSelectedProducts": "所选产品价格 (JPY)",
     "discountAmount": "折扣金额 (JPY)"
   },
   "Paypal": {
@@ -203,5 +203,31 @@
     "qrCode": "QRコード",
     "createdDate": "注册日期",
     "updatedDate": "更新日期"
+  },
+  "Coupon": {
+    "listTitle": "优惠券信息列表",
+    "regTitle": "优惠券信息登记",
+    "updateTitle": "优惠券信息更新",
+    "code": "代码",
+    "description": "解释",
+    "active": "效力",
+    "expirationPeriod": "有效期",
+    "discountRate": "折扣率"
+  },
+  "Point": {
+    "listTitle": "点信息列表",
+    "seq": "序列",
+    "subSeq": "子序列",
+    "point": "观点",
+    "remainingPoints": "剩余积分",
+    "usePoint": "点计算",
+    "dspUsePoint": "使用的积分",
+    "description": "描述",
+    "validFrom": "购买日期",
+    "validTo": "有效期",
+    "dateUsed": "使用日期",
+    "name": "姓名",
+    "lastName": "姓",
+    "totalPoints": "总积分"
   }
 }

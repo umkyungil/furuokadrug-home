@@ -4,9 +4,13 @@ const { User } = require("../models/User");
 const { Product } = require('../models/Product');
 const { Payment } = require('../models/Payment');
 const { TmpPayment } = require('../models/TmpPayment');
+const { Point } = require('../models/Point');
+const { Counter } = require('../models/Counter');
+
 const { auth } = require("../middleware/auth");
 const async = require('async');
 const bcrypt = require('bcrypt');
+const bodyParser = require('body-parser');
 
 //=================================
 //             User
@@ -398,7 +402,6 @@ router.post("/addToCart", auth, (req, res) => {
         console.log(err);
         return res.status(500).json({ success: false, message: err.message });
     }
-    
 });
 
 // 카트의 상품삭제
@@ -444,13 +447,17 @@ router.post('/successBuy', auth, (req, res) => {
     try {
         let history = [];
         let transactionData = {};
+        
+        // const tmpDate1 = new Date().toLocaleString({ timeZone: 'Asia/Tokyo' });
+        let tmpDate1 = new Date();
+		const curDate = new Date(tmpDate1.getTime() - (tmpDate1.getTimezoneOffset() * 60000)).toISOString();
+        const tmpDate2 = new Date(tmpDate1.setFullYear(tmpDate1.getFullYear() + 1));
+        const oneYearDate = new Date(tmpDate2.getTime() - (tmpDate2.getTimezoneOffset() * 60000)).toISOString();
 
-        let date = new Date();
-        const dateInfo = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString();
         // 결제한 카트에 담겼던 상품정보를 history에 넣어줌
         req.body.cartDetail.forEach((item) => {
             history.push({
-                dateOfPurchase: dateInfo,
+                dateOfPurchase: curDate,
                 name: item.title,
                 id: item._id,
                 price: item.price,
@@ -459,23 +466,22 @@ router.post('/successBuy', auth, (req, res) => {
             })
         })
 
-        // Payment에 자세한 결제정보 저장
-        // (Payment의 컬럼이 user, data, product로 구성 되어 있다)
-        // user정보
+        // Payment의 user정보
         transactionData.user = {
             id: req.user._id,
             name: req.user.name,
             email: req.user.email,
         }
-        // data정보(Paypal정보를 저장)
+        // Payment의 data정보(Paypal정보를 저장)
         transactionData.data = req.body.paymentData;
-        // product정보
+        // Payment의 product정보
         transactionData.product = history;
 
         // User에 history저장 및 포인트 누적, Cart삭제
         User.findOneAndUpdate(
-            {_id: req.user._id},
-            { $push: { history: history }, $set: {cart: [], myPoint: req.body.totalPoint }},
+            { _id: req.user._id },
+            { $push: { history: history }, $set: { cart: [], myPoint: req.body.totalPoint }},
+            // { $push: { history: history }, $set: { cart: [] }},
             { new: true },
             (err, user) => {
                 if(err) return res.json({ success: false, err })
@@ -494,12 +500,8 @@ router.post('/successBuy', auth, (req, res) => {
                     // Product에 업데이트
                     async.eachSeries(products, (item, callback) => {
                         Product.updateOne(
-                            {_id: item.id },
-                            {
-                                $inc: {
-                                    "sold": item.quantity
-                                }
-                            },
+                            { _id: item.id },
+                            { $inc: { "sold": item.quantity }},
                             { new: false },
                             callback
                         )
@@ -515,6 +517,186 @@ router.post('/successBuy', auth, (req, res) => {
                 });            
             }
         )
+        
+        const pointToUse = Number(req.body.pointToUse); 
+        // 입력한 포인트가 있는지 확인 (입력한 포인트는 기본값이 화면단에서 0으로 설정되어 있다)
+        if(pointToUse > 0) {
+            // 해당 사용자의 포인트 가져오기 (남은포인트가 0보다 큰 데이타)
+            Point.find({userId: req.user._id, remainingPoints: { $gt: 0 }})
+                .sort({ "validTo": 1 }) // 유효기간To가 가까운것부터 정렬(내림차순)
+                .exec((err, pointInfos) => {
+                    if (err) return res.status(400).json({ success: false });
+
+                    for (let i=0; i<pointInfos.length; i++) {
+                        // 첫번째 레코드는 사용자가 입력한 포인트로 계산을 한다
+                        if (i===0) {
+                            // 한번도 사용하지 않은 포인트인 경우
+                            if (pointInfos[i].dateUsed === '') {
+                                const remainingPoints = pointInfos[i].remainingPoints;
+
+                                // 기존 포인트 - 사용자가 입력한 포인트(항상 [양수 - 양수] 이기에 그대로 계산 가능)
+                                let tmp = remainingPoints - pointToUse;
+
+                                if(tmp < 0) {
+                                    // ****다음 레코드에서 포인트를 계산을 하기 위해 pointInfos[i] 배열에 값을 대입한다. **** //
+                                    // 포인트를 계산한 값
+                                    pointInfos[i].usePoint = tmp;
+                                    // 포인트를 전부 사용했기에 원래 가지고 있던 포인트 대입(화면 노출)
+                                    pointInfos[i].dspUsePoint = remainingPoints;
+
+                                    Point.findOneAndUpdate(
+                                        { _id: pointInfos[i]._id },
+                                        { $set: { dspUsePoint: remainingPoints, usePoint: tmp, remainingPoints: 0, dateUsed: curDate }},
+                                        { new: true },
+                                        (err, pointInfo) => {
+                                            if(err) return res.status(400).json({ success: false, err });
+                                        }
+                                    )
+                                } else {
+                                    // dspUsePoint에 사용자가 입력한 포인트를 대입
+                                    Point.findOneAndUpdate(
+                                        { _id: pointInfos[i]._id },
+                                        { $set: { dspUsePoint: pointToUse, usePoint: tmp, remainingPoints: tmp, dateUsed: curDate }},
+                                        { new: true },
+                                        (err, pointInfo) => {
+                                            if(err) return res.status(400).json({ success: false, err });
+                                        }
+                                    )
+                                    // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
+                                    break;
+                                }
+                            // 한번이상 사용해서 남은 잔 포인트가 있는 경우
+                            } else {
+                                // 기존 레코드의 나머지 금액을 0으로 업데이트
+                                Point.findOneAndUpdate(
+                                    { _id: pointInfos[i]._id },
+                                    { $set: { remainingPoints: 0 }},
+                                    { new: true },
+                                    (err, pointInfo) => {
+                                        if(err) return res.status(400).json({ success: false, err });
+                                    }
+                                )
+
+                                // 기존 레코드를 복사
+                                let dataToSubmit = {
+                                    seq: pointInfos[i].seq,
+                                    subSeq: pointInfos[i].subSeq + 1,
+                                    userId: pointInfos[i].userId,
+                                    userName: pointInfos[i].userName,
+                                    userLastName: pointInfos[i].userLastName,
+                                    point: pointInfos[i].point,
+                                    description: pointInfos[i].description,
+                                    validFrom: pointInfos[i].validFrom,
+                                    validTo: pointInfos[i].validTo
+                                }
+                                
+                                const remainingPoints = pointInfos[i].remainingPoints;
+                                // 기존 포인트 - 사용자가 입력한 포인트
+                                let tmp = remainingPoints - pointToUse; 
+
+                                if(tmp < 0) {
+                                    // 가지고 온 포인트 정보의 사용자 포인트를 계산된 값으로 수정
+                                    pointInfos[i].usePoint = tmp;
+
+                                    dataToSubmit.usePoint = tmp;
+                                    dataToSubmit.dspUsePoint = remainingPoints;
+                                    dataToSubmit.remainingPoints = 0;
+                                    dataToSubmit.dateUsed = curDate;
+
+                                    // 포인트 등록
+                                    const point = new Point(dataToSubmit);
+                                    point.save((err, doc) => {
+                                        if (err) return res.status(400).json({ success: false, err });
+                                    });
+                                } else {
+                                    dataToSubmit.usePoint = tmp;
+                                    dataToSubmit.dspUsePoint = pointToUse;
+                                    dataToSubmit.remainingPoints = tmp;
+                                    dataToSubmit.dateUsed = curDate;
+
+                                    // 포인트 등록
+                                    const point = new Point(dataToSubmit);
+                                    point.save((err, doc) => {
+                                        if (err) return res.status(400).json({ success: false, err });
+                                    });
+
+                                    // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
+                                    break;
+                                }    
+                            }
+                        } else {
+                            let usePoint = Math.abs(pointInfos[i-1].usePoint);
+                            let remainingPoints = pointInfos[i].remainingPoints;
+
+                            let tmp = 0;
+                            // 전 레코드의 usePoint: 음수, 현재 레코드의 point: 양수 <- 이 조건만 있을수 있다  
+                            if (usePoint <= remainingPoints) {
+                                tmp = remainingPoints - usePoint; // 포인트가 남거나 0이 되기때문에 현재 레코드에서 계산이 종료되는 경우
+                            } else {
+                                tmp = (usePoint - remainingPoints) * -1; // 포인트가 부족해서 다음 레코드에서 계산을 해야 하는경우
+                            }
+                            
+                            if(tmp < 0) {
+                                // 전 레코드의 계산된 포인트로 가지고 온 포인트 정보의 사용자 포인트를 계산된 값으로 수정
+                                pointInfos[i].usePoint = tmp;
+
+                                Point.findOneAndUpdate(
+                                    { _id: pointInfos[i]._id },
+                                    { $set: { dspUsePoint: remainingPoints, usePoint: tmp, remainingPoints: 0, dateUsed: curDate }},
+                                    { new: true },
+                                    (err, pointInfo) => {
+                                        if(err) return res.status(400).json({ success: false, err });
+                                    }
+                                )
+                            } else {
+                                Point.findOneAndUpdate(
+                                    { _id: pointInfos[i]._id },
+                                    { $set: { dspUsePoint: usePoint, usePoint: tmp, remainingPoints: tmp, dateUsed: curDate }},
+                                    { new: true },
+                                    (err, pointInfo) => {
+                                        if(err) return res.status(400).json({ success: false, err });
+                                    }
+                                )
+
+                                // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
+                                break;
+                            }
+                        }
+                    }
+                });
+        } else {
+            // 포인트 누적할 항목 설정
+            let dataToSubmit = {
+                userId: req.user._id,
+                userName: req.user.name,
+                userLastName: req.user.lastName,
+                point: req.body.productPoint, // 구매상품 포인트 합계
+                remainingPoints: req.body.productPoint,
+                usePoint: 0,
+                dspUsePoint: 0,
+                description: "商品購入",
+                validFrom: curDate,
+                validTo: oneYearDate,
+                dateUsed:''
+            }
+
+            // 카운트에서 포인트의 일련번호 가져오기
+            Counter.findOneAndUpdate(
+                { name: "point" },
+                { $inc: { "seq": 1 }},
+                { new: true },
+                (err, countInfo) => {
+                    if(err) return res.status(400).json({ success: false, err });
+
+                    // 포인트의 seq에 카운트에서 가져온 일련번호를 대입해서 포인트를 생성 
+                    dataToSubmit.seq = countInfo.seq; 
+                    const point = new Point(dataToSubmit);
+                    point.save((err, doc) => {
+                        if (err) return res.status(400).json({ success: false, err });
+                    });
+                }
+            );
+        }
     } catch (err) {
         console.log(err);
         return res.status(500).json({ success: false, message: err.message });
@@ -558,12 +740,12 @@ router.post('/successBuyTmp', auth, (req, res) => {
             { $set: { cart: [] }},
             { new: true },
             (err, user) => {
-                if(err) return res.status(400).json({ success: false, err })
+                if(err) return res.status(400).json({ success: false, err });
 
                 // TmpPayment에 transactionData정보 저장
-                const tmpPayment = new TmpPayment(transactionData)
+                const tmpPayment = new TmpPayment(transactionData);
                 tmpPayment.save((err, doc) => {
-                    if(err) return res.status(400).json({ success: false, err })
+                    if(err) return res.status(400).json({ success: false, err });
 
                     return res.status(200).json({
                         success: true,

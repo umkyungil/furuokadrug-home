@@ -48,9 +48,14 @@ import MailHistoryDetailPage from "./views/SendMailPage/MailHistoryDetailPage.js
 import ListOrderPage from "./views/OrderPage/ListOrderPage.js"; // 주문리스트
 import DetailOrderPage from "./views/OrderPage/DetailOrderPage.js"; // 주문상세
 // 카트관리
-import CartPage from "./views/CartPage/CartPage.js"; // 카트페이지
+import CartPage from "./views/CartPage/CartPage.js";
 // 라이브 방송관리
-import LiveStreamingPage from "./views/LiveStreamingPage/LiveStreaming.js"; // 라이브 스트리밍 페이지
+import LiveStreamingPage from "./views/LiveStreamingPage/LiveStreaming.js";
+// 쿠폰관리
+import CouponRegisterPage from "./views/Coupon/CouponRegisterPage.js";
+import CouponLisPage from "./views/Coupon/CouponListPage.js";
+// 포인트관리
+import ListPointPage from "./views/Point/ListPointPage.js";
 // 404 페이지
 import NotFoundPage from "./views/NotFound.js";
 
@@ -109,6 +114,12 @@ function App() {
           <Route exact path="/csv/upload/univaPayCast" component={Auth(UploadCSVUnivaPayCastPage, true)} />
           {/* 라이브 방송 */}
           <Route exact path="/live" component={Auth(LiveStreamingPage, true)} />
+          {/* 쿠폰관리 */}
+          <Route exact path="/coupon/register" component={Auth(CouponRegisterPage, true)} />
+          <Route exact path="/coupon/list" component={Auth(CouponLisPage, true)} />
+          {/* 포인트관리 */}
+          <Route exact path="/point/list" component={Auth(ListPointPage, true)} />
+          <Route exact path="/point/list/:userId" component={Auth(ListPointPage, true)} />
           {/* 404 Not Found */}
           <Route path={"*"} component={NotFoundPage} />
         </Switch>

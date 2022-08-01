@@ -69,9 +69,9 @@ function RightMenu(props) {
       if (user.userData.role === 1) {
         return (
           <Menu mode={props.mode}>
-            <Menu.Item key="chat">
+            {/* <Menu.Item key="chat">
               <a onClick={chatHandler}>Chat</a>
-            </Menu.Item>
+            </Menu.Item> */}
             <Menu.Item key="live">
               <a href="/live">Live Streaming</a>
             </Menu.Item>
@@ -84,10 +84,10 @@ function RightMenu(props) {
               </Menu.Item>
             </SubMenu>
             <SubMenu title={<span>Payment</span>}>          
-              <Menu.Item key="alipayList">
+              <Menu.Item key="aliPayList">
                 <a href="/payment/alipay/list">Alipay Payment History</a>
               </Menu.Item>
-              <Menu.Item key="wechatList">
+              <Menu.Item key="weChatList">
                 <a href="/payment/wechat/list">WeChat Payment History</a>
               </Menu.Item>
               <Menu.Item key="paypalAdminList">
@@ -111,9 +111,9 @@ function RightMenu(props) {
       } else if (user.userData.role === 2) {
         return (
           <Menu mode={props.mode}>
-            <Menu.Item key="chat">
+            {/* <Menu.Item key="chat">
               <a onClick={chatHandler}>Chat</a>
-            </Menu.Item>
+            </Menu.Item> */}
             <Menu.Item key="live">
               <a href="/live">Live Streaming</a>
             </Menu.Item>
@@ -169,9 +169,17 @@ function RightMenu(props) {
         // 일반 사용자
         return (
           <Menu mode={props.mode}>            
-            <Menu.Item key="chat">
+            {/* <Menu.Item key="chat">
               <a onClick={chatHandler}>Chat</a>
-            </Menu.Item>
+            </Menu.Item> */}
+            <SubMenu title={<span>My Information</span>}>
+              {/* <Menu.Item key="couponList">
+                <a href="/coupon/list">Coupon List</a>
+              </Menu.Item> */}
+              <Menu.Item key="pointList">
+                <a href="/point/list">Point List</a>
+              </Menu.Item>
+            </SubMenu>
             <Menu.Item key="live">
               <a href="/live">Live Streaming</a>
             </Menu.Item>

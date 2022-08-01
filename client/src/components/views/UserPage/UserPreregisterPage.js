@@ -167,7 +167,7 @@ function UserPreregisterPage(props) {
                 <Form.Item name="name" required style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
                   <Input id="name" placeholder="Enter your name" type="text" value={values.name} onChange={handleChange} onBlur={handleBlur} 
                     className={ errors.name && touched.name ? 'text-input error' : 'text-input' } />
-                  {errors.name && touched.address1 && (
+                  {errors.name && touched.name && (
                     <div className="input-feedback">{errors.name}</div>
                   )}
                 </Form.Item>

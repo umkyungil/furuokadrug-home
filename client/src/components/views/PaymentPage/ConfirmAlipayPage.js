@@ -58,25 +58,39 @@ function ConfirmAlipayPage(props) {
   const [StaffName, setStaffName] = useState("");
 
   const history = useHistory();
-
+  
   // query string 취득(live streaming에서 보낸 값)
   const userId = props.match.params.userId;
   const sid = props.match.params.sid;
-  const sod = props.match.params.sod;
+  const sod = decodeURIComponent(props.match.params.sod);
   const siam1 = props.match.params.siam1;
   const uniqueField = decodeURIComponent(props.match.params.uniqueField);
   const staffName = decodeURIComponent(props.match.params.staffName);
 
-  // Radio 값 저장
-  const radioChangeHandler = e => {
-    setSelectedAddress(e.target.value);
-  };
-
   useEffect(() => {
+    // 로그인 사용자정보 가져오기
     getUserInfo();
+
+    setUserId(userId);
+    setSiam1(siam1);
+    setUniqueField(uniqueField);
+    setSod(sod);
+
+    // 스텝이름 가져오기
+    // live streaming에서 이동된 경우 전달받은 step이름으로 step정보 가져오기
+    // cart 에서 이동된 경우 전달된 스텝이름은 'ECSystem'이라서 검색할 필요가 없다
+    if (staffName) {
+      if (staffName === 'ECSystem') {
+        setStaffName("ECSystem")
+      } else {
+        getStaffInfo(staffName);
+      }
+    } else {
+      setStaffName("未設定")
+    }
   }, [])
 
-  // 로그인 유저정보 취득
+  // 로그인 사용자정보 가져오기
   const getUserInfo = async () => {
     const userResult = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}`);
 
@@ -85,17 +99,6 @@ function ConfirmAlipayPage(props) {
       setLastName(userResult.data.user[0].lastName);
       setEmail(userResult.data.user[0].email);
       setTel(userResult.data.user[0].tel)
-      setUserId(userId);
-      setSiam1(siam1);
-
-      let arr = uniqueField.split('_');
-      if (arr[0].trim() === "cart") {
-        setSod(arr[2].trim()); // 상태에는 uniqueKey의 날짜를 대입
-      } else {
-        setSod(sod); // Live인 경우 날짜가 돌아오기 때문에 그대로 대입 
-      }
-      
-      setUniqueField(uniqueField);
 
       // 주소1
       if (userResult.data.user[0].address1) {
@@ -151,19 +154,6 @@ function ConfirmAlipayPage(props) {
       if (userResult.data.user[0].tel3) {
         setTel3(userResult.data.user[0].tel3);
       }
-
-      // live streaming에서 전달받은 step이름으로 step정보취득
-      // cart페이지에서 전달된 스텝이름은 'ECSystem'이라서 스텝이름을 
-      // 검색할 필요가 없다
-      if (staffName) {
-        if (staffName === 'ECSystem') {
-          setStaffName("ECSystem")
-        } else {
-          getStaffInfo(staffName);
-        }
-      } else {
-        setStaffName("未設定")
-      }
     } else {
       console.log("Failed to get user information.")
     } 
@@ -176,7 +166,7 @@ function ConfirmAlipayPage(props) {
     }
     // 성으로 전체 검색해서 권한이 스텝인 사람을 추출
     // 동명이인인 경우는 첫번째 사람의 이름으로 설정한다
-    const staffResult = axios.post(`${USER_SERVER}/list`, body);
+    const staffResult = await axios.post(`${USER_SERVER}/list`, body);
 
     if (staffResult.data.success) {
       if (staffResult.data.userInfo.length > 0 && staffResult.data.userInfo[0].role !== "0") {
@@ -189,6 +179,10 @@ function ConfirmAlipayPage(props) {
     }
   }
 
+  // Radio 값 저장
+  const radioChangeHandler = e => {
+    setSelectedAddress(e.target.value);
+  };
   // 배송지 주소
   const addressChangeHandler = (event) => {
     setChangeAddress(event.currentTarget.value);
@@ -201,6 +195,7 @@ function ConfirmAlipayPage(props) {
   const telChangeHandler = (event) => {
     setChangeTel(event.currentTarget.value);
   }
+
   // 결제처리
   const sendPaymentInfo = async (e) => {
     e.preventDefault();

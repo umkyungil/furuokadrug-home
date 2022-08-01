@@ -110,8 +110,8 @@
     "totalPaymentAmount": "合計金額 (JPY)",
     "availablePoints": "利用可能なポイント",
     "availableCoupons": "利用可能なクーポン",
-    "TotalPointsSelectedProducts": "選択した商品のポイント合計",
-    "TotalAmountSelectedProducts": "選択した商品の合計額 (JPY)",
+    "acquisitionPoints": "獲得ポイント",
+    "totalAmountSelectedProducts": "選択した商品の合計額 (JPY)",
     "discountAmount": "割引額 (JPY)"
   },
   "Paypal": {
@@ -205,5 +205,31 @@
     "qrCode": "二维码",
     "createdDate": "登録日",
     "updatedDate": "更新日"
+  },
+  "Coupon": {
+    "listTitle": "クーポン情報一覧",
+    "regTitle": "クーポン情報登録",
+    "updateTitle": "クーポン情報更新",
+    "code": "コード",
+    "description": "説明",
+    "active": "有効",
+    "expirationPeriod": "有効期限",
+    "discountRate": "割引率"
+  },
+  "Point": {
+    "listTitle": "ポイント情報一覧",
+    "seq": "順序",
+    "subSeq": "サブシーケンス",
+    "point": "獲得ポイント",
+    "remainingPoints": "残ポイント",
+    "usePoint": "ポイント計算",
+    "dspUsePoint": "使用ポイント",
+    "description": "説明",
+    "validFrom": "獲得日",
+    "validTo": "有効期間",
+    "dateUsed": "使用日",
+    "name": "名前",
+    "lastName": "苗字",
+    "totalPoints": "合計"
   }
 }
