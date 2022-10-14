@@ -3,19 +3,12 @@ import { Button, Form, Input } from 'antd';
 import FileUpload from '../../utils/FileUpload';
 import axios from 'axios';
 import { PRODUCT_SERVER } from '../../Config.js';
+import { MainCategory } from '../../utils/Const';
 import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-const { TextArea } = Input;
-const Continents = [
-  {key:1, value: "Skin Care"},
-  {key:2, value: "Eye Care"},
-  {key:3, value: "Hair Care"},
-  {key:4, value: "Others"},
-  {key:5, value: "Supplement"},
-  {key:6, value: "Men's"}
-]
+const { TextArea } = Input;;
 
 function UpdateProductPage(props) {  
   const [Title, setTitle] = useState("");
@@ -234,7 +227,7 @@ function UpdateProductPage(props) {
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.itemSelection')}</label>
         <br />
         <select onChange={continentHandler} value={Continent}>
-          {Continents.map(item => (
+          {MainCategory.map(item => (
             <option key={item.key} value={item.key}> {item.value} </option>
           ))}
         </select>

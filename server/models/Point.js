@@ -35,40 +35,25 @@ const pointSchema = mongoose.Schema({
   },
   // 사용할 포인트
   usePoint: {
-    type: Number,
+    type: Number
   },
   // 사용할 포인트(화면에 노출)
   dspUsePoint: {
-    type: Number,
-  },
-  // 포인트 설명(종류)
-  description: {
-    type: String,
+    type: Number
   },
   // 유효기간 From(포인트 획득일)
   validFrom: {
-    type: String,
+    type: Date
   },
   // 유효기간 To(유효기간)
   validTo: {
-    type: String,
+    type: Date
   },
   // 사용한 날짜
   dateUsed: {
-    type: String,
-  },
-
-}, { timestamps: true })
-
-pointSchema.index({
-  expireDate: 'text',
-  remainingPoints: 'text'
-}, {
-  weights: {
-    active: 5,
-    code: 1
+    type: Date
   }
-})
+}, { timestamps: true })
 
 const Point = mongoose.model('Point', pointSchema);
 

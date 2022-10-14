@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Table } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { USER_SERVER } from '../../Config.js';
+import { English, Chinese, Japanese, Nothing } from '../../utils/Const.js'
 import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
@@ -32,8 +33,8 @@ function UserListPage() {
 	const columns = [
     {
       title: t('User.name'),
-      dataIndex: 'name',
-      key: 'name'
+      dataIndex: 'lastName',
+      key: 'lastName'
     },
     {
       title: t('User.email'),
@@ -79,7 +80,7 @@ function UserListPage() {
 		},
   ];
 
-	// 사용자 정보 취득
+	// 사용자 정보 가져오기
 	const getUsers = async (body) => {
 		let data = [];
     let count = 0;
@@ -95,11 +96,11 @@ function UserListPage() {
 					let tmpLanguage = result.data.userInfo[i].language;
 					if (tmpLanguage) {
 						if (tmpLanguage === 'en') {
-							tmpLanguage = '英語'
+							tmpLanguage = English
 						} else if(tmpLanguage === 'jp') {
-							tmpLanguage = '中国語（簡体）'
+							tmpLanguage = Chinese
 						} else {
-							tmpLanguage = '日本語'
+							tmpLanguage = Japanese
 						}
 						result.data.userInfo[i].chgLanguage = tmpLanguage;
 					}
@@ -124,11 +125,12 @@ function UserListPage() {
 						const date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
 						result.data.userInfo[i].delDate = date.replace('T', ' ').substring(0, 19) + ' (JST)';
 					} else {
-						result.data.userInfo[i].delDate = '無し';
+						result.data.userInfo[i].delDate = Nothing;
 					}
 
 					// 메일전송　타입추가(Notice 메일전송시 customer list와 구분하기 위한 타입)
 					result.data.userInfo[i].type = 'User';
+
 					// key 추가
           result.data.userInfo[i].key = count;
 					data.push(result.data.userInfo[i]);

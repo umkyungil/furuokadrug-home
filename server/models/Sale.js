@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
-const couponSchema = mongoose.Schema({
+const saleSchema = mongoose.Schema({
   code: {
     type: String
   },
@@ -14,6 +13,10 @@ const couponSchema = mongoose.Schema({
   },
   // 할인금액
   amount: {
+    type: String
+  },
+  // 최소금액(할인형태: 2 인경우)
+  minAmount: {
     type: String
   },
   // 상품 카테고리
@@ -32,39 +35,43 @@ const couponSchema = mongoose.Schema({
   active: {
     type: String
   },
+  // 유효기간 시작
   validFrom: {
-    type: Date,
+    type: String,
   },
+  // 유효기간 종료
   validTo: {
-    type: Date,
-  },
-  // 사용횟수
-  // "": 무제한
-  count: {
-    type: String
-  },
-  // 0: 쿠폰코드 입력하면 세일은 사용못함
-  // 1: 쿠폰코드와 세일 중복으로 사용가능
-  // 2: 세일만 사용가능
-  useWithSale: {
-    type: Number,
-    default: 0
-  },
-  // 사용자 아이디
-  userId: {
-    type: String
+    type: String,
   },
   // 상품 아이디
   productId: {
     type: String
   },
+  // 일본어 메일 Comment
+  jpMailComment: {
+    type: String
+  },
+  // 중국어 메일 Comment
+  cnMailComment: {
+    type: String
+  },
+  // 영어 메일 Comment
+  enMailComment: {
+    type: String
+  },
+  // 메일전송 유무
   sendMail: {
+    type: Boolean,
+    default: false
+  },
+  // 세일대상 제외 유무
+  except: {
     type: Boolean,
     default: false
   }
 }, { timestamps: true })
 
-couponSchema.index({
+saleSchema.index({
   code: 'text',
   type: 'text'
 }, {
@@ -74,5 +81,5 @@ couponSchema.index({
   }
 })
 
-const Coupon = mongoose.model('Coupon', couponSchema);
-module.exports = { Coupon }
+const Sale = mongoose.model('Sale', saleSchema);
+module.exports = { Sale }

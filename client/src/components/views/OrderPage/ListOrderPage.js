@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Table } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { ORDER_SERVER, USER_SERVER } from '../../Config.js';
+import { Unidentified, DeliveryCompleted } from '../../utils/Const.js';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 // CORS 대책
@@ -197,7 +198,7 @@ function ListOrderPage(props) {
 					}
 					// 일본어의 경우(스텝이름 이외에는 기존 서버에서 셋팅한 값이 일본어 이기에 변경할 필요없다)
 					if (!tmpOrderInfo.staffName) {
-						tmpOrderInfo.staffName = "未確認";
+						tmpOrderInfo.staffName = Unidentified;
 					}
 					// key 추가
 					tmpOrderInfo.key = count;
@@ -218,7 +219,7 @@ function ListOrderPage(props) {
 
 		if (result.data.success) {
 			// 결제상태가 미확인이 아니면 배송상태 변경
-			if (result.data.orders[0].paymentStatus !== "未確認") {
+			if (result.data.orders[0].paymentStatus !== Unidentified) {
 				updateDeliveryStatus(orderId);
 			} else {
 				alert("Please confirm payment status")
@@ -233,7 +234,7 @@ function ListOrderPage(props) {
 		const result = await axios.get(`${ORDER_SERVER}/deliveryStatus?id=${orderId}`);
 			
 		if (result.data.success) {
-			setDeliveryStatusChange("配送手続き完了") // 화면을 리로드 해서 상태를 변경시켜야 하기에 일부러 스테이터스를 변경
+			setDeliveryStatusChange(DeliveryCompleted) // 화면을 리로드 해서 상태를 변경시켜야 하기에 일부러 스테이터스를 변경
 			console.log("Order information registration successful");
 		} else {
 			console.log("Order information registration failed");

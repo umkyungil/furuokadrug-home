@@ -1,22 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Input } from 'antd';
 import FileUpload from '../../utils/FileUpload';
-import axios from 'axios';
+import { MainCategory } from '../../utils/Const';
 import { PRODUCT_SERVER } from '../../Config.js';
+import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-//const { Title } = Typography;
 const { TextArea } = Input;
-const Continents = [
-  {key:1, value: "Skin Care"},
-  {key:2, value: "Eye Care"},
-  {key:3, value: "Hair Care"},
-  {key:4, value: "Others"},
-  {key:5, value: "Supplement"},
-  {key:6, value: "Men's"}
-]
 
 function UploadProductPage(props) {
   const [Title, setTitle] = useState("");
@@ -200,7 +192,7 @@ function UploadProductPage(props) {
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.itemSelection')}</label>
         <br />
         <select onChange={continentHandler} value={Continent}>
-          {Continents.map(item => (
+          {MainCategory.map(item => (
             <option key={item.key} value={item.key}> {item.value} </option>
           ))}
         </select>

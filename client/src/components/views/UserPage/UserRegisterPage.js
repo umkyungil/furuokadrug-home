@@ -103,7 +103,7 @@ function UserRegisterPage(props) {
         name: Yup.string()
           .required('Name is required'),
         lastName: Yup.string()
-          .required('Last Name is required'),
+          .required('Last name is required'),
         email: Yup.string()
           .email('Email is invalid')
           .required('Email is required'),
@@ -167,20 +167,20 @@ function UserRegisterPage(props) {
             <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 이름 */}
               <Form.Item required label={t('SignUp.name')} style={{ marginBottom: 0, }} >
-                {/* 이름 */}
-                <Form.Item name="name" required style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
-                  <Input id="name" placeholder="Enter your name" type="text" value={values.name} onChange={handleChange} onBlur={handleBlur} 
-                    className={ errors.name && touched.name ? 'text-input error' : 'text-input' } />
-                  {errors.name && touched.address1 && (
-                    <div className="input-feedback">{errors.name}</div>
-                  )}
-                </Form.Item>
                 {/* 성 */}
                 <Form.Item name="lastName" required style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
                   <Input id="lastName" placeholder="Enter your last Name" type="text" value={values.lastName} onChange={handleChange} onBlur={handleBlur}
                     className={ errors.lastName && touched.lastName ? 'text-input error' : 'text-input' } />
                   {errors.lastName && touched.lastName && (
                     <div className="input-feedback">{errors.lastName}</div>
+                  )}
+                </Form.Item>
+                {/* 이름 */}
+                <Form.Item name="name" required style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
+                  <Input id="name" placeholder="Enter your name" type="text" value={values.name} onChange={handleChange} onBlur={handleBlur} 
+                    className={ errors.name && touched.name ? 'text-input error' : 'text-input' } />
+                  {errors.name && touched.address1 && (
+                    <div className="input-feedback">{errors.name}</div>
                   )}
                 </Form.Item>
               </Form.Item>

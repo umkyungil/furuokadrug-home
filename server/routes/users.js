@@ -260,6 +260,33 @@ router.post("/list", (req, res) => {
     }
 });
 
+// 쿠폰 사용자 조회
+router.post("/coupon/list", (req, res) => {
+    try {
+        let term = req.body.searchTerm;
+
+        if (term) {
+            User.find({ "name": { '$regex': term, $options: 'i' }, "deletedAt": { $exists: false }, "role": 0 })
+            .sort({ "lastLogin": 1 })
+            .skip(req.body.skip)
+            .exec((err, userInfo) => {
+                if (err) return res.status(400).json({success: false, err});
+                return res.status(200).json({ success: true, userInfo})
+            });
+        } else {
+            User.find({"deletedAt": { $exists: false }, "role": 0 })
+            .sort({ "lastLogin": 1 })
+            .exec((err, userInfo) => {
+                if (err) return res.status(400).json({success: false, err});
+                return res.status(200).json({ success: true, userInfo})
+            });
+        }    
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ success: false, message: err.message })
+    }
+});
+
 // 사용자 수정
 router.post("/update", (req, res) => {
     // 삭제여부 확인
@@ -448,16 +475,15 @@ router.post('/successBuy', auth, (req, res) => {
         let history = [];
         let transactionData = {};
         
-        // const tmpDate1 = new Date().toLocaleString({ timeZone: 'Asia/Tokyo' });
-        let tmpDate1 = new Date();
-		const curDate = new Date(tmpDate1.getTime() - (tmpDate1.getTimezoneOffset() * 60000)).toISOString();
-        const tmpDate2 = new Date(tmpDate1.setFullYear(tmpDate1.getFullYear() + 1));
-        const oneYearDate = new Date(tmpDate2.getTime() - (tmpDate2.getTimezoneOffset() * 60000)).toISOString();
+        let dt1 = new Date();
+		let currentDate = new Date(dt1.getTime() - (dt1.getTimezoneOffset() * 60000)).toISOString();
+        let dt2 = new Date(dt1.setFullYear(dt1.getFullYear() + 1));
+        let oneYearDate = new Date(dt2.getTime() - (dt2.getTimezoneOffset() * 60000)).toISOString();
 
         // 결제한 카트에 담겼던 상품정보를 history에 넣어줌
         req.body.cartDetail.forEach((item) => {
             history.push({
-                dateOfPurchase: curDate,
+                dateOfPurchase: currentDate,
                 name: item.title,
                 id: item._id,
                 price: item.price,
@@ -518,20 +544,55 @@ router.post('/successBuy', auth, (req, res) => {
             }
         )
         
+        // 사용자가 입력한 포인트가 있는지 확인 (입력한 포인트는 기본값이 화면단에서 0으로 설정되어 있다)
         const pointToUse = Number(req.body.pointToUse); 
-        // 입력한 포인트가 있는지 확인 (입력한 포인트는 기본값이 화면단에서 0으로 설정되어 있다)
         if(pointToUse > 0) {
-            // 해당 사용자의 포인트 가져오기 (남은포인트가 0보다 큰 데이타)
-            Point.find({userId: req.user._id, remainingPoints: { $gt: 0 }})
+            // 포인트 누적할 항목 설정
+            let dataToSubmit = {
+                userId: req.user._id,
+                userName: req.user.name,
+                userLastName: req.user.lastName,
+                point: req.body.productPoint, // 취득한 포인트
+                remainingPoints: req.body.productPoint, // 취득한 포인트
+                usePoint: 0,
+                dspUsePoint: 0,
+                validFrom: currentDate,
+                validTo: oneYearDate,
+                dateUsed:''
+            }
+
+            // 포인트 등록
+            savePoint(dataToSubmit);
+
+            // 사용자가 보유하는 포인트 가져오기 (남은 포인트가 0보다 큰 데이타)
+            Point.find({ "userId": req.user._id, "remainingPoints": { $gt: 0 }})
                 .sort({ "validTo": 1 }) // 유효기간To가 가까운것부터 정렬(내림차순)
-                .exec((err, pointInfos) => {
-                    if (err) return res.status(400).json({ success: false });
+                .exec((err, points) => {
+                    if (err) {
+                        console.log("Point calculation failed when paying with AliPay: ", err);
+                        return res.status(400).json({ success: false });
+                    }
+
+                    // 유효기간 내의 사용할수 있는 포인트만 추출
+                    let pointInfos = [];
+                    let current = new Date(currentDate.substring(0, 10));
+                    
+                    for (let i=0; i<points.length; i++) {
+                        let from = points[i].validFrom;
+                        let to = points[i].validTo;
+                        let validFrom = new Date(from.toISOString().substring(0, 10))
+                        let validTo = new Date(to.toISOString().substring(0, 10))
+
+                        if ((validFrom <= current) && (current <=  validTo)) {
+                            pointInfos.push(points[i]);
+                        }
+                    }
 
                     for (let i=0; i<pointInfos.length; i++) {
                         // 첫번째 레코드는 사용자가 입력한 포인트로 계산을 한다
                         if (i===0) {
                             // 한번도 사용하지 않은 포인트인 경우
-                            if (pointInfos[i].dateUsed === '') {
+                            if (!pointInfos[i].dateUsed) {
                                 const remainingPoints = pointInfos[i].remainingPoints;
 
                                 // 기존 포인트 - 사용자가 입력한 포인트(항상 [양수 - 양수] 이기에 그대로 계산 가능)
@@ -543,29 +604,15 @@ router.post('/successBuy', auth, (req, res) => {
                                     pointInfos[i].usePoint = tmp;
                                     // 포인트를 전부 사용했기에 원래 가지고 있던 포인트 대입(화면 노출)
                                     pointInfos[i].dspUsePoint = remainingPoints;
-
-                                    Point.findOneAndUpdate(
-                                        { _id: pointInfos[i]._id },
-                                        { $set: { dspUsePoint: remainingPoints, usePoint: tmp, remainingPoints: 0, dateUsed: curDate }},
-                                        { new: true },
-                                        (err, pointInfo) => {
-                                            if(err) return res.status(400).json({ success: false, err });
-                                        }
-                                    )
+                                    // 포인트 업데이트
+                                    updatePoint(pointInfos[i]._id, remainingPoints, tmp, 0, currentDate);
                                 } else {
-                                    // dspUsePoint에 사용자가 입력한 포인트를 대입
-                                    Point.findOneAndUpdate(
-                                        { _id: pointInfos[i]._id },
-                                        { $set: { dspUsePoint: pointToUse, usePoint: tmp, remainingPoints: tmp, dateUsed: curDate }},
-                                        { new: true },
-                                        (err, pointInfo) => {
-                                            if(err) return res.status(400).json({ success: false, err });
-                                        }
-                                    )
+                                    // 포인트 업데이트
+                                    updatePoint(pointInfos[i]._id, pointToUse, tmp, tmp, currentDate);
                                     // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
                                     break;
                                 }
-                            // 한번이상 사용해서 남은 잔 포인트가 있는 경우
+                            // 한번이상 사용하고 남은 잔포인트가 있는경우
                             } else {
                                 // 기존 레코드의 나머지 금액을 0으로 업데이트
                                 Point.findOneAndUpdate(
@@ -573,7 +620,10 @@ router.post('/successBuy', auth, (req, res) => {
                                     { $set: { remainingPoints: 0 }},
                                     { new: true },
                                     (err, pointInfo) => {
-                                        if(err) return res.status(400).json({ success: false, err });
+                                        if(err) {
+                                            console.log(err);
+                                            return res.status(400).json({ success: false, err });
+                                        }
                                     }
                                 )
 
@@ -585,7 +635,6 @@ router.post('/successBuy', auth, (req, res) => {
                                     userName: pointInfos[i].userName,
                                     userLastName: pointInfos[i].userLastName,
                                     point: pointInfos[i].point,
-                                    description: pointInfos[i].description,
                                     validFrom: pointInfos[i].validFrom,
                                     validTo: pointInfos[i].validTo
                                 }
@@ -601,23 +650,29 @@ router.post('/successBuy', auth, (req, res) => {
                                     dataToSubmit.usePoint = tmp;
                                     dataToSubmit.dspUsePoint = remainingPoints;
                                     dataToSubmit.remainingPoints = 0;
-                                    dataToSubmit.dateUsed = curDate;
+                                    dataToSubmit.dateUsed = currentDate;
 
                                     // 포인트 등록
                                     const point = new Point(dataToSubmit);
                                     point.save((err, doc) => {
-                                        if (err) return res.status(400).json({ success: false, err });
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(400).json({ success: false, err });
+                                        }
                                     });
                                 } else {
                                     dataToSubmit.usePoint = tmp;
                                     dataToSubmit.dspUsePoint = pointToUse;
                                     dataToSubmit.remainingPoints = tmp;
-                                    dataToSubmit.dateUsed = curDate;
+                                    dataToSubmit.dateUsed = currentDate;
 
                                     // 포인트 등록
                                     const point = new Point(dataToSubmit);
                                     point.save((err, doc) => {
-                                        if (err) return res.status(400).json({ success: false, err });
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(400).json({ success: false, err });
+                                        }
                                     });
 
                                     // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
@@ -639,25 +694,11 @@ router.post('/successBuy', auth, (req, res) => {
                             if(tmp < 0) {
                                 // 전 레코드의 계산된 포인트로 가지고 온 포인트 정보의 사용자 포인트를 계산된 값으로 수정
                                 pointInfos[i].usePoint = tmp;
-
-                                Point.findOneAndUpdate(
-                                    { _id: pointInfos[i]._id },
-                                    { $set: { dspUsePoint: remainingPoints, usePoint: tmp, remainingPoints: 0, dateUsed: curDate }},
-                                    { new: true },
-                                    (err, pointInfo) => {
-                                        if(err) return res.status(400).json({ success: false, err });
-                                    }
-                                )
+                                // 포인트 업데이트
+                                updatePoint(pointInfos[i]._id, remainingPoints, tmp, 0, currentDate);
                             } else {
-                                Point.findOneAndUpdate(
-                                    { _id: pointInfos[i]._id },
-                                    { $set: { dspUsePoint: usePoint, usePoint: tmp, remainingPoints: tmp, dateUsed: curDate }},
-                                    { new: true },
-                                    (err, pointInfo) => {
-                                        if(err) return res.status(400).json({ success: false, err });
-                                    }
-                                )
-
+                                // 포인트 업데이트
+                                updatePoint(pointInfos[i]._id, usePoint, tmp, tmp, currentDate);
                                 // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
                                 break;
                             }
@@ -671,37 +712,52 @@ router.post('/successBuy', auth, (req, res) => {
                 userName: req.user.name,
                 userLastName: req.user.lastName,
                 point: req.body.productPoint, // 구매상품 포인트 합계
-                remainingPoints: req.body.productPoint,
+                remainingPoints: req.body.productPoint,// 구매상품 포인트 합계
                 usePoint: 0,
                 dspUsePoint: 0,
-                description: "商品購入",
-                validFrom: curDate,
+                validFrom: currentDate,
                 validTo: oneYearDate,
                 dateUsed:''
             }
 
-            // 카운트에서 포인트의 일련번호 가져오기
-            Counter.findOneAndUpdate(
-                { name: "point" },
-                { $inc: { "seq": 1 }},
-                { new: true },
-                (err, countInfo) => {
-                    if(err) return res.status(400).json({ success: false, err });
-
-                    // 포인트의 seq에 카운트에서 가져온 일련번호를 대입해서 포인트를 생성 
-                    dataToSubmit.seq = countInfo.seq; 
-                    const point = new Point(dataToSubmit);
-                    point.save((err, doc) => {
-                        if (err) return res.status(400).json({ success: false, err });
-                    });
-                }
-            );
+            // 포인트 등록
+            savePoint(dataToSubmit)
         }
     } catch (err) {
         console.log(err);
         return res.status(500).json({ success: false, message: err.message });
     }
 })
+
+const savePoint  = (dataToSubmit)  => {
+    // 카운트를 증가시키고 포인트 저장
+    Counter.findOneAndUpdate(
+        { name: "point" },
+        { $inc: { "seq": 1 }},
+        { new: true },
+        (err, countInfo) => {
+            if (err) return res.status(400).json({ success: false, err });
+            
+            // 포인트의 seq에 카운트에서 가져온 일련번호를 대입해서 포인트를 생성 
+            dataToSubmit.seq = countInfo.seq; 
+            const point = new Point(dataToSubmit);
+            point.save((err, doc) => {
+                if (err) return res.status(400).json({ success: false, err });
+            });
+        }
+    )
+}
+
+const updatePoint = (tmp1, tmp2, tmp3, tmp4, tmp5) => {
+    Point.findOneAndUpdate(
+        { _id: tmp1 },
+        { $set: { dspUsePoint: tmp2, usePoint: tmp3, remainingPoints: tmp4, dateUsed: tmp5 }},
+        { new: true },
+        (err, pointInfo) => {
+            if(err) return res.status(400).json({ success: false, err });
+        }
+    )
+}
 
 router.post('/successBuyTmp', auth, (req, res) => {
     try {

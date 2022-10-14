@@ -8,85 +8,46 @@ const { User } = require("../models/User");
 //             Point
 //=================================
 
-const getUserInfo = async (userId) => {
-    const userInfo = await User.findOne({ _id: userId });
-    if (!userInfo) {
-        console.log("err: ", err);
-        return res.status(400).json({success: false, err});
-    }
-
-    return userInfo;
-}
-
-const getPointByCondition = async (userId, tmpFromDate) => {
-    let pointInfo;
-
-    if (tmpFromDate) {
-        pointInfo = await Point.find({ "userId": userId, "createdAt":{ $gte: tmpFromDate }})
-        .sort({ "seq": 1, "subSeq": 1 })
-    } else {
-        pointInfo = await Point.find({ "userId": userId })
-        .sort({ "seq": 1, "subSeq": 1 })
-    }   
-
-    if (!pointInfo) {
-        console.log("err: ", err);
-        return res.status(400).json({success: false, err});
-    }
-
-    return pointInfo;
-}
-
-router.post('/list', async (req, res) => {
-    let term = req.body.searchTerm;
-    const userId = req.body.userId;
-    
+// 사용자의 유효기간내의 사용가능한 포인트 가져오기 
+router.get('/users_by_id', async (req, res) => {
+    // 사용자 아이디
+    const userId = req.query.id;
     try {
-        getUserInfo(userId).then((userInfo) => {
-            // 관리자인 경우
-            if (userInfo.role === 2) {
-                // 조건이 있는경우
-                if (term.length > 0) {
-                    // 유효기간To 조건이 있는경우
-                    if (term[0] !== "") {
-                        let tmpFromDate = new Date(term[0]);
 
-                        getPointByCondition(userId, tmpFromDate).then((pointInfos) => {
-                            return res.status(200).send({success: true, pointInfos});
-                        })
-                    // 검색을 지웠을때
-                    } else if (term[0] === "") {
-                        getPointByCondition(userId).then((pointInfos) => {
-                            return res.status(200).send({success: true, pointInfos});
-                        })
-                    }
-                } else {
-                    getPointByCondition(userId).then((pointInfos) => {
-                        return res.status(200).send({success: true, pointInfos});
-                    })
-                }
-            // 사용자인 경우
-            } else if (userInfo.role === 0) {
-                // 조건이 있는경우
-                if (term.length > 0) {
-                    // 유효기간To 조건이 있는경우
-                    if (term[0] !== "") {
-                        let tmpFromDate = new Date(term[0]);
+        let pointInfos = [];
+        let dt = new Date();
+        let currentDate = new Date(dt.getTime() - (dt.getTimezoneOffset() * 60000)).toISOString();
+        let current = new Date(currentDate.substring(0, 10));
 
-                        getPointByCondition(userId, tmpFromDate).then((pointInfos) => {
-                            return res.status(200).send({success: true, pointInfos});
-                        })
-                    } else {
-                        getPointByCondition(userId).then((pointInfos) => {
-                            return res.status(200).send({success: true, pointInfos});
-                        })
-                    }
-                } else {
-                    getPointByCondition(userId).then((pointInfos) => {
-                        return res.status(200).send({success: true, pointInfos});
-                    })
-                }
+        const points = await Point.find({ "userId": userId, "remainingPoints": { $gt: 0 }}).sort({ "createdAt": 1 })
+
+        for (let i=0; i<points.length; i++) {
+            let from = new Date(points[i].validFrom);
+            let to = new Date(points[i].validTo);
+            let validFrom = new Date(from.toISOString().substring(0, 10));
+            let validTo = new Date(to.toISOString().substring(0, 10) + " 23:59:59");
+
+            if ((validFrom <= current) && (current <=  validTo)) {
+                pointInfos.push(points[i]);
             }
+        }
+        
+        return res.status(200).send({success: true, pointInfos});
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 사용자 아이디로 포인트 정보 가져오기
+router.post('/list', async (req, res) => {
+    const userId = req.body.userId;
+
+    try {
+        Point.find({ "userId": userId }).sort({ "seq": 1, "subSeq": 1 })
+        .then((pointInfos) => {
+            return res.status(200).send({success: true, pointInfos});
         })
     } catch (err) {
         console.log(err);

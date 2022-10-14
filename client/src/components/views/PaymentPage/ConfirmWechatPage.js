@@ -3,6 +3,7 @@ import { Form, Input, Button, Radio, Tooltip } from 'antd';
 import axios from 'axios';
 import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
+import { NotSet, ECSystem, Unidentified } from '../../utils/Const';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -78,13 +79,13 @@ function ConfirmWechatPage(props) {
 
   // 로그인 유저정보 취득
   const getUserInfo = async () => {
-    const userResult = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}`);
+    const userInfo = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}`);
       
-    if (userResult.data.success) {
-      setName(userResult.data.user[0].name);
-      setLastName(userResult.data.user[0].lastName);
-      setEmail(userResult.data.user[0].email);
-      setTel(userResult.data.user[0].tel)
+    if (userInfo.data.success) {
+      setName(userInfo.data.user[0].name);
+      setLastName(userInfo.data.user[0].lastName);
+      setEmail(userInfo.data.user[0].email);
+      setTel(userInfo.data.user[0].tel)
       setUserId(userId);
       setSiam1(siam1);
 
@@ -98,9 +99,9 @@ function ConfirmWechatPage(props) {
       setUniqueField(uniqueField);
 
       // 주소1
-      if (userResult.data.user[0].address1) {
-        setAddress1(userResult.data.user[0].address1);
-        let address1 = userResult.data.user[0].address1;
+      if (userInfo.data.user[0].address1) {
+        setAddress1(userInfo.data.user[0].address1);
+        let address1 = userInfo.data.user[0].address1;
         if (address1.length > 10) {
           address1 = address1.slice(0, 10)
           address1 = address1 + "...";
@@ -108,17 +109,17 @@ function ConfirmWechatPage(props) {
         }
       }
       // 수신자1
-      if (userResult.data.user[0].receiver1) {
-        setReceiver1(userResult.data.user[0].receiver1);
+      if (userInfo.data.user[0].receiver1) {
+        setReceiver1(userInfo.data.user[0].receiver1);
       }
       // 수신자 전화번호1
-      if (userResult.data.user[0].tel1) {
-        setTel1(userResult.data.user[0].tel1);
+      if (userInfo.data.user[0].tel1) {
+        setTel1(userInfo.data.user[0].tel1);
       }
       // 주소2
-      if (userResult.data.user[0].address2) {
-        setAddress2(userResult.data.user[0].address2);
-        let address2 = userResult.data.user[0].address2;
+      if (userInfo.data.user[0].address2) {
+        setAddress2(userInfo.data.user[0].address2);
+        let address2 = userInfo.data.user[0].address2;
         if (address2.length > 10) {
           address2 = address2.slice(0, 10)
           address2 = address2 + "...";
@@ -126,17 +127,17 @@ function ConfirmWechatPage(props) {
         }
       }
       // 수신자2
-      if (userResult.data.user[0].receiver2) {
-        setReceiver2(userResult.data.user[0].receiver2);
+      if (userInfo.data.user[0].receiver2) {
+        setReceiver2(userInfo.data.user[0].receiver2);
       }
       // 수신자 전화번호2
-      if (userResult.data.user[0].tel2) {
-        setTel2(userResult.data.user[0].tel2);
+      if (userInfo.data.user[0].tel2) {
+        setTel2(userInfo.data.user[0].tel2);
       }
       // 주소3
-      if (userResult.data.user[0].address3) {
-        setAddress3(userResult.data.user[0].address3);
-        let address3 = userResult.data.user[0].address3;
+      if (userInfo.data.user[0].address3) {
+        setAddress3(userInfo.data.user[0].address3);
+        let address3 = userInfo.data.user[0].address3;
         if (address3.length > 10) {
           address3 = address3.slice(0, 10);
           address3 = address3 + "...";
@@ -144,25 +145,25 @@ function ConfirmWechatPage(props) {
         }
       }
       // 수신자3
-      if (userResult.data.user[0].receiver3) {
-        setReceiver3(userResult.data.user[0].receiver3);
+      if (userInfo.data.user[0].receiver3) {
+        setReceiver3(userInfo.data.user[0].receiver3);
       }
       //수신자 전화번호3
-      if (userResult.data.user[0].tel3) {
-        setTel3(userResult.data.user[0].tel3);
+      if (userInfo.data.user[0].tel3) {
+        setTel3(userInfo.data.user[0].tel3);
       }
 
       // live streaming에서 전달받은 step이름으로 step정보취득
       // cart페이지에서 전달된 스텝이름은 'ECSystem'이라서 스텝이름을 
       // 검색할 필요가 없다
       if (staffName) {
-        if (staffName === 'ECSystem') {
-          setStaffName("ECSystem")
+        if (staffName === ECSystem) {
+          setStaffName(ECSystem)
         } else {
           getStaffInfo(staffName);
         }
       } else {
-        setStaffName("未設定")
+        setStaffName(NotSet)
       }
     } else {
       console.log("Failed to get user information.")
@@ -176,13 +177,13 @@ function ConfirmWechatPage(props) {
     }
     // 성으로 전체 검색해서 권한이 스텝인 사람을 추출
     // 동명이인인 경우는 첫번째 사람의 이름으로 설정한다
-    const staffResult = await axios.post(`${USER_SERVER}/list`, body);
+    const staffInfo = await axios.post(`${USER_SERVER}/list`, body);
 
-    if (staffResult.data.success) {
-      if (staffResult.data.userInfo.length > 0 && staffResult.data.userInfo[0].role !== "0") {
-        setStaffName(staffResult.data.userInfo[0].name + " " + staffResult.data.userInfo[0].lastName);
+    if (staffInfo.data.success) {
+      if (staffInfo.data.userInfo.length > 0 && staffInfo.data.userInfo[0].role !== "0") {
+        setStaffName(staffInfo.data.userInfo[0].name + " " + staffInfo.data.userInfo[0].lastName);
       } else {
-        setStaffName("未確認");
+        setStaffName(Unidentified);
       }
     } else {
       alert("Failed to get step information.")
@@ -202,7 +203,7 @@ function ConfirmWechatPage(props) {
     setChangeTel(event.currentTarget.value);
   }
 
-  // 결제처리
+  // 임시 주문정보 설정
   const sendPaymentInfo = async (e) => {
     e.preventDefault(); 
 
@@ -214,12 +215,12 @@ function ConfirmWechatPage(props) {
       tel: Tel,
       email: Email,
       address: SelectedAddress,
-      sod: Sod,
+      sod: Sod, // 유니크필드의 결제일자
       uniqueField: UniqueField,
       amount: Siam1,
       staffName: StaffName,
-      paymentStatus: "未確認",
-      deliveryStatus: "未確認"
+      paymentStatus: Unidentified,
+      deliveryStatus: Unidentified
     }
 
     // 주소 라디오 버튼
@@ -249,7 +250,7 @@ function ConfirmWechatPage(props) {
       body.receiverTel = ChangeTel;
     }
 
-    // 임시주문정보 저장
+    // 임시 주문정보 저장
     const tmpOrderResult = await axios.post(`${ORDER_SERVER}/tmpRegister`, body);
     if (tmpOrderResult.data.success) {
       console.log('Shipping information registration success');
@@ -306,7 +307,7 @@ function ConfirmWechatPage(props) {
       // window.location.reload();
       
       if (staffName) {
-        if (staffName === 'ECSystem') {
+        if (staffName === ECSystem) {
           history.push("/");
         } else {
           window.close();

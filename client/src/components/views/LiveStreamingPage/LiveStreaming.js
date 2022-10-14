@@ -11,7 +11,7 @@ axios.defaults.withCredentials = true;
 function LiveStreaming(props) {
   const history = useHistory();
   const [Body, setBody] = useState({});
-  // const [URL, setUrl] = useState("");
+  const [URL, setUrl] = useState("");
   const [Visible, setVisible] = useState(false);
   
   React.useEffect(() => {
@@ -68,7 +68,6 @@ function LiveStreaming(props) {
           if (response.data.success) {
             // 모달 뛰우고 메일및 주소정보 설정
             process(response.data.user[0]._id, response.data.user[0].name, response.data.user[0].lastName, response.data.user[0].email, response.data.user[0].role);
-            
           } else {
             alert("Failed to get user information.")
           }
@@ -104,27 +103,15 @@ function LiveStreaming(props) {
         fullName: fullName,
         room: room,
         roomInTime: roomInTime
-      }      
+      }
       // 메일내용 보관
       setBody(body);
       // URL작성: 일반 사용자는 룸에 들어간 화면을 표시
-      // setUrl(LIVE_SERVER + "meet?name=" + name + "&lastName=" +  lastName + "&room=" + room + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec");
-
-      // 추가 수정
-      const url = LIVE_SERVER + "meet?name=" + name + "&lastName=" +  lastName + "&room=" + room + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec";
-      window.open(url ,'_blank', "fullscreen=yes");
-
-      history.push("/");
+      setUrl(LIVE_SERVER + "meet?name=" + name + "&lastName=" +  lastName + "&room=" + room + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec");
 
     // URL작성: 스텝 및 관리자는 라이브 로그인 화면을 표시
     } else {
-      // setUrl(LIVE_SERVER + "login?name=" + name + "&lastName=" +  lastName + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec");
-
-      // 추가 수정
-      const url = LIVE_SERVER + "login?name=" + name + "&lastName=" +  lastName + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec";
-      window.open(url ,'_blank', "fullscreen=yes");
-
-      history.push("/");
+      setUrl(LIVE_SERVER + "login?name=" + name + "&lastName=" +  lastName + "&userId=" + userId + "&i18nextLng=" + i18n + "&type=ec");
     }
   }  
 
@@ -144,7 +131,6 @@ function LiveStreaming(props) {
       console.log("err: ",err);
     }
   }
-
   // 모달창 보여주기
   const showModal = (role) => {
     setVisible(true)
@@ -170,20 +156,14 @@ function LiveStreaming(props) {
       >
         <p>{t('Modal.message')}</p>
       </Modal>
-      {/* <iframe style={{
+      <iframe style={{
           position: 'absolute',
           top: '0',
           left: '0',
           right: '0',
           width: '100%',
           height: '100%',
-        }} allow="microphone; camera" src={URL} frameBorder="0" scrolling="yes"/> */}
-
-        {/* Object 태그사용 */}
-        {/* <object data= {URL} type="text/html"  
-          style={{ position: 'absolute', top: '0', left: '0', right: '0', width: '100%', height: '100%' }} 
-          allow="microphone; camera" frameborder="0" scrolling="yes">
-        </object> */}
+        }} allow="microphone; camera" src={URL} frameBorder="0" scrolling="yes"/>
     </div>
   )
 }

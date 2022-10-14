@@ -53,7 +53,15 @@ import CartPage from "./views/CartPage/CartPage.js";
 import LiveStreamingPage from "./views/LiveStreamingPage/LiveStreaming.js";
 // 쿠폰관리
 import CouponRegisterPage from "./views/Coupon/CouponRegisterPage.js";
-import CouponLisPage from "./views/Coupon/CouponListPage.js";
+import CouponListPage from "./views/Coupon/CouponListPage.js";
+import CouponUpdatePage from "./views/Coupon/CouponUpdatePage.js";
+import CouponUserListPage from "./views/Coupon/CouponUserListPage.js";
+import CouponProductListPage from "./views/Coupon/CouponProductListPage.js";
+import CouponHistoryListPage from "./views/Coupon/CouponHistoryListPage.js";
+// 세일관리
+import SaleRegisterPage from "./views/Sale/SaleRegisterPage.js";
+import SaleListPage from "./views/Sale/SaleListPage.js";
+import SaleUpdatePage from "./views/Sale/SaleUpdatePage.js";
 // 포인트관리
 import ListPointPage from "./views/Point/ListPointPage.js";
 // 404 페이지
@@ -116,7 +124,16 @@ function App() {
           <Route exact path="/live" component={Auth(LiveStreamingPage, true)} />
           {/* 쿠폰관리 */}
           <Route exact path="/coupon/register" component={Auth(CouponRegisterPage, true)} />
-          <Route exact path="/coupon/list" component={Auth(CouponLisPage, true)} />
+          <Route exact path="/coupon/register/:userId" component={Auth(CouponRegisterPage, true)} />
+          <Route exact path="/coupon/list" component={Auth(CouponListPage, true)} />
+          <Route exact path="/coupon/update/:couponId" component={Auth(CouponUpdatePage, true)} />
+          <Route exact path="/coupon/user" component={Auth(CouponUserListPage, true)} />
+          <Route exact path="/coupon/product/:item" component={Auth(CouponProductListPage, true)} />
+          <Route exact path="/coupon/history" component={Auth(CouponHistoryListPage, true)} />
+          {/* 세일관리 */}
+          <Route exact path="/sale/register" component={Auth(SaleRegisterPage, true)} />
+          <Route exact path="/sale/list" component={Auth(SaleListPage, true)} />
+          <Route exact path="/sale/update/:saleId" component={Auth(SaleUpdatePage, true)} />
           {/* 포인트관리 */}
           <Route exact path="/point/list" component={Auth(ListPointPage, true)} />
           <Route exact path="/point/list/:userId" component={Auth(ListPointPage, true)} />

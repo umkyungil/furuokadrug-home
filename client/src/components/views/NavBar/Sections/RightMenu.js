@@ -75,33 +75,30 @@ function RightMenu(props) {
             <Menu.Item key="live">
               <a href="/live">Live Streaming</a>
             </Menu.Item>
-            <Menu.Item key="list">
-              <a href="/order/list">Order list</a>
-            </Menu.Item>            
-            <SubMenu title={<span>Mail</span>}>          
+            <SubMenu title={<span>History</span>}>
+              <SubMenu title={<span>Payment</span>}>
+                <Menu.Item key="aliPayList">
+                  <a href="/payment/alipay/list">Alipay Payment History</a>
+                </Menu.Item>
+                <Menu.Item key="weChatList">
+                  <a href="/payment/wechat/list">WeChat Payment History</a>
+                </Menu.Item>
+                <Menu.Item key="paypalAdminList">
+                  <a href="/payment/paypal/admin/list">Cart Payment History</a>
+                </Menu.Item>
+              </SubMenu>
               <Menu.Item key="mailList">
                 <a href="/mail/list">Mail History</a>
               </Menu.Item>
             </SubMenu>
-            <SubMenu title={<span>Payment</span>}>          
-              <Menu.Item key="aliPayList">
-                <a href="/payment/alipay/list">Alipay Payment History</a>
-              </Menu.Item>
-              <Menu.Item key="weChatList">
-                <a href="/payment/wechat/list">WeChat Payment History</a>
-              </Menu.Item>
-              <Menu.Item key="paypalAdminList">
-                <a href="/payment/paypal/admin/list">Cart Payment History</a>
-              </Menu.Item>
-            </SubMenu>
-            <SubMenu title={<span>Customer</span>}>
+            {/* <SubMenu title={<span>Customer</span>}>
               <Menu.Item key="register">
                 <a href="/customer/register">Customer Register</a>
               </Menu.Item>
               <Menu.Item key="list">
                 <a href="/customer/list">Customer List</a>
               </Menu.Item>
-            </SubMenu>
+            </SubMenu> */}
             <Menu.Item key="logout">
               <a onClick={logoutHandler}>Logout</a>
             </Menu.Item>
@@ -117,33 +114,49 @@ function RightMenu(props) {
             <Menu.Item key="live">
               <a href="/live">Live Streaming</a>
             </Menu.Item>
-            <Menu.Item key="list">
-              <a href="/order/list">Order list</a>
-            </Menu.Item>
-            <SubMenu title={<span>Mail</span>}>          
+            <SubMenu title={<span>Coupon</span>}> 
+              <Menu.Item key="couponList">
+                <a href="/coupon/list">Coupon List</a>
+              </Menu.Item>
+              <Menu.Item key="couponRegister">
+                <a href="/coupon/register">Coupon Register</a>
+              </Menu.Item>
+            </SubMenu>
+            <SubMenu title={<span>Sale</span>}> 
+              <Menu.Item key="saleList">
+                <a href="/sale/list">Sale List</a>
+              </Menu.Item>
+              <Menu.Item key="saleRegister">
+                <a href="/sale/register">Sale Register</a>
+              </Menu.Item>
+            </SubMenu>
+            <SubMenu title={<span>History</span>}>
+              <SubMenu title={<span>Payment</span>}>
+                <Menu.Item key="alipayList">
+                  <a href="/payment/alipay/list">Alipay Payment History</a>
+                </Menu.Item>
+                <Menu.Item key="wechatList">
+                  <a href="/payment/wechat/list">WeChat Payment History</a>
+                </Menu.Item>
+                <Menu.Item key="paypalAdminList">
+                  <a href="/payment/paypal/admin/list">Cart Payment History</a>
+                </Menu.Item>
+              </SubMenu>
               <Menu.Item key="mailList">
                 <a href="/mail/list">Mail History</a>
               </Menu.Item>
-            </SubMenu>
-            <SubMenu title={<span>Payment</span>}>          
-              <Menu.Item key="alipayList">
-                <a href="/payment/alipay/list">Alipay Payment History</a>
+              <Menu.Item key="couponHistory">
+                <a href="/coupon/history">Coupon History</a>
               </Menu.Item>
-              <Menu.Item key="wechatList">
-                <a href="/payment/wechat/list">WeChat Payment History</a>
-              </Menu.Item>
-              <Menu.Item key="paypalAdminList">
-                <a href="/payment/paypal/admin/list">Cart Payment History</a>
-              </Menu.Item>              
             </SubMenu>
-            <SubMenu title={<span>Customer</span>}>
+            {/* <SubMenu title={<span>Customer</span>}>
               <Menu.Item key="customerRegister">
                 <a href="/customer/register">Customer Register</a>
               </Menu.Item>
               <Menu.Item key="customerList">
                 <a href="/customer/list">Customer List</a>
               </Menu.Item>
-            </SubMenu>
+            </SubMenu> */}
             <SubMenu title={<span>Upload</span>}>
               <Menu.Item key="upload">
                 <a href="/product/upload">Product Upload</a>
@@ -173,9 +186,6 @@ function RightMenu(props) {
               <a onClick={chatHandler}>Chat</a>
             </Menu.Item> */}
             <SubMenu title={<span>My Information</span>}>
-              {/* <Menu.Item key="couponList">
-                <a href="/coupon/list">Coupon List</a>
-              </Menu.Item> */}
               <Menu.Item key="pointList">
                 <a href="/point/list">Point List</a>
               </Menu.Item>

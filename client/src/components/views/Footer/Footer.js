@@ -1,5 +1,4 @@
 import React from 'react';
-import {Icon} from 'antd';
 
 function Footer() {
     return (
@@ -8,7 +7,6 @@ function Footer() {
             flexDirection: 'column', alignItems: 'center',
             justifyContent: 'center', fontSize:'1rem'
         }}>
-           {/* <p> Copyright © HIROSOPHY All Right Reserved. <Icon type="smile" /></p> */}
             <p> Copyright © HIROSOPHY All Right Reserved.</p>
         </div>
     )

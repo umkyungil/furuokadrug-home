@@ -5,6 +5,7 @@ const { TmpOrder } = require('../models/TmpOrder');
 const { User } = require('../models/User');
 const { Alipay } = require('../models/Alipay');
 const { Wechat } = require('../models/Wechat');
+const { Unidentified, DeliveryCompleted } = require('../config/const');
 
 //=================================
 //             Order
@@ -66,9 +67,9 @@ router.post("/list", (req, res) => {
           // 배달상태 값 변형
           let tmpDelivery = "";
           if (term[0] === "1") {
-            tmpDelivery = "配送手続き完了" ;
+            tmpDelivery = DeliveryCompleted ;
           } else if(term[0] === "2") {
-            tmpDelivery = "未確認" ;
+            tmpDelivery = Unidentified ;
           }
 
           // Delivery status 값만 들어온 경우
@@ -329,9 +330,9 @@ router.post("/list", (req, res) => {
             // 배달상태 값 변형
             let tmpDelivery = "";
             if (term[0] === "1") {
-              tmpDelivery = "配送手続き完了" ;
+              tmpDelivery = DeliveryCompleted ;
             } else if(term[0] === "2") {
-              tmpDelivery = "未確認" ;
+              tmpDelivery = Unidentified ;
             }
 
             // Delivery status 값만 들어온 경우
@@ -583,9 +584,9 @@ router.post("/list", (req, res) => {
           // 배달상태 값 변형(화면에서 보내는 값을 변형)
           let tmpDelivery = "";
           if (term[0] === "1") {
-            tmpDelivery = "配送手続き完了";
+            tmpDelivery = DeliveryCompleted;
           } else if(term[0] === "2") {
-            tmpDelivery = "未確認";
+            tmpDelivery = Unidentified;
           }
 
           // Delivery status 값만 들어온 경우
@@ -877,7 +878,7 @@ router.get('/orders_by_id', (req, res) => {
 // 주문정보 수정
 router.get("/deliveryStatus", (req, res) => {
   let orderId = req.query.id;
-  const state = "配送手続き完了";
+  const state = DeliveryCompleted;
 
   Order.updateMany(
     { _id: orderId }, 

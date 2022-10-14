@@ -4,7 +4,7 @@ const { Product } = require('../models/Product');
 const multer = require('multer');
 const multerS3 = require('multer-s3')
 const AWS = require('aws-sdk');
-const awsConfig = require("../config/awsConfig");
+const awsConfig = require("../config/aws");
 
 //=================================
 //             Product
@@ -250,6 +250,67 @@ router.post('/update', (req, res) => {
       return res.status(200).json({success: true});
     })
   } catch (error) {
+    console.log(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+})
+
+// 상품 가져오기(Coupon)
+router.post('/coupon/list', (req, res) => {
+  try {
+    let item = Number(req.body.item);
+    let term = req.body.searchTerm;
+
+    if (item === 0) {
+      if (term) {
+        Product.find({ "title": { '$regex': term }})
+        .populate("writer")
+        .exec((err, productInfo) =>{
+          if (err) return res.status(400).json({ success: false, err });
+          return res.status(200).json({ success: true, productInfo })
+        })
+      } else {
+        Product.find({})
+        .populate("writer")
+        .exec((err, productInfo) =>{
+          if (err) return res.status(400).json({ success: false, err });
+          return res.status(200).json({ success: true, productInfo })
+        })
+      }
+    } else {
+      if (term) {
+        Product.find({ "title": { '$regex': term }, "continents": item })
+        .populate("writer")
+        .exec((err, productInfo) =>{
+          if (err) return res.status(400).json({ success: false, err });
+          return res.status(200).json({ success: true, productInfo })
+        })
+      } else {
+        Product.find({ "continents": item })
+        .populate("writer")
+        .exec((err, productInfo) =>{
+          if (err) return res.status(400).json({ success: false, err });
+          return res.status(200).json({ success: true, productInfo })
+        })
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+})
+
+// 상품 가져오기(Coupon)
+router.get('/coupon/products_by_id', (req, res) => {
+  try {
+    let id = req.query.id;
+
+    Product.find({ "_id": id })
+    .exec((err, productInfo) =>{
+      if (err) return res.status(400).json({ success: false, err });
+      return res.status(200).json({ success: true, productInfo })
+    })
+  } catch (err) {
     console.log(err);
     return res.status(500).json({ success: false, message: err.message });
   }

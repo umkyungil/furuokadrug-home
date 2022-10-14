@@ -9,23 +9,30 @@ const { Payment } = require('../models/Payment');
 const { TmpPayment } = require('../models/TmpPayment');
 const { Product } = require('../models/Product');
 const { Point } = require('../models/Point');
-const { Counter } = require('../models/Point');
+const { Counter } = require('../models/Counter');
 const async = require('async');
+const { NotSet, Deposited } = require('../config/const')
 
 //=================================
 //             Payment
 //=================================
 
-// UnivaPayCast Alipay 결제결과 등록
+// UPC AliPay 결제결과 등록
 router.get('/alipay/register', async (req, res) => {
   try {
-    // UnivaPayCast 사양에 의해 관리페이지의 킥백에 설정한 주소로 
+    // UPC 사양에 의해 관리페이지의 킥백에 설정한 주소로 
     // 1바이트 문자를 표시하기 위한 조건
     if (!req.query) {
       return res.status(200).json({success: true});
     } else {
       // 결제 성공했을 경우
       if (req.query.rst === "1") {
+
+        let dt1 = new Date();
+        let currentDate = new Date(dt1.getTime() - (dt1.getTimezoneOffset() * 60000)).toISOString();
+        let dt2 = new Date(dt1.setFullYear(dt1.getFullYear() + 1));
+        let oneYearDate = new Date(dt2.getTime() - (dt2.getTimezoneOffset() * 60000)).toISOString();
+        
         // 카트결제인 경우 sod의 포인트값들을 추출
         let pointToUse = 0;
         let productPoint = 0;
@@ -42,12 +49,12 @@ router.get('/alipay/register', async (req, res) => {
           // req.query.sod = date.toLocaleString('ja-JP'); 
         }
 
-        // Alipay에 결제결과 등록
+        // AliPay에 결제결과 등록
         const alipay = new Alipay(req.query)
         await alipay.save();
 
         // 임시 주문정보 가져오기
-        const tmpOrderInfo = await TmpOrder.findOne({ uniqueField: req.query.uniqueField });
+        const tmpOrderInfo = await TmpOrder.findOne({ "uniqueField": req.query.uniqueField });
 
         // 주문정보 설정
         const body = {
@@ -64,7 +71,7 @@ router.get('/alipay/register', async (req, res) => {
           uniqueField: tmpOrderInfo.uniqueField,
           amount: tmpOrderInfo.amount,
           staffName: tmpOrderInfo.staffName,
-          paymentStatus: '入金済み',
+          paymentStatus: Deposited,
           deliveryStatus: tmpOrderInfo.deliveryStatus
         }
 
@@ -73,9 +80,9 @@ router.get('/alipay/register', async (req, res) => {
         const orderInfo = await order.save();
 
         // 임시 주문정보 삭제
-        await TmpOrder.findOneAndDelete({ uniqueField: req.query.uniqueField });
+        await TmpOrder.findOneAndDelete({ "uniqueField": req.query.uniqueField });
         
-        // 카트 Alipay결제인 경우만 TmpPayment 정보 취득
+        // 카트에서 AliPay결제인 경우만 TmpPayment 정보취득
         let str = req.query.uniqueField;
         let arr = str.split('_');
         if (arr[0].trim() === "cart") {
@@ -83,20 +90,20 @@ router.get('/alipay/register', async (req, res) => {
           let paymentData = [];
           paymentData.push({
             address: {
-              city: '未設定',
-              country_code: "未設定",
+              city: NotSet,
+              country_code: NotSet,
               line1: orderInfo.address,
-              postal_code: '未設定',
+              postal_code: NotSet,
               recipient_name: orderInfo.receiver,
-              state: '未設定',
+              state: NotSet,
             },
             cancelled: false,
-            email: '未設定',
+            email: NotSet,
             paid: true,
-            payerID: '未設定',
+            payerID: NotSet,
             paymentID: req.query.pid, // 실제 결제ID
-            paymentToken: '未設定',
-            returnUrl: '未設定',
+            paymentToken: NotSet,
+            returnUrl: NotSet,
           });
 
           // 카트결제인 경우 uniqueKey에 PaymentId가 들어온다
@@ -105,7 +112,7 @@ router.get('/alipay/register', async (req, res) => {
           // TmpPayment 가져오기
           const tmpPaymentInfo = await TmpPayment.findOne({ _id: paymentId })
 
-          // 구매상품 모든곳에 Alipay 결제ID 설정
+          // 구매상품 모든곳에 AliPay 결제ID 설정
           for(let i=0; i<tmpPaymentInfo.product.length; i++) {
             tmpPaymentInfo.product[i].paymentId = req.query.pid;
           }
@@ -160,206 +167,59 @@ router.get('/alipay/register', async (req, res) => {
               } 
             }
           )
-
-          let tmpDate1 = new Date();
-          const curDate = new Date(tmpDate1.getTime() - (tmpDate1.getTimezoneOffset() * 60000)).toISOString();
           
-          // 입력한 포인트가 있는지 확인
+          // 사용자가 입력한 포인트가 있는지 확인 (입력한 포인트는 기본값이 화면단에서 0으로 설정되어 있다)
+          const userId = tmpOrderInfo.userId;
+          const name = tmpOrderInfo.name;
+          const lastName = tmpOrderInfo.lastName;
           if(pointToUse > 0) {
-            // 해당 사용자의 포인트 가져오기 (남은포인트가 0보다 큰 데이타)
-            Point.find({userId: tmpPaymentInfo.user[0].id, remainingPoints: { $gt: 0 }})
-              .sort({ "validTo": 1 }) // 유효기간To가 작은것부터 정렬
-              .exec((err, pointInfos) => {
-                if (err) return res.status(400).json({ success: false });
-
-                for (let i=0; i<pointInfos.length; i++) {
-                  // 첫번째 레코드는 사용자가 입력한 포인트로 계산을 한다
-                  if (i===0) {
-                    // 사용하지 않은 포인트인 경우
-                    if (pointInfos[i].dateUsed === '' && pointInfos[i].subSeq === 0) {
-                      // [기존 포인트] - [사용자가 입력한 포인트]: 항상 [양수] - [양수] 이기에 그대로 계산 가능
-                      let tmp = pointInfos[i].remainingPoints - pointToUse;
-                      if(tmp < 0) {
-                        // 사용자가 입력한 포인트를 사용한 포인트에 대입
-                        pointInfos[i].usePoint = tmp;
-
-                        Point.findOneAndUpdate(
-                          { _id: pointInfos[i]._id },
-                          { $set: { usePoint: tmp, remainingPoints: 0, dateUsed: curDate }},
-                          { new: true },
-                          (err, pointInfo) => {
-                              if(err) return res.status(400).json({ success: false, err });
-                          }
-                        )
-                      } else {
-                        Point.findOneAndUpdate(
-                          { _id: pointInfos[i]._id },
-                          { $set: { usePoint: tmp, remainingPoints: tmp, dateUsed: curDate }},
-                          { new: true },
-                          (err, pointInfo) => {
-                              if(err) return res.status(400).json({ success: false, err });
-                          }
-                        )
-                        // [기존 포인트 > 사용자가 입력한 포인트] 이므로 포인트 계산 종료
-                        break;
-                      }
-                    // 한번이상 사용했는데 남은 잔 포인트가 있는 경우
-                    } else {
-                      // 기존 레코드의 나머지 금액을 0으로 업데이트
-                      Point.findOneAndUpdate(
-                        { _id: pointInfos[i]._id },
-                        { $set: { remainingPoints: 0 }},
-                        { new: true },
-                        (err, pointInfo) => {
-                          if(err) return res.status(400).json({ success: false, err });
-                        }
-                      )
-
-                      // 기존 레코드를 복사한다
-                      let dataToSubmit = {
-                        seq: pointInfos[i].seq,
-                        subSeq: pointInfos[i].subSeq + 1,
-                        userId: pointInfos[i].userId,
-                        point: pointInfos[i].point,
-                        description: pointInfos[i].description,
-                        validFrom: pointInfos[i].validFrom,
-                        validTo: pointInfos[i].validTo
-                      }
-                      
-                      // 포인트 계산 [기존 포인트 - 사용자가 입력한 포인트]
-                      let tmp = pointInfos[i].remainingPoints - pointToUse;
-
-                      if(tmp < 0) {
-                        // 가지고 온 포인트 정보의 사용자 포인트를 계산된 값으로 수정
-                        pointInfos[i].usePoint = tmp;
-                        dataToSubmit.usePoint = tmp;
-                        dataToSubmit.remainingPoints = 0;
-                        dataToSubmit.dateUsed = curDate;
-
-                        // 포인트 등록
-                        const point = new Point(dataToSubmit);
-                        point.save((err, doc) => {
-                            if (err) return res.status(400).json({ success: false, err });
-                        });
-                      } else {
-                        dataToSubmit.usePoint = tmp;
-                        dataToSubmit.remainingPoints = tmp;
-                        dataToSubmit.dateUsed = curDate;
-
-                        // 포인트 등록
-                        const point = new Point(dataToSubmit);
-                        point.save((err, doc) => {
-                            if (err) return res.status(400).json({ success: false, err });
-                        });
-
-                        // 기존 포인트 > 사용할 포인트 이므로 포인트 계산 종료
-                        break;
-                      }    
-                    }
-                  } else {
-                    let usePoint = pointInfos[i-1].usePoint;
-                    let remainingPoints = pointInfos[i].remainingPoints;
-
-                    let tmp = 0;
-                    // 전 레코드의 usePoint: 음수, 현재 레코드의 point: 양수 <- 이 조건만 있을수 있다  
-                    if (Math.abs(usePoint) <= remainingPoints) {
-                      tmp = remainingPoints - Math.abs(usePoint); // 포인트가 남거나 0이 되기때문에 현재 레코드에서 계산이 종료되는 경우
-                    } else {
-                      tmp = (Math.abs(usePoint) - remainingPoints) * -1; // 포인트가 부족해서 다음 레코드에서 계산을 해야 하는경우
-                    }
-                    
-                    if(tmp < 0) {
-                      // 계산된 포인트 값으로 수정
-                      pointInfos[i].usePoint = tmp;
-
-                      Point.findOneAndUpdate(
-                        { _id: pointInfos[i]._id },
-                        { $set: { usePoint: tmp, remainingPoints: 0, dateUsed: curDate }},
-                        { new: true },
-                        (err, pointInfo) => {
-                            if(err) return res.status(400).json({ success: false, err });
-                        }
-                      )
-                    } else {
-                      Point.findOneAndUpdate(
-                        { _id: pointInfos[i]._id },
-                        { $set: { usePoint: tmp, remainingPoints: tmp, dateUsed: curDate }},
-                        { new: true },
-                        (err, pointInfo) => {
-                          if(err) return res.status(400).json({ success: false, err });
-                        }
-                      )
-
-                      // 기존 포인트 > 사용할 포인트 이므로 포인트 계산 종료
-                      break;
-                    }
-                  }
-                }
-              });
+            // 포인트 계산 및 사용한 포인트 이력관리
+            calcPoint(userId, name, lastName, currentDate, oneYearDate, productPoint, pointToUse);
+            
           } else {
             // 포인트 누적할 항목 설정
             let dataToSubmit = {
-              userId: req.user._id,
-              point: req.body.productPoint, // 구매상품 포인트 합계
-              remainingPoints: req.body.productPoint,
+              userId: userId,
+              userName: name,
+              userLastName: lastName,
+              point: productPoint, // 구매상품 포인트 합계
+              remainingPoints: productPoint,
               usePoint: 0,
-              description: "商品購入",
-              validFrom: curDate,
+              dspUsePoint: 0,
+              validFrom: currentDate,
               validTo: oneYearDate,
               dateUsed:''
             }
-  
-            // 카운트에서 포인트의 일련번호 가져오기
-            Counter.findOneAndUpdate(
-              { name: "point" },
-              { $inc: { "seq": 1 }},
-              { new: true },
-              (err, countInfo) => {
-                if(err) return res.status(400).json({ success: false, err });
 
-                // 포인트의 seq에 카운트에서 가져온 일련번호를 대입해서 포인트를 생성 
-                dataToSubmit.seq = countInfo.seq; 
-                const point = new Point(dataToSubmit);
-                point.save((err, doc) => {
-                    if (err) return res.status(400).json({ success: false, err });
-                });
-              }
-            );
+            // 포인트 등록
+            savePoint(dataToSubmit)
           }
         }
       } else {
-        // 임시 주문정보 삭제
-        // await TmpOrder.findOneAndDelete({ uniqueField: req.query.uniqueField });
-
-        // 카트 AliPay결제인 경우 임시 계약정보 삭제
-        // let str = req.query.uniqueField;
-        // let arr = str.split('_');
-        // if (arr[0].trim() === "cart") {
-        //   // 임시 계약정보 삭제 (uniqueKey의 PaymentId를 사용)
-        //   const paymentId = arr[1];
-        //   const paymentInfo = await TmpPayment.findOneAndDelete({ _id: paymentId })
-        // }
-
-        // Batch에서 임시 주문정보 및 임시 계약정보를 삭제한다.
-        console.log("Alipay payment failed.");
+        console.log("AliPay payment failed at UPC");
       }
     }
   } catch (err) {
-    console.log(err);
-    return res.status(500).json({ success: false, message: err.message });
+    console.log("AliPay payment from UPC failed: ", err);
   } 
 })
 
-// UnivaPayCast Wechat결제결과 등록
+
+// UPC WeChat 결제결과 등록
 router.get('/wechat/register', async (req, res) => {
   try {
-    // UnivaPayCast 사양에 의해 관리페이지의 킥백에 설정한 주소로
+    // UPC 사양에 의해 관리페이지의 킥백에 설정한 주소로
     // 1바이트 문자를 표시하기 위한 조건
     if (!req.query) {
       return res.status(200).json({success: true});
     } else {
       // 결제 성공했을 경우
       if (req.query.rst === "1") {
+        let dt1 = new Date();
+        let currentDate = new Date(dt1.getTime() - (dt1.getTimezoneOffset() * 60000)).toISOString();
+        let dt2 = new Date(dt1.setFullYear(dt1.getFullYear() + 1));
+        let oneYearDate = new Date(dt2.getTime() - (dt2.getTimezoneOffset() * 60000)).toISOString();
+
         // 카트결제인 경우 sod의 포인트값들을 추출
         let pointToUse = 0;
         let productPoint = 0;
@@ -367,21 +227,21 @@ router.get('/wechat/register', async (req, res) => {
         let tmpSod = req.query.sod;
         let tmpArr = tmpSod.split('_');
         if (tmpArr[0].trim() === "cart") {
-          pointToUse = Number(tmpArr[1]);
-          productPoint = Number(tmpArr[2]);
-          totalPoint = Number(tmpArr[3]);
+          pointToUse = Number(tmpArr[1]); // 사용자가 입력한 포인트
+          productPoint = Number(tmpArr[2]); // 누적할 포인트
+          totalPoint = Number(tmpArr[3]); // 총 포인트
 
           // 카트에서 결제는 sod에 포인트를 대입했기에 결과값이 날라온 시간으로 변경
           // let date = new Date();
           // req.query.sod = date.toLocaleString('ja-JP'); 
         }
         
-		    // Wechat에 결제결과 등록
+		    // WeChat에 결제결과 등록
         const wechat = new Wechat(req.query);
         await wechat.save();
 
         // 임시 주문정보 가져오기
-        const tmpOrderInfo = await TmpOrder.findOne({ uniqueField: req.query.uniqueField });
+        const tmpOrderInfo = await TmpOrder.findOne({ "uniqueField": req.query.uniqueField });
 
         // 주문정보 설정
         const body = {
@@ -398,7 +258,7 @@ router.get('/wechat/register', async (req, res) => {
           uniqueField: tmpOrderInfo.uniqueField,
           amount: tmpOrderInfo.amount,
           staffName: tmpOrderInfo.staffName,
-          paymentStatus: '入金済み',
+          paymentStatus: Deposited,
           deliveryStatus: tmpOrderInfo.deliveryStatus
         }
 
@@ -407,7 +267,7 @@ router.get('/wechat/register', async (req, res) => {
         const orderInfo = await order.save();
 
         // 임시 주문정보 삭제
-        await TmpOrder.findOneAndDelete({ uniqueField: req.query.uniqueField });
+        await TmpOrder.findOneAndDelete({ "uniqueField": req.query.uniqueField });
 
         // 카트 WeChat결제인 경우만 TmpPayment 정보 취득
         let str = req.query.uniqueField;
@@ -417,20 +277,20 @@ router.get('/wechat/register', async (req, res) => {
           let paymentData = [];
           paymentData.push({
             address: {
-              city: '未設定',
-              country_code: "未設定",
+              city: NotSet,
+              country_code: NotSet,
               line1: orderInfo.address,
-              postal_code: '未設定',
+              postal_code: NotSet,
               recipient_name: orderInfo.receiver,
-              state: '未設定',
+              state: NotSet,
             },
             cancelled: false,
-            email: '未設定',
+            email: NotSet,
             paid: true,
-            payerID: '未設定',
+            payerID: NotSet,
             paymentID: req.query.pid, // 실제 결제ID
-            paymentToken: '未設定',
-            returnUrl: '未設定',
+            paymentToken: NotSet,
+            returnUrl: NotSet,
           });
 
           // 카트결제인 경우만 uniqueKey에 PaymentId가 들어온다
@@ -494,195 +354,237 @@ router.get('/wechat/register', async (req, res) => {
               } 
             }
           )
-
-          let tmpDate1 = new Date();
-          const curDate = new Date(tmpDate1.getTime() - (tmpDate1.getTimezoneOffset() * 60000)).toISOString();
           
-          // 입력한 포인트가 있는지 확인
+          // 사용자가 입력한 포인트가 있는지 확인 (입력한 포인트는 기본값이 화면단에서 0으로 설정되어 있다)
+          const userId = tmpOrderInfo.userId;
+          const name = tmpOrderInfo.name;
+          const lastName = tmpOrderInfo.lastName;
           if(pointToUse > 0) {
-            // 해당 사용자의 포인트 가져오기 (남은포인트가 0보다 큰 데이타)
-            Point.find({userId: tmpPaymentInfo.user[0].id, remainingPoints: { $gt: 0 }})
-              .sort({ "validTo": 1 }) // 유효기간To가 작은것부터 정렬
-              .exec((err, pointInfos) => {
-                if (err) return res.status(400).json({ success: false });
-
-                for (let i=0; i<pointInfos.length; i++) {
-                  // 첫번째 레코드는 사용자가 입력한 포인트로 계산을 한다
-                  if (i===0) {
-                    // 사용하지 않은 포인트인 경우
-                    if (pointInfos[i].dateUsed === '' && pointInfos[i].subSeq === 0) {
-                      // [기존 포인트] - [사용자가 입력한 포인트]: 항상 [양수] - [양수] 이기에 그대로 계산 가능
-                      let tmp = pointInfos[i].remainingPoints - pointToUse;
-                      if(tmp < 0) {
-                        // 사용자가 입력한 포인트를 사용한 포인트에 대입
-                        pointInfos[i].usePoint = tmp;
-
-                        Point.findOneAndUpdate(
-                          { _id: pointInfos[i]._id },
-                          { $set: { usePoint: tmp, remainingPoints: 0, dateUsed: curDate }},
-                          { new: true },
-                          (err, pointInfo) => {
-                              if(err) return res.status(400).json({ success: false, err });
-                          }
-                        )
-                      } else {
-                        Point.findOneAndUpdate(
-                          { _id: pointInfos[i]._id },
-                          { $set: { usePoint: tmp, remainingPoints: tmp, dateUsed: curDate }},
-                          { new: true },
-                          (err, pointInfo) => {
-                              if(err) return res.status(400).json({ success: false, err });
-                          }
-                        )
-                        // [기존 포인트 > 사용자가 입력한 포인트] 이므로 포인트 계산 종료
-                        break;
-                      }
-                    // 한번이상 사용했는데 남은 잔 포인트가 있는 경우
-                    } else {
-                      // 기존 레코드의 나머지 금액을 0으로 업데이트
-                      Point.findOneAndUpdate(
-                        { _id: pointInfos[i]._id },
-                        { $set: { remainingPoints: 0 }},
-                        { new: true },
-                        (err, pointInfo) => {
-                          if(err) return res.status(400).json({ success: false, err });
-                        }
-                      )
-
-                      // 기존 레코드를 복사한다
-                      let dataToSubmit = {
-                        seq: pointInfos[i].seq,
-                        subSeq: pointInfos[i].subSeq + 1,
-                        userId: pointInfos[i].userId,
-                        point: pointInfos[i].point,
-                        description: pointInfos[i].description,
-                        validFrom: pointInfos[i].validFrom,
-                        validTo: pointInfos[i].validTo
-                      }
-                      
-                      // 포인트 계산 [기존 포인트 - 사용자가 입력한 포인트]
-                      let tmp = pointInfos[i].remainingPoints - pointToUse;
-
-                      if(tmp < 0) {
-                        // 가지고 온 포인트 정보의 사용자 포인트를 계산된 값으로 수정
-                        pointInfos[i].usePoint = tmp;
-                        dataToSubmit.usePoint = tmp;
-                        dataToSubmit.remainingPoints = 0;
-                        dataToSubmit.dateUsed = curDate;
-
-                        // 포인트 등록
-                        const point = new Point(dataToSubmit);
-                        point.save((err, doc) => {
-                            if (err) return res.status(400).json({ success: false, err });
-                        });
-                      } else {
-                        dataToSubmit.usePoint = tmp;
-                        dataToSubmit.remainingPoints = tmp;
-                        dataToSubmit.dateUsed = curDate;
-
-                        // 포인트 등록
-                        const point = new Point(dataToSubmit);
-                        point.save((err, doc) => {
-                            if (err) return res.status(400).json({ success: false, err });
-                        });
-
-                        // 기존 포인트 > 사용할 포인트 이므로 포인트 계산 종료
-                        break;
-                      }    
-                    }
-                  } else {
-                    let usePoint = pointInfos[i-1].usePoint;
-                    let remainingPoints = pointInfos[i].remainingPoints;
-
-                    let tmp = 0;
-                    // 전 레코드의 usePoint: 음수, 현재 레코드의 point: 양수 <- 이 조건만 있을수 있다  
-                    if (Math.abs(usePoint) <= remainingPoints) {
-                      tmp = remainingPoints - Math.abs(usePoint); // 포인트가 남거나 0이 되기때문에 현재 레코드에서 계산이 종료되는 경우
-                    } else {
-                      tmp = (Math.abs(usePoint) - remainingPoints) * -1; // 포인트가 부족해서 다음 레코드에서 계산을 해야 하는경우
-                    }
-                    
-                    if(tmp < 0) {
-                      // 계산된 포인트 값으로 수정
-                      pointInfos[i].usePoint = tmp;
-
-                      Point.findOneAndUpdate(
-                        { _id: pointInfos[i]._id },
-                        { $set: { usePoint: tmp, remainingPoints: 0, dateUsed: curDate }},
-                        { new: true },
-                        (err, pointInfo) => {
-                            if(err) return res.status(400).json({ success: false, err });
-                        }
-                      )
-                    } else {
-                      Point.findOneAndUpdate(
-                        { _id: pointInfos[i]._id },
-                        { $set: { usePoint: tmp, remainingPoints: tmp, dateUsed: curDate }},
-                        { new: true },
-                        (err, pointInfo) => {
-                          if(err) return res.status(400).json({ success: false, err });
-                        }
-                      )
-
-                      // 기존 포인트 > 사용할 포인트 이므로 포인트 계산 종료
-                      break;
-                    }
-                  }
-                }
-              });
+            // 포인트 계산 및 이력관리
+            calcPoint(userId, name, lastName, currentDate, oneYearDate, productPoint, pointToUse);
           } else {
             // 포인트 누적할 항목 설정
             let dataToSubmit = {
-              userId: req.user._id,
-              point: req.body.productPoint, // 구매상품 포인트 합계
-              remainingPoints: req.body.productPoint,
+              userId: userId,
+              userName: name,
+              userLastName: lastName,
+              point: productPoint, // 구매상품 포인트 합계
+              remainingPoints: productPoint,
               usePoint: 0,
-              description: "商品購入",
-              validFrom: curDate,
+              dspUsePoint: 0,
+              validFrom: currentDate,
               validTo: oneYearDate,
               dateUsed:''
             }
-  
-            // 카운트에서 포인트의 일련번호 가져오기
-            Counter.findOneAndUpdate(
-              { name: "point" },
-              { $inc: { "seq": 1 }},
-              { new: true },
-              (err, countInfo) => {
-                if(err) return res.status(400).json({ success: false, err });
 
-                // 포인트의 seq에 카운트에서 가져온 일련번호를 대입해서 포인트를 생성 
-                dataToSubmit.seq = countInfo.seq; 
-                const point = new Point(dataToSubmit);
-                point.save((err, doc) => {
-                    if (err) return res.status(400).json({ success: false, err });
-                });
-              }
-            );
+            // 포인트 등록
+            savePoint(dataToSubmit)
           }
         }
       } else {
-        // 임시 주문정보 삭제
-        // await TmpOrder.findOneAndDelete({ uniqueField: req.query.uniqueField });
-
-        // 카트 WeChat결제인 경우 임시 계약정보 삭제
-        // let str = req.query.uniqueField;
-        // let arr = str.split('_');
-        // if (arr[0].trim() === "cart") {
-        //   // 임시 계약정보 삭제 (uniqueKey의 PaymentId를 사용)
-        //   const paymentId = arr[1];
-        //   const paymentInfo = await TmpPayment.findOneAndDelete({ _id: paymentId })
-        // }
-
-        // Batch에서 임시 주문정보 및 임시 계약정보를 삭제한다.
-        console.log("WeChat payment failed.");
+        console.log("WeChat payment failed at UPC");
       }
     }
   } catch (err) {
-    console.log(err);
-    return res.status(500).json({ success: false, message: err.message });
+    console.log("WeChat payment from UPC failed: ", err);
   }
 })
+
+// 포인트 계산 및 이력관리
+const calcPoint = (userId, name, lastName, currentDate, oneYearDate, productPoint, pointToUse) => {
+  // 포인트 누적할 항목 설정
+  let dataToSubmit = {
+    "userId": userId,
+    "userName": name,
+    "userLastName": lastName,
+    "point": productPoint, // 취득한 포인트
+    "remainingPoints": productPoint, // 취득한 포인트
+    "usePoint": 0,
+    "dspUsePoint": 0,
+    "validFrom": currentDate,
+    "validTo": oneYearDate,
+    "dateUsed":''
+  }
+
+  // 포인트 등록
+  savePoint(dataToSubmit)
+
+  // 사용자가 보유하는 포인트 가져오기 (남은포인트가 0보다 큰 데이타)
+  Point.find({ "userId": userId, "remainingPoints": { $gt: 0 }})
+  .sort({ "validTo": 1 }) // 유효기간To가 가까운것부터 정렬(내림차순)
+  .exec((err, points) => {
+    if (err) {
+      console.log("Point calculation failed: ", err);
+      return false;
+    } else {
+
+      // 유효기간 내의 사용할수 있는 포인트만 추출
+      let pointInfos = [];
+      let current = new Date(currentDate.substring(0, 10));
+
+      for (let i=0; i<points.length; i++) {
+        let from = points[i].validFrom;
+        let to = points[i].validTo;
+        let validFrom = new Date(from.toISOString().substring(0, 10))
+        let validTo = new Date(to.toISOString().substring(0, 10))
+
+        if ((validFrom <= current) && (current <=  validTo)) {
+          pointInfos.push(points[i]);
+        }
+      }
+
+      for (let i=0; i<pointInfos.length; i++) {
+        // 첫번째 레코드는 사용자가 입력한 포인트로 계산을 한다
+        if (i===0) {
+          // 한번도 사용하지 않은 포인트인 경우
+          if (pointInfos[i].dateUsed) {
+            const remainingPoints = pointInfos[i].remainingPoints;
+
+            // 기존 포인트 - 사용자가 입력한 포인트(항상 [양수 - 양수] 이기에 그대로 계산 가능)
+            let tmp = remainingPoints - pointToUse;
+
+            if(tmp < 0) {
+              // ****다음 레코드에서 포인트를 계산을 하기 위해 pointInfos[i] 배열에 값을 대입한다. **** //
+              // 포인트를 계산한 값
+              pointInfos[i].usePoint = tmp;
+              // 포인트를 전부 사용했기에 원래 가지고 있던 포인트 대입(화면 노출)
+              pointInfos[i].dspUsePoint = remainingPoints;
+              // 포인트 업데이트
+              updatePoint(pointInfos[i]._id, remainingPoints, tmp, 0, currentDate);
+              
+            } else {
+              // 포인트 업데이트
+              updatePoint(pointInfos[i]._id, pointToUse, tmp, tmp, currentDate);
+              // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
+              break;
+            }
+          // 한번이상 사용해서 남은 잔 포인트가 있는 경우
+          } else {
+            // 기존 레코드의 나머지 금액을 0으로 업데이트
+            Point.findOneAndUpdate(
+              { _id: pointInfos[i]._id },
+              { $set: { remainingPoints: 0 }},
+              { new: true },
+              (err, pointInfo) => {
+                if(err) {
+                  console.log(err);
+                  return false;
+                }
+              }
+            )
+
+            // 기존 레코드를 복사
+            let dataToSubmit = {
+              seq: pointInfos[i].seq,
+              subSeq: pointInfos[i].subSeq + 1,
+              userId: pointInfos[i].userId,
+              userName: pointInfos[i].userName,
+              userLastName: pointInfos[i].userLastName,
+              point: pointInfos[i].point,
+              validFrom: pointInfos[i].validFrom,
+              validTo: pointInfos[i].validTo
+            }
+            
+            const remainingPoints = pointInfos[i].remainingPoints;
+            // 기존 포인트 - 사용자가 입력한 포인트
+            let tmp = remainingPoints - pointToUse; 
+
+            if(tmp < 0) {
+              // 가지고 온 포인트 정보의 사용자 포인트를 계산된 값으로 수정
+              pointInfos[i].usePoint = tmp;
+
+              dataToSubmit.usePoint = tmp;
+              dataToSubmit.dspUsePoint = remainingPoints;
+              dataToSubmit.remainingPoints = 0;
+              dataToSubmit.dateUsed = currentDate;
+
+              // 포인트 등록
+              const point = new Point(dataToSubmit);
+              point.save((err, doc) => {
+                if(err) {
+                  console.log(err);
+                  return false;
+                }
+              });
+            } else {
+              dataToSubmit.usePoint = tmp;
+              dataToSubmit.dspUsePoint = pointToUse;
+              dataToSubmit.remainingPoints = tmp;
+              dataToSubmit.dateUsed = currentDate;
+
+              // 포인트 등록
+              const point = new Point(dataToSubmit);
+              point.save((err, doc) => {
+                if(err) {
+                  console.log(err);
+                  return false;
+                }
+              });
+
+              // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
+              break;
+            }    
+          }
+        } else {
+          let usePoint = Math.abs(pointInfos[i-1].usePoint);
+          let remainingPoints = pointInfos[i].remainingPoints;
+
+          let tmp = 0;
+          // 전 레코드의 usePoint: 음수, 현재 레코드의 point: 양수 <- 이 조건만 있을수 있다  
+          if (usePoint <= remainingPoints) {
+            tmp = remainingPoints - usePoint; // 포인트가 남거나 0이 되기때문에 현재 레코드에서 계산이 종료되는 경우
+          } else {
+            tmp = (usePoint - remainingPoints) * -1; // 포인트가 부족해서 다음 레코드에서 계산을 해야 하는경우
+          }
+            
+          if(tmp < 0) {
+            // 전 레코드의 계산된 포인트로 가지고 온 포인트 정보의 사용자 포인트를 계산된 값으로 수정
+            pointInfos[i].usePoint = tmp;
+            // 포인트 업데이트
+            updatePoint(pointInfos[i]._id, remainingPoints, tmp, 0, currentDate);
+          } else {
+            // 포인트 업데이트
+            updatePoint(pointInfos[i]._id, usePoint, tmp, tmp, currentDate)
+            // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
+            break;
+          }
+        }
+      }
+    }
+  });
+}
+
+const savePoint  = (dataToSubmit)  => {
+  // 카운트를 중가시키고 포인트 저장
+  Counter.findOneAndUpdate(
+    { "name": "point" },
+    { $inc: { "seq": 1 }},
+    { new: true },
+    (err, countInfo) => {
+      if(err) {
+        console.log(err);
+      } else {
+        // 포인트의 seq에 카운트에서 가져온 일련번호를 대입해서 포인트를 생성 
+        dataToSubmit.seq = countInfo.seq; 
+        const point = new Point(dataToSubmit);
+        point.save((err, doc) => {
+          if (err) console.log(err);
+        });
+      }
+    }
+  )
+}
+
+const updatePoint = (tmp1, tmp2, tmp3, tmp4, tmp5) => {
+  Point.findOneAndUpdate(
+    { _id: tmp1 },
+    { $set: { dspUsePoint: tmp2, usePoint: tmp3, remainingPoints: tmp4, dateUsed: tmp5 }},
+    { new: true },
+    (err, pointInfo) => {
+      if(err) console.log(err);
+    }
+  )
+}
 
 // Alipay 결제결과 조회
 router.post("/alipay/list", (req, res) => {
@@ -712,14 +614,14 @@ router.post("/alipay/list", (req, res) => {
       // Select, Unique 값만 들어온 경우
       if (term[1] !== "" && term[2] === "") {
         if (term[0] === '0') {
-          Alipay.find({ "uniqueField":{'$regex':term[1], $options: 'i' }})
+          Alipay.find({ "uniqueField": { $regex: term[1], $options: 'i' }})
           .sort({ "createdAt": -1 })
           .exec((err, alipayInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, alipayInfo})
           });
         } else {
-          Alipay.find({"rst":term[0], "uniqueField":{'$regex':term[1], $options: 'i'}})
+          Alipay.find({"rst":term[0], "uniqueField":{ $regex: term[1], $options: 'i'}})
           .sort({ "createdAt": -1 })
           .exec((err, alipayInfo) => {
             if (err) return res.status(400).json({success: false, err});
@@ -735,8 +637,8 @@ router.post("/alipay/list", (req, res) => {
         if (term[0] === '0') {
           Alipay.find
           ({ 
-            "uniqueField":{'$regex':term[1], $options: 'i'}, 
-            "createdAt":{$gte: fromDate, $lte: toDate }
+            "uniqueField":{ $regex: term[1], $options: 'i' }, 
+            "createdAt":{ $gte: fromDate, $lte: toDate }
           })
           .sort({ "createdAt": -1 })
           .exec((err, alipayInfo) => {
@@ -747,8 +649,8 @@ router.post("/alipay/list", (req, res) => {
           Alipay.find
           ({ 
             "rst":term[0], 
-            "uniqueField":{'$regex':term[1], $options: 'i'}, 
-            "createdAt":{$gte: fromDate, $lte: toDate }
+            "uniqueField":{ $regex: term[1], $options: 'i' }, 
+            "createdAt":{ $gte: fromDate, $lte: toDate }
           })
           .sort({ "createdAt": -1 })
           .exec((err, alipayInfo) => {
@@ -763,14 +665,14 @@ router.post("/alipay/list", (req, res) => {
         const toDate = new Date(term[3]).toISOString();
 
         if (term[0] === '0') {
-          Alipay.find({ "createdAt":{$gte: fromDate, $lte: toDate }})
+          Alipay.find({ "createdAt":{ $gte: fromDate, $lte: toDate }})
           .sort({ "createdAt": -1 })
           .exec((err, alipayInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, alipayInfo})
           });
         } else {
-          Alipay.find({ "rst":term[0], "createdAt":{$gte: fromDate, $lte: toDate }})
+          Alipay.find({ "rst":term[0], "createdAt":{ $gte: fromDate, $lte: toDate }})
           .sort({ "createdAt": -1 })
           .exec((err, alipayInfo) => {
             if (err) return res.status(400).json({success: false, err});
@@ -821,14 +723,14 @@ router.post("/wechat/list", (req, res) => {
       // Select, Unique 값만 들어온 경우
       if (term[1] !== "" && term[2] === "") {
         if (term[0] === '0') {
-          Wechat.find({ "uniqueField":{'$regex':term[1], $options: 'i' }})
+          Wechat.find({ "uniqueField":{ $regex: term[1], $options: 'i' }})
           .sort({ "createdAt": -1 })
           .exec((err, wechatInfo) => {
             if (err) return res.status(400).json({success: false, err});
             return res.status(200).json({ success: true, wechatInfo})
           });
         } else {
-          Wechat.find({ "rst":term[0], "uniqueField":{'$regex':term[1], $options: 'i' }})
+          Wechat.find({ "rst":term[0], "uniqueField":{ $regex: term[1], $options: 'i' }})
           .sort({ "createdAt": -1 })
           .exec((err, wechatInfo) => {
             if (err) return res.status(400).json({success: false, err});
@@ -844,7 +746,7 @@ router.post("/wechat/list", (req, res) => {
         if (term[0] === '0') {
           Wechat.find
           ({ 
-            "uniqueField":{ '$regex':term[1], $options: 'i' }, 
+            "uniqueField":{ $regex: term[1], $options: 'i' }, 
             "createdAt":{ $gte: fromDate, $lte: toDate }
           })
           .sort({ "createdAt": -1 })
@@ -856,7 +758,7 @@ router.post("/wechat/list", (req, res) => {
           Wechat.find
           ({ 
             "rst":term[0], 
-            "uniqueField":{ '$regex':term[1], $options: 'i' }, 
+            "uniqueField":{ $regex: term[1], $options: 'i' }, 
             "createdAt":{ $gte: fromDate, $lte: toDate }
           })
           .sort({ "createdAt": -1 })
@@ -945,7 +847,7 @@ router.post('/paypal/admin/list', (req, res) => {
 
           Payment.find
           ({
-            "user":{"$elemMatch": {"name": {"$regex": term[0], $options: 'i'}}}, 
+            "user":{"$elemMatch": {"name": { $regex: term[0], $options: 'i' }}}, 
             "createdAt":{$gte: fromDate, $lte: toDate}
           })
           .sort({ "createdAt": -1 })
@@ -955,7 +857,7 @@ router.post('/paypal/admin/list', (req, res) => {
           });
         // 사용자 이름만 들어왔을때
         } else {
-          Payment.find({ "user":{ "$elemMatch": { "name": {"$regex": term[0], $options: 'i' }}}})
+          Payment.find({ "user":{ "$elemMatch": { "name": { $regex: term[0], $options: 'i' }}}})
           .sort({ "createdAt": -1 })
           .exec((err, paypalInfo) => {
             if (err) return res.status(400).json({success: false, err});

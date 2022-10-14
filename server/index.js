@@ -11,8 +11,8 @@ const connect = mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUn
   .catch(err => console.log(err));
 
 const { Mail } = require("./models/Mail");
-const { ADMIN_EMAIL } = require('./config/config');
-
+const { ADMIN_EMAIL } = require("./config/url");
+const sesConfig = require("./config/sesConfig");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -271,6 +271,7 @@ app.use('/api/sendmail', require('./routes/sendmail'));
 app.use('/api/payment', require('./routes/payment'));
 app.use('/api/order', require('./routes/order'));
 app.use('/api/coupon', require('./routes/coupon'));
+app.use('/api/sale', require('./routes/sale'));
 app.use('/api/point', require('./routes/point'));
 app.use('/uploads', express.static('uploads'));
 
