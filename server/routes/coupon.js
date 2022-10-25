@@ -134,7 +134,7 @@ router.post("/update", (req, res) => {
     try {
         Coupon.findOneAndUpdate(
             { '_id': req.body.id },
-            { 'active': req.body.active },
+            { 'active': req.body.active, 'sendMail': req.body.sendMail },
             (err, couponInfo) => {
                 if(err) return res.status(400).json({ success: false, message: err.message })
                 return res.status(200).send({ success: true });

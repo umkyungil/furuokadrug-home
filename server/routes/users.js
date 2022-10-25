@@ -100,7 +100,11 @@ router.post("/register", (req, res) => {
     try {
         const user = new User(req.body);
         user.save((err, doc) => {
-            if (err) return res.json({ success: false, err });
+            if (err) {
+                console.log("err: ", err);
+                return res.json({ success: false, err });
+            }
+            
             return res.status(200).json({ success: true });
         });
     } catch (err) {
@@ -266,7 +270,7 @@ router.post("/coupon/list", (req, res) => {
         let term = req.body.searchTerm;
 
         if (term) {
-            User.find({ "name": { '$regex': term, $options: 'i' }, "deletedAt": { $exists: false }, "role": 0 })
+            User.find({ "name": { '$regex': term, $options: 'i' }, "deletedAt": null , "role": 0 })
             .sort({ "lastLogin": 1 })
             .skip(req.body.skip)
             .exec((err, userInfo) => {
@@ -274,9 +278,10 @@ router.post("/coupon/list", (req, res) => {
                 return res.status(200).json({ success: true, userInfo})
             });
         } else {
-            User.find({"deletedAt": { $exists: false }, "role": 0 })
+            User.find({ "deletedAt": null , "role": 0 })
             .sort({ "lastLogin": 1 })
             .exec((err, userInfo) => {
+                console.log("userInfo: ", userInfo);
                 if (err) return res.status(400).json({success: false, err});
                 return res.status(200).json({ success: true, userInfo})
             });

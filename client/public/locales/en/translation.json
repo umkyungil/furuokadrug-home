@@ -222,7 +222,7 @@
     "type": "Coupon type",
     "active": "Active",
     "validTo": "Expiration period",
-    "amount": "Discount amount (JPY)",
+    "amount": "Value of Sales Type",
     "validFrom": "Registration Date",
     "action": "Action",
     "item": "Available categories",

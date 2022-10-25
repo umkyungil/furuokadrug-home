@@ -46,7 +46,7 @@ function CouponRegisterPage() {
   const [Type, setType] = useState("2");
   const [ExpirationPeriod, setExpirationPeriod] = useState([]);
   const [Item, setItem] = useState(0);
-  const [UseWithSale, setUseWithSale] = useState(0);
+  const [UseWithSale, setUseWithSale] = useState(1);
   const [CheckBox, setCheckBox] = useState(true);
   const [UserId, setUserId] = useState("");
   const [UserName, setUserName] = useState("");
@@ -92,6 +92,7 @@ function CouponRegisterPage() {
   // 사용자 검색(크리어버튼)
   const clearHandler = () => {
     setUserId("");
+    setUserName("");
   }
   // 사용자 검색 팝업창에서 userId를 전달받음
   window.clickHandler = function (userId) {
@@ -100,11 +101,16 @@ function CouponRegisterPage() {
   };
   // 상품 검색(검색버튼)
   const productPopupHandler = () => {
-    window.open(`/coupon/product/${Item}`,"product list","width=550, height=700, top=10, left=10");
+    if (Item === 0) {
+      alert("In case of category ALL, product selection is not possible");
+    } else {
+      window.open(`/coupon/product/${Item}`,"product list","width=550, height=700, top=10, left=10");
+    }
   }
   // 상품 검색(크리어버튼)
   const productClearHandler = () => {
     setProductId("");
+    setProductName("");
   }
   // 상품 검색 팝업창에서 productId를 전달받음
   window.productClickHandler = function (productId) {
@@ -150,12 +156,7 @@ function CouponRegisterPage() {
   const sendMail = async(body) => {
     try {
       if (window.confirm("Do you want to send mail to all users?")) {
-        const result = await axios.post(`${MAIL_SERVER}/coupon`, body);
-        if (result.data.success) {
-          console.log('Coupon information email has been sent normally');
-        } else {
-          console.log('Failed to send coupon information email\nPlease contact the administrator');
-        }
+        await axios.post(`${MAIL_SERVER}/coupon`, body);
       } else {
         setCheckBox(false);
       }
@@ -180,10 +181,17 @@ function CouponRegisterPage() {
           .required('Discount rate or discount amount is required'),
         count: Yup.string()
           .max(2, 'Must be exactly 2 characters')
-          .required('Count is required'),
       })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
+          // 카테고리가 ALL인데 상품이 지정되어 있는경우
+          if (Item === MainCategory[0].key) {
+            if (ProductId !== "") {
+              alert("If the category is ALL, you cannot designate a product");
+              setSubmitting(false);
+              return false;
+            }
+          }
           // 금액 체크
           if (isNaN(Number(values.amount))) {
             alert("Only numbers can be entered for the amount");
@@ -263,7 +271,7 @@ function CouponRegisterPage() {
             sendMail: CheckBox
           };
 
-          // 쿠폰이 이미 존재하는지 확인
+          // 쿠폰코드가 이미 존재하는지 확인
           axios.post(`${COUPON_SERVER}/list`, body)
           .then(response => {
               // 쿠폰이 존재하면 에러
@@ -342,9 +350,9 @@ function CouponRegisterPage() {
               {/* 쿠폰적용 카테고리 */}
               <Form.Item required label={t('Coupon.item')} >
                 <Select value={Item} style={{ width: 250 }} onChange={itemHandler}>
-                {items.map(item => (
-                  <Option key={item.key} value={item.key}> {item.value} </Option>
-                ))}
+                  {items.map(item => (
+                    <Option key={item.key} value={item.key}> {item.value} </Option>
+                  ))}
                 </Select>
               </Form.Item>
               {/* 쿠폰적용 상품 아이디 */}

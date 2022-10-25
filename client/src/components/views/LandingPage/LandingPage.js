@@ -37,7 +37,6 @@ function LandingPage() {
 		mySale.then(saleInfos => {
 			if (saleInfos) {
 				setSaleInfos(saleInfos);
-				setShowSaleTotal(true);
 			} else {
 				setShowSaleTotal(false);
 			}
@@ -119,44 +118,19 @@ function LandingPage() {
 
 	// 카테고리 또는 상품이 지정된 경우 세일금액을 계산한다.
   const calcBySaleItem = (saleInfos, product) => {
-
     // 상품아이디의 세일정보를 저장(카테고리 ALL인 경우는 상품을 지정할수 없다)
     let saleProduct = [];
     for (let i=0; i<saleInfos.length; i++) {
       // 카테고리와 관계없이 상품아이디 세일정보가 있는경우
-      if (!saleInfos[i].except && saleInfos[i].productId && saleInfos[i].productId !== "") {
+      if (!saleInfos[i].except && saleInfos[i].productId !== "") {
         saleProduct.push(saleInfos[i]);
       }
-    }
-    // 카테고리가 ALL이 아닌 세일정보를 저장
-    let saleCategory = [];
-    for (let i=0; i<saleInfos.length; i++) {
-      // 카테고리 세일정보가 ALL이 아니고 상품아이디가 지정되지 않은경우 
-      if (!saleInfos[i].except && saleInfos[i].item !== 0 && saleInfos[i].productId === "") {
-        saleCategory.push(saleInfos[i]);
-      } 
-    }
-    // 카테고리가 ALL인 세일정보를 저장(등록시 하나만 등록이 가능하게 되어있다)
-    let allCategory = [];
-    for (let i=0; i<saleInfos.length; i++) {
-      // 카테고리 세일정보가 ALL이고 상품아이디가 지정되지 않은경우 
-      if (!saleInfos[i].except && saleInfos[i].item === 0 && saleInfos[i].productId === "") {
-        allCategory.push(saleInfos[i]);
-      } 
-    }
-    // 세일대상 제외인 카테고리 세일정보를 저장
-    let exceptCategory = [];
-    for (let i=0; i<saleInfos.length; i++) {
-      // 카테고리가 세일대상 제외이고 상품아이디가 지정되지 않은경우 
-      if (saleInfos[i].except && saleInfos[i].item && saleInfos[i].productId === "") {
-        exceptCategory.push(saleInfos[i]);
-      } 
     }
     // 세일대상 제외인 상품아이디 세일정보를 저장
     let exceptProduct = [];
     for (let i=0; i<saleInfos.length; i++) {
       // 카테고리가 세일대상 제외이고 상품아이디가 지정되지 않은경우 
-      if (saleInfos[i].except && saleInfos[i].item && saleInfos[i].productId !== "") {
+      if (saleInfos[i].except && saleInfos[i].item !== 0 && saleInfos[i].productId !== "") {
         exceptProduct.push(saleInfos[i]);
       } 
     }
@@ -171,97 +145,41 @@ function LandingPage() {
         return 0;
       }
     }
-    // 세일대상 제외 카테고리 상품인지 확인
-    for (let i=0; i<exceptCategory.length; i++) {
-			if (exceptCategory[i].item === product.continents) {
-				return 0;
-			}
-    }
-
     // 상품세일 대상이면 적용
-    for (let i=0; i<saleProduct.length; i++) {
-      let price = 0;
-			
-			// 상품세일의 대상이면 상품의 금액을 구한다
-			if (saleProduct[i].productId === product._id) {
-				price = Number(product.price);
-			}
-      // 상품세일에 최소금액이 있는경우 
-      if (saleProduct[i].minAmount !== "") {
-        const minProductAmount = Number(saleProduct[i].minAmount);
-        // 해당 상품의 금액이 최소금액보다 작은경우 세일계산을 하지 않는다
-        if (price < minProductAmount) {
-          price = 0;
-        }
-      }
-      
-      if (price > 0) {
-        // 상품세일에 의한 할인금액 또는 포인트를  구한다
-        const saleProductAmount  = calcBySaleType(price, saleProduct[i]);
+		if (saleProduct.length > 0) {
+			for (let i=0; i<saleProduct.length; i++) {
+				let price = 0;
 				
-				// 상품세일이 포인트 부여인 경우
-        if (saleProduct[i].type === SaleType[1].key) {
-          return 0;
-        } else {
-					return saleProductAmount;
-        }
-      }
-    }
-    
-		// 카테고리세일 대상이면 적용 
-    for (let i=0; i<saleCategory.length; i++) {
-      let price = 0;
-      
-			// 카테고리 세일의 대상 상품이 카트에 있다면 해당상품의 합계를 구한다
-			if (saleCategory[i].item === product.continents ) {
-				price = Number(product.price);
+				// 상품세일의 대상이면 상품의 금액을 구한다
+				if (saleProduct[i].productId === product._id) {
+					price = Number(product.price);
+				}
+				// 상품세일에 최소금액이 있는경우 
+				if (saleProduct[i].minAmount !== "") {
+					const minProductAmount = Number(saleProduct[i].minAmount);
+					// 해당 상품의 금액이 최소금액보다 작은경우 세일계산을 하지 않는다
+					if (price < minProductAmount) {
+						price = 0;
+					}
+				}
+				
+				if (price > 0) {
+					// 상품세일에 의한 할인금액 또는 포인트를  구한다
+					const saleProductAmount  = calcBySaleType(price, saleProduct[i]);
+					
+					// 상품세일이 포인트 부여인 경우
+					if (saleProduct[i].type === SaleType[1].key) {
+						return 0;
+					} else {
+						return saleProductAmount;
+					}
+				}
 			}
-      // 카테고리 세일에 최소금액이 있는경우
-      if (saleCategory[i].minAmount !== "") {
-        const minCategoryAmount = Number(saleCategory[i].minAmount);
-        // 해당 카테고리의 모든상품의 합계금액이 최소금액보다 작은경우 세일계산을 하지 않는다
-        if (price < minCategoryAmount) {
-          price = 0;
-        }
-      }
-      
-      if (price > 0) {
-        const saleCategoryAmount = calcBySaleType(price, saleCategory[i]);
-        
-        if (saleCategory[i].type === SaleType[1].key) {
-          return 0;
-        } else {
-          return saleCategoryAmount;
-        }
-      }
-    }
-		
-		// ALL세일 대상이면 적용
-    for (let i=0; i<allCategory.length; i++) {
-      let price = 0;
 
-			// 카테고리 세일의 대상 상품이 카트에 있다면 해당상품의 합계를 구한다
-			price = Number(product.price);
-
-      // ALL 카테고리 세일에 최소금액이 있는경우
-      if (allCategory[i].minAmount !== "") {
-        const minAllAmount = Number(allCategory[i].minAmount);
-        // ALL 카테고리에 해당하는 모든상품의 합계금액이 최소금액보다 작은경우 세일계산을 하지 않는다
-        if (price < minAllAmount) {
-          price = 0;
-        }
-      }
-      
-      if (price > 0) {
-        const allCategoryAmount  = calcBySaleType(price, allCategory[i]);
-        
-        if (allCategory[i].type === SaleType[1].key) {
-          return 0;
-        } else {
-          return allCategoryAmount;
-        }
-      }
-    }
+			return 0;
+		} else {
+			return 0;
+		}
   }
 
   // 세일 타입에 의한 할인금액을 구한다
@@ -291,18 +209,9 @@ function LandingPage() {
 	const renderCards = Products.map((product, index) => {
 		// 상품가격에 콤마 추가
 		const price = Number(product.price).toLocaleString();
-		// 세일
-		const saleAmount = calcBySaleItem(SaleInfos, product);
-
-		let minusSalesAmount = 0;
-
-		console.log("saleAmount: ", saleAmount);
-
-		if (ShowSaleTotal) {
-			minusSalesAmount = Number(product.price) - saleAmount;
-		} else {
-			minusSalesAmount = Number(product.price);
-		}
+		// 세일계산
+		let saleAmount = calcBySaleItem(SaleInfos, product);
+		const minusSalesAmount = Number(product.price) - saleAmount;
 
 		// 한 Row는 24사이즈 즉 카드 하나당 6사이즈로 하면 화면에 4개가 표시된다 
 		// lg: 화면이 가장 클때, md: 중간 
@@ -313,8 +222,14 @@ function LandingPage() {
 			>	
 				<Meta 
 					title={product.title}
-					description={<span style={{textDecoration:"line-through"}}>{ShowSaleTotal ? price:undefined}</span>}
+					// 세일값이 있으면 원래 가격을 보여주고 삭제표시를 하고 세일값이 없으면 아무것도 안보여준다
+					description={<span style={{textDecoration:"line-through"}}>{saleAmount > 0 ? price:undefined}</span>}
 				/>
+				{/* 세일로 계산된 상품이 있으면 카드의 왁구를 맞추기 위해서 개행을 넣는다 */}
+				{saleAmount < 1 && 
+					<br />
+				}
+				{/* 세일로 계산된 값 또는 원래 상품값을 표시한다 */}
 				<b>{minusSalesAmount.toLocaleString()} (JPY)</b>
 			</Card>
 		</Col>

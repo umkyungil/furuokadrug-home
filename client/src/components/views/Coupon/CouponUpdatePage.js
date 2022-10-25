@@ -53,7 +53,7 @@ function CouponUpdatePage(props) {
   const [UserName, setUserName] = useState("");
   const [ProductId, setProductId] = useState("");
   const [ProductName, setProductName] = useState("");
-  const [CheckBox, setCheckBox] = useState(false);
+  const [SendMail, setSendMail] = useState(false);
   
   useEffect(() => {
     // 다국적언어
@@ -72,8 +72,6 @@ function CouponUpdatePage(props) {
       if (result.data.success) {
         const couponInfo = result.data.couponInfo[0];
 
-        console.log("couponInfo: ", couponInfo);
-
         setId(couponInfo._id);          
         setCode(couponInfo.code);
         setType(couponInfo.type);
@@ -82,7 +80,7 @@ function CouponUpdatePage(props) {
         setItem(couponInfo.item);
         setUseWithSale(couponInfo.useWithSale);
         setCount(couponInfo.count);
-        setCheckBox(couponInfo.sendMail);
+        setSendMail(couponInfo.sendMail);
         
         // 유효기간 시작일 변형
         let validFrom = couponInfo.validFrom;
@@ -93,7 +91,7 @@ function CouponUpdatePage(props) {
         // 사용자 정보
         if (couponInfo.userId && couponInfo.userId !== "") {
           // 사용자정보 가져오기
-          getUser(couponInfo.userId)
+          getUserName(couponInfo.userId)
           setUserId(couponInfo.userId);
         }
         // 상품정보
@@ -111,19 +109,22 @@ function CouponUpdatePage(props) {
     }
   }
 
-  // 쿠폰사용 유무
-  const activeHandler = (value) => {
-    setActive(value);
-  }
-
   //쿠폰리스트 페이지 이동
   const history = useHistory();
   const listHandler = () => {
     history.push("/coupon/list");
   }
+  // 쿠폰사용 유무
+  const activeHandler = (value) => {
+    setActive(value);
+  }
+  // 메일전송 유무(체크박스)
+  const sendMailHandler = (e) => {
+    setSendMail(e.target.checked)
+  };
 
   // 사용자정보 가져오기
-  const getUser = async(userId) => {
+  const getUserName = async(userId) => {
     try {
       const result = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}`);
       if (result.data.success) {
@@ -131,7 +132,7 @@ function CouponUpdatePage(props) {
       }
     } catch (err) {
       alert("Failed to get user information")
-      console.log("getUser err: ",err);
+      console.log("getUserName err: ",err);
     }
   } 
 
@@ -149,31 +150,23 @@ function CouponUpdatePage(props) {
   }
 
   // 메일 송신
-  const sendMail = async() => {
+  const sendMail = async(body) => {
     try {
-      // 쿠폰 정보 셋팅
-      let body = {
-        code: Code,
-        type: Type,
-        amount: Amount,
-        validFrom: ValidFrom,
-        validTo: ValidTo,
-        item: Item,
-        active: Active,
-        useWithSale: UseWithSale,
-        count: Count,
-        userId: UserId,
-        productId: ProductId,
-        sendMail: CheckBox
-      };
-      
-      const result = await axios.post(`${MAIL_SERVER}/coupon/admin`, body);
-      if (result.data.success) {
-        console.log('Coupon information email has been sent normally');
+      if (SendMail) {
+        if (window.confirm("Do you want to send mail to all users?")) {
+          await axios.post(`${MAIL_SERVER}/coupon`, body);
+        } else {
+          // 관리자에게만 메일을 보낸다
+          await axios.post(`${MAIL_SERVER}/coupon/admin`, body);
+          setSendMail(false);
+        }
       } else {
-        console.log('Failed to send coupon information email\nPlease contact the administrator');
+        // 관리자에게만 메일을 보낸다
+        await axios.post(`${MAIL_SERVER}/coupon/admin`, body);
+        setSendMail(false);
       }
     } catch(err) {
+      setSendMail(false);
       console.log("sendMail err: ",err);
     }
   }
@@ -199,7 +192,7 @@ function CouponUpdatePage(props) {
         history.push("/coupon/list");
       })
     } catch(err) {
-      console.log("submit err: ", err);
+      console.log("deleteHandler err: ", err);
       alert('Please contact the administrator');
       history.push("/coupon/list");
     }
@@ -209,7 +202,8 @@ function CouponUpdatePage(props) {
     <Formik
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
-          let dataToSubmit = {
+
+          const dataToSubmit = {
             id: Id,
             code: Code,
             type: Type,
@@ -222,15 +216,17 @@ function CouponUpdatePage(props) {
             count: Count,
             userId: UserId,
             productId: ProductId,
-            sendMail: CheckBox
+            sendMail: SendMail
           };
+
+          console.log("dataToSubmit: ", dataToSubmit);
 
           try {
             axios.post(`${COUPON_SERVER}/update`, dataToSubmit)
             .then(response => {
               if (response.data.success) {
+                sendMail(dataToSubmit);
                 alert('Coupon has been edited');
-                sendMail();
               } else {
                 alert('Please contact the administrator');
               }
@@ -332,7 +328,7 @@ function CouponUpdatePage(props) {
               </Form.Item>
               {/* 메일전송 유무 */}
               <Form.Item label={t('Coupon.sendMail')} >
-                <Checkbox checked={CheckBox} readOnly/>
+                <Checkbox checked={SendMail} onChange={sendMailHandler} />
               </Form.Item>
 
               <Form.Item {...tailFormItemLayout}>

@@ -222,7 +222,7 @@
     "type": "クーポン種類",
     "active": "有効",
     "validTo": "有効期限",
-    "amount": "割引金額 (JPY)",
+    "amount": "クーポン種類の値",
     "validFrom": "登録日",
     "action": "アクション",
     "item": "カテゴリ",

@@ -151,7 +151,8 @@ function UserRegisterPage(props) {
               // 로그인 페이지에
               props.history.push("/login");
             } else {
-              alert(response.payload.err.errmsg)
+              console.log("response.payload: ", response.payload);
+              alert("This is the registered email address")
             }
           })
 
@@ -169,7 +170,7 @@ function UserRegisterPage(props) {
               <Form.Item required label={t('SignUp.name')} style={{ marginBottom: 0, }} >
                 {/* 성 */}
                 <Form.Item name="lastName" required style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
-                  <Input id="lastName" placeholder="Enter your last Name" type="text" value={values.lastName} onChange={handleChange} onBlur={handleBlur}
+                  <Input id="lastName" placeholder="Enter your last name" type="text" value={values.lastName} onChange={handleChange} onBlur={handleBlur}
                     className={ errors.lastName && touched.lastName ? 'text-input error' : 'text-input' } />
                   {errors.lastName && touched.lastName && (
                     <div className="input-feedback">{errors.lastName}</div>
@@ -186,7 +187,7 @@ function UserRegisterPage(props) {
               </Form.Item>
               {/* 메일주소 */}
               <Form.Item required label={t('SignUp.email')} hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
-                <Input id="email" placeholder="Enter your Email" type="email" value={values.email} onChange={handleChange} onBlur={handleBlur}
+                <Input id="email" placeholder="Enter your email" type="email" value={values.email} onChange={handleChange} onBlur={handleBlur}
                   className={ errors.email && touched.email ? 'text-input error' : 'text-input' } />
                 {errors.email && touched.email && (
                   <div className="input-feedback">{errors.email}</div>
@@ -230,7 +231,7 @@ function UserRegisterPage(props) {
               </Form.Item>
               {/* 배송지 주소2 */}
               <Form.Item label={t('SignUp.address2')}>
-                <Input id="address2" placeholder="Enter your address2" type="text" value={values.address2} onChange={handleChange} onBlur={handleBlur} />
+                <Input id="address2" placeholder="Enter your shipping address" type="text" value={values.address2} onChange={handleChange} onBlur={handleBlur} />
               </Form.Item>
               {/* 배송지 주소2 상세*/}
               <Form.Item label={t('SignUp.addressDetail2')} style={{ marginBottom: 0, }} >
@@ -246,7 +247,7 @@ function UserRegisterPage(props) {
 
               {/* 주소3 */}
               <Form.Item label={t('SignUp.address3')}>
-                <Input id="address3" placeholder="Enter your address3" type="text" value={values.address3} onChange={handleChange} onBlur={handleBlur} />
+                <Input id="address3" placeholder="Enter your shipping address" type="text" value={values.address3} onChange={handleChange} onBlur={handleBlur} />
               </Form.Item>
               {/* 배송지 주소3 상세 */}
               <Form.Item label={t('SignUp.addressDetail3')} style={{ marginBottom: 0, }} >
@@ -278,7 +279,7 @@ function UserRegisterPage(props) {
               {/* 비밀번호 확인 */}
               <Form.Item required label={t('SignUp.confirm')} hasFeedback>
                 <Input
-                  id="confirmPassword" placeholder="Enter your confirmPassword" type="password" value={values.confirmPassword} onChange={handleChange} onBlur={handleBlur}
+                  id="confirmPassword" placeholder="Enter your confirm password" type="password" value={values.confirmPassword} onChange={handleChange} onBlur={handleBlur}
                   className={ errors.confirmPassword && touched.confirmPassword ? 'text-input error' : 'text-input' } />
                 {errors.confirmPassword && touched.confirmPassword && (
                   <div className="input-feedback">{errors.confirmPassword}</div>

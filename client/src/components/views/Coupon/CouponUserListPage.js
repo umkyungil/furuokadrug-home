@@ -66,7 +66,12 @@ function CouponUserListPage() {
 			if (result.data.success)  {
 				for (let i=0; i<result.data.userInfo.length; i++) {
 					count++;
-					
+
+					// 이름 변경
+					let name = "";
+					name = result.data.userInfo[i].lastName + " " + result.data.userInfo[i].name;
+					result.data.userInfo[i].name = name;
+
 					// 메일전송　타입추가
 					result.data.userInfo[i].type = 'Coupon';
 					// key 추가

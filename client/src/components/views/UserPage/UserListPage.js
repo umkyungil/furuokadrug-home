@@ -97,9 +97,9 @@ function UserListPage() {
 					if (tmpLanguage) {
 						if (tmpLanguage === 'en') {
 							tmpLanguage = English
-						} else if(tmpLanguage === 'jp') {
+						} else if(tmpLanguage === 'cn') {
 							tmpLanguage = Chinese
-						} else {
+						} else if(tmpLanguage === 'jp') {
 							tmpLanguage = Japanese
 						}
 						result.data.userInfo[i].chgLanguage = tmpLanguage;

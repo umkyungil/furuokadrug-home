@@ -43,17 +43,19 @@ const tailFormItemLayout = {
 };
 
 function SaleRegisterPage() {
+  const [SaleCode, setSaleCode] = useState("");
   const [Type, setType] = useState(SaleType[2].key);
-  const [ExpirationPeriod, setExpirationPeriod] = useState([]);
+  const [Amount, setAmount] = useState("");
   const [Item, setItem] = useState(0);
   const [MinAmount, setMinAmount] = useState("");
-  const [MailCheckBox, setMailCheckBox] = useState(true);
+  const [ExpirationPeriod, setExpirationPeriod] = useState([]);
+  const [ProductId, setProductId] = useState("");
+  const [ProductName, setProductName] = useState(""); 
   const [CnMailComment, setCnMailComment] = useState("");
   const [JpMailComment, setJpMailComment] = useState("");
   const [EnMailComment, setEnMailComment] = useState("");
-  const [ExceptCheckBox, setExceptCheckBox] = useState(false);
-  const [ProductId, setProductId] = useState("");
-  const [ProductName, setProductName] = useState("");
+  const [SendMail, setSendMail] = useState(true);
+  const [Except, setExcept] = useState(false);
   const [ShowMinAmount, setShowMinAmount] = useState(true);
   const [ShowMailComment, setShowMailComment] = useState(true);
   const [ShowExcept, setShowExcept] = useState(false);
@@ -78,10 +80,14 @@ function SaleRegisterPage() {
   const typeHandler = (value) => {
     setType(value);
 
-    if (value === SaleType[2].key) {
-      setShowMinAmount(true);
+    if (!Except) {
+      if (value === SaleType[2].key) {
+        setShowMinAmount(true);
+      } else {
+        setShowMinAmount(false);
+      }
     } else {
-      setShowMinAmount(false)
+      setShowMinAmount(false);
     }
   }
   // 유효일자
@@ -93,8 +99,8 @@ function SaleRegisterPage() {
     setItem(value);
   }
   // 메일전송 유무(체크박스)
-  const mailCheckboxHandler = (e) => {
-    setMailCheckBox(e.target.checked)
+  const sendMailHandler = (e) => {
+    setSendMail(e.target.checked)
 
     if (e.target.checked) {
       setShowMailComment(true);
@@ -116,12 +122,12 @@ function SaleRegisterPage() {
     setEnMailComment(e.target.value)
   };
   // 세일대상 제외(체크박스)
-  const saleExceptCheckboxHandler = (e) => {
-    setExceptCheckBox(e.target.checked)
+  const exceptHandler = (e) => {
+    setExcept(e.target.checked)
 
     if (e.target.checked) {
       setShowExcept(true);
-      setMailCheckBox(false);
+      setSendMail(false);
       setShowMailComment(false);
       setJpMailComment("");
       setEnMailComment("");
@@ -139,6 +145,14 @@ function SaleRegisterPage() {
       }
     }
   };
+  // 세일코드
+  const saleCodeHandler = (e) => {
+    setSaleCode(e.target.value)
+  };
+  // 세일타입의 값
+  const amountHandler = (e) => {
+    setAmount(e.target.value)
+  };
   // 최소금액
   const minAmountHandler = (e) => {
     setMinAmount(e.target.value)
@@ -151,26 +165,39 @@ function SaleRegisterPage() {
   // 메일 송신
   const sendMail = async(body) => {
     try {
-      if (!ExceptCheckBox) {
-        if (window.confirm("Do you want to send mail to all users?")) {
-          // 세일정보인 경우 모든 사용자와 관리자에게 메일을 보낸다
-          await axios.post(`${MAIL_SERVER}/sale`, body);
+      if (!Except) {
+        if (SendMail) {
+          if (window.confirm("Do you want to send mail to all users?")) {
+            // 세일정보인 경우 모든 사용자와 관리자에게 메일을 보낸다
+            await axios.post(`${MAIL_SERVER}/sale`, body);
+          } else {
+            // 관리자에게만 메일을 보낸다
+            await axios.post(`${MAIL_SERVER}/sale/admin`, body);
+            setSendMail(false);
+          }
         } else {
-          setMailCheckBox(false);
+          // 관리자에게만 메일을 보낸다
+          await axios.post(`${MAIL_SERVER}/sale/admin`, body);
+          setSendMail(false);
         }
       } else {
         // 세일제외정보인 경우 관리자에게만 메일을 보낸다
         await axios.post(`${MAIL_SERVER}/saleExcept`, body);
+        setSendMail(false);
       }
     } catch(err) {
-      setMailCheckBox(false);
+      setSendMail(false);
       console.log("err: ",err);
     }
   }
 
   // 상품검색(검색버튼)
   const productPopupHandler = () => {
-    window.open(`/coupon/product/${Item}`,"product list","width=550, height=700, top=10, left=10");
+    if (Item === 0) {
+      alert("In case of category ALL, product selection is not possible");
+    } else {
+      window.open(`/coupon/product/${Item}`,"product list","width=550, height=700, top=10, left=10");
+    }
   }
   // 상품검색(크리어버튼)
   const productClearHandler = () => {
@@ -198,20 +225,36 @@ function SaleRegisterPage() {
 
   return (
     <Formik
-      initialValues={{
-        code: '',
-        amount: '',
-      }}
-      validationSchema={Yup.object().shape({
-        code: Yup.string()
-          .max(4, 'Must be exactly 4 characters')
-          .required('Code is required'),
-        amount: Yup.string()
-          .required('Discount rate or discount amount is required')
-      })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
+          // 세일코드 체크
+          if (SaleCode === "") {
+            alert("Code is required");
+              
+            setSubmitting(false);
+            return false;
+          }
+          if (SaleCode.length > 4) {
+            alert("Must be exactly 4 characters");
+              
+            setSubmitting(false);
+            return false;
+          }
+          if (!Except) {
+            // 금액 체크
+            if (isNaN(Number(Amount))) {
+              alert("Only numbers can be entered for the amount");
 
+              setSubmitting(false);
+              return false;
+            }
+            if (Number(Amount) < 1) {
+              alert("Only positive numbers can be entered for the amount");
+
+              setSubmitting(false);
+              return false;
+            }
+          }
           // 카테고리가 ALL인데 상품이 지정되어 있는경우
           if (Item === MainCategory[0].key) {
             if (ProductId !== "") {
@@ -223,28 +266,12 @@ function SaleRegisterPage() {
           }
           // 세일타입이 할인금액이 아닌데 최소금액에 값이있는경우
           if (Type !== SaleType[2].key) {
-            console.log("MinAmount: ", MinAmount);
-
             if (MinAmount !== "") {
               alert("The minimum amount can be set only for the discount amount");
 
               setSubmitting(false);
               return false;
             }
-          }
-
-          // 금액 체크
-          if (isNaN(Number(values.amount))) {
-            alert("Only numbers can be entered for the amount");
-
-            setSubmitting(false);
-            return false;
-          }
-          if (Number(values.amount) < 1) {
-            alert("Only positive numbers can be entered for the amount");
-
-            setSubmitting(false);
-            return false;
           }
           // 최소금액 체크
           if (MinAmount !== "") {
@@ -262,7 +289,6 @@ function SaleRegisterPage() {
               return false;
             }
           }
-
           // 날짜 체크
           if (ExpirationPeriod.length < 1) {
             alert("Expiration period is required");
@@ -283,7 +309,6 @@ function SaleRegisterPage() {
           const curDate = new Date(dateFormatYMD());
           const startDate = new Date(ExpirationPeriod[0]);
           const endDate = new Date(ExpirationPeriod[1]);
-
           // 입력한 날짜가 과거인지 체크
           if (curDate > startDate) {
             alert("Past dates cannot be used");
@@ -305,25 +330,25 @@ function SaleRegisterPage() {
 
           // 세일 정보 셋팅
           let body = {
-            code: values.code,
+            code: SaleCode,
             type: Type,
-            amount: values.amount,
+            amount: Amount,
             minAmount: MinAmount,
             item: Item,
             active: "1", // 활성
             validFrom: ExpirationPeriod[0],
             validTo: ExpirationPeriod[1],
             productId: ProductId,
-            sendMail: MailCheckBox,
+            sendMail: SendMail,
             cnMailComment: CnMailComment,
             jpMailComment: JpMailComment,
             enMailComment: EnMailComment,
-            except: ExceptCheckBox
+            except: Except
           };
 
           // 세일 제외대상 등록인 경우
-          if (ExceptCheckBox) {
-            // 세일 제외대상 에서 ALL은 선택할수 없다 
+          if (Except) {
+            // ALL은 선택할수 없다 
             if (Item === 0) {
               alert("You cannot select category ALL in sales exclusion information");
               setSubmitting(false);
@@ -346,13 +371,13 @@ function SaleRegisterPage() {
                   .then(response => {
                     if (response.data.success) {
                       // 메일 송신 (메일송신에 체크되어 있거나 세일대상제외에 체크되어 있을때)
-                      if (MailCheckBox || ExceptCheckBox) {
-                        sendMail(body)
-                      }
+                      sendMail(body);
                       alert('Sale has been registered');
-                      // 세일 정상등록 후 리스트 페이지로 이동
-                      history.push("/sale/list");
-                    } 
+                    } else {
+                      alert('Please contact the administrator');
+                    }
+                    // 세일 정상등록 후 리스트 페이지로 이동
+                    history.push("/sale/list");
                   });
                 }
               } else {
@@ -364,6 +389,8 @@ function SaleRegisterPage() {
           } catch (err) {
             alert("Please contact the administrator");
             console.log("Sale register err: ", err);
+            // 세일리스트 이동
+            history.push("/sale/list");
           }
           
         setSubmitting(false);
@@ -379,8 +406,7 @@ function SaleRegisterPage() {
             <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 세일코드 */}
               <Form.Item required label={t('Sale.code')} >
-                <Input id="code" placeholder="Sale code" type="text" value={values.code} 
-                  onChange={handleChange} 
+                <Input id="code" placeholder="Sale code" type="text" value={SaleCode} onChange={saleCodeHandler} 
                   onBlur={handleBlur} 
                   style={{ width: 250 }} 
                   className={ errors.code && touched.code ? 'text-input error' : 'text-input' }
@@ -396,19 +422,21 @@ function SaleRegisterPage() {
                 </Select>
               </Form.Item>
               {/* 세일할인율 또는 금액 */}
-              <Form.Item required label={t('Sale.amount')} >
-                <Input id="amount" placeholder="Sale amount" type="text" value={values.amount} 
-                  onChange={handleChange} 
-                  onBlur={handleBlur} 
-                  style={{ width: 250 }} 
-                  className={ errors.amount && touched.amount ? 'text-input error' : 'text-input' }
-                />
-                {errors.amount && touched.amount && (<div className="input-feedback">{errors.amount}</div>)}
-              </Form.Item>
+              {!ShowExcept &&
+                <Form.Item required label={t('Sale.amount')} >
+                  <Input id="amount" placeholder="Sale amount" type="text" value={Amount} onChange={amountHandler} 
+                    onBlur={handleBlur} 
+                    style={{ width: 250 }} 
+                    className={ errors.amount && touched.amount ? 'text-input error' : 'text-input' }
+                  />
+                  {errors.amount && touched.amount && (<div className="input-feedback">{errors.amount}</div>)}
+                </Form.Item>
+              }
               {/* 세일할인 최소금액 */}
               {ShowMinAmount &&
                 <Form.Item label={t('Sale.minAmount')} >
-                  <Input id="minAmount" placeholder="Sale discount minimum amount" type="text" value={MinAmount} onChange={minAmountHandler} 
+                  <Input id="minAmount" placeholder="Sale discount minimum amount" type="text" value={MinAmount} 
+                    onChange={minAmountHandler} 
                     onBlur={handleBlur}
                     style={{ width: 250 }}
                   />
@@ -442,7 +470,7 @@ function SaleRegisterPage() {
               {/* 메일전송 유무 */}
               {!ShowExcept &&
                 <Form.Item label={t('Sale.sendMail')} >
-                  <Checkbox checked={MailCheckBox} onChange={mailCheckboxHandler} />
+                  <Checkbox checked={SendMail} onChange={sendMailHandler} />
                 </Form.Item>
               }
               { ShowMailComment &&
@@ -462,7 +490,7 @@ function SaleRegisterPage() {
               }
               {/* 세일대상 제외 */}
               <Form.Item label={t('Sale.saleExcept')} >
-                <Checkbox checked={ExceptCheckBox} onChange={saleExceptCheckboxHandler} />
+                <Checkbox checked={Except} onChange={exceptHandler} />
               </Form.Item>
             
               <Form.Item {...tailFormItemLayout}>

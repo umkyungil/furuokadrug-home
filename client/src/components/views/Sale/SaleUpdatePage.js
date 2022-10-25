@@ -23,7 +23,7 @@ const formItemLayout = {
   },
   wrapperCol: {
     xs: { span: 24 },
-    sm: { span: 8 },
+    sm: { span: 16 },
   },
 };
 const tailFormItemLayout = {
@@ -45,17 +45,19 @@ function SaleUpdatePage(props) {
   const [Type, setType] = useState("");
   const [Amount, setAmount] = useState("");
   const [MinAmount, setMinAmount] = useState("");
+  const [ShowMinAmount, setShowMinAmount] = useState(false);
   const [Active, setActive] = useState("1");
   const [ValidFrom, setValidFrom] = useState("");
   const [ValidTo, setValidTo] = useState("");
   const [Item, setItem] = useState(0);
   const [ProductId, setProductId] = useState("");
   const [ProductName, setProductName] = useState("");
-  const [MailCheckBox, setMailCheckBox] = useState(false);
+  const [SendMail, setSendMail] = useState(false);
+  const [ShowMailComment, setShowMailComment] = useState(true);
   const [CnMailComment, setCnMailComment] = useState("");
   const [JpMailComment, setJpMailComment] = useState("");
   const [EnMailComment, setEnMailComment] = useState("");
-  const [ExceptCheckBox, setExceptCheckBox] = useState(false);
+  const [Except, setExcept] = useState(false);
   const [ShowExcept, setShowExcept] = useState(false);
   
   useEffect(() => {
@@ -75,26 +77,40 @@ function SaleUpdatePage(props) {
       if (result.data.success) {
         const saleInfo = result.data.saleInfo[0];
 
-        console.log("saleInfo: ", saleInfo);
-
         setId(saleInfo._id);          
         setCode(saleInfo.code);
         setType(saleInfo.type);
         setAmount(saleInfo.amount);
+        // 최소금액
+        if (saleInfo.type === SaleType[2].key) {
+          setShowMinAmount(true);
+        } else {
+          setShowMinAmount(false);
+        }
         setMinAmount(saleInfo.minAmount);
         setItem(saleInfo.item);
         setActive(saleInfo.active);
-        setMailCheckBox(saleInfo.sendMail);
+        // 메일송신
+        setSendMail(saleInfo.sendMail);
+        // 관리자 메일커멘트
+        if (saleInfo.sendMail) {
+          setShowMailComment(true);
+        } else {
+          setShowMailComment(false);
+        }
         setCnMailComment(saleInfo.cnMailComment);
         setJpMailComment(saleInfo.jpMailComment);
         setEnMailComment(saleInfo.enMailComment);
-        setExceptCheckBox(saleInfo.except);
+        // 세일대상 제외
+        setExcept(saleInfo.except);
         if (saleInfo.except) {
+          // 세일 대상제외 정보
           setShowExcept(true);
+          setShowMailComment(false);
+          setShowMinAmount(false);
         } else {
           setShowExcept(false);
-        }
-        
+        }        
         // 유효기간 시작일 변형
         let validFrom = saleInfo.validFrom;
         setValidFrom(validFrom.substring(0, 10));
@@ -151,34 +167,31 @@ function SaleUpdatePage(props) {
 	}
 
   // 관리자 메일 송신
-  const sendMail = async() => {
+  const sendMail = async(body) => {
     try {
-      // 쿠폰 정보 셋팅
-      let body = {
-        code: Code,
-        type: Type,
-        amount: Amount,
-        minAmount: MinAmount,
-        validFrom: ValidFrom,
-        validTo: ValidTo,
-        item: Item,
-        active: Active,
-        productId: ProductId,
-        sendMail: MailCheckBox,
-        jpMailComment: JpMailComment,
-        enMailComment: EnMailComment,
-        cnMailComment: CnMailComment,
-        except: ExceptCheckBox
-      };
-      
-      const result = await axios.post(`${MAIL_SERVER}/sale/admin`, body);
-      if (result.data.success) {
-        console.log('Sale information email has been sent normally');
+      if (!Except) {
+        if (SendMail) {
+          if (window.confirm("Do you want to send mail to all users?")) {
+            // 세일정보인 경우 모든 사용자와 관리자에게 메일을 보낸다
+            await axios.post(`${MAIL_SERVER}/sale`, body);
+          } else {
+            // 관리자에게만 메일을 보낸다
+            await axios.post(`${MAIL_SERVER}/sale/admin`, body);
+            setSendMail(false);
+          }
+        } else {
+          // 관리자에게만 메일을 보낸다
+          await axios.post(`${MAIL_SERVER}/sale/admin`, body);
+          setSendMail(false);
+        }
       } else {
-        console.log('Failed to send sale information email\nPlease contact the administrator');
+        // 세일제외정보인 경우 관리자에게만 메일을 보낸다
+        await axios.post(`${MAIL_SERVER}/saleExcept`, body);
+        setSendMail(false);
       }
     } catch(err) {
-      console.log("sendMail err: ",err);
+      setSendMail(false);
+      console.log("err: ",err);
     }
   }
 
@@ -186,7 +199,6 @@ function SaleUpdatePage(props) {
   const activeHandler = (value) => {
     setActive(value);
   }
-
   // 세일리스트 페이지 이동
   const history = useHistory();
   const listHandler = () => {
@@ -198,6 +210,20 @@ function SaleUpdatePage(props) {
   function setMultiLanguage(lang) {
     i18n.changeLanguage(lang);
   }
+
+  // 메일전송 유무(체크박스)
+  const sendMailHandler = (e) => {
+    setSendMail(e.target.checked)
+
+    if (e.target.checked) {
+      setShowMailComment(true);
+    } else {
+      setShowMailComment(false)
+      setJpMailComment("");
+      setCnMailComment("");
+      setEnMailComment("");
+    }
+  };
 
   return (
     <Formik
@@ -221,20 +247,20 @@ function SaleUpdatePage(props) {
             validTo: ValidTo,
             item: Item,
             productId: ProductId,
-            sendMail: MailCheckBox,
+            sendMail: SendMail,
             cnMailComment: CnMailComment,
             jpMailComment: JpMailComment,
             enMailComment: EnMailComment,
-            except: ExceptCheckBox
+            except: Except
           };
 
           try {
             axios.post(`${SALE_SERVER}/update`, dataToSubmit)
             .then(response => {
               if (response.data.success) {
+                // 메일 송신
+                sendMail(dataToSubmit);
                 alert('Sale has been edited');
-                // 관리자에게 메일전송
-                sendMail();
               } else {
                 alert('Please contact the administrator');
               }
@@ -243,7 +269,7 @@ function SaleUpdatePage(props) {
             })
           } catch(err) {
             alert('Please contact the administrator');
-            console.log("submit err: ", err);
+            console.log("Sale edit err: ", err);
             // 세일리스트 이동
             history.push("/sale/list");
           }
@@ -276,11 +302,13 @@ function SaleUpdatePage(props) {
                 </Select>
               </Form.Item>
               {/* 세일할인율 또는 금액 */}
-              <Form.Item label={t('Sale.amount')} >
-                <Input id="amount" type="text" value={Amount} style={{ width: 250 }} readOnly/>
-              </Form.Item>
+              {!ShowExcept &&
+                <Form.Item label={t('Sale.amount')} >
+                  <Input id="amount" type="text" value={Amount} style={{ width: 250 }} readOnly/>
+                </Form.Item>
+              }
               {/* 세일할인 최소금액 */}
-              {!ShowExcept && 
+              { ShowMinAmount &&
                 <Form.Item label={t('Sale.minAmount')} >
                   <Input id="minAmount" type="text" value={MinAmount} style={{ width: 250 }} readOnly/>
                 </Form.Item>
@@ -296,7 +324,7 @@ function SaleUpdatePage(props) {
               {/* 세일 유효기간 */}
               <Form.Item label={t('Sale.validTo')} style={{ marginBottom: 0, }} >
                 {/* 세일 유효기간 시작 */}
-                <Form.Item name="validFrom" style={{ display: 'inline-block', width: 'calc(35% - 8px)'}} >
+                <Form.Item name="validFrom" style={{ display: 'inline-block', width: 'calc(35% - 8px)' }} >
                   <Input id="validFrom" type="text" value={ValidFrom} readOnly />
                 </Form.Item>～
                 {/* 세일 유효기간 종료 */}
@@ -304,6 +332,7 @@ function SaleUpdatePage(props) {
                   <Input id="validTo" type="text" value={ValidTo} readOnly />
                 </Form.Item>
               </Form.Item>
+
               {/* 세일적용 카테고리 */}
               <Form.Item label={t('Sale.item')} >
                 <Select value={Item} style={{ width: 250 }} >
@@ -321,31 +350,31 @@ function SaleUpdatePage(props) {
                 <Input id="productId" type="text" value={ProductName} style={{ width: 250 }} readOnly/>
               </Form.Item>
               {/* 메일전송 유무 */}
-              {!ShowExcept && 
+              {!ShowExcept &&
                 <Form.Item label={t('Sale.sendMail')} >
-                  <Checkbox checked={MailCheckBox} readOnly/>
+                  <Checkbox checked={SendMail} onChange={sendMailHandler} />
                 </Form.Item>
               }
               {/* 메일 추가 커멘트 */}
-              { !ShowExcept && 
+              { ShowMailComment && 
                 <Form.Item label={t('Sale.jpMailComment')} >
-                  <TextArea style={{ width: 250 }} maxLength={500} rows={1} placeholder="Mail comment" value={JpMailComment} readOnly />
+                  <TextArea style={{ width: 250 }} maxLength={500} rows={1} placeholder="Mail comment" value={JpMailComment} />
                 </Form.Item>
               }
-              { !ShowExcept && 
+              { ShowMailComment && 
                 <Form.Item label={t('Sale.cnMailComment')} >
-                  <TextArea style={{ width: 250 }} maxLength={500} rows={1} placeholder="Mail comment" value={CnMailComment} readOnly />
+                  <TextArea style={{ width: 250 }} maxLength={500} rows={1} placeholder="Mail comment" value={CnMailComment} />
                 </Form.Item>
               }
-              { !ShowExcept && 
+              { ShowMailComment && 
                 <Form.Item label={t('Sale.enMailComment')} >
-                  <TextArea style={{ width: 250 }} maxLength={500} rows={1} placeholder="Mail comment" value={EnMailComment} readOnly />
+                  <TextArea style={{ width: 250 }} maxLength={500} rows={1} placeholder="Mail comment" value={EnMailComment} />
                 </Form.Item>
               }
               {/* 세일대상 제외정보 유무 */}
               { ShowExcept && 
                 <Form.Item label={t('Sale.saleExcept')} >
-                  <Checkbox checked={ExceptCheckBox} readOnly/>
+                  <Checkbox checked={Except} readOnly/>
                 </Form.Item>
               }
 
@@ -368,4 +397,4 @@ function SaleUpdatePage(props) {
   );
 };
 
-export default SaleUpdatePage
+export default SaleUpdatePage;

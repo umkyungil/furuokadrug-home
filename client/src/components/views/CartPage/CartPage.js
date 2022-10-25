@@ -132,7 +132,7 @@ function CartPage(props) {
     let saleProduct = [];
     for (let i=0; i<saleInfos.length; i++) {
       // 카테고리와 관계없이 상품아이디 세일정보가 있는경우
-      if (!saleInfos[i].except && saleInfos[i].productId && saleInfos[i].productId !== "") {
+      if (!saleInfos[i].except && saleInfos[i].productId !== "") {
         saleProduct.push(saleInfos[i]);
       }
     }
@@ -140,7 +140,7 @@ function CartPage(props) {
     let saleCategory = [];
     for (let i=0; i<saleInfos.length; i++) {
       // 카테고리 세일정보가 ALL이 아니고 상품아이디가 지정되지 않은경우 
-      if (!saleInfos[i].except && saleInfos[i].item && saleInfos[i].item !== 0 && saleInfos[i].productId === "") {
+      if (!saleInfos[i].except && saleInfos[i].item !== 0 && saleInfos[i].productId === "") {
         saleCategory.push(saleInfos[i]);
       } 
     }
@@ -148,15 +148,15 @@ function CartPage(props) {
     let allCategory = [];
     for (let i=0; i<saleInfos.length; i++) {
       // 카테고리 세일정보가 ALL이고 상품아이디가 지정되지 않은경우 
-      if (!saleInfos[i].except && saleInfos[i].item && saleInfos[i].item === 0 && saleInfos[i].productId === "") {
+      if (!saleInfos[i].except && saleInfos[i].item === 0 && saleInfos[i].productId === "") {
         allCategory.push(saleInfos[i]);
       } 
     }
     // 세일대상 제외인 카테고리 세일정보를 저장
     let exceptCategory = [];
     for (let i=0; i<saleInfos.length; i++) {
-      // 카테고리가 세일대상 제외이고 상품아이디가 지정되지 않은경우 
-      if (saleInfos[i].except && saleInfos[i].item && saleInfos[i].productId === "") {
+      // ALL이외의 카테고리가 세일대상 제외이고 상품아이디가 지정되지 않은경우 
+      if (saleInfos[i].except && saleInfos[i].item !== 0 && saleInfos[i].productId === "") {
         exceptCategory.push(saleInfos[i]);
       } 
     }
@@ -164,7 +164,7 @@ function CartPage(props) {
     let exceptProduct = [];
     for (let i=0; i<saleInfos.length; i++) {
       // 카테고리가 세일대상 제외이고 상품아이디가 지정되지 않은경우 
-      if (saleInfos[i].except && saleInfos[i].item && saleInfos[i].productId !== "") {
+      if (saleInfos[i].except && saleInfos[i].item !== 0 && saleInfos[i].productId !== "") {
         exceptProduct.push(saleInfos[i]);
       } 
     }
@@ -312,6 +312,11 @@ function CartPage(props) {
           totalDiscountAmount += allCategoryAmount;
         }
       }
+    }
+
+    // 세일금액이 포인트 부여인 경우 또는 세일금액이 0인 경우 화면에 최소선으로 금액을 보여줄 필요가 없다
+    if (totalDiscountAmount === 0) {
+      showSaleTotalRef.current = false;
     }
 
     // 카트안의 모든 상품금액을 구한다
