@@ -9,14 +9,17 @@ import { useTranslation } from 'react-i18next';
 axios.defaults.withCredentials = true;
 
 // 상품상세
-function DetailProductPage(props) {
+function ProductDetailPage(props) {
   const productId = props.match.params.productId;
+  const userInfo = props.user;
   const [Product, setProduct] = useState({});
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국어 설정
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
-
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+    
+    // 상품정보 가져오기
     axios.get(`${PRODUCT_SERVER}/products_by_id?id=${productId}&type=single`)
       .then(response => {
         // DB에서 가지고온 데이터를 설정된 다국적언어에 맞게 셋팅
@@ -59,12 +62,6 @@ function DetailProductPage(props) {
       .catch(err => alert("Failed to get product information."))
   }, [localStorage.getItem("i18nextLng")])
 
-  // 다국어 설정
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
-
   function convert(value) {
     let tmpResult = value.split('\n').map((txt1, index1) => (
       <React.Fragment key={index1}>{txt1}<br /></React.Fragment>
@@ -88,11 +85,11 @@ function DetailProductPage(props) {
         </Col>
         <Col lg={12} sm={24}  >
           {/* ProductInfo */}
-          <ProductInfo detail={Product} />
+          <ProductInfo productInfo={Product} userInfo={userInfo}/>
         </Col>
       </Row>
     </div>
   )
 }
 
-export default DetailProductPage
+export default ProductDetailPage

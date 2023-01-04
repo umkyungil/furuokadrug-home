@@ -5,6 +5,7 @@ const multer = require('multer');
 const multerS3 = require('multer-s3')
 const AWS = require('aws-sdk');
 const awsConfig = require("../config/aws");
+const { MainCategory } = require('../config/const');
 
 //=================================
 //             Product
@@ -41,7 +42,7 @@ router.post('/image', (req, res) => {
 })
 
 // 상품 등록(이미지 경로포함)
-router.post('/', (req, res) => {
+router.post('/register', (req, res) => {
   try {
     const product = new Product(req.body)
     product.save((err) => {
@@ -229,7 +230,6 @@ router.post('/update', (req, res) => {
         Key: fileName // 버켓 내 경로
       }, (err, data) => {
         if (err) { 
-          isErr = true;
           console.log(err, err.stack);
         }
       })
@@ -261,7 +261,7 @@ router.post('/coupon/list', (req, res) => {
     let item = Number(req.body.item);
     let term = req.body.searchTerm;
 
-    if (item === 0) {
+    if (item === MainCategory[0].key) {
       if (term) {
         Product.find({ "title": { '$regex': term }})
         .populate("writer")
@@ -270,7 +270,7 @@ router.post('/coupon/list', (req, res) => {
           return res.status(200).json({ success: true, productInfo })
         })
       } else {
-        Product.find({})
+        Product.find()
         .populate("writer")
         .exec((err, productInfo) =>{
           if (err) return res.status(400).json({ success: false, err });

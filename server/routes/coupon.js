@@ -13,7 +13,7 @@ router.post("/list", (req, res) => {
     try {
         if (req.body.code) {
             // 쿠폰코드 중복체크
-            Coupon.find({ "code": req.body.code, "type": req.body.type })
+            Coupon.find({ "code": req.body.code })
                 .sort({ "createdAt": -1 })
                 .exec((err, couponInfos) => {
                     if (err) return res.status(400).json({success: false, err});
@@ -23,7 +23,7 @@ router.post("/list", (req, res) => {
             )
         } else {
             // 쿠폰정보 가져오기
-            Coupon.find({})
+            Coupon.find()
                 .sort({ "createdAt": -1 })
                 .exec((err, couponInfos) => {
                     if (err) return res.status(400).json({success: false, err});
@@ -31,6 +31,24 @@ router.post("/list", (req, res) => {
                     return res.status(200).send({ success: true, couponInfos });
             })
         }
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ success: false, message: err.message });
+    }   
+});
+
+// 생일자 쿠폰 리스트
+router.post("/birth/list", (req, res) => {
+    try {
+        // 생일자 쿠폰코드 중복체크
+        Coupon.find({ "code": req.body.code })
+            .sort({ "createdAt": -1 })
+            .exec((err, couponInfos) => {
+                if (err) return res.status(400).json({success: false, err});
+
+                return res.status(200).send({ success: true, couponInfos });
+            }
+        )
     } catch (err) {
         console.log(err);
         return res.status(500).json({ success: false, message: err.message });
@@ -45,6 +63,7 @@ router.post("/history/list", (req, res) => {
             .sort({ "createdAt": -1 })
             .exec((err, couponInfo) => {
                 if (err) return res.status(400).json({success: false, err});
+                
                 return res.status(200).send({ success: true, couponInfo });
         })
     } catch (err) {
@@ -57,7 +76,7 @@ router.post("/history/list", (req, res) => {
 router.get("/history/list", (req, res) => {
     try {
         // 쿠폰정보 가져오기
-        CouponHistory.find({})
+        CouponHistory.find()
             .sort({ "createdAt": -1 })
             .exec((err, couponInfos) => {
                 if (err) return res.status(400).json({success: false, err});
@@ -137,6 +156,7 @@ router.post("/update", (req, res) => {
             { 'active': req.body.active, 'sendMail': req.body.sendMail },
             (err, couponInfo) => {
                 if(err) return res.status(400).json({ success: false, message: err.message })
+                
                 return res.status(200).send({ success: true });
             }
         );
@@ -149,10 +169,11 @@ router.post("/update", (req, res) => {
 // 쿠폰정보 삭제
 router.post('/delete', (req, res) => {
     try {
-        Coupon.remove({ _id: req.body.id })
-        .exec((err, couponInfo) => {
-            if (err) return res.status(400).send(err);
+        Coupon.deleteOne({ _id: req.body.id })
+        .then((deletedCount)=>{
             return res.status(200).send({ success: true });
+        }, (err)=>{
+            if (err) return res.status(400).send(err);
         })
     } catch (err) {
         console.log(err);

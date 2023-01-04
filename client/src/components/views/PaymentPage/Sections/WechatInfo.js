@@ -5,17 +5,13 @@ import { useTranslation } from 'react-i18next';
 
 function WechatInfo(props) {
   const history = useHistory();
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국어 설정
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
 	}, [])
 
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
   // 리스트 이동
   const listHandler = () => {
     history.push("/payment/wechat/list");
@@ -26,9 +22,23 @@ function WechatInfo(props) {
   let updatedAt = "";
   if(props) {
     if (props.detail.sod) {
-      let tmpSod = new Date(props.detail.sod);
-      let date = new Date(tmpSod.getTime() - (tmpSod.getTimezoneOffset() * 60000)).toISOString();
-      sod = date.replace('T', ' ').substring(0, 19) + ' (JST)'
+      const uniqueField = props.detail.uniqueField.trim();
+      let uniqueArr = uniqueField.split('_');
+
+      // 카트 정보인 경우
+      if (uniqueArr[0].trim() === "cart") {
+        // 결제일자 구하기
+        let tmpDate = new Date(uniqueArr[2].trim());
+        let date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
+        sod = date.replace('T', ' ').substring(0, 19) + ' (JST)'
+      } else {
+        // 라이브 정보인 경우 결제일자
+        let tmpSod = props.detail.sod.trim();
+        let sodArr = tmpSod.split('_');
+        let tmpDate = new Date(sodArr[1]);
+        let date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
+        sod = date.replace('T', ' ').substring(0, 19) + ' (JST)'
+      }
     }
     if (props.detail.createdAt) {
       let tmpCreated = new Date(props.detail.createdAt);

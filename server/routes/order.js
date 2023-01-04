@@ -35,9 +35,7 @@ router.post("/tmpRegister", (req, res) => {
 
     tmpOrder.save((err, doc) => {
       if (err) return res.json({ success: false, err });
-      return res.status(200).json({
-        success: true
-      });
+      return res.status(200).json({ success: true });
     });
   } catch (err) {
     console.log(err);
@@ -896,24 +894,37 @@ router.post('/delete', (req, res) => {
   let orderId = req.body.orderId;
   let uniqueField = req.body.uniqueField;
   let type = req.body.type;
-  
-  Order.remove({ _id: orderId })
-    .exec((err, order) => {
-        if (err) return res.status(400).send(err);
 
-        // 결제정보 삭제
-        if (type === "Alipay") {
-          Alipay.remove({ uniqueField: uniqueField }, function(err, alipay) {
+  Sale.deleteOne({_id: saleId})
+        .then((deletedCount)=>{
+            return res.status(200).send({success: true, deletedCount});
+        }, (err)=>{
+            if (err) return res.status(400).send(err);
+        })
+  
+  Order.deleteOne({ _id: orderId })
+    .then((orderDeletedCount)=>{
+      // 결제정보 삭제
+      if (type === "Alipay") {
+        Alipay.deleteOne({ uniqueField: uniqueField }
+          .then((deletedCount)=>{
+            console.log("AliPay remove success");
+          }, (err)=>{
             if (err) return res.status(400).json({success: false, err});
-            console.log("Alipay remove success");
-          })          
-        } else if (type === "Wechat") {
-          Wechat.remove({ uniqueField: uniqueField }, function(err, wechat) {
+          })
+        )         
+      } else if (type === "Wechat") {
+        Wechat.deleteOne({ uniqueField: uniqueField }
+          .then((deletedCount)=>{
+            console.log("WeChat remove success");
+          }, (err)=>{
             if (err) return res.status(400).json({success: false, err});
-            console.log("Wechat remove success");
-          })          
-        }
-        return res.status(200).send({success: true, order});
+          })
+        )         
+      }
+      return res.status(200).send({success: true, orderDeletedCount});
+    }, (err)=>{
+      if (err) return res.status(400).send(err);
     })
 })
 

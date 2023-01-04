@@ -40,17 +40,13 @@ function UserRegisterPage(props) {
   const [SelectItem, setSelectItem] = useState("jp");
   const dispatch = useDispatch();
   const history = useHistory();
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
   }, [])
 
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
   // Landing pageへ戻る
   const listHandler = () => {
     history.push("/");
@@ -84,6 +80,7 @@ function UserRegisterPage(props) {
       initialValues={{
         name: '',
         lastName: '',
+        birthday: '',
         email: '',
         tel: '',
         password: '',
@@ -104,6 +101,8 @@ function UserRegisterPage(props) {
           .required('Name is required'),
         lastName: Yup.string()
           .required('Last name is required'),
+        birthday: Yup.string()
+          .required('Date of birth is required'),
         email: Yup.string()
           .email('Email is invalid')
           .required('Email is required'),
@@ -124,9 +123,28 @@ function UserRegisterPage(props) {
       })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
+          const birthday = values.birthday;
+          
+          if (birthday.length !== 8) {
+            alert("Must be exactly 8 characters");
+            setSubmitting(false);
+            return false;
+          }
+          if (isNaN(Number(birthday))) {
+            alert("Only numbers can be entered for the birthday");
+            setSubmitting(false);
+            return false;
+          }
+          if (Number(birthday) < 1) {
+            alert("Only positive numbers can be entered for the birthday");
+            setSubmitting(false);
+            return false;
+          }
+
           let dataToSubmit = {
             name: values.name,
             lastName: values.lastName,
+            birthday: values.birthday,
             email: values.email,
             tel: values.tel,
             password: values.password,
@@ -164,8 +182,13 @@ function UserRegisterPage(props) {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
           <div className="app">
-            <h1>{t('SignUp.title')}</h1><br />
-            <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
+            <br />
+            <br />
+            <br />
+            <br />
+
+            <h1>{t('SignUp.title')}</h1>
+            <Form style={{ height: '100%', margin: '1em' }} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 이름 */}
               <Form.Item required label={t('SignUp.name')} style={{ marginBottom: 0, }} >
                 {/* 성 */}
@@ -184,6 +207,14 @@ function UserRegisterPage(props) {
                     <div className="input-feedback">{errors.name}</div>
                   )}
                 </Form.Item>
+              </Form.Item>
+              {/* 생년월일 */}
+              <Form.Item required label={t('SignUp.birth')} >
+                <Input id="birthday" placeholder="ex) 19700911" type="text" value={values.birthday} onChange={handleChange} onBlur={handleBlur}
+                  className={ errors.birthday && touched.birthday ? 'text-input error' : 'text-input' } />
+                {errors.birthday && touched.birthday && (
+                  <div className="input-feedback">{errors.birthday}</div>
+                )}
               </Form.Item>
               {/* 메일주소 */}
               <Form.Item required label={t('SignUp.email')} hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
@@ -294,6 +325,8 @@ function UserRegisterPage(props) {
                   Submit
                 </Button>
               </Form.Item>
+              <br />
+            
             </Form>
           </div>
         );

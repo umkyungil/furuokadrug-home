@@ -58,6 +58,18 @@ const productSchema = mongoose.Schema({
     point: {
       type: Number,
       default: 0
+    },
+    pickUp: {
+        type: Boolean,
+        default: false
+    },
+    featured : {
+        type: Boolean,
+        default: false
+    },
+    onAir: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true })
 

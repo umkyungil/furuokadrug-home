@@ -10,6 +10,7 @@ axios.defaults.withCredentials = true;
 function DetailCustomerPage(props) {
   const [Customer, setCustomer] = useState({});
   const customerId = props.match.params.customerId;
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     axios.get(`${CUSTOMER_SERVER}/customers_by_id?id=${customerId}&type=single`)
@@ -17,18 +18,12 @@ function DetailCustomerPage(props) {
         if (response.data.success) {
           setCustomer(response.data.customer[0])
           // 다국적언어
-          setMultiLanguage(localStorage.getItem("i18nextLng"));
+          i18n.changeLanguage(localStorage.getItem("i18nextLng"));
         } else {
           alert("Failed to get customer information")
         }
       })
   }, [])
-
-  // 다국적언어 설정
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
   return (
     <div style={{ width:'100%', padding:'3rem 4rem' }}>

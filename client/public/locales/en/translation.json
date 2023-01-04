@@ -14,6 +14,7 @@
     "title": "Sign Up",
     "name": "Name",
     "lastName": "Last name",
+    "birth": "Date of birth",
     "email": "E-mail",
     "tel": "Phone number",
     "address1": "Shipping address1",
@@ -49,12 +50,13 @@
     "price": "Price (JPY)",
     "priceDisplay": "Price",
     "point": "Point",
-    "contents": "Contents",
+    "contents": "Capacity",
     "itemSelection": "Item Selection",
     "priceSelection": "Price Selection",
     "imageMessage": "Existing images will be deleted so please add new ones",
     "category": "Category",
-    "action": "Action"
+    "action": "Action",
+    "productExposure": "Product exposure"
   },
   "Customer": {
     "listTitle": "Customer Information List",
@@ -136,6 +138,7 @@
     "updateTitle": "User Information Update",
     "detailTitle": "User Detail",
     "name": "Name",
+    "birth": "Date of birth",
     "email": "E-mail",
     "tel": "Phone number",
     "phone": "Phone",
@@ -155,7 +158,7 @@
     "point": "point",
     "lastName": "Last name",
     "role": "Role",
-    "deletedAt": "Date of invalidation"
+    "deletedAt": "Delete user logic"
   },
   "Mail": {
     "listTitle": "Mail History List",
@@ -216,6 +219,7 @@
   "Coupon": {
     "listTitle": "Coupon Information List",
     "regTitle": "Coupon Information Register",
+    "birthRegTitle": "Coupon Birthday Register",
     "updateTitle": "Coupon Information Update",
     "historyTitle": "Coupon History List",
     "code": "Coupon code",
@@ -228,16 +232,16 @@
     "item": "Available categories",
     "product": "Available products",
     "useWithSale": "Use with sale",
-    "count": "Coupon use count",
+    "count": "Use times",
     "user": "Coupon designator",
     "sendMail": "Send mail",
     "couponUser": "Coupon user"
   },
   "Sale": {
-    "listTitle": "Sale Information List",
-    "regTitle": "Sale Information Register",
-    "updateTitle": "Sale Information Update",
-    "detailTitle": "Sale Information Detail",
+    "listTitle": "Sale Info List",
+    "regTitle": "Sale Info Register",
+    "updateTitle": "Sale Info Update",
+    "detailTitle": "Sale Info Detail",
     "historyTitle": "Sale History List",
     "code": "Sale code",
     "type": "Sale type",
@@ -248,14 +252,15 @@
     "action": "Action",
     "item": "Available categories",
     "product": "Available products",
-    "count": "Number of uses",
+    "count": "Use times",
     "sendMail": "Send mail",
     "saleUser": "Sale User",
     "minAmount": "Minimum amount (JPY)",
     "jpMailComment": "Comment (Japanese)",
     "cnMailComment": "Comment (Chinese)",
     "enMailComment": "Comment (English)",
-    "saleExcept": "Excluding sale"
+    "saleExcept": "Excluding sale",
+    "mailBatch": "Mail reservation"
   },
   "Point": {
     "listTitle": "Point Information List",

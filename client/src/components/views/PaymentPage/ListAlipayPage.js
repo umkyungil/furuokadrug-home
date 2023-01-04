@@ -9,16 +9,13 @@ axios.defaults.withCredentials = true;
 
 function ListAlipayPage() {
 	const [AlipayInfo, setAlipayInfo] = useState([]);
+	const {t, i18n} = useTranslation();
 
 	useEffect(() => {
 		// 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
-
-		let body = {
-			skip: 0,
-			limit: 8
-		}
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
 		// 알리페이 정보 취득
+		let body = {skip: 0, limit: 8}
 		getAlipayInfo(body);
 	}, [])
 
@@ -63,11 +60,6 @@ function ListAlipayPage() {
 		}
 	}
 
-	// 다국어 설정
-	const {t, i18n} = useTranslation();
-	function setMultiLanguage(lang) {
-		i18n.changeLanguage(lang);
-	}
 	// Alipay 결제정보 검색
 	const updateSearchTerm = (newSearchTerm) => {
 		let body = { searchTerm: newSearchTerm };

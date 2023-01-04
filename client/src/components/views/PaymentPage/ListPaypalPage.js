@@ -11,28 +11,20 @@ axios.defaults.withCredentials = true;
 function ListPaypalPage() {
   const [PaypalInfo, setPaypalInfo] = useState([]);
   const history = useHistory();
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국어 설정
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
-
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
     // 사용자정보 취득
     if (localStorage.getItem("userId")) {
-      let body = {
-        userId: localStorage.getItem("userId")
-      }
+      let body = {userId: localStorage.getItem("userId")}
       getUserInfo(body);
     } else {
       console.log("no user id in localStorage");
       history.push("/login");
     }
 	}, [])
-
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
   // 사용자 자신의 결제 history정보 취득
   async function getUserInfo(body) {

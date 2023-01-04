@@ -10,7 +10,7 @@ const { SaleHistory } = require("../models/SaleHistory");
 // 세일정보 가져오기
 router.get("/list", async (req, res) => {
     try {
-        Sale.find({})
+        Sale.find()
             .sort({ "createdAt": -1 })
             .exec((err, saleInfos) => {
                 if (err) return res.status(400).json({success: false, err});
@@ -30,7 +30,7 @@ router.get("/listOfAvailable", async (req, res) => {
         let tmpCur = new Date(dt.getTime() - (dt.getTimezoneOffset() * 60000)).toISOString();
         let currentDate = new Date(tmpCur.substring(0, 10));
 
-        const sales = await Sale.find({}).sort({ "createdAt": 1 })
+        const sales = await Sale.find().sort({ "createdAt": 1 })
 
         for (let i=0; i<sales.length; i++) {
             let tmpFrom = new Date(sales[i].validFrom);
@@ -67,7 +67,7 @@ router.post("/exist", async (req, res) => {
         let conditionTo = new Date(tmpT1.toISOString().substring(0, 10) + " 23:59:59");
 
         // 모든 세일정보에서 세일코드가 중복되는지 체크(세일대상외 정보도 포함)
-        let sales = await Sale.find({}).sort({ "createdAt": 1 });
+        let sales = await Sale.find().sort({ "createdAt": 1 });
         for (let i=0; i<sales.length; i++) {
             // 세일정보가 있으면 강제종료
             if (code === sales[i].code) {
@@ -195,10 +195,11 @@ router.post('/delete', (req, res) => {
     try {
         let saleId = req.body.id;
     
-        Sale.remove({ _id: saleId })
-        .exec((err, user) => {
+        Sale.deleteOne({_id: saleId})
+        .then((deletedCount)=>{
+            return res.status(200).send({success: true, deletedCount});
+        }, (err)=>{
             if (err) return res.status(400).send(err);
-            return res.status(200).send({success: true, user});
         })
     } catch (err) {
         console.log(err);
@@ -224,7 +225,7 @@ router.post("/history/register", (req, res) => {
 router.get("/history/list", (req, res) => {
     try {
         // 세일정보 가져오기
-        SaleHistory.find({})
+        SaleHistory.find()
             .sort({ "createdAt": -1 })
             .exec((err, saleInfos) => {
                 if (err) return res.status(400).json({success: false, err});

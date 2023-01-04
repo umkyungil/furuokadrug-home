@@ -15,7 +15,7 @@ axios.defaults.withCredentials = true;
 
 function CartPage(props) {
   const [CartDetail, setCartDetail] = useState([]);
-  const [FinalTotal, setFinalTotal] = useState(0); // 포인트가 계산된 상품 총 금액
+  const [FinalTotal, setFinalTotal] = useState(0); // 상품 총 금액
   const [Total, setTotal] = useState(0); // 카트의 상품 총 금액
   const [Discount, setDiscount] = useState(0); // 할인금액
   const [AvailablePoints, setAvailablePoints] = useState(0); // 보유하고 있는 포인트 - 사용자가 입력한 포인트
@@ -28,12 +28,15 @@ function CartPage(props) {
   const [CouponAmount, setCouponAmount] = useState(0); // 쿠폰타입에 의해 계산된 할인금액
   const [ShowTotal, setShowTotal] = useState(false);
   const [ShowSuccess, setShowSuccess] = useState(false);
+  const [ShowPoint, setShowPoint] = useState(true);
   
   const dispatch = useDispatch();
   const history = useHistory();
   const showSaleTotalRef = useRef(false); // 세일금액 표시(화면이 리로드되도 저장됨)
   const saleTotalDiscountAmount = useRef(0);
   const saleAcquisitionPoints = useRef(0);
+  const couponTotalDiscountAmount = useRef(0);
+  const couponAcquisitionPoints = useRef(0);
 
   // 결제정보 설정
   const paymentData = {
@@ -42,7 +45,7 @@ function CartPage(props) {
       country_code: NotSet,
       line1: NotSet,
       postal_code: NotSet,
-      recipient_name: NotSet,  
+      recipient_name: NotSet,
       state: NotSet,
     },
     cancelled: NotSet,
@@ -60,6 +63,11 @@ function CartPage(props) {
     // 리덕스 User state안에 cart 안에 상품이 들어있는지 확인
     if (props.user.userData && props.user.userData.cart) {
       if (props.user.userData.cart.length > 0) {
+        // 불특정 사용자인지 확인
+        if (props.user.userData.role === 3) {
+          setShowPoint(false);
+        }
+
         // 사용자의 사용가능 포인트 재 계산
         const myPoint = getCalcPoint(props.user.userData._id);
         myPoint.then(totalPoint => {
@@ -85,7 +93,7 @@ function CartPage(props) {
           cartDetail.map(item => {
             total += parseInt(item.price,10) * item.quantity;
           })
-
+          
           setCartDetail(cartDetail); // 카트의 모든 상품정보
           setTotal(total); // 카트의 상품 누적금액
           setFinalTotal(total);
@@ -98,8 +106,7 @@ function CartPage(props) {
           mySale.then(saleInfos => {
             if (saleInfos) {
               showSaleTotalRef.current = true;
-              calcBySaleItem(saleInfos, cartDetail)
-
+              calcBySaleItem(saleInfos, cartDetail);
             } else {
               showSaleTotalRef.current = false;
             }
@@ -169,37 +176,34 @@ function CartPage(props) {
       } 
     }
 
-    //=================================
-    //            세일계산
-    //=================================
+    // 세일계산
     let totalDiscountAmount = 0;
     let totalAcquisitionPoints = 0;
     let tmpCartDetail = [];
+    let cpCartDetail = [];
 
     // cartDetail copy
-    const copyCartDetail = [...cartDetail];
-
+    cpCartDetail = [...cartDetail];
     // 세일대상 제외 상품을 삭제
-    tmpCartDetail =[...copyCartDetail];
+    tmpCartDetail =[...cpCartDetail];
     for (let i=0; i<exceptProduct.length; i++) {
       for (let j=0; j<tmpCartDetail.length; j++) {
         if (exceptProduct[i].productId === tmpCartDetail[j]._id) {
-          copyCartDetail.splice(j, 1);
+          cpCartDetail.splice(j, 1);
         }
       }
     }
     // 세일대상 제외 카테고리의 상품을 삭제
-    tmpCartDetail =[...copyCartDetail];
+    tmpCartDetail =[...cpCartDetail];
     for (let i=0; i<exceptCategory.length; i++) {
       for (let j=0; j<tmpCartDetail.length; j++) {
         if (exceptCategory[i].item === tmpCartDetail[j].continents) {
-          copyCartDetail.splice(j, 1);
+          cpCartDetail.splice(j, 1);
         }
       }
     }
-    
     // 상품세일이 있으면 적용
-    tmpCartDetail =[...copyCartDetail];
+    tmpCartDetail =[...cpCartDetail];
     for (let i=0; i<saleProduct.length; i++) {
       let price = 0;
       let count = 0;
@@ -211,7 +215,7 @@ function CartPage(props) {
           price += parseInt(tmpCartDetail[j].price,10) * tmpCartDetail[j].quantity;
           count = tmpCartDetail[j].quantity;
           // 해당상품을 카트에서 삭제한다
-          copyCartDetail.splice(j, 1);
+          cpCartDetail.splice(j, 1);
         }
       }
 
@@ -232,26 +236,28 @@ function CartPage(props) {
         if (saleProduct[i].type === SaleType[1].key) {
           // 상품갯수당 포인트를 부여한다
           const point = saleProductAmount * count;
+          saleAcquisitionPoints.current = point;
           totalAcquisitionPoints += point;
         } else {
-          totalDiscountAmount += saleProductAmount
+          totalDiscountAmount += saleProductAmount;
+          saleTotalDiscountAmount.current = saleProductAmount;;
         }
       }
     }
 
     // 카테고리 ALL 이외의 세일이 있으면 적용
-    tmpCartDetail = [...copyCartDetail];
+    tmpCartDetail = [...cpCartDetail];
     for (let i=0; i<saleCategory.length; i++) {
       let price = 0;
       let count = 0;
-      
+
       for (let j=0; j<tmpCartDetail.length; j++) {
         // 카테고리 세일의 대상 상품이 카트에 있다면 해당상품의 합계를 구한다
         if (saleCategory[i].item === tmpCartDetail[j].continents ) {
           price += parseInt(tmpCartDetail[j].price,10) * tmpCartDetail[j].quantity;
           count = tmpCartDetail[j].quantity;
           // 해당상품을 카트에서 삭제한다
-          copyCartDetail.splice(j, 1);
+          cpCartDetail.splice(j, 1);
         }
       }
 
@@ -267,19 +273,21 @@ function CartPage(props) {
       // price > 0은 카테고리 세일 적용상품이 카트안에 있어서 세일을 적용한 경우
       if (price > 0) {
         const saleCategoryAmount = calcBySaleType(price, saleCategory[i]);
-        
+
         if (saleCategory[i].type === SaleType[1].key) {
           // 상품갯수당 포인트를 부여한다
           const point = saleCategoryAmount * count;
+          saleAcquisitionPoints.current = point;
           totalAcquisitionPoints += point;
         } else {
           totalDiscountAmount += saleCategoryAmount;
+          saleTotalDiscountAmount.current = saleCategoryAmount;
         }
       }
     }
     
     // 카테고리 ALL인 세일정보가 있는 경우
-    tmpCartDetail = [...copyCartDetail];
+    tmpCartDetail = [...cpCartDetail];
     // 카테고리 ALL은 하나만 존재한다
     for (let i=0; i<allCategory.length; i++) {
       let price = 0;
@@ -288,7 +296,7 @@ function CartPage(props) {
       for (let j=0; j<tmpCartDetail.length; j++) {
         price += parseInt(tmpCartDetail[j].price,10) * tmpCartDetail[j].quantity;
         count = tmpCartDetail[j].quantity;
-        copyCartDetail.splice(j, 1);
+        cpCartDetail.splice(j, 1);
       }
 
       // ALL 카테고리 세일에 최소금액이 있는경우
@@ -307,9 +315,11 @@ function CartPage(props) {
         if (allCategory[i].type === SaleType[1].key) {
           // 상품갯수당 포인트를 부여한다
           const point = allCategoryAmount * count;
+          saleAcquisitionPoints.current = point;
           totalAcquisitionPoints += point;
         } else {
           totalDiscountAmount += allCategoryAmount;
+          saleTotalDiscountAmount.current = allCategoryAmount;
         }
       }
     }
@@ -329,9 +339,6 @@ function CartPage(props) {
       setFinalTotal(0);
       // 구매상품의 총 금액에 해당하는 포인트는 없지만 포인트 부여로 취득한 포인트가 있을수 있다
       setAcquisitionPoints(totalAcquisitionPoints);
-      saleAcquisitionPoints.current = totalAcquisitionPoints;
-      // 세일 총 금액은 구매 총금액을 대입한다
-      saleTotalDiscountAmount.current = allProductPrice;
       setDiscount(allProductPrice);
     } else {
       // 세일은 포인트나 쿠폰을 계산하기 전 이니까 총금액을 카트의 총금액에서 할인금액을 빼도 된다
@@ -341,9 +348,6 @@ function CartPage(props) {
       const point = parseInt(total / 100);
       totalAcquisitionPoints += point;
       setAcquisitionPoints(totalAcquisitionPoints);
-      saleAcquisitionPoints.current = totalAcquisitionPoints;
-
-      saleTotalDiscountAmount.current = totalDiscountAmount;
       setDiscount(totalDiscountAmount);
     }
   }
@@ -521,7 +525,6 @@ function CartPage(props) {
     }))
     .then(response => {
       if(response.payload.success) {
-
         // 쿠폰 이력정보 등록
         if (Coupon.code) {
           regCouponHistory();
@@ -529,7 +532,7 @@ function CartPage(props) {
 
         // AliPay 결제 확인페이지 이동
         const tmpPaymentId = response.payload.payment._id;
-        let url = '/payment/alipay/confirm/'
+        let url = '/payment/alipay/confirm/';
         goPaymentConfirm(tmpPaymentId, grantPoint, url);
       }
     })
@@ -547,8 +550,7 @@ function CartPage(props) {
     }))
     .then(response => {
       if(response.payload.success) {
-
-        // 쿠폰 이력정보 등록
+        // 쿠폰 이력테이블에 등록
         if (Coupon.code) {
           regCouponHistory();
         }
@@ -557,21 +559,6 @@ function CartPage(props) {
         const tmpPaymentId = response.payload.payment._id;
         let url = '/payment/wechat/confirm/'
         goPaymentConfirm(tmpPaymentId, grantPoint, url);
-        
-        // let dateInfo = new Date();
-        // const sod = 'cart' + '_' + UsePoint + '_' + AcquisitionPoints + '_' + grantPoint; // 카트결제시 sod에 포인트 대입
-        // let uniqueDate = dateInfo.getFullYear() + "-" + (dateInfo.getMonth() + 1) + "-" + dateInfo.getDate() + "-" + dateInfo.getHours() + "-" + dateInfo.getMinutes();
-        // const loginUserId = props.user.userData._id;
-        // const uniqueField = 'cart' + '_' + tmpPaymentId + '_' + uniqueDate;
-        // const staffName = ECSystem;
-        // const sid = SID;
-        // const siam1 = FinalTotal;
-        
-        // url = url + loginUserId + '/' + sid + '/' + sod + '/' + siam1 + '/' + uniqueField + '/' + staffName;
-        // window.open(url);
-
-        // // 주문정보 화면으로 이동하기 때문에 카트창은 닫는다
-        // window.close();
       }
     })
   }
@@ -580,8 +567,7 @@ function CartPage(props) {
   const goPaymentConfirm = (tmpPaymentId, grantPoint, upcUrl) => {
     let dateInfo = new Date();
     const sod = 'cart_' + UsePoint + '_' + AcquisitionPoints + '_' + grantPoint; // Cart페이지 에서 결제할때는 sod에 포인트를 대입한다
-    let uniqueDate = dateInfo.getFullYear() + "-" + (dateInfo.getMonth() + 1) + "-" + 
-      dateInfo.getDate() + "-" + dateInfo.getHours() + "-" + dateInfo.getMinutes();
+    let uniqueDate = dateInfo.getFullYear() + "-" + (dateInfo.getMonth() + 1) + "-" + dateInfo.getDate() + " " + dateInfo.getHours() + ":" + dateInfo.getMinutes();
     const loginUserId = props.user.userData._id;
     const uniqueField = 'cart_' + tmpPaymentId + '_' + uniqueDate;
     const staffName = ECSystem;
@@ -590,13 +576,20 @@ function CartPage(props) {
 
     const url = upcUrl + loginUserId + '/' + sid + '/' + sod + '/' + siam1 + '/' + uniqueField + '/' + staffName;
     window.open(url);
+
     // 자신의 페이지는 닫는다
+    close();
+  }
+
+  const close = () => {
+    window.open('', '_self', '');
     window.close();
+    return false;
   }
 
   // 포인트 입력창
   const pointInputHandler = (e) => {
-    let point = e.target.value;
+    let point = Number(e.target.value);
 
     // 보유포인트가 100 포인트 이하인 경우
     if (MyPoint < 100) {
@@ -660,8 +653,8 @@ function CartPage(props) {
     }
     // 사용가능한 포인트 계산(보유 포인트 - 사용할 포인트)
     setAvailablePoints(MyPoint - UsePoint);
-    // 취득할 포인트는 (총금액 - 사용할 포인트) / 100 의 값을 대입
-    setAcquisitionPoints(parseInt((FinalTotal - UsePoint) / 100));
+    // 취득 포인트
+    setAcquisitionPoints(parseInt((FinalTotal - UsePoint) / 100) + saleAcquisitionPoints.current + couponAcquisitionPoints.current);
     // 할인금액
     setDiscount(Number(Discount) + Number(UsePoint));
   }
@@ -690,14 +683,8 @@ function CartPage(props) {
     } else {
       showSaleTotalRef.current = false;
     }
-    // 쿠폰이 있는경우, 쿠폰의 지불방법이 포인트 부여인 경우 상품 취득포인트에 더해준다
-    let couponPoint = 0;
-    if (Coupon.code) {
-      if (Coupon.type === CouponType[1].key) {
-        couponPoint = Coupon.amount
-      }
-    }
-    const totalPoint = parseInt(total / 100) + saleAcquisitionPoints.current + couponPoint;
+
+    const totalPoint = parseInt(total / 100) + saleAcquisitionPoints.current + couponAcquisitionPoints.current;
     setAcquisitionPoints(totalPoint);
   }
 
@@ -757,22 +744,58 @@ function CartPage(props) {
       if (couponResult.data.couponInfo.length > 0) {
         const couponInfo = couponResult.data.couponInfo[0];
 
-        // 유효기간 확인
-        // 시간대는 설정이 안되어 있어서 데이트 형으로 바꾸면 같은 시간대로(09:00) 되기때문에 비교가 가능하다
-        // currentDate: Mon Sep 12 2022 09:00:00 GMT+0900
-        // validTo: Sat Aug 20 2022 09:00:00 GMT+0900
-        const dt = new Date()
-        let tmpCur = new Date(dt.getTime() - (dt.getTimezoneOffset() * 60000)).toISOString();
-        let currentDate = new Date(tmpCur.substring(0, 10));
+        // 생일자 쿠폰인 경우 유효기간을 기존 validTo, validFrom이 아닌 
+        // 해당 로직에서 사용자 생일월의 1일부터 다음달 말일로 설정한다
         // 유효기간 종료일
-        const validTo = new Date(couponInfo.validTo);
         
-        if(validTo < currentDate) {
-          alert("This coupon has expired");
-          setCoupon({});
-          setCouponCode("");
-          setCouponAmount(0);
-          return false;
+        // 생일자 쿠폰인 경우
+        let strValidTo = couponInfo.validTo.substring(0, 10);
+        let today = new Date();
+        if (strValidTo === "9999-12-31") {
+          // 사용자 생일정보
+          let strBirth = props.user.userData.birthday;
+          const numMonth = Number(strBirth.substring(4,6));
+          const numDate = Number(strBirth.substring(6));
+          // 년도를 금년도로 사용자 생일 설정
+          let dtBirth = new Date(today.getFullYear(), numMonth -1, numDate);
+          // 유효기간 종료월의 마지막 일자 구하기
+          let lastDate = new Date(dtBirth.getFullYear(), dtBirth.getMonth() + 2, 0).getDate();
+          // 유효기간 시작일
+          let expStartDate = new Date(dtBirth.getFullYear(), dtBirth.getMonth(), 1, 0, 0, 0 );
+          // 유효기간 종료일(한달후의 날짜 계산용)
+          let expEndDate = new Date(dtBirth.getFullYear(), dtBirth.getMonth() + 1, lastDate, 23, 59, 59 );
+
+          if (today < expStartDate) {
+            alert("This is not the period during which the birthday coupon can be used");
+            setCoupon({});
+            setCouponCode("");
+            setCouponAmount(0);
+            return false;
+          }
+
+          if (today > expEndDate) {
+            alert("This is not the period during which the birthday coupon can be used");
+            setCoupon({});
+            setCouponCode("");
+            setCouponAmount(0);
+            return false;
+          }
+        } else {
+          // 생일자 쿠폰이 아닌경우 유효기간 확인
+          // 시간대는 설정이 안되어 있어서 데이트 형으로 바꾸면 같은 시간대로(09:00) 되기때문에 비교가 가능하다
+          // currentDate: Mon Sep 12 2022 09:00:00 GMT+0900
+          // validTo: Sat Aug 20 2022 09:00:00 GMT+0900
+          let tmpCur = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString();
+          let curDate = new Date(tmpCur.substring(0, 10));
+          // 유효기간 종료일
+          const dtValidTo = new Date(couponInfo.validTo);
+          if(dtValidTo < curDate) {
+            alert("This coupon has expired");
+            setCoupon({});
+            setCouponCode("");
+            setCouponAmount(0);
+            return false;
+          }
         }
 
         // 세일정보와 사용이 가능한 쿠폰인지
@@ -796,18 +819,17 @@ function CartPage(props) {
             couponUserId: props.user.userData._id,
             type: couponInfo.type
           }
-
           const historyInfos = await axios.post(`${COUPON_SERVER}/history/list`, body);
+          
           if (historyInfos.data.success) {
             // 쿠폰을 사용한적이 있는경우
             if (historyInfos.data.couponInfo.length > 0) {
               // 쿠폰 사용횟수와 동일한 경우(쿠폰 사용횟수보다 클수는 없지만 일단 크거나 같은 조건으로 함)
-              if (historyInfos.data.couponInfo.length >= Number(count)) {
+              if (Number(count) <= historyInfos.data.couponInfo.length) {
                 alert("The coupon redemption limit has been exceeded")
                 setCoupon({});
                 setCouponCode("");
                 setCouponAmount(0);
-
                 return false;
               }
             }
@@ -816,59 +838,37 @@ function CartPage(props) {
             setCoupon({});
             setCouponCode("");
             setCouponAmount(0);
-
+            return false;
+          }
+        }
+        // 특정사용자만 사용이 가능한 쿠폰인지 확인 
+        const couponUserId = couponInfo.userId;
+        if (couponUserId !== "") {
+          // 로그인 사용자가 지정된 쿠폰 사용자 인지
+          if (couponUserId !== props.user.userData._id) {
+            alert("This coupon can only be used by designated users");
+            setCoupon({});
+            setCouponCode("");
+            setCouponAmount(0);
             return false;
           }
         }
 
-        // 쿠폰을 사용할지 문의
-        if (window.confirm("Would you like to use a coupon?")) {
-          // 가져온 쿠폰정보 보관
-          setCoupon(couponInfo);
-          
-          // 특정사용자만 사용이 가능한 쿠폰인지 확인 
-          const couponUserId = couponInfo.userId;
-          if (couponUserId !== "") {
-            // 로그인 사용자가 지정된 쿠폰 사용자 인지
-            if (couponUserId !== props.user.userData._id) {
-              alert("This coupon can only be used by designated users");
-              setCoupon({});
-              setCouponCode("");
-              setCouponAmount(0);
-
-              return false;
-            }
-          }
-
-          // 세일정보가 있는경우
-          if (showSaleTotalRef.current) {
-            // 0: 쿠폰코드 입력하면 세일은 사용못함
-            // 여기서는 쿠폰코드를 입력해서 확인 버튼을 누른거니까 적용된 세일금액은 원래대로 돌린다
-            if (useWithSale === UseWithSale[0].key) {
-              // 쿠폰을 사용할지 문의
-              if (window.confirm("This coupon cannot be used with sales\nWould you like to use a coupon?")) {
-                // 카테고리 또는 상품이 지정된 경우 해당 상품금액을 계산한다.
-                calcByCouponItem(couponInfo);
-                
-              } else {
-                // 세일은 카트페이지가 열릴때 적용했기 때문에 여기서는 아무 처리를 안해도되나 명시적으로 쿠폰 정보를 지운다
-                setCoupon({});
-                setCouponCode("");
-                setCouponAmount(0);
-              }
-            } else if (useWithSale === UseWithSale[1].key) {
-              // 세일은 카트페이지가 열릴때 적용했기 때문에 쿠폰만 계산한다
-              calcByCouponItem(couponInfo);
-            }
-          } else {
-            // 세일이 없고 쿠폰만 계산한다
+        // 0: 쿠폰코드 입력하면 세일은 사용못함
+        // 여기서는 쿠폰코드를 입력해서 확인 버튼을 누른거니까 적용된 세일금액은 원래대로 돌린다
+        if (useWithSale === UseWithSale[0].key) {
+          // 쿠폰을 사용할지 문의
+          if (window.confirm("This coupon cannot be used with sales\nWould you like to use a coupon?")) {
+            // 가져온 쿠폰정보 보관
+            setCoupon(couponInfo);
+            // 쿠폰계산
             calcByCouponItem(couponInfo);
           }
         } else {
-          // 쿠폰 Confirm에서 Cancel했을 경우
-          setCoupon({});
-          setCouponCode("");
-          setCouponAmount(0);
+          // 가져온 쿠폰정보 보관
+          setCoupon(couponInfo);
+          // 쿠폰계산
+          calcByCouponItem(couponInfo);
         }
       } else {
         // 쿠폰이 등록되어 있지 않은경우
@@ -890,11 +890,10 @@ function CartPage(props) {
   const calcByCouponItem = async (couponInfo) => {
     // 쿠폰 적용 카테고리 (0: "All", 1: "Cosmetic", 2: "Drug", 3: "Food/Supplement", 4: "Home appliances", 5: "Goods", 6: "Etc")
     const category = Number(couponInfo.item);
-    // 지정된 상품이 있는지 확인
     const productId = couponInfo.productId;
-    
-    // 카테고리가 ALL이 아닌경우
     let price = 0;
+
+    // 카테고리가 ALL이 아닌경우
     if (category !== MainCategory[0].key) {
       // 쿠폰 대상상품이 정해진 경우
       if (productId !== "") {
@@ -919,10 +918,13 @@ function CartPage(props) {
         calcByCouponType(price, couponInfo);
       } else {
         // 세일이 있으면 세일가격을 다시 보여준다
-        if (saleTotalDiscountAmount.current > 0) showSaleTotalRef.current = true;
+        if (saleTotalDiscountAmount.current > 0) {
+          showSaleTotalRef.current = true;
+        } else {
+          showSaleTotalRef.current = false;
+        }
         // 상품가격이 0은 세일대상의 상품이 없는것이기에 작업종료 
-        alert("Coupons that can only be used on specific products or categories");
-
+        alert("There are no categories or products for which coupons can be used");
         setCoupon({});
         setCouponCode("");
         setCouponAmount(0);
@@ -930,89 +932,67 @@ function CartPage(props) {
       }
     // 카테고리가 All인 경우
     } else if (category === MainCategory[0].key) {
-      // 쿠폰 대상상품이 정해진 경우
-      if (productId !== "") {
-        // 해당 상품을 카트에서 찾아서 금액을 대입 
-        CartDetail.map(item => {
-          if (productId === item._id) {
-            price += parseInt(item.price,10) * item.quantity;
-          }
-        })
+      // 카트안의 전체상품의 값을 계산
+      CartDetail.map(item => {
+        price += parseInt(item.price,10) * item.quantity;
+      })
 
-        // 해당상품이 있는경우
-        if (price > 0) {
-          // 쿠폰타입(계산방법)에 의한 계산
-          calcByCouponType(price, couponInfo);
-        } else {
-          // 세일이 있으면 세일가격을 다시 보여준다
-          if (saleTotalDiscountAmount.current > 0) showSaleTotalRef.current = true;
-          // 상품가격이 0은 세일대상의 상품이 없는것이기에 작업종료 
-          alert("Coupons that can only be used on specific products or categories");
-
-          setCoupon({});
-          setCouponCode("");
-          setCouponAmount(0);
-          return false;
-        }
+      // 카트의 전체상품가격
+      if (price > 0) {
+        // 쿠폰타입(계산방법)에 의한 계산
+        calcByCouponType(price, couponInfo);
       } else {
-        // 카트안의 전체상품의 값을 계산
-        CartDetail.map(item => {
-          price += parseInt(item.price,10) * item.quantity;
-        })
-
-        // 카트의 전체상품가격
-        if (price > 0) {
-          // 쿠폰타입(계산방법)에 의한 계산
-          calcByCouponType(price, couponInfo);
+        // 세일이 있으면 세일가격을 다시 보여준다
+        if (saleTotalDiscountAmount.current > 0) {
+          showSaleTotalRef.current = true;
         } else {
-          // 세일이 있으면 세일가격을 다시 보여준다
-          if (saleTotalDiscountAmount.current > 0) showSaleTotalRef.current = true;
-          // 상품가격이 0은 세일대상의 상품이 없는것이기에 작업종료 
-          alert("Coupons that can only be used on specific products or categories");
-
           showSaleTotalRef.current = false;
-          return false;
         }
+        // 상품가격이 0은 세일대상의 상품이 없는것이기에 작업종료 
+        alert("There are no categories or products for which coupons can be used");
+        setCoupon({});
+        setCouponCode("");
+        setCouponAmount(0);
+        return false;
       }
     }
   }
 
   // 쿠폰 타입에 의한 계산
-  // price: 세일금액을 적용하지 않은 전체금액 또는 특정상품 또는 특정 카테고리의 누적금액
-  // useWithSale: 쿠폰이 세일과 같이 사용할수 없는경우 총 금액에서 세일금액을 가산해서 원래 총 금액으로 돌린다 
   const calcByCouponType = (targetProductPrice, couponInfo) => {
-    // 쿠폰 타입("0": "Gross Percentage", "1": "Granting points", "2": "Discount amount")
     const type = couponInfo.type;
     const amount = Number(couponInfo.amount);
     const useWithSale = Number(couponInfo.useWithSale);
 
-    // 카테고리 또는 특정상품과 관계없이 카테고리안의 모든상품의 금액을 구한다
+    // 카테고리안의 모든상품의 금액을 구한다
     let allProductPrice = 0;
     CartDetail.map(item => {
       allProductPrice += parseInt(item.price,10) * item.quantity;
     })
 
-    // 쿠폰만 사용할수 있는경우는 세일금액을 0으로 한다
-    // 세일과 같이 사용할수 있는 경우는 총합계가 이미 세일이 반영된 금액이니깐 
-    // 세일금액을 0으로 해서 총합계를 재 계산할때 쿠폰금액만 플러스 될수 있도록 한다
+    // 세일과 함께 사용하는 조건에 따라 세일금액, 포인트, 화면표시여부를 설정한다
     let saleAmount = 0;
+    let salePoint = 0;
     if (useWithSale === UseWithSale[0].key) {
+      // 쿠폰만 사용할수 있는경우
       saleAmount = 0;
+      salePoint = 0;
+      showSaleTotalRef.current = false;
     } else {
-      saleAmount = saleTotalDiscountAmount.current;
-    }
-
-    if (saleTotalDiscountAmount.current > 0) {
-      if (useWithSale === UseWithSale[0].key) {
-        showSaleTotalRef.current = false;
-      } else {
+      // 세일금액이 있는경우
+      if (saleTotalDiscountAmount.current > 0) {
+        saleAmount = saleTotalDiscountAmount.current;
+        // 세일금액 표시 설정
         showSaleTotalRef.current = true;
+      } else {
+        saleAmount = 0;
+        showSaleTotalRef.current = false;
       }
+      // 세일 포인트
+      salePoint = saleAcquisitionPoints.current;
     }
 
-    // 세일에 포인트가 있으면 포인트를 대입한다
-    const salePoint = saleAcquisitionPoints.current;
-
+    // 사용자가 입력한 포인트를 대입
     let usePoint = 0;
     if (PointConfirm > 0 && UsePoint > 0) {
       usePoint = UsePoint;
@@ -1020,69 +1000,64 @@ function CartPage(props) {
       usePoint = 0;
     }
 
-    // 0: Gross Percentage(총 금액의 몇 퍼센트 할인)
+    // Gross Percentage
     if (type === CouponType[0].key) {
       // 쿠폰 할인금액 계산
       let calcPercentage = parseInt((targetProductPrice * amount) / 100);
       setCouponAmount(calcPercentage);
+      couponTotalDiscountAmount.current = calcPercentage;
+      couponAcquisitionPoints.current = 0;
+
       // 총 금액 계산
       const total = parseInt(allProductPrice - saleAmount - usePoint - calcPercentage);
       setFinalTotal(total);
 
-      // 포인트 재 계산(총 금액의 10%)
+      // 포인트 및 할인금액 계산
       if (total > 0) {
         setAcquisitionPoints(parseInt(total / 100) + salePoint);
+        setDiscount(usePoint + saleAmount + calcPercentage);
       } else {
-        // 총금액이 0이면 취득포인트도 0으로 셋팅
-        setAcquisitionPoints(0)
-      }
-
-      // 할인금액
-      let discount = usePoint + saleAmount + calcPercentage  
-      if (total > 0) {
-        setDiscount(discount);
-      } else {
+        // 세일의 포인트가 있을수도 있으니 세일포인트를 대입한다
+        setAcquisitionPoints(salePoint);
         setDiscount(allProductPrice);
       }
-
-    // 1: Granting points(포인트 부여)
+    // Granting points
     // 다음 계산에서 사용할수 있는 포인트를 부여하는것이기에 계산금액에는 영향이 없다.
     } else if (type === CouponType[1].key) {
       // 포인트 부여이기에 쿠폰 할인금액은 0을 설정
       setCouponAmount(0);
+      couponTotalDiscountAmount.current = 0;
+      couponAcquisitionPoints.current = amount;
+
       // 총 금액 계산
       const total = parseInt(allProductPrice - saleAmount - usePoint);
       setFinalTotal(total);
 
-      // 취득 가능한 포인트에 가산
+      // 취득 가능한 포인트 및 할인금액 계산
       if (total > 0) {
-        const point = parseInt(total / 100) + salePoint + amount;
-        setAcquisitionPoints(point);
+        setAcquisitionPoints(parseInt(total / 100) + salePoint + amount);
+        setDiscount(usePoint + saleAmount);
       } else {
-        setAcquisitionPoints(0);
-      }
-
-      // 할인금액
-      let discount = usePoint + saleAmount;
-      if (total > 0) {
-        setDiscount(discount);
-      } else {
+        setAcquisitionPoints(salePoint + amount);
         setDiscount(allProductPrice);
       }
-
-    // 2: Discount amount(할인 금액)
+    // Discount amount
     } else if (type === CouponType[2].key) {
+      // 세일과 포인트가 반영된 총 합계
       let total = parseInt(allProductPrice - saleAmount - usePoint);
+      couponTotalDiscountAmount.current = total;
+      couponAcquisitionPoints.current = 0;
+
       // 쿠폰금액(amount)이 상품금액(price)보다 크면 쿠폰의 나머지 금액은 무시한다
       if (total <= amount) {
         setFinalTotal(0);
-        setAcquisitionPoints(0);
+        setAcquisitionPoints(salePoint);
         setCouponAmount(allProductPrice); // 쿠폰 할인금액
         setDiscount(allProductPrice);
       } else {
         total = parseInt(total - amount);
         setFinalTotal(total);
-        setAcquisitionPoints(parseInt(total / 100));
+        setAcquisitionPoints(parseInt(total / 100) + salePoint);
         setCouponAmount(amount);
 
         const discount = usePoint + saleAmount + amount
@@ -1137,6 +1112,9 @@ function CartPage(props) {
 
       const totalPoint = parseInt(total / 100) + saleAcquisitionPoints.current;
       setAcquisitionPoints(totalPoint);
+
+      couponTotalDiscountAmount.current = 0;
+      couponAcquisitionPoints.current = 0;
     }
   }
 
@@ -1157,6 +1135,7 @@ function CartPage(props) {
           <Button onClick={clearPointHandler}>Clear</Button>
           <br />
           <br />
+          
           {/* 사용가능한 쿠폰 */}
           <span><b>{t('Cart.coupon')}</b></span><br />
           <Input id="coupon" type='text' value={CouponCode} placeholder="Enter the coupons to use" onChange={couponHandler}  style={{width: '130px'}}/>&nbsp;

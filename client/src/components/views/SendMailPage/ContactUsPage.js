@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Alert } from 'antd';
+import { Form, Input, Button } from 'antd';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { MAIL_SERVER } from '../../Config.js';
@@ -37,30 +37,24 @@ function ContactUsPage() {
   const [Name, setName] = useState("");
   const [Email, setEmail] = useState("");
   const [Message, setMessage] = useState("");
-  const history = useHistory(); 
+  const history = useHistory();
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
   }, [])
-
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
-
-  const body = {
-    name: Name,
-    email: Email,
-    message: Message
-  }
 
   // 메일 송신
   const sendEmail = async (e) => { 
     e.preventDefault();
 
     try {
+      const body = {
+        name: Name,
+        email: Email,
+        message: Message
+      }
       const result = await axios.post(`${MAIL_SERVER}/inquiry`, body);
 
       if (result.data.success) {

@@ -31,16 +31,11 @@ const tailFormItemLayout = {
 
 function CustomerRegisterPage(props) {
   const dispatch = useDispatch();
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
 	}, [])
-
-  // 다국적언어 설정
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
   return (
     <Formik

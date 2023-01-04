@@ -6,18 +6,15 @@ import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 function UserInfo(props) {
+  const history = useHistory();
+  const dispatch = useDispatch();
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
 	}, [])
 
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
-    
   let address1 = "";
   let address2 = "";
   let address3 = "";
@@ -77,9 +74,7 @@ function UserInfo(props) {
   } else {
     delDate = '無し';
   }
-
-  const history = useHistory();
-  const dispatch = useDispatch();
+  
   // 사용자 정보 삭제
   const deleteHandler = () => {
     dispatch(deleteUser(props.detail._id))
@@ -102,6 +97,7 @@ function UserInfo(props) {
       <Descriptions>
         <Descriptions.Item label={t('User.lastName')}>{props.detail.lastName}</Descriptions.Item>
         <Descriptions.Item label={t('User.name')}>{props.detail.name}</Descriptions.Item>
+        <Descriptions.Item label={t('User.birth')}>{props.detail.birthday}</Descriptions.Item>
         <Descriptions.Item label={t('User.tel')}>{props.detail.tel}</Descriptions.Item>
         <Descriptions.Item label={t('User.email')}>{props.detail.email}</Descriptions.Item>
         <Descriptions.Item label={t('User.role')}>{role}</Descriptions.Item>

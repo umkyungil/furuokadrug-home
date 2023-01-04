@@ -27,7 +27,6 @@ router.get('/alipay/register', async (req, res) => {
     } else {
       // 결제 성공했을 경우
       if (req.query.rst === "1") {
-
         let dt1 = new Date();
         let currentDate = new Date(dt1.getTime() - (dt1.getTimezoneOffset() * 60000)).toISOString();
         let dt2 = new Date(dt1.setFullYear(dt1.getFullYear() + 1));
@@ -40,13 +39,15 @@ router.get('/alipay/register', async (req, res) => {
         let tmpSod = req.query.sod;
         let tmpArr = tmpSod.split('_');
         if (tmpArr[0].trim() === "cart") {
-          pointToUse = Number(tmpArr[1]);
-          productPoint = Number(tmpArr[2]);
-          totalPoint = Number(tmpArr[3]);
-
-          // 카트에서 결제는 sod에 포인트를 대입했기에 결과값이 날라온 시간으로 변경
-          // let date = new Date();
-          // req.query.sod = date.toLocaleString('ja-JP'); 
+          // 카트에서 이동된 경우는 사용자가 사용한 포인트, 상품구매의 포인트 그리고 총 포인트가 넘어온다
+          pointToUse = Number(tmpArr[1]); // 사용자가 입력한 포인트
+          productPoint = Number(tmpArr[2]); // 누적할 포인트
+          totalPoint = Number(tmpArr[3]); // 총 포인트
+        } else {
+          // live에서 이동된 경우는 상품의 총 금액애 해당하는 포인트만 넘어온다
+          // 사용자가 사용한 포인트가 없기때문에 상품구매 포인트와 총 포인트가 같다
+          productPoint = Number(tmpArr[0]);
+          totalPoint = Number(tmpArr[0]);
         }
 
         // AliPay에 결제결과 등록
@@ -82,7 +83,7 @@ router.get('/alipay/register', async (req, res) => {
         // 임시 주문정보 삭제
         await TmpOrder.findOneAndDelete({ "uniqueField": req.query.uniqueField });
         
-        // 카트에서 AliPay결제인 경우만 TmpPayment 정보취득
+        // 카트에서 호출된경우 TmpPayment정보 가져오기
         let str = req.query.uniqueField;
         let arr = str.split('_');
         if (arr[0].trim() === "cart") {
@@ -106,7 +107,7 @@ router.get('/alipay/register', async (req, res) => {
             returnUrl: NotSet,
           });
 
-          // 카트결제인 경우 uniqueKey에 PaymentId가 들어온다
+          // 카트결제인 경우만 uniqueKey에 PaymentId가 들어온다
           const paymentId = arr[1];
 
           // TmpPayment 가져오기
@@ -135,7 +136,7 @@ router.get('/alipay/register', async (req, res) => {
               if(err) {
                 console.log("user update failed: ", err);
               } else {
-                // Payment에 transactionData정보 저장
+                // Payment에 transactionData 정보 저장
                 const payment = new Payment(transactionData)
                 payment.save((err, doc) => {
                     if(err) {
@@ -173,9 +174,8 @@ router.get('/alipay/register', async (req, res) => {
           const name = tmpOrderInfo.name;
           const lastName = tmpOrderInfo.lastName;
           if(pointToUse > 0) {
-            // 포인트 계산 및 사용한 포인트 이력관리
+            // 포인트 계산 및 이력관리
             calcPoint(userId, name, lastName, currentDate, oneYearDate, productPoint, pointToUse);
-            
           } else {
             // 포인트 누적할 항목 설정
             let dataToSubmit = {
@@ -190,10 +190,39 @@ router.get('/alipay/register', async (req, res) => {
               validTo: oneYearDate,
               dateUsed:''
             }
-
             // 포인트 등록
             savePoint(dataToSubmit)
           }
+        } else {
+          // 라이브에서 이동된 경우 포인트 처리
+          // 사용자 포인트 가져오기
+          User.findOne({ "_id": tmpOrderInfo.userId, "deletedAt": null , "role": 0 }, function(err, userInfo) {
+            if (err) console.log("err: ", err);
+
+            // 사용자 기존 포인트에 라이브에서 구매한 상품의 포인트를 합산
+            totalPoint += userInfo.myPoint
+
+            User.findOneAndUpdate({ _id: tmpOrderInfo.userId }, { myPoint: totalPoint },
+              (err, user) => {
+                if(err) console.log("user update failed: ", err);
+
+                // 포인트 테이블에 포인트정보를 등록한다
+                let dataToSubmit = {
+                  userId: tmpOrderInfo.userId,
+                  userName: tmpOrderInfo.name,
+                  userLastName: tmpOrderInfo.lastName,
+                  point: productPoint, // 구매상품 포인트 합계
+                  remainingPoints: productPoint,
+                  usePoint: 0,
+                  dspUsePoint: 0,
+                  validFrom: currentDate,
+                  validTo: oneYearDate,
+                  dateUsed:''
+                }
+                // 포인트 등록
+                savePoint(dataToSubmit);
+            })
+          })
         }
       } else {
         console.log("AliPay payment failed at UPC");
@@ -203,7 +232,6 @@ router.get('/alipay/register', async (req, res) => {
     console.log("AliPay payment from UPC failed: ", err);
   } 
 })
-
 
 // UPC WeChat 결제결과 등록
 router.get('/wechat/register', async (req, res) => {
@@ -227,15 +255,17 @@ router.get('/wechat/register', async (req, res) => {
         let tmpSod = req.query.sod;
         let tmpArr = tmpSod.split('_');
         if (tmpArr[0].trim() === "cart") {
+          // 카트에서 이동된 경우는 사용자가 사용한 포인트, 상품구매의 포인트 그리고 총 포인트가 넘어온다
           pointToUse = Number(tmpArr[1]); // 사용자가 입력한 포인트
           productPoint = Number(tmpArr[2]); // 누적할 포인트
           totalPoint = Number(tmpArr[3]); // 총 포인트
-
-          // 카트에서 결제는 sod에 포인트를 대입했기에 결과값이 날라온 시간으로 변경
-          // let date = new Date();
-          // req.query.sod = date.toLocaleString('ja-JP'); 
+        } else {
+          // live에서 이동된 경우는 상품의 총 금액애 해당하는 포인트만 넘어온다
+          // 사용자가 사용한 포인트가 없기때문에 상품구매 포인트와 총 포인트가 같다
+          productPoint = Number(tmpArr[0]);
+          totalPoint = Number(tmpArr[0]);
         }
-        
+
 		    // WeChat에 결제결과 등록
         const wechat = new Wechat(req.query);
         await wechat.save();
@@ -268,8 +298,8 @@ router.get('/wechat/register', async (req, res) => {
 
         // 임시 주문정보 삭제
         await TmpOrder.findOneAndDelete({ "uniqueField": req.query.uniqueField });
-
-        // 카트 WeChat결제인 경우만 TmpPayment 정보 취득
+        
+        // 카트에서 호출된경우 TmpPayment정보 가져오기
         let str = req.query.uniqueField;
         let arr = str.split('_');
         if (arr[0].trim() === "cart") {
@@ -376,10 +406,42 @@ router.get('/wechat/register', async (req, res) => {
               validTo: oneYearDate,
               dateUsed:''
             }
-
             // 포인트 등록
             savePoint(dataToSubmit)
           }
+        } else {
+          // 라이브에서 이동된 경우 포인트 처리
+          // 사용자 포인트 가져오기
+          User.findOne({ "_id": tmpOrderInfo.userId, "deletedAt": null , "role": 0 }, function(err, userInfo) {
+            if (err) console.log("err: ", err);
+
+            // 사용자 기존 포인트에 라이브에서 구매한 상품의 포인트를 합산
+            totalPoint += userInfo.myPoint
+
+            console.log("userInfo.myPoint: ", userInfo.myPoint);
+            console.log("totalPoint: ", totalPoint);
+
+            User.findOneAndUpdate({ _id: tmpOrderInfo.userId }, { myPoint: totalPoint },
+              (err, user) => {
+                if(err) console.log("user update failed: ", err);
+
+                // 포인트 테이블에 포인트정보를 등록한다
+                let dataToSubmit = {
+                  userId: tmpOrderInfo.userId,
+                  userName: tmpOrderInfo.name,
+                  userLastName: tmpOrderInfo.lastName,
+                  point: productPoint,
+                  remainingPoints: productPoint,
+                  usePoint: 0,
+                  dspUsePoint: 0,
+                  validFrom: currentDate,
+                  validTo: oneYearDate,
+                  dateUsed:''
+                }
+                // 포인트 등록
+                savePoint(dataToSubmit);
+            })
+          })
         }
       } else {
         console.log("WeChat payment failed at UPC");

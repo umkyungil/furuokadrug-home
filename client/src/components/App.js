@@ -20,9 +20,9 @@ import UserPasswordConfirmPage from "./views/UserPage/UserPasswordConfirmPage.js
 // 초기페이지
 import LandingPage from "./views/LandingPage/LandingPage.js";
 // 상품관리
-import DetailProductPage from "./views/ProductPage/DetailProductPage.js"; // 상품상세
-import UpdateProductPage from "./views/ProductPage/UpdateProductPage.js"; // 상품수정
-import UploadProductPage from "./views/ProductPage/UploadProductPage.js"; // 상품등록
+import ProductDetailPage from "./views/ProductPage/ProductDetailPage.js"; // 상품상세
+import ProductUpdatePage from "./views/ProductPage/ProductUpdatePage.js"; // 상품수정
+import ProductRegisterPage from "./views/ProductPage/ProductRegisterPage.js"; // 상품등록
 // 고객관리
 import CustomerRegisterPage from "./views/CustomerPage/CustomerRegisterPage.js"; // 고객등록
 import CustomerListPage from "./views/CustomerPage/CustomerListPage.js"; // 고객리스트
@@ -53,6 +53,7 @@ import CartPage from "./views/CartPage/CartPage.js";
 import LiveStreamingPage from "./views/LiveStreamingPage/LiveStreaming.js";
 // 쿠폰관리
 import CouponRegisterPage from "./views/Coupon/CouponRegisterPage.js";
+import CouponBirthRegisterPage from "./views/Coupon/CouponBirthRegisterPage.js";
 import CouponListPage from "./views/Coupon/CouponListPage.js";
 import CouponUpdatePage from "./views/Coupon/CouponUpdatePage.js";
 import CouponUserListPage from "./views/Coupon/CouponUserListPage.js";
@@ -83,7 +84,7 @@ function App() {
           {/* 사용자관리, 카트관리 */}
           <Route exact path="/register" component={Auth(UserRegisterPage, null)} />
           <Route exact path="/user/list" component={Auth(UserListPage, true)} />
-          <Route exact path="/user/cart" component={Auth(CartPage, true)} />
+          <Route exact path="/user/cart" component={Auth(CartPage)} />
           <Route exact path="/user/:userId" component={Auth(UserDetailPage, true)} />
           <Route exact path="/user/update/:userId" component={Auth(UserUpdatePage, true)} />
           <Route exact path="/preregister" component={Auth(UserPreregisterPage, null)} />
@@ -91,9 +92,9 @@ function App() {
           <Route exact path="/passwordChange" component={Auth(UserPasswordChangePage)} />
           <Route exact path="/user/confirm/:userId" component={UserPasswordConfirmPage} />
           {/* 상품관리 */}
-          <Route exact path="/product/upload" component={Auth(UploadProductPage, true)} />
-          <Route exact path="/product/:productId" component={Auth(DetailProductPage, null)} />
-          <Route exact path="/product/update/:productId/" component={Auth(UpdateProductPage, null)} />
+          <Route exact path="/product/upload" component={Auth(ProductRegisterPage, true)} />
+          <Route exact path="/product/:productId" component={Auth(ProductDetailPage, null)} />
+          <Route exact path="/product/update/:productId/" component={Auth(ProductUpdatePage, null)} />
           {/* 고객관리 */}
           <Route exact path="/customer/register" component={Auth(CustomerRegisterPage, true)} />
           <Route exact path="/customer/list" component={Auth(CustomerListPage, true)} />
@@ -124,11 +125,12 @@ function App() {
           <Route exact path="/live" component={Auth(LiveStreamingPage, true)} />
           {/* 쿠폰관리 */}
           <Route exact path="/coupon/register" component={Auth(CouponRegisterPage, true)} />
-          <Route exact path="/coupon/register/:userId" component={Auth(CouponRegisterPage, true)} />
+          <Route exact path="/coupon/birth/register" component={Auth(CouponBirthRegisterPage, true)} />
+          <Route exact path="/coupon/register/:userId" component={Auth(CouponRegisterPage, true)} />{/* 특정 사용자에게 부여하는 쿠폰 */}
           <Route exact path="/coupon/list" component={Auth(CouponListPage, true)} />
           <Route exact path="/coupon/update/:couponId" component={Auth(CouponUpdatePage, true)} />
-          <Route exact path="/coupon/user" component={Auth(CouponUserListPage, true)} />
-          <Route exact path="/coupon/product/:item" component={Auth(CouponProductListPage, true)} />
+          <Route exact path="/coupon/user" component={Auth(CouponUserListPage, true)} />{/* 사용자 지정 팝업 */}
+          <Route exact path="/coupon/product/:item" component={Auth(CouponProductListPage, true)} />{/* 상품 지정 팝업 */}
           <Route exact path="/coupon/history" component={Auth(CouponHistoryListPage, true)} />
           {/* 세일관리 */}
           <Route exact path="/sale/register" component={Auth(SaleRegisterPage, true)} />
@@ -141,7 +143,7 @@ function App() {
           <Route path={"*"} component={NotFoundPage} />
         </Switch>
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </Suspense>
   );
 }

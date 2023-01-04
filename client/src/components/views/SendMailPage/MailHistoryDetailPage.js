@@ -10,19 +10,14 @@ axios.defaults.withCredentials = true;
 function MailHistoryDetailPage(props) {
   const [MailHistory, setMailHistory] = useState({});
   const mailId = props.match.params.mailId;
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
     // 메일정보 취득
     getMailHistory();
   }, [])
-
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
   // 메일정보 취득
   const getMailHistory = async () => {

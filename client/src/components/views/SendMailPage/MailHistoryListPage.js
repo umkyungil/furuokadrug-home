@@ -10,27 +10,16 @@ import { useTranslation } from 'react-i18next';
 axios.defaults.withCredentials = true;
 
 function MailHistoryListPage() {
-	const history = useHistory();
 	const [MailHistory, setMailHistory] = useState([]);
+	const {t, i18n} = useTranslation();
 	
 	useEffect(() => {
 		// 다국어 설정
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
-
-		let body = {
-			skip: 0,
-			limit: 8
-		}		
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
 		// 메일정보 취득
+		let body = {skip: 0, limit: 8}
 		getMailHistory(body);
-
 	},[])
-
-	// 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
 	const columns = [
     {
@@ -106,10 +95,7 @@ function MailHistoryListPage() {
 
 	// 키워드 검색시 해당 메일정보가져오기
 	const updateSearchTerm = (newSearchTerm) => {
-		let body = {
-			searchTerm: newSearchTerm
-		}
-
+		let body = {searchTerm: newSearchTerm}
 		getMailHistory(body);
 	}
 	

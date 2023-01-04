@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, Checkbox, Divider, Select } from 'antd';
 import FileUpload from '../../utils/FileUpload';
 import { MainCategory } from '../../utils/Const';
 import { PRODUCT_SERVER } from '../../Config.js';
@@ -8,9 +8,16 @@ import { useTranslation } from 'react-i18next';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-const { TextArea } = Input;
+const {TextArea} = Input;
+const {Option} = Select;
+const CheckboxGroup = Checkbox.Group;
+const PICK_UP = "Pick Up";
+const ON_AIR = "On Air";
+const FEATURED = "Featured";
+const plainOptions = [PICK_UP, ON_AIR, FEATURED];
+const defaultCheckedList = [FEATURED];
 
-function UploadProductPage(props) {
+function ProductRegisterPage(props) {
   const [Title, setTitle] = useState("");
   const [EnglishTitle, setEnglishTitle] = useState("");
   const [ChineseTitle, setChineseTitle] = useState("");
@@ -25,10 +32,12 @@ function UploadProductPage(props) {
   const [Point, setPoint] = useState(0);
   const [Continent, setContinent] = useState(1);
   const [Images, setImages] = useState([]);
+  const [CheckedList, setCheckedList] = useState(defaultCheckedList);
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국적언어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
 	}, [])
 
   const titleHandler = (event) => {
@@ -73,7 +82,6 @@ function UploadProductPage(props) {
   const updateImages = (newImages) => {
     setImages(newImages);
   }
-
   const submitHandler = (event) => {
     event.preventDefault();
 
@@ -96,11 +104,24 @@ function UploadProductPage(props) {
     if (isNaN(Price)) {
       alert("Please enter only numbers for the price");
     }
+    // 상품포인트
     if (isNaN(Point)) {
       alert("Please enter only numbers for point");
     }
-
-    // 서버에 채운 값들을 request로 보낸다
+    // 상품노출
+    let pickUp = false;
+    let onAir = false;
+    let featured = false;
+    CheckedList.map(item => {
+      if (item === PICK_UP) {
+        pickUp = true;
+      } else if (item === ON_AIR)  {
+        onAir = true;
+      } else if (item === FEATURED) {
+        featured = true;
+      }
+    })
+    
     const body = {
       writer: props.user.userData._id,
       title: Title,
@@ -116,10 +137,13 @@ function UploadProductPage(props) {
       price: Price,
       point: Point,
       images: Images,
-      continents: Continent
+      continents: Continent,
+      pickUp: pickUp,
+      onAir: onAir,
+      featured: featured
     }
     
-    axios.post(`${PRODUCT_SERVER}`, body)
+    axios.post(`${PRODUCT_SERVER}/register`, body)
       .then(response => {
         if (response.data.success) {
           alert('Product upload was successful.');
@@ -131,16 +155,14 @@ function UploadProductPage(props) {
       });
   }
 
-  // 다국어 설정
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
-
   // Landing pageへ戻る
   const listHandler = () => {
     props.history.push('/')
   }
+  // 상품노출 옵션
+  const handleCheckBox = (list) => {
+    setCheckedList(list);
+  };
 
   return (
     <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
@@ -148,54 +170,61 @@ function UploadProductPage(props) {
         <h1>{t('Product.uploadTitle')}</h1>
       </div>
 
-      <Form onSubmit={submitHandler}>
+      <Form labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} onSubmit={submitHandler}>
         {/* DropZone*/}
         <FileUpload refreshFunction={updateImages} />
         <br />
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.japaneseTitle')}</label>
-        <Input onChange={titleHandler} value={Title}/><br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.englishTitle')}</label>
-        <Input onChange={englishTitleHandler} value={EnglishTitle}/><br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.chineseTitle')}</label>
-        <Input onChange={chineseTitleHandler} value={ChineseTitle}/>
-        <br />
-        <br />
+        <Form.Item required label={t('Product.japaneseTitle')}>
+          <Input type="text" value={Title} style={{width: '100%'}} onChange={titleHandler} />
+        </Form.Item>
+        <Form.Item required label={t('Product.englishTitle')}>
+          <Input type="text" value={EnglishTitle} style={{width: '100%'}} onChange={englishTitleHandler} />
+        </Form.Item>
+        <Form.Item required label={t('Product.chineseTitle')}>
+          <Input type="text" value={ChineseTitle} style={{width: '100%'}} onChange={chineseTitleHandler} />
+        </Form.Item>
+
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.japaneseDescription')}</label>
-        <TextArea onChange={descriptionHandler} value={Description}/><br />
+        <TextArea onChange={descriptionHandler} value={Description}/>
+        <br />
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.englishDescription')}</label>
-        <TextArea onChange={englishDescriptionHandler} value={EnglishDescription}/><br />
+        <TextArea onChange={englishDescriptionHandler} value={EnglishDescription}/>
+        <br />
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.chineseDescription')}</label>
         <TextArea onChange={chineseDescriptionHandler} value={ChineseDescription}/>
         <br />
-        <br />
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.japaneseHowToUse')}</label>
-        <TextArea onChange={usageHandler} value={Usage}/><br />
+        <TextArea onChange={usageHandler} value={Usage}/>
+        <br />
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.englishHowToUse')}</label>
-        <TextArea onChange={englishUsageHandler} value={EnglishUsage}/><br />
+        <TextArea onChange={englishUsageHandler} value={EnglishUsage}/>
+        <br />
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.chineseHowToUse')}</label>
         <TextArea onChange={chineseUsageHandler} value={ChineseUsage}/>
         <br />
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.contents')}</label>
-        <Input onChange={contentsHandler} value={Contents}/>
-        <br />
-        <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.price')}(¥)</label>
-        <Input onChange={priceHandler} value={Price}/>
-        <br />
-        <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.point')}</label>
-        <Input onChange={pointHandler} value={Point}/>
-        <br />
-        <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.itemSelection')}</label>
-        <br />
-        <select onChange={continentHandler} value={Continent}>
-          {MainCategory.map(item => (
-            <option key={item.key} value={item.key}> {item.value} </option>
-          ))}
-        </select>
+        <Form.Item required label={t('Product.contents')}>
+          <Input type="text" value={Contents} style={{width: '100%'}} onChange={contentsHandler} />
+        </Form.Item>
+        <Form.Item required label={t('Product.price')}>
+          <Input type="text" value={Price} style={{width: '100%'}} onChange={priceHandler} />
+        </Form.Item>
+        <Form.Item required label={t('Product.point')}>
+          <Input type="text" value={Point} style={{width: '100%'}} onChange={pointHandler} />
+        </Form.Item>
+        <Form.Item required label={t('Product.itemSelection')}>
+          <Select value={Continent} style={{ width: 120 }} onChange={continentHandler}>
+            {MainCategory.map(item => (
+              <Option key={item.key} value={item.key}> {item.value} </Option>
+            ))}
+            </Select>
+        </Form.Item>
+
+        <Divider />
+        <Form.Item label={t('Product.productExposure')}>
+          <CheckboxGroup options={plainOptions} value={CheckedList} onChange={handleCheckBox} />
+        </Form.Item>
         <br />
         <br />
         <br />
@@ -205,9 +234,14 @@ function UploadProductPage(props) {
         <Button htmlType="submit" type="primary">
           Submit
         </Button>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
       </Form>
     </div>
   )
 }
 
-export default UploadProductPage
+export default ProductRegisterPage

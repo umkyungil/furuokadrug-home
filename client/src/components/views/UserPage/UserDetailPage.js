@@ -10,19 +10,14 @@ axios.defaults.withCredentials = true;
 function UserDetailPage(props) {
   const [User, setUser] = useState({});
   const userId = props.match.params.userId;
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국어 설정
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
     // 사용자 정보 취득
     getUser(userId);
   }, [])
-
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
   // 사용자 정보 취득
   const getUser = async (userId) => {

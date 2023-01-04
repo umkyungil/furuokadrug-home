@@ -3,7 +3,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { updateUser } from "../../../_actions/user_actions";
 import { useDispatch } from "react-redux";
-import { Form, Input, Button, Select, Checkbox } from 'antd';
+import { Select, Form, Input, Button, Checkbox } from 'antd';
 import axios from 'axios';
 import { USER_SERVER } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
@@ -41,6 +41,7 @@ function UserUpdatePage(props) {
   const [Id, setId] = useState("");
   const [Name, setName] = useState("");
   const [LastName, setLastName] = useState("");
+  const [Birthday, setBirthday] = useState("");
   const [Tel, setTel] = useState("");  
   const [Address1, setAddress1] = useState("");
   const [Address2, setAddress2] = useState("");
@@ -54,10 +55,11 @@ function UserUpdatePage(props) {
   const [Role, setRole] = useState(0);
   const [Language, setLanguage] = useState("");
   const [Checked, setChecked] = useState(false);
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국적언어
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
     // query string 취득
     const userId = props.match.params.userId;
      // 사용자 정보 취득
@@ -73,6 +75,7 @@ function UserUpdatePage(props) {
         setId(result.data.user[0]._id);          
         setName(result.data.user[0].name);
         setLastName(result.data.user[0].lastName);
+        setBirthday(result.data.user[0].birthday);
         setTel(result.data.user[0].tel);
         setAddress1(result.data.user[0].address1);
         setAddress2(result.data.user[0].address2);
@@ -103,6 +106,9 @@ function UserUpdatePage(props) {
   }
   const lastNameHandler = (event) => {
     setLastName(event.currentTarget.value);
+  }
+  const birthdayHandler = (event) => {
+    setBirthday(event.currentTarget.value);
   }
   const telHandler = (event) => {
     setTel(event.currentTarget.value);
@@ -149,119 +155,96 @@ function UserUpdatePage(props) {
   const listHandler = () => {
     history.push("/user/list");
   }
-  // 다국적언어 설정
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
+  
+  const submitHandler = (e) => {
+    setTimeout(() => {
+
+      if (!LastName) {
+        alert("Last name is required");
+        return false;
+      }
+      if (!Name) {
+        alert("Name is required");
+        return false;
+      }
+      if (!Birthday) {
+        alert("Date of birth is required");
+        return false;
+      }
+      if (!Tel) {
+        alert("Telephone number is required");
+        return false;
+      }
+
+      if (!Address1) {
+        alert("Address is required");
+        return false;
+      }
+      if (!Receiver1) {
+        alert("Receiver is required");
+        return false;
+      }
+      if (!Tel1) {
+        alert("Telephone is required");
+        return false;
+      }
+      if (Birthday.length !== 8) {
+        alert("Must be exactly 8 characters");
+        // setSubmitting(false);
+        return false;
+      }
+      if (isNaN(Number(Birthday))) {
+        alert("Only numbers can be entered for the birthday");
+        // setSubmitting(false);
+        return false;
+      }
+      if (Number(Birthday) < 1) {
+        alert("Only positive numbers can be entered for the birthday");
+        // setSubmitting(false);
+        return false;
+      }
+
+      let dataToSubmit = {
+        id: Id,
+        name: Name,
+        lastName: LastName,
+        birthday: Birthday,
+        tel: Tel,
+        address1: Address1,
+        receiver1: Receiver1,
+        tel1: Tel1,
+        address2: Address2,
+        receiver2: Receiver2,
+        tel2: Tel2,
+        address3: Address3,
+        receiver3: Receiver3,
+        tel3: Tel3,
+        role: Role,
+        language: Language,
+        deletedAt: Checked, // 삭제인 경우 서버쪽에서 날짜를 대입
+      };
+
+      dispatch(updateUser(dataToSubmit)).then(response => {
+        if (response.payload.success) {
+          props.history.push("/user/list");
+        } else {
+          alert(response.payload.err.errmsg)
+        }
+      })
+
+      // setSubmitting(false);
+    }, 500);
+  };
 
   return (
     <Formik
-      // initialValues={{ name: Name, lastName: LastName, tel: '', email: '', address1: '', address2: '', address3: '', role: '' }}
-      // validationSchema={Yup.object().shape({
-      //   name: Yup.string()
-      //     .required('Name is required'),
-      //   lastName: Yup.string()
-      //     .required('Last Name is required'),
-      //   tel: Yup.string()
-      //     .required('Telephone number is required'),
-      //   address1: Yup.string()
-      //     .required('Address is required'),
-      //   role: Yup.string()
-      //     .max(1, 'Role is one digit number')
-      //     .required('Role is required')
-      // })}
-
-      onSubmit={(values, { setSubmitting }) => {
-        setTimeout(() => {
-          let dataToSubmit = {
-            id: Id,
-            name: Name,
-            lastName: LastName,
-            tel: Tel,
-            address1: Address1,
-            receiver1: Receiver1,
-            tel1: Tel1,
-            address2: Address2,
-            receiver2: Receiver2,
-            tel2: Tel2,
-            address3: Address3,
-            receiver3: Receiver3,
-            tel3: Tel3,
-            role: Role,
-            language: Language,
-            deletedAt: Checked,
-          };
-
-          // 필수항목 체크
-          let bol = true;
-          if(Name) {
-            if (Name === "" ) {                        
-              bol = false;
-            }
-          } else {
-            bol = false;
-          }
-          if (LastName) {
-            if (LastName === "" ) {                        
-              bol = false;
-            }
-          } else {
-            bol = false;
-          }
-          if (Tel) {
-            if (Tel === "" ) {                        
-              bol = false;
-            }
-          } else {
-            bol = false;
-          }
-          if (Address1) {
-            if (Address1 === "" ) {                        
-              bol = false;
-            }
-          } else {
-            bol = false;
-          }
-          if (Receiver1) {
-            if (Receiver1 === "" ) {                        
-              bol = false;
-            }
-          } else {
-            bol = false;
-          }
-          if (Tel1) {
-            if (Tel1 === "" ) {
-              bol = false;
-            }
-          } else {
-            bol = false;
-          }
-
-          if(bol) {
-            dispatch(updateUser(dataToSubmit)).then(response => {
-              if (response.payload.success) {
-                props.history.push("/user/list");
-              } else {
-                alert(response.payload.err.errmsg)
-              }
-            })
-          } else {
-            alert("Please check the data.")
-          }
-
-          setSubmitting(false);
-        }, 500);
-      }}
     >
       {props => {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
-
         return (
           <div className="app">
             <h1>{t('User.updateTitle')}</h1>
-            <br />
-            <Form style={{ minWidth: '375px' }} {...formItemLayout} onSubmit={handleSubmit} >
+            <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 성명 */}
               <Form.Item required label={t('User.name')} style={{ marginBottom: 0, }} >
                 {/* 성 */}
@@ -272,6 +255,10 @@ function UserUpdatePage(props) {
                 <Form.Item name="lastName" required style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
                   <Input id="lastName" placeholder="Enter your Last Name" type="text" value={LastName} onChange={lastNameHandler} onBlur={handleBlur} />
                 </Form.Item>
+              </Form.Item>
+              {/* 생년월일 */}
+              <Form.Item required label={t('User.birth')}>
+                <Input id="birthday" placeholder="ex) 19700911" type="text" value={Birthday} onChange={birthdayHandler} onBlur={handleBlur} />
               </Form.Item>
               {/* 전화 */}
               <Form.Item required label={t('User.tel')}>
@@ -347,7 +334,7 @@ function UserUpdatePage(props) {
                 <Button onClick={listHandler}>
                   User List
                 </Button>&nbsp;&nbsp;
-                <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
+                <Button onClick={submitHandler} type="primary" disabled={isSubmitting}>
                   Submit
                 </Button>
               </Form.Item>

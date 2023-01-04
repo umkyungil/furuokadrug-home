@@ -34,10 +34,7 @@ const tailFormItemLayout = {
 };
 
 // ユーザーDirect Mail
-const NoticeMailPage = (props) => { 
-  console.log("props");
-  const history = useHistory();
-
+const NoticeMailPage = (props) => {
   // query string 취득  
   let to_email;
   if (props.match.params.toEmail) {
@@ -50,17 +47,13 @@ const NoticeMailPage = (props) => {
   const [FromEmail, setFromEmail] = useState("info@furuokadrug.com");
   const [ToEmail, setToEmail] = useState(to_email);
   const [Message, setMessage] = useState("");
+  const history = useHistory();
+  const {t, i18n} = useTranslation();
   
   useEffect(() => {
     // 다국어 설정
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
   }, [])
-
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
   const body = {
     type: props.match.params.type,

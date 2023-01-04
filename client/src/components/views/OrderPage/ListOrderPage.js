@@ -15,14 +15,13 @@ function ListOrderPage(props) {
 	const [UserRole, setUserRole] = useState(0);
 	const [DeliveryStatusChange, setDeliveryStatusChange] = useState("");	
 	const [Mode, setMode] = useState(true); // 스텝 초기페이지 모드
-	const [UserName, setUserName] = useState(""); // 스텝 초기검색
-
 	// delivery 링크를 눌렀을때 다시 이 화면을 호출하면서 주문id를 보낸다
 	const paramOrderId = props.match.params.orderId;	
+	const {t, i18n} = useTranslation();
 	
 	useEffect(() => {
 		// 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
 
 		// 사용자 ID 취득
 		let userId = "";
@@ -47,19 +46,14 @@ function ListOrderPage(props) {
 			skip: 0,
 			limit: 8,
 			id: userId,
-			mode: Mode, 	 			// 스텝권한의 사용자가 처음 검색시 스텝이 담당한 사용자만 검색하기 위한 구분자(초기페이지만 자신이 담당한 사용자정보 표시)
+			// 스텝권한의 사용자가 처음 검색시 스텝이 담당한 사용자만 검색하기 위한 구분자(초기페이지만 자신이 담당한 사용자정보 표시)
+			mode: Mode,
 		}
 		
 		// Order정보 취득
 		getOrderInfo(body);
 
 	}, [DeliveryStatusChange])
-
-	// 다국어 설정
-	const {t, i18n} = useTranslation();
-	function setMultiLanguage(lang) {
-		i18n.changeLanguage(lang);
-	}
 
 	// 사용자정보 가지고 오기
 	const getUserInfo = async (userId) => {

@@ -13,10 +13,12 @@ function LiveStreaming(props) {
   const [Body, setBody] = useState({});
   const [URL, setUrl] = useState("");
   const [Visible, setVisible] = useState(false);
+  const {t, i18n} = useTranslation();
   
   React.useEffect(() => {
     // 다국어 설정
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+    
     // 사용자정보 취득
     if (localStorage.getItem("userId")) {
       getUserInfo(localStorage.getItem("userId"))
@@ -53,12 +55,6 @@ function LiveStreaming(props) {
       }
     })
   }, [])
-
-  // 다국어 설정
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
   // 사용자 정보 취득
   async function getUserInfo(userId) {

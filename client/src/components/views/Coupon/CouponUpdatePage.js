@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from "react";
 import { Formik } from 'formik';
-import { Form, Input, Button, Select, Checkbox } from 'antd';
-import axios from 'axios';
-import { COUPON_SERVER, MAIL_SERVER, PRODUCT_SERVER, USER_SERVER } from '../../Config.js';
-import { MainCategory, CouponType, CouponActive, UseWithSale } from '../../utils/Const';
 import { useHistory } from 'react-router-dom';
+import { DatePicker, Form, Input, Button, Select, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { MainCategory, CouponType, CouponActive, UseWithSale, ReferenceDate } from '../../utils/Const';
+import { COUPON_SERVER, MAIL_SERVER, PRODUCT_SERVER, USER_SERVER } from '../../Config.js';
+import schedule from 'node-schedule'
+import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -54,10 +55,13 @@ function CouponUpdatePage(props) {
   const [ProductId, setProductId] = useState("");
   const [ProductName, setProductName] = useState("");
   const [SendMail, setSendMail] = useState(false);
+  const [MailBatch, setMailBatch] = useState("");
+  const [BirthdayCoupon, setBirthdayCoupon] = useState(false);
+  const {t, i18n} = useTranslation();
   
   useEffect(() => {
     // 다국적언어
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
     // Query string에서 쿠폰ID 가져오기
     const couponId = props.match.params.couponId;
      // 쿠폰정보 가져오기
@@ -81,13 +85,15 @@ function CouponUpdatePage(props) {
         setUseWithSale(couponInfo.useWithSale);
         setCount(couponInfo.count);
         setSendMail(couponInfo.sendMail);
-        
         // 유효기간 시작일 변형
-        let validFrom = couponInfo.validFrom;
-        setValidFrom(validFrom.substring(0, 10));
+        let validFrom = couponInfo.validFrom.substring(0, 10);
+        setValidFrom(validFrom);
         // 유효기간 종료일 변형
-        let validTo = couponInfo.validTo;
-        setValidTo(validTo.substring(0, 10));
+        let validTo = couponInfo.validTo.substring(0, 10);
+        setValidTo(validTo);
+        if (validTo === "9999-12-31") {
+          setBirthdayCoupon(true);
+        }
         // 사용자 정보
         if (couponInfo.userId && couponInfo.userId !== "") {
           // 사용자정보 가져오기
@@ -152,9 +158,19 @@ function CouponUpdatePage(props) {
   // 메일 송신
   const sendMail = async(body) => {
     try {
+      // 쿠폰수정 페이지의 플래그
+      body.mod = "modify";
+
+      // 메일체크박스가 on인경우
       if (SendMail) {
         if (window.confirm("Do you want to send mail to all users?")) {
-          await axios.post(`${MAIL_SERVER}/coupon`, body);
+          // 메일 전송시간이 설정된 경우
+          if (MailBatch !== "") {
+            await mailBatch(body)
+          } else {
+            // 모든 사용자 또는 지정된 사용자와 관리자에게 메일을 보낸다
+            await axios.post(`${MAIL_SERVER}/coupon`, body);
+          }
         } else {
           // 관리자에게만 메일을 보낸다
           await axios.post(`${MAIL_SERVER}/coupon/admin`, body);
@@ -167,14 +183,66 @@ function CouponUpdatePage(props) {
       }
     } catch(err) {
       setSendMail(false);
-      console.log("sendMail err: ",err);
+      console.log("CouponUpdatePage sendMail err: ",err);
     }
   }
 
-  // 다국적언어 설정
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
+  async function mailBatch(body) {
+    const today = new Date();
+    // time: 2022-11-11 19:16:17
+    const jtc = new Date(MailBatch);
+
+    if (today > jtc) {
+      alert("Mail setup time is in the past");
+      return false;
+    }
+    
+    const year = jtc.getFullYear();
+    const month = jtc.getMonth() + 1;
+    const date = jtc.getDate();
+    const hour = jtc.getHours();
+    const minute = jtc.getMinutes();
+
+    // RecurrenceRule 설정
+    // second (0-59)
+    // minute (0-59)
+    // hour (0-23)
+    // date (1-31)
+    // month (0-11)
+    // year
+    // dayOfWeek (0-6) Starting with Sunday
+    // tz
+    let rule = new schedule.RecurrenceRule();
+    rule.year = year;
+    rule.month = month - 1; // month (0-11)
+    rule.date = date;
+    rule.hour = hour;
+    rule.minute = minute;
+    rule.second = 59; // 화면에서 현재시간을 설정하면 배치가 실행되는 시간이 과거가 될수있기에 59초로 설정한다
+    rule.tz = 'Asia/Tokyo';
+
+    schedule.scheduleJob(rule, async function() {
+        let startToday = new Date();
+        let startTime = startToday.toLocaleString('ja-JP');
+        console.log("-------------------------------------------");
+        console.log("Batch setting of coupons information edit mail start :", startTime);
+        console.log("-------------------------------------------");
+
+        try {
+          // 모든 사용자 또는 지정된 사용자와 관리자에게 메일을 보낸다
+          await axios.post(`${MAIL_SERVER}/coupon`, body);
+        } catch (err) {
+          console.log("Failed to send coupon registration mail: ", err);
+        }
+    })
+  }
+
+  // 메일전송 배치
+  const mailBatchHandler = (value, dateString) => {
+    setMailBatch(dateString);
+  }
+  const onOk = (value) => {
+    console.log('onOk: ', value);
   }
 
   // 쿠폰정보 삭제
@@ -203,29 +271,18 @@ function CouponUpdatePage(props) {
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
 
-          const dataToSubmit = {
+          const body = {
             id: Id,
-            code: Code,
-            type: Type,
-            amount: Amount,
             active: Active,
-            validFrom: ValidFrom,
-            validTo: ValidTo,
-            item: Item,
-            useWithSale: UseWithSale,
-            count: Count,
-            userId: UserId,
-            productId: ProductId,
-            sendMail: SendMail
+            sendMail: SendMail,
           };
 
-          console.log("dataToSubmit: ", dataToSubmit);
-
           try {
-            axios.post(`${COUPON_SERVER}/update`, dataToSubmit)
+            axios.post(`${COUPON_SERVER}/update`, body)
             .then(response => {
               if (response.data.success) {
-                sendMail(dataToSubmit);
+                sendMail(body);
+
                 alert('Coupon has been edited');
               } else {
                 alert('Please contact the administrator');
@@ -235,7 +292,7 @@ function CouponUpdatePage(props) {
             })
           } catch(err) {
             alert('Please contact the administrator');
-            console.log("submit err: ", err);
+            console.log("Coupon edit err: ", err);
             // 쿠폰리스트 이동
             history.push("/coupon/list");
           }
@@ -279,17 +336,20 @@ function CouponUpdatePage(props) {
                 ))}
                 </Select>
               </Form.Item>
+              
               {/* 쿠폰 유효기간 */}
-              <Form.Item label={t('Coupon.validTo')} style={{ marginBottom: 0, }} >
-                {/* 쿠폰 유효기간 시작 */}
-                <Form.Item name="validFrom" style={{ display: 'inline-block', width: 'calc(35% - 8px)'}} >
-                  <Input id="validFrom" type="text" value={ValidFrom} readOnly />
-                </Form.Item>～
-                {/* 쿠폰 유효기간 종료 */}
-                <Form.Item name="validTo" style={{ display: 'inline-block', width: 'calc(35% - 8px)', margin: '0 8px', }} >
-                  <Input id="validTo" type="text" value={ValidTo} readOnly />
+              { !BirthdayCoupon &&
+                <Form.Item label={t('Coupon.validTo')} style={{ marginBottom: 0, }} >
+                  {/* 쿠폰 유효기간 시작 */}
+                  <Form.Item name="validFrom" style={{ display: 'inline-block', width: 'calc(35% - 8px)'}} >
+                    <Input id="validFrom" type="text" value={ValidFrom} readOnly />
+                  </Form.Item>～
+                  {/* 쿠폰 유효기간 종료 */}
+                  <Form.Item name="validTo" style={{ display: 'inline-block', width: 'calc(35% - 8px)', margin: '0 8px', }} >
+                    <Input id="validTo" type="text" value={ValidTo} readOnly />
+                  </Form.Item>
                 </Form.Item>
-              </Form.Item>
+              }
               {/* 쿠폰적용 카테고리 */}
               <Form.Item label={t('Coupon.item')} >
                 <Select value={Item} style={{ width: 250 }} >
@@ -319,21 +379,33 @@ function CouponUpdatePage(props) {
                 </Select>
               </Form.Item>
               {/* 쿠폰 사용횟수 */}
+              { !BirthdayCoupon &&
               <Form.Item label={t('Coupon.count')} >
                 <Input id="count"  type="text" value={Count} style={{ width: 250 }} readOnly/>
               </Form.Item>
+              }
               {/* 쿠폰적용 사용자 아이디 */}
+              { !BirthdayCoupon &&
               <Form.Item label={t('Coupon.user')} >
                 <Input id="userId" type="text" value={UserName} style={{ width: 250 }} readOnly/>
               </Form.Item>
+              }
               {/* 메일전송 유무 */}
+              { !BirthdayCoupon &&
               <Form.Item label={t('Coupon.sendMail')} >
                 <Checkbox checked={SendMail} onChange={sendMailHandler} />
               </Form.Item>
+              }
+              {/* 메일 예약 */}
+              { !BirthdayCoupon && SendMail &&
+                <Form.Item label={t('Sale.mailBatch')}>
+                  <DatePicker showTime onChange={mailBatchHandler} onOk={onOk} />
+                </Form.Item>
+              }
 
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={listHandler}>
-                  Coupon List
+                  　List　
                 </Button>&nbsp;&nbsp;
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
                   Submit

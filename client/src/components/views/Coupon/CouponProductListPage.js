@@ -13,28 +13,18 @@ const items = MainCategory;
 function CouponProductListPage(props) {
 	const [Products, setProducts] = useState([]);
 	const [Item, setItem] = useState(0);
+	const {t, i18n} = useTranslation();
 
 	useEffect(() => {
 		// query string 가져오기
 		const item = props.match.params.item;
 		setItem(item);
-
 		// 다국어 설정
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
-
-		let body = {
-			item: item,
-			searchTerm: ""
-		}
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
 		// 사용자정보 취득	
+		let body = { item: item, searchTerm: ""	}
 		getProducts(body);
 	}, [])
-
-	// 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
 	const columns = [
     {

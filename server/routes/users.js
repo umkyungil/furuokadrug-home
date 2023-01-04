@@ -26,6 +26,7 @@ router.get("/auth", auth, (req, res) => {
         email: req.user.email,
         name: req.user.name,
         lastName: req.user.lastName,
+        birthday: req.user.birthday,
         tel: req.user.tel,
         address1: req.user.address1,
         address2: req.user.address2,
@@ -54,15 +55,15 @@ router.post("/login", (req, res) => {
             if (!user) {
                 return res.json({ loginSuccess: false, message: "Auth failed, email not found" });
             }
+            
             // 요청된 이메일이 DB에 있다면 비밀번호가 맞는 비밀번호 인지 확인
             user.comparePassword(req.body.password, (err, isMatch) => {
-                if (!isMatch)
+                if (!isMatch) {
                     return res.json({ loginSuccess: false, message: "Wrong password" });
-    
+                }
                 // 비밀번호 까지 맞다면 토큰을 생성하기
                 user.generateToken((err, user) => {
                     if (err) return res.status(400).send(err);
-    
                     // 토큰을 쿠키에 저장한다
                     res.cookie("w_authExp", user.tokenExp);
                     res.cookie("w_auth", user.token).status(200).json({
@@ -70,7 +71,6 @@ router.post("/login", (req, res) => {
                         loginSuccess: true, userInfo: user
                     });
                 });
-    
                 // 로그인한 시간을 업데이트
                 User.findOneAndUpdate({ email: req.body.email }, { lastLogin: new Date() }, (err, doc) => {
                     if (err) return res.json({ success: false, err });
@@ -97,6 +97,24 @@ router.get("/logout", auth, (req, res) => {
 
 // 사용자 등록
 router.post("/register", (req, res) => {
+    try {
+        const user = new User(req.body);
+        user.save((err, doc) => {
+            if (err) {
+                console.log("err: ", err);
+                return res.json({ success: false, err });
+            }
+            
+            return res.status(200).json({ success: true });
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ success: false, message: err.message });
+    }   
+});
+
+// 사용자 등록
+router.post("/anyRegister", (req, res) => {
     try {
         const user = new User(req.body);
         user.save((err, doc) => {
@@ -180,14 +198,11 @@ router.post("/preregisterConfirm", async (req, res) => {
         const userInfo = await User.find({ _id: userId });
         let orgDate = new Date(userInfo[0].createdAt);
         let curDate = new Date();
-
+        
         // 임시사용자 정보를 저장한 시간에서 한시간후의 시간을 구한다
         let chgDate = new Date(Date.parse(orgDate) + 1000 * 60 * 60); // 한시간 후
-        //let chgDate = new Date(Date.parse(orgDate) + 1000 * 60); // 1분 후
-
         // 임시사용자 메일 수신후 시간과 관계없이 기존 데이터는 삭제
-        const result = await User.remove({ _id: userId });
-
+        await User.deleteOne({ _id: userId });
         // 임시사용자 메일 수신후 1시간이상 경과 확인
         if (curDate > chgDate) {
             return res.status(400).json({ success: false });
@@ -243,7 +258,7 @@ router.post("/list", (req, res) => {
         let term = req.body.searchTerm;
 
         if (term) {
-            User.find({ "name": { '$regex': term, $options: 'i' }})
+            User.find({ "name": {'$regex': term, $options: 'i'}})
             .sort({ "lastLogin": 1 })
             .skip(req.body.skip)
             .exec((err, userInfo) => {
@@ -251,7 +266,7 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, userInfo})
             });
         } else {
-            User.find()
+            User.find({ "password": {$exists: true}, "deletedAt": null , "role": 0 })
             .sort({ "lastLogin": 1 })
             .exec((err, userInfo) => {
                 if (err) return res.status(400).json({success: false, err});
@@ -264,13 +279,44 @@ router.post("/list", (req, res) => {
     }
 });
 
+// 사용자 조회
+router.get("/list", (req, res) => {
+    try {
+        User.find({ "password": {$exists: true}, "deletedAt": null , "role": 0 })
+        .exec((err, userInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, userInfo})
+        });  
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ success: false, message: err.message })
+    }
+});
+
+// 불특정 사용자 조회
+router.post("/anonymous/list", (req, res) => {    
+    let term = req.body.searchTerm;
+
+    try {
+        // 논리삭제가 된 사용자도 포함
+        User.find({ "name": {'$regex': term, $options: 'i'}})
+        .exec((err, userInfo) => {
+            if (err) return res.status(400).json({success: false, err});
+            return res.status(200).json({ success: true, userInfo});
+        });  
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ success: false, message: err.message })
+    }
+});
+
 // 쿠폰 사용자 조회
 router.post("/coupon/list", (req, res) => {
     try {
         let term = req.body.searchTerm;
 
         if (term) {
-            User.find({ "name": { '$regex': term, $options: 'i' }, "deletedAt": null , "role": 0 })
+            User.find({ "name": { '$regex': term, $options: 'i' }, "password": {$exists: true}, "deletedAt": null , "role": 0 })
             .sort({ "lastLogin": 1 })
             .skip(req.body.skip)
             .exec((err, userInfo) => {
@@ -278,10 +324,9 @@ router.post("/coupon/list", (req, res) => {
                 return res.status(200).json({ success: true, userInfo})
             });
         } else {
-            User.find({ "deletedAt": null , "role": 0 })
+            User.find({ "password": {$exists: true}, "deletedAt": null , "role": 0 })
             .sort({ "lastLogin": 1 })
             .exec((err, userInfo) => {
-                console.log("userInfo: ", userInfo);
                 if (err) return res.status(400).json({success: false, err});
                 return res.status(200).json({ success: true, userInfo})
             });
@@ -308,6 +353,7 @@ router.post("/update", (req, res) => {
             {   
                 name: req.body.name,
                 lastName: req.body.lastName, 
+                birthday: req.body.birthday,
                 tel: req.body.tel,
                 address1: req.body.address1,
                 receiver1: req.body.receiver1,
@@ -327,7 +373,24 @@ router.post("/update", (req, res) => {
         });
     } catch (err) {
         console.log(err);
-        return res.status(500).json({ success: false, message: err.message })
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 사용자 논리삭제
+router.post("/logicalDelete", (req, res) => {
+    let deletedAt = new Date();
+    try {
+        User.updateMany(
+            { _id: req.body.userId }, 
+            { deletedAt: deletedAt}
+            , (err, doc) => {
+                if (err) return res.json({ success: false, err });
+                return res.status(200).send({ success: true });
+            })
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ success: false, message: err.message });
     }
 });
 
@@ -335,11 +398,12 @@ router.post("/update", (req, res) => {
 router.post('/delete', (req, res) => {
     try {
         let userId = req.body.userId;
-    
-        User.remove({ _id: userId })
-        .exec((err, user) => {
+
+        User.deleteOne({_id: userId})
+        .then((deletedCount)=>{
+            return res.status(200).send({success: true, deletedCount});
+        }, (err)=>{
             if (err) return res.status(400).send(err);
-            return res.status(200).send({success: true, user});
         })
     } catch (err) {
         console.log(err);
@@ -354,6 +418,22 @@ router.get('/users_by_id', (req, res) => {
     
         // userId를 이용해서 DB에서 userId와 같은 고객의 정보를 가져온다
         User.find({ _id: userId })
+        .exec((err, user) => {
+            if (err) return res.status(400).send(err);
+            return res.status(200).send({success: true, user});
+        })
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 사용자 상세조회(token)
+router.post('/w_auth', (req, res) => {
+    try {
+        let token = req.body.w_auth;
+        
+        User.find({ token: token })
         .exec((err, user) => {
             if (err) return res.status(400).send(err);
             return res.status(200).send({success: true, user});
@@ -435,6 +515,7 @@ router.post("/addToCart", auth, (req, res) => {
         return res.status(500).json({ success: false, message: err.message });
     }
 });
+
 
 // 카트의 상품삭제
 router.get('/removeFromCart', auth, (req, res) => {

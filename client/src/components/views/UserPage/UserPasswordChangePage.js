@@ -38,17 +38,13 @@ const tailFormItemLayout = {
 
 function UserPasswordChangePage(props) {
   const history = useHistory();
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
   }, [])
 
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
   // Landing pageへ戻る
   const listHandler = () => {
     history.push("/");
@@ -58,7 +54,6 @@ function UserPasswordChangePage(props) {
   const getUser = async (email) => {
     try {
 			const result = await axios.get(`${USER_SERVER}/users_by_email?email=${email}`);
-
 			if (result.data.success) {
         if (result.data.user.length < 1) {
           return false;  

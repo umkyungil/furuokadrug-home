@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Formik } from 'formik';
-import * as Yup from 'yup';
 import { useHistory } from 'react-router-dom';
 import { DatePicker, Select, Form, Input, Button, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MainCategory, SaleType } from '../../utils/Const';
 import { dateFormatYMD } from '../../utils/CommonFunction'
 import { MAIL_SERVER, SALE_SERVER, PRODUCT_SERVER } from '../../Config.js'
+import schedule from 'node-schedule'
 import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
@@ -51,27 +51,24 @@ function SaleRegisterPage() {
   const [ExpirationPeriod, setExpirationPeriod] = useState([]);
   const [ProductId, setProductId] = useState("");
   const [ProductName, setProductName] = useState(""); 
+  const [ProductItem, setProductItem] = useState(""); 
   const [CnMailComment, setCnMailComment] = useState("");
   const [JpMailComment, setJpMailComment] = useState("");
   const [EnMailComment, setEnMailComment] = useState("");
-  const [SendMail, setSendMail] = useState(true);
+  const [SendMail, setSendMail] = useState(false);
+  const [MailBatch, setMailBatch] = useState("");
   const [Except, setExcept] = useState(false);
   const [ShowMinAmount, setShowMinAmount] = useState(true);
-  const [ShowMailComment, setShowMailComment] = useState(true);
+  const [ShowMailComment, setShowMailComment] = useState(false);
   const [ShowExcept, setShowExcept] = useState(false);
   const history = useHistory();
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
-
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
   }, [])
 
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
   // Landing pageへ戻る
   const listHandler = () => {
     history.push("/");
@@ -111,6 +108,10 @@ function SaleRegisterPage() {
       setEnMailComment("");
     }
   };
+  // 메일전송 배치
+  const mailBatchHandler = (value, dateString) => {
+    setMailBatch(dateString);
+  }
   // 메일 커멘트
   const jpMailCommentHandler = (e) => {
     setJpMailComment(e.target.value)
@@ -133,6 +134,7 @@ function SaleRegisterPage() {
       setEnMailComment("");
       setCnMailComment("");
       setShowMinAmount(false);
+      setAmount("")
       setMinAmount("")
     } else {
       setShowExcept(false);
@@ -157,26 +159,34 @@ function SaleRegisterPage() {
   const minAmountHandler = (e) => {
     setMinAmount(e.target.value)
   };
-
   const onOk = (value) => {
     console.log('onOk: ', value);
   }
-
   // 메일 송신
   const sendMail = async(body) => {
     try {
+      // 세일등록 페이지의 플래그
+      body.mod = "reg";
+
+      // 세일제외 등록이 아닌경우
       if (!Except) {
+        // 메일체크박스가 on인경우
         if (SendMail) {
           if (window.confirm("Do you want to send mail to all users?")) {
-            // 세일정보인 경우 모든 사용자와 관리자에게 메일을 보낸다
-            await axios.post(`${MAIL_SERVER}/sale`, body);
+            // 메일 전송시간이 설정된 경우
+            if (MailBatch !== "") {
+              await mailBatch(body)
+            } else {
+              // 모든 사용자와 관리자에게 메일을 보낸다
+              await axios.post(`${MAIL_SERVER}/sale`, body);
+            }
           } else {
-            // 관리자에게만 메일을 보낸다
+            // 세일정보를 등록했으니깐 관리자에게는 메일을 보낸다
             await axios.post(`${MAIL_SERVER}/sale/admin`, body);
             setSendMail(false);
           }
         } else {
-          // 관리자에게만 메일을 보낸다
+          // 세일정보를 등록하니깐 관리자에게는 메일을 보낸다
           await axios.post(`${MAIL_SERVER}/sale/admin`, body);
           setSendMail(false);
         }
@@ -187,8 +197,58 @@ function SaleRegisterPage() {
       }
     } catch(err) {
       setSendMail(false);
-      console.log("err: ",err);
+      console.log("SaleRegisterPage sendMail err: ",err);
     }
+  }
+
+  async function mailBatch(body) {
+    const today = new Date();
+    // time: 2022-11-11 19:16:17
+    const jtc = new Date(MailBatch);
+
+    if (today > jtc) {
+      alert("Mail setup time is in the past");
+      return false;
+    }
+    
+    const year = jtc.getFullYear();
+    const month = jtc.getMonth() + 1;
+    const date = jtc.getDate();
+    const hour = jtc.getHours();
+    const minute = jtc.getMinutes();
+
+    // RecurrenceRule 설정
+    // second (0-59)
+    // minute (0-59)
+    // hour (0-23)
+    // date (1-31)
+    // month (0-11)
+    // year
+    // dayOfWeek (0-6) Starting with Sunday
+    // tz
+    let rule = new schedule.RecurrenceRule();
+    rule.year = year;
+    rule.month = month - 1; // month (0-11)
+    rule.date = date;
+    rule.hour = hour;
+    rule.minute = minute;
+    rule.second = 59; // 화면에서 현재시간을 설정하면 배치가 실행되는 시간이 과거가 될수있기에 59초로 설정한다
+    rule.tz = 'Asia/Tokyo';
+
+    schedule.scheduleJob(rule, async function() {
+        let startToday = new Date();
+        let startTime = startToday.toLocaleString('ja-JP');
+        console.log("-------------------------------------------");
+        console.log("Batch setting of sales information registration mail start :", startTime);
+        console.log("-------------------------------------------");
+
+        try {
+          // 모든 사용자와 관리자에게 메일을 보낸다
+          await axios.post(`${MAIL_SERVER}/sale`, body);
+        } catch (err) {
+          console.log("Failed to send sale registration mail: ", err);
+        }
+    })
   }
 
   // 상품검색(검색버튼)
@@ -216,6 +276,7 @@ function SaleRegisterPage() {
       const result = await axios.get(`${PRODUCT_SERVER}/coupon/products_by_id?id=${productId}`);
       if (result.data.success) {
         setProductName(result.data.productInfo[0].title);
+        setProductItem(result.data.productInfo[0].continents);
       }
     } catch (err) {
       alert("Failed to get product information")
@@ -230,27 +291,28 @@ function SaleRegisterPage() {
           // 세일코드 체크
           if (SaleCode === "") {
             alert("Code is required");
-              
             setSubmitting(false);
             return false;
           }
           if (SaleCode.length > 4) {
             alert("Must be exactly 4 characters");
-              
             setSubmitting(false);
             return false;
           }
           if (!Except) {
-            // 금액 체크
+            // 세일타입의 값 체크
+            if (Amount === "") {
+              alert("Please enter a value for the sale type");
+              setSubmitting(false);
+              return false;
+            }
             if (isNaN(Number(Amount))) {
               alert("Only numbers can be entered for the amount");
-
               setSubmitting(false);
               return false;
             }
             if (Number(Amount) < 1) {
               alert("Only positive numbers can be entered for the amount");
-
               setSubmitting(false);
               return false;
             }
@@ -259,16 +321,26 @@ function SaleRegisterPage() {
           if (Item === MainCategory[0].key) {
             if (ProductId !== "") {
               alert("If the category is ALL, you cannot designate a product");
-              
               setSubmitting(false);
               return false;
+            }
+          }
+          // 카테고리의 상품인지 확인
+          if (Item !== MainCategory[0].key) {
+            if (ProductId !== "") {
+              getProduct(ProductId);
+                
+              if (Item !== ProductItem) {
+                alert("This product does not belong to a category");
+                setSubmitting(false);
+                return false;
+              }
             }
           }
           // 세일타입이 할인금액이 아닌데 최소금액에 값이있는경우
           if (Type !== SaleType[2].key) {
             if (MinAmount !== "") {
               alert("The minimum amount can be set only for the discount amount");
-
               setSubmitting(false);
               return false;
             }
@@ -278,13 +350,11 @@ function SaleRegisterPage() {
             // 금액 체크
             if (isNaN(Number(MinAmount))) {
               alert("Only numbers can be entered for the minimum amount");
-
               setSubmitting(false);
               return false;
             }
             if (Number(MinAmount) < 1) {
               alert("Only positive numbers can be entered for the minimum minimum amount");
-              
               setSubmitting(false);
               return false;
             }
@@ -343,7 +413,7 @@ function SaleRegisterPage() {
             cnMailComment: CnMailComment,
             jpMailComment: JpMailComment,
             enMailComment: EnMailComment,
-            except: Except
+            except: Except,
           };
 
           // 세일 제외대상 등록인 경우
@@ -364,19 +434,21 @@ function SaleRegisterPage() {
               if (response.data.success) {
                 if (response.data.saleInfos.length > 0) {
                   alert("The same kind of sale exists within the period");
+
                   return false;
                 } else {
                   // 세일이 존재하지 않으면 세일 등록
                   axios.post(`${SALE_SERVER}/register`, body)
                   .then(response => {
                     if (response.data.success) {
-                      // 메일 송신 (메일송신에 체크되어 있거나 세일대상제외에 체크되어 있을때)
+                      // 메일 전송
                       sendMail(body);
+
                       alert('Sale has been registered');
                     } else {
                       alert('Please contact the administrator');
                     }
-                    // 세일 정상등록 후 리스트 페이지로 이동
+                    // 리스트 페이지로 이동
                     history.push("/sale/list");
                   });
                 }
@@ -401,21 +473,21 @@ function SaleRegisterPage() {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
           <div className="app">
+            <br />
+            <br />
+            <br />
+            <br />
+
             <h1>{t('Sale.regTitle')}</h1><br />
-            
-            <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
+            <Form style={{ height: '100%', margin: '1em' }} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 세일코드 */}
               <Form.Item required label={t('Sale.code')} >
                 <Input id="code" placeholder="Sale code" type="text" value={SaleCode} onChange={saleCodeHandler} 
-                  onBlur={handleBlur} 
-                  style={{ width: 250 }} 
-                  className={ errors.code && touched.code ? 'text-input error' : 'text-input' }
-                />
-                {errors.code && touched.code && (<div className="input-feedback">{errors.code}</div>)}
+                  onBlur={handleBlur} />
               </Form.Item>
               {/* 세일종류 */}
               <Form.Item required label={t('Sale.type')} >
-                <Select value={Type} style={{ width: 250 }} onChange={typeHandler}>
+                <Select value={Type} onChange={typeHandler}>
                 {types.map(item => (
                   <Option key={item.key} value={item.key}> {item.value} </Option>
                 ))}
@@ -425,21 +497,14 @@ function SaleRegisterPage() {
               {!ShowExcept &&
                 <Form.Item required label={t('Sale.amount')} >
                   <Input id="amount" placeholder="Sale amount" type="text" value={Amount} onChange={amountHandler} 
-                    onBlur={handleBlur} 
-                    style={{ width: 250 }} 
-                    className={ errors.amount && touched.amount ? 'text-input error' : 'text-input' }
-                  />
-                  {errors.amount && touched.amount && (<div className="input-feedback">{errors.amount}</div>)}
+                    onBlur={handleBlur} />
                 </Form.Item>
               }
               {/* 세일할인 최소금액 */}
               {ShowMinAmount &&
                 <Form.Item label={t('Sale.minAmount')} >
-                  <Input id="minAmount" placeholder="Sale discount minimum amount" type="text" value={MinAmount} 
-                    onChange={minAmountHandler} 
-                    onBlur={handleBlur}
-                    style={{ width: 250 }}
-                  />
+                  <Input id="minAmount" placeholder="Sale discount minimum amount" type="text" value={MinAmount} onChange={minAmountHandler} 
+                    onBlur={handleBlur} />
                 </Form.Item> 
               }
               {/* 세일 유효기간 */}
@@ -448,13 +513,12 @@ function SaleRegisterPage() {
                   id="validTo" 
                   format={dateFormat}
                   onChange={dateHandler}
-                  onOk={onOk} 
-                  style={{ width: 250 }} 
+                  onOk={onOk}
                 />
               </Form.Item>
               {/* 세일 카테고리 */}
               <Form.Item required label={t('Sale.item')} >
-                <Select value={Item} style={{ width: 250 }} onChange={itemHandler}>
+                <Select value={Item} onChange={itemHandler}>
                 {items.map(item => (
                   <Option key={item.key} value={item.key}> {item.value} </Option>
                 ))}
@@ -462,9 +526,9 @@ function SaleRegisterPage() {
               </Form.Item>
               {/* 세일적용 상품 아이디 */}
               <Form.Item label={t('Sale.product')} >
-                <Input id="userId" placeholder="Enter product" type="text" value={ProductName} style={{ width: 110 }} readOnly/>&nbsp;
-                <Button onClick={productPopupHandler} style={{width: '70px'}}>Search</Button>&nbsp;
-                <Button onClick={productClearHandler} style={{width: '65px'}}>Clear</Button>
+                <Input id="userId" placeholder="Product" type="text" value={ProductName} style={{ width: '7em' }} readOnly/>&nbsp;
+                <Button onClick={productPopupHandler} style={{width: '5em'}}>Search</Button>&nbsp;
+                <Button onClick={productClearHandler} style={{width: '5em'}}>Clear</Button>
                 <br />
               </Form.Item>
               {/* 메일전송 유무 */}
@@ -473,6 +537,13 @@ function SaleRegisterPage() {
                   <Checkbox checked={SendMail} onChange={sendMailHandler} />
                 </Form.Item>
               }
+              {/* 메일 예약 */}
+              { ShowMailComment &&
+                <Form.Item label={t('Sale.mailBatch')}>
+                  <DatePicker showTime onChange={mailBatchHandler} onOk={onOk} />
+                </Form.Item>
+              }
+              {/* 관리자 커멘트 */}
               { ShowMailComment &&
                 <Form.Item label={t('Sale.jpMailComment')} >
                   <TextArea style={{ width: 250 }} maxLength={500} rows={1} placeholder="Mail comment" value={JpMailComment} onChange={jpMailCommentHandler} />
@@ -501,6 +572,7 @@ function SaleRegisterPage() {
                   Submit
                 </Button>
               </Form.Item>
+              <br />
             </Form>
           </div>
         );

@@ -10,6 +10,7 @@ axios.defaults.withCredentials = true;
 function DetailOrderPage(props) {
   const [Order, setOrder] = useState({});
   const orderId = props.match.params.orderId;
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     axios.get(`${ORDER_SERVER}/orders_by_id?id=${orderId}`)
@@ -17,18 +18,12 @@ function DetailOrderPage(props) {
         if (response.data.success) {
           setOrder(response.data.orders[0])
           // 다국적언어 설정
-          setMultiLanguage(localStorage.getItem("i18nextLng"));
+          i18n.changeLanguage(localStorage.getItem("i18nextLng"));
         } else {
           alert("Failed to get order information.")
         }
       })
   }, [])
-
-  // 다국적언어
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);		
-  }
 
   return (
     <div style={{ width:'100%', padding:'3rem 4rem' }}>

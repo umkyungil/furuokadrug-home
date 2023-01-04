@@ -9,20 +9,15 @@ axios.defaults.withCredentials = true;
 
 function DetailWechatPage(props) {
   const [Wechat, setWechat] = useState({});
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     const wechatId = props.match.params.wechatId;
     // 알리페이 정보 취득
     getWechat(wechatId);
     // 다국적언어
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
   }, [])
-
-  // 다국적언어 설정
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
   // 위쳇 정보 취득
   const getWechat = async (wechatId) => {

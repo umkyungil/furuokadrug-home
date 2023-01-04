@@ -15,8 +15,8 @@ function ListPointPage(props) {
 	const [UserId, setUserId] = useState("");
 	const [InvalidData, setInvalidData] = useState([]);
 	const [ShowButton, setShowButton] = useState(true);
-	const {t, i18n} = useTranslation();
 	const history = useHistory();
+	const {t, i18n} = useTranslation();
 
 	useEffect(() => {
 		// 다국어 설정
@@ -33,11 +33,7 @@ function ListPointPage(props) {
 		setUserId(userId);
 
 		// 포인트 정보 가져오기
-		let body = { 
-			userId: userId,
-			searchTerm: []
-		}
-		
+		let body = {userId: userId, searchTerm: []}
 		getPointInfo(body);
 	}, [localStorage.getItem("i18nextLng")])
 	

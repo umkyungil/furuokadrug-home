@@ -18,21 +18,16 @@ function LandingPage() {
 	const [Skip, setSkip] = useState(0);
 	const [Limit, setLimit] = useState(4)
 	const [PostSize, setPostSize] = useState(0)
-	const [Filters, setFilters] = useState({
-		continents: [],
-		price: []
-	})
+	const [Filters, setFilters] = useState({continents: [], price: []	})
 	const [SaleInfos, setSaleInfos] = useState([]); // 세일정보
   const [ShowSaleTotal, setShowSaleTotal] = useState(false);
+	const {t, i18n} = useTranslation();
 	
 	useEffect(() => {
 		// 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
-		// 상품 가져오기
-		let body = {
-			skip: Skip,
-			limit: Limit
-		}
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		
+		// 세일정보 가져오기
 		const mySale = getSale();
 		mySale.then(saleInfos => {
 			if (saleInfos) {
@@ -41,9 +36,10 @@ function LandingPage() {
 				setShowSaleTotal(false);
 			}
 		})
-
+		// 상품 가져오기
+		let body = { skip: Skip, limit: Limit	}
 		getProducts(body);
-	}, [localStorage.getItem("i18nextLng")])
+	}, [])
 
 	// limit, skip은 mongo의 옵션
 	const getProducts = (body) => {
@@ -290,12 +286,6 @@ function LandingPage() {
 		setSkip(0);
 		getProducts(body);
 	}
-
-	// 다국적언어
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
 	return (
 		<div style={{ width:'75%', margin:'3rem auto' }}>

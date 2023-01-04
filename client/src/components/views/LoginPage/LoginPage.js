@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { withRouter } from "react-router-dom";
 import { loginUser } from "../../../_actions/user_actions";
+import { USER_SERVER } from '../../Config';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Form, Icon, Input, Button } from 'antd';
 import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
+import { useCookies } from "react-cookie";
+import axios from 'axios';
+// CORS 대책
+axios.defaults.withCredentials = true;
 
 function LoginPage(props) {
   const dispatch = useDispatch();
   const rememberMeChecked = localStorage.getItem("rememberMe") ? true : false;
-
-  const [formErrorMessage, setFormErrorMessage] = useState('')
-  const [rememberMe, setRememberMe] = useState(rememberMeChecked)
+  const [Cookies, setCookie, removeCookie] = useCookies(["w_auth"]);
+  const [formErrorMessage, setFormErrorMessage] = useState('');
+  const [rememberMe, setRememberMe] = useState(rememberMeChecked);
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
   }, [])
-
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
   // const handleRememberMe = () => {
   //   setRememberMe(!rememberMe)
@@ -47,6 +47,29 @@ function LoginPage(props) {
       })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
+          // 로그인 하기전에 쿠키정보가 있으면 
+          if (Cookies.w_auth) {
+            // 사용자 정보 가져오기
+            const objToken = {"w_auth": Cookies.w_auth}
+            axios.post(`${USER_SERVER}/w_auth`, objToken)
+            .then( userInfo => {
+              if (userInfo.data.user[0]) {
+                // 불특정 사용자인 경우 삭제
+                let userName = userInfo.data.user[0].name;
+                if (userName.substring(0, 9) === "Anonymous") {
+                  const objUserId = {"userId": userInfo.data.user[0]._id}
+                  axios.post(`${USER_SERVER}/delete`, objUserId)
+                  .then( userInfo => {
+                    // 쿠키 삭제
+                    removeCookie("w_auth");
+                    removeCookie("w_authExp");
+                    console.log("user delete success: ", userInfo);
+                  })
+                }
+              }
+            });
+          }
+          
           let dataToSubmit = {
             email: values.email,
             password: values.password
@@ -54,19 +77,21 @@ function LoginPage(props) {
 
           // 로그인 
           dispatch(loginUser(dataToSubmit))
-            .then(response => {
-              if (response.payload.loginSuccess) {
-                // localStorage에 등록
-                window.localStorage.setItem('userId', response.payload.userInfo._id);
+            .then(userInfo => {
+              if (userInfo.payload.loginSuccess) {
+                // local storage에 등록
+                localStorage.setItem('userId', userInfo.payload.userInfo._id);
+                localStorage.setItem('userName', userInfo.payload.userInfo.name);
+                // session storage에 등록
+                sessionStorage.removeItem('userId');
+                sessionStorage.removeItem('userName');
                 // 사용자 정보의 언어 속송값을 다국어에서 사용하기 위해 로컬스토리지에 셋팅
-                if (response.payload.userInfo.language) {
-                  window.localStorage.setItem('i18nextLng', response.payload.userInfo.language);
-                } else {
-                  window.localStorage.setItem('i18nextLng', 'jp');
-                }                
+                if (userInfo.payload.userInfo.language) {
+                  localStorage.setItem('i18nextLng', userInfo.payload.userInfo.language);
+                }
 
                 if (rememberMe === true) {
-                  window.localStorage.setItem('rememberMe', values.id);
+                  localStorage.setItem('rememberMe', values.id);
                 } else {
                   localStorage.removeItem('rememberMe');
                 }

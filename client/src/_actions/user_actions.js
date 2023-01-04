@@ -2,6 +2,7 @@ import axios from 'axios';
 import { 
     LOGIN_USER, 
     REGISTER_USER, 
+    ANY_REGISTER_USER,
     PREREGISTER_USER, 
     PREREGISTER_CONFIRM_USER, 
     UPDATE_USER, 
@@ -9,6 +10,7 @@ import {
     AUTH_USER, 
     LOGOUT_USER, 
     ADD_TO_CART, 
+    ANY_ADD_TO_CART,
     GET_CART_ITEMS, 
     REMOVE_CART_ITEM, 
     ON_SUCCESS_BUY,
@@ -27,6 +29,17 @@ export function registerUser(dataToSubmit){
     // 리턴을 하면 리듀서로 넘어간다
     return {
         type: REGISTER_USER,
+        payload: request
+    }
+}
+
+// 불특정 사용자 등록
+export function anyRegisterUser(dataToSubmit){
+    const request = axios.post(`${USER_SERVER}/anyRegister`,dataToSubmit)
+        .then(response => response.data);
+    // 리턴을 하면 리듀서로 넘어간다
+    return {
+        type: ANY_REGISTER_USER,
         payload: request
     }
 }
@@ -79,7 +92,7 @@ export function deleteUser(id){
     }
 }
 
-// 사용자 갱신
+// 사용자 수정
 export function updateUser(dataToSubmit){
     const request = axios.post(`${USER_SERVER}/update`, dataToSubmit)
         .then(response => response.data);    
@@ -121,9 +134,11 @@ export function logoutUser(){
 // 상세페이지에서 카트에 상품담기
 export function addToCart(id){
     let body = {productId : id}
-
     const request = axios.post(`${USER_SERVER}/addToCart`, body)
-        .then(response => response.data);
+        .then(response => {
+            return response.data
+            
+        });
     return {
         type: ADD_TO_CART,
         payload: request

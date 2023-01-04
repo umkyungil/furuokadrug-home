@@ -9,25 +9,15 @@ axios.defaults.withCredentials = true;
 
 function ListPaypalPage(props) {
   const [PaypalInfo, setPaypalInfo] = useState([]);
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국어 설정
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
-
-    let body = {
-			skip: 0,
-			limit: 8
-		}
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
     // 결제 정보 취득
+    let body = {skip: 0, limit: 8}
     getPaypalInfo(body);
-
   }, [])
-
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
   const columns = [
     {

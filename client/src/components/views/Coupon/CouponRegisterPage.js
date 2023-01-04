@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Formik } from 'formik';
-import * as Yup from 'yup';
 import { useHistory } from 'react-router-dom';
 import { DatePicker, Select, Form, Input, Button, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MainCategory, CouponType, UseWithSale } from '../../utils/Const';
 import { dateFormatYMD } from '../../utils/CommonFunction'
 import { COUPON_SERVER, MAIL_SERVER, USER_SERVER, PRODUCT_SERVER } from '../../Config.js'
+import schedule from 'node-schedule'
 import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
@@ -43,32 +43,36 @@ const tailFormItemLayout = {
 };
 
 function CouponRegisterPage() {
-  const [Type, setType] = useState("2");
+  const [CouponCode, setCouponCode] = useState("");
+  const [Type, setType] = useState(CouponType[2].key);
+  const [Amount, setAmount] = useState("");
   const [ExpirationPeriod, setExpirationPeriod] = useState([]);
   const [Item, setItem] = useState(0);
   const [UseWithSale, setUseWithSale] = useState(1);
-  const [CheckBox, setCheckBox] = useState(true);
+  const [SendMail, setSendMail] = useState(false);
+  const [MailBatch, setMailBatch] = useState("");
   const [UserId, setUserId] = useState("");
   const [UserName, setUserName] = useState("");
   const [ProductId, setProductId] = useState("");
   const [ProductName, setProductName] = useState("");
+  const [ProductItem, setProductItem] = useState("");
+  const [Count, setCount] = useState("1");
   const history = useHistory();
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
-
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
   }, [])
 
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
   // Landing pageへ戻る
   const listHandler = () => {
     history.push("/");
-  }  
+  }
+  // 쿠폰코드
+  const couponCodeHandler = (e) => {
+    setCouponCode(e.target.value)
+  };
   // 쿠폰종류
   const typeHandler = (value) => {
     setType(value);
@@ -82,9 +86,13 @@ function CouponRegisterPage() {
     setItem(value);
   }
   // 세일과 병행 사용여부
-  const saleHandler = (value) => {
+  const useWithSaleHandler = (value) => {
     setUseWithSale(value);
   }
+  // 사용횟수
+  const countHandler = (e) => {
+    setCount(e.target.value)
+  };
   // 사용자 검색(검색버튼)
   const popupHandler = () => {
     window.open("/coupon/user","user list","width=550, height=700, top=10, left=10");
@@ -118,10 +126,17 @@ function CouponRegisterPage() {
     getProduct(productId)
   };
   // 메일전송 유무(체크박스)
-  const checkboxHandler = (e) => {
-    setCheckBox(e.target.checked)
+  const sendMailHandler = (e) => {
+    setSendMail(e.target.checked)
   };
-
+  // 쿠폰타입의 값
+  const amountHandler = (e) => {
+    setAmount(e.target.value)
+  };
+  // 메일전송 배치
+  const mailBatchHandler = (value, dateString) => {
+    setMailBatch(dateString);
+  }
   const onOk = (value) => {
     console.log('onOk: ', value);
   }
@@ -145,45 +160,126 @@ function CouponRegisterPage() {
       const result = await axios.get(`${PRODUCT_SERVER}/coupon/products_by_id?id=${productId}`);
       if (result.data.success) {
         setProductName(result.data.productInfo[0].title);
+        setProductItem(result.data.productInfo[0].continents);
       }
     } catch (err) {
       alert("Failed to get product information")
       console.log("getProduct err: ",err);
     }
   }
-
   // 메일 송신
   const sendMail = async(body) => {
     try {
-      if (window.confirm("Do you want to send mail to all users?")) {
-        await axios.post(`${MAIL_SERVER}/coupon`, body);
+      // 쿠폰등록 페이지의 플래그
+      body.mod = "reg";
+
+      // 메일체크박스가 on인경우
+      if (SendMail) {
+        if (window.confirm("Do you want to send mail to all users?")) {
+          // 메일 전송시간이 설정된 경우
+          if (MailBatch !== "") {
+            await mailBatch(body)
+          } else {
+            // 모든 사용자 또는 지정된 사용자와 관리자에게 메일을 보낸다
+            await axios.post(`${MAIL_SERVER}/coupon`, body);
+          }
+        } else {
+          // 쿠폰정보를 등록했으니깐 관리자에게는 메일을 보낸다
+          await axios.post(`${MAIL_SERVER}/coupon/admin`, body);
+          setSendMail(false);
+        }
       } else {
-        setCheckBox(false);
+        // 쿠폰정보를 등록했으니깐 관리자에게는 메일을 보낸다
+        await axios.post(`${MAIL_SERVER}/coupon/admin`, body);
+        setSendMail(false);
       }
     } catch(err) {
-      setCheckBox(false);
-      console.log("sendMail err: ",err);
+      setSendMail(false);
+      console.log("CouponRegisterPage sendMail err: ",err);
     }
+  }
+
+  async function mailBatch(body) {
+    const today = new Date();
+    // time: 2022-11-11 19:16:17
+    const jtc = new Date(MailBatch);
+
+    if (today > jtc) {
+      alert("Mail setup time is in the past");
+      return false;
+    }
+    
+    const year = jtc.getFullYear();
+    const month = jtc.getMonth() + 1;
+    const date = jtc.getDate();
+    const hour = jtc.getHours();
+    const minute = jtc.getMinutes();
+
+    // RecurrenceRule 설정
+    // second (0-59)
+    // minute (0-59)
+    // hour (0-23)
+    // date (1-31)
+    // month (0-11)
+    // year
+    // dayOfWeek (0-6) Starting with Sunday
+    // tz
+    let rule = new schedule.RecurrenceRule();
+    rule.year = year;
+    rule.month = month - 1; // month (0-11)
+    rule.date = date;
+    rule.hour = hour;
+    rule.minute = minute;
+    rule.second = 59; // 화면에서 현재시간을 설정하면 배치가 실행되는 시간이 과거가 될수있기에 59초로 설정한다
+    rule.tz = 'Asia/Tokyo';
+
+    schedule.scheduleJob(rule, async function() {
+        let startToday = new Date();
+        let startTime = startToday.toLocaleString('ja-JP');
+        console.log("-------------------------------------------");
+        console.log("Batch setting of coupons information registration mail start :", startTime);
+        console.log("-------------------------------------------");
+
+        try {
+          // 모든 사용자 또는 지정된 사용자와 관리자에게 메일을 보낸다
+          await axios.post(`${MAIL_SERVER}/coupon`, body);
+        } catch (err) {
+          console.log("Failed to send coupon registration mail: ", err);
+        }
+    })
   }
 
   return (
     <Formik
-      initialValues={{
-        code: '',
-        amount: '',
-        count: '1'
-      }}
-      validationSchema={Yup.object().shape({
-        code: Yup.string()
-          .max(4, 'Must be exactly 4 characters')
-          .required('Code is required'),
-        amount: Yup.string()
-          .required('Discount rate or discount amount is required'),
-        count: Yup.string()
-          .max(2, 'Must be exactly 2 characters')
-      })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
+          // 쿠폰코드 체크
+          if (CouponCode === "") {
+            alert("Code is required");
+            setSubmitting(false);
+            return false;
+          }
+          if (CouponCode.length > 4) {
+            alert("Must be exactly 4 characters");
+            setSubmitting(false);
+            return false;
+          }
+          // 금액 체크
+          if (Amount === "") {
+            alert("Please enter a value for the coupon type");
+            setSubmitting(false);
+            return false;
+          }
+          if (isNaN(Number(Amount))) {
+            alert("Only numbers can be entered for the amount");
+            setSubmitting(false);
+            return false;
+          }
+          if (Number(Amount) < 1) {
+            alert("Only positive numbers can be entered for the amount");
+            setSubmitting(false);
+            return false;
+          }
           // 카테고리가 ALL인데 상품이 지정되어 있는경우
           if (Item === MainCategory[0].key) {
             if (ProductId !== "") {
@@ -192,16 +288,17 @@ function CouponRegisterPage() {
               return false;
             }
           }
-          // 금액 체크
-          if (isNaN(Number(values.amount))) {
-            alert("Only numbers can be entered for the amount");
-            setSubmitting(false);
-            return false;
-          }
-          if (Number(values.amount) < 1) {
-            alert("Only positive numbers can be entered for the amount");
-            setSubmitting(false);
-            return false;
+          // 카테고리의 상품인지 확인
+          if (Item !== MainCategory[0].key) {
+            if (ProductId !== "") {
+              getProduct(ProductId);
+              
+              if (Item !== ProductItem) {
+                alert("This product does not belong to a category");
+                setSubmitting(false);
+                return false;
+              }
+            }
           }
           // 날짜 체크
           if (ExpirationPeriod.length < 1) {
@@ -243,60 +340,105 @@ function CouponRegisterPage() {
             return false;
           }
 
-          // 쿠폰 사용횟수 체크
-          if (isNaN(Number(values.count))) {
-            alert("Only numbers can be entered for the count");
-            setSubmitting(false);
-            return false;
-          }
-          if (Number(values.count) < 1) {
-            alert("Only positive numbers can be entered for the coupon count");
-            setSubmitting(false);
-            return false;
+          // 쿠폰 사용횟수 체크, 카운트가 ""인 경우는 무제한
+          if (Count !== "") {
+            if (Count.length > 2) {
+              alert("Must be exactly 2 characters");
+              setSubmitting(false);
+              return false;
+            }
+            if (isNaN(Number(Count))) {
+              alert("Only numbers can be entered for the count");
+              setSubmitting(false);
+              return false;
+            }
+            if (Number(Count) < 1) {
+              alert("Only positive numbers can be entered for the coupon count");
+              setSubmitting(false);
+              return false;
+            }  
           }
 
           // 쿠폰 정보 셋팅
           let body = {
-            code: values.code,
+            code: CouponCode,
             type: Type,
-            amount: values.amount,
+            amount: Amount,
             validFrom: ExpirationPeriod[0],
             validTo: ExpirationPeriod[1],
             item: Item,
             active: "1", // 활성
             useWithSale: UseWithSale,
-            count: values.count,
+            count: Count,
             userId: UserId,
             productId: ProductId,
-            sendMail: CheckBox
+            sendMail: SendMail
           };
 
-          // 쿠폰코드가 이미 존재하는지 확인
-          axios.post(`${COUPON_SERVER}/list`, body)
-          .then(response => {
+          try {
+            // 쿠폰코드가 이미 존재하는지 확인
+            axios.post(`${COUPON_SERVER}/list`, body)
+            .then(response => {
               // 쿠폰이 존재하면 에러
               if (response.data.success) {
-                if (response.data.couponInfos.length > 0) {
-                  alert("Please check if the coupon code already exists")
+                const couponInfos = response.data.couponInfos;
 
-                  return false;
+                if (couponInfos.length > 0) {
+                  let cnt = 0;
+                  for (let i=0; i<couponInfos.length; i++) {
+                    // 생일자 쿠폰이외에 쿠폰정보가 있는경우
+                    if (!couponInfos[i].beforeBirthday) {
+                      cnt++;
+                    }
+                  }
+                  
+                  if (cnt > 0) {
+                    alert("The same kind of coupon exists within the period")
+                    return false;
+                  } else {
+                    // 생일자 쿠폰이외의 쿠폰이 존재하지 않으면 쿠폰 등록
+                    axios.post(`${COUPON_SERVER}/register`, body)
+                    .then(response => {
+                      if (response.data.success) {
+                        // 메일 전송
+                        sendMail(body);
+
+                        alert('Coupon has been registered');
+                      } else {
+                        alert('Please contact the administrator');
+                      }
+                      // 리스트페이지로 이동
+                      history.push("/coupon/list");
+                    });
+                  }
                 } else {
                   // 쿠폰이 존재하지 않으면 쿠폰 등록
                   axios.post(`${COUPON_SERVER}/register`, body)
                   .then(response => {
                     if (response.data.success) {
-                      // 메일 송신 여부
-                      if (CheckBox) {
-                        sendMail(body)
-                        alert('Coupon has been registered');
-                      }
-                      // 쿠폰 정상등록후 리스트페이지로 이동
-                      history.push("/coupon/list");
-                    } 
+                      // 메일 전송
+                      sendMail(body);
+
+                      alert('Coupon has been registered');
+                    } else {
+                      alert('Please contact the administrator');
+                    }
+                    // 리스트페이지로 이동
+                    history.push("/coupon/list");
                   });
                 }
+              } else {
+                // 같은 세일코드가 존재하는 경우
+                alert("There are duplicate coupon codes");
+                return false;
               }
-          })
+            })
+          } catch (err) {
+            alert("Please contact the administrator");
+            console.log("Coupon register err: ", err);
+            // 쿠폰리스트 이동
+            history.push("/coupon/list");
+          }
           
         setSubmitting(false);
       }, 500);
@@ -311,13 +453,9 @@ function CouponRegisterPage() {
             <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 쿠폰코드 */}
               <Form.Item required label={t('Coupon.code')} >
-                <Input id="code" placeholder="Coupon code" type="text" value={values.code} 
-                  onChange={handleChange} 
-                  onBlur={handleBlur} 
-                  style={{ width: 250 }} 
-                  className={ errors.code && touched.code ? 'text-input error' : 'text-input' }
+                <Input id="code" placeholder="Coupon code" type="text" value={CouponCode} onChange={couponCodeHandler} 
+                  onBlur={handleBlur} style={{ width: 250 }}
                 />
-                {errors.code && touched.code && (<div className="input-feedback">{errors.code}</div>)}
               </Form.Item>
               {/* 쿠폰종류 */}
               <Form.Item required label={t('Coupon.type')} >
@@ -329,13 +467,9 @@ function CouponRegisterPage() {
               </Form.Item>
               {/* 쿠폰할인율 또는 금액 */}
               <Form.Item required label={t('Coupon.amount')} >
-                <Input id="amount" placeholder="Coupon amount" type="text" value={values.amount} 
-                  onChange={handleChange} 
-                  onBlur={handleBlur} 
-                  style={{ width: 250 }} 
-                  className={ errors.amount && touched.amount ? 'text-input error' : 'text-input' }
+                <Input id="amount" placeholder="Coupon amount" type="text" value={Amount} onChange={amountHandler} 
+                  onBlur={handleBlur} style={{ width: 250 }}
                 />
-                {errors.amount && touched.amount && (<div className="input-feedback">{errors.amount}</div>)}
               </Form.Item>
               {/* 쿠폰 유효기간 */}
               <Form.Item required label={t('Coupon.validTo')}>
@@ -364,7 +498,7 @@ function CouponRegisterPage() {
               </Form.Item>
               {/* 쿠폰과 세일 병행사용 여부 */}
               <Form.Item required label={t('Coupon.useWithSale')} >
-                <Select value={UseWithSale} style={{ width: 250 }} onChange={saleHandler}>
+                <Select value={UseWithSale} style={{ width: 250 }} onChange={useWithSaleHandler}>
                 {sale.map(item => (
                   <Option key={item.key} value={item.key}> {item.value} </Option>
                 ))}
@@ -372,13 +506,10 @@ function CouponRegisterPage() {
               </Form.Item>
               {/* 쿠폰 사용횟수 */}
               <Form.Item required label={t('Coupon.count')} >
-                <Input id="count" placeholder="Coupon use count" type="text" value={values.count} 
-                  onChange={handleChange} 
+                <Input id="count" placeholder="Coupon use count" type="text" value={Count} onChange={countHandler} 
                   onBlur={handleBlur} 
                   style={{ width: 250 }} 
-                  className={ errors.count && touched.count ? 'text-input error' : 'text-input' }
                 />
-                {errors.count && touched.count && (<div className="input-feedback">{errors.count}</div>)}
                 <br />
                 <span style={{ color: "red" }}>※Unlimited use is possible if no value is set</span>
               </Form.Item>
@@ -390,9 +521,15 @@ function CouponRegisterPage() {
                 <br />
               </Form.Item>
               {/* 메일전송 유무 */}
-              <Form.Item required label={t('Coupon.sendMail')} >
-                <Checkbox checked={CheckBox} onChange={checkboxHandler} />
+              <Form.Item label={t('Coupon.sendMail')} >
+                <Checkbox checked={SendMail} onChange={sendMailHandler} />
               </Form.Item>
+              {/* 메일 예약 */}
+              { SendMail &&
+                <Form.Item label={t('Sale.mailBatch')}>
+                  <DatePicker showTime onChange={mailBatchHandler} onOk={onOk} />
+                </Form.Item>
+              }
             
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={listHandler}>

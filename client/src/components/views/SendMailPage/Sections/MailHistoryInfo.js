@@ -5,17 +5,13 @@ import { useTranslation } from 'react-i18next';
 
 function MailHistoryInfo(props) {
   const history = useHistory();
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
   }, [])
 
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
   // 메일 이력리스트 화면에 이동
   const listHandler = () => {
     history.push("/mail/list");

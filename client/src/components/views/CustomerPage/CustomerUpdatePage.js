@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import { Formik } from 'formik';
-import * as Yup from 'yup';
 import { updateCustomer } from "../../../_actions/customer_actions";
 import { useDispatch } from "react-redux";
 import { Form, Input, Button } from 'antd';
@@ -46,10 +45,11 @@ function CustomerUpdatePage(props) {
   const [Address3, setAddress3] = useState("");
   const [Salesman, setSalesman] = useState("");
   const [Point, setPoint] = useState("");
+  const {t, i18n} = useTranslation();
   
   useEffect(() => {
     // 다국적언어
-    setMultiLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
     // query string 취득
     const customerId = props.match.params.customerId;
     // 고객정보 취득
@@ -122,11 +122,6 @@ function CustomerUpdatePage(props) {
   const history = useHistory();
   const listHandler = () => {
     history.push("/customer/list");
-  }
-  // 다국적언어 설정
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
   }
 
   return (

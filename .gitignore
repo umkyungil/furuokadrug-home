@@ -2,9 +2,7 @@
 /build
 
 dev.js
-mailConfig.js
-awsConfig.js
-sesConfig.js
+aws.js
 
 .DS_Store
 

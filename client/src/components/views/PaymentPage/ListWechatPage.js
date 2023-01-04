@@ -9,16 +9,13 @@ axios.defaults.withCredentials = true;
 
 function ListWechatPage() {
 	const [WechatInfo, setWechatInfo] = useState([]);
+	const {t, i18n} = useTranslation();
 
 	useEffect(() => {
 		// 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
-
-		let body = {
-			skip: 0,
-			limit: 8
-		}
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
 		// 위쳇 정보 취득
+		let body = {skip: 0, limit: 8}
 		getWechatInfo(body);
 	}, [])
 
@@ -63,11 +60,6 @@ function ListWechatPage() {
 		}	
 	}
 
-	// 다국어 설정
-	const {t, i18n} = useTranslation();
-	function setMultiLanguage(lang) {
-		i18n.changeLanguage(lang);
-	}
 	// Wechat 결제정보 검색
 	const updateSearchTerm = (newSearchTerm) => {
 		let body = { searchTerm: newSearchTerm }

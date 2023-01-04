@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from "react-redux";
 import axios from 'axios';
 import { Table } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
@@ -10,25 +9,15 @@ axios.defaults.withCredentials = true;
 
 function CustomerListPage() {
 	const [Customers, setCustomers] = useState([]);
+	const {t, i18n} = useTranslation();
 
 	useEffect(() => {
 		// 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
-
-		let body = {
-			skip: 0,
-			limit: 8
-		}
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
 		// 고객정보 취득
+		let body = {skip: 0, limit: 8}
 		getCustomers(body);
-
 	}, [])
-
-	// 다국적언어 설정
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-	}
 
 	const columns = [
     {

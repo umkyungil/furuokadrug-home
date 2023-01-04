@@ -39,23 +39,17 @@ const tailFormItemLayout = {
 function UserPasswordConfirmPage(props) {
 
   const [UserId, setUserId] = useState({});
-
   const dispatch = useDispatch();
   const history = useHistory();
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
     // query string 취득
     setUserId(props.match.params.userId);
-
   }, [])
 
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
   // Landing pageへ戻る
   const listHandler = () => {
     history.push("/");

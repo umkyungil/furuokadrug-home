@@ -1,5 +1,6 @@
 import {
     REGISTER_USER, 
+    ANY_REGISTER_USER, 
     PREREGISTER_USER, 
     PREREGISTER_CONFIRM_USER, 
     UPDATE_USER, 
@@ -18,6 +19,8 @@ import {
 export default function(state={},action){
     switch(action.type){
         case REGISTER_USER:
+            return {...state, register: action.payload }
+        case ANY_REGISTER_USER:
             return {...state, register: action.payload }
         case PREREGISTER_USER:
             return {...state, register: action.payload }

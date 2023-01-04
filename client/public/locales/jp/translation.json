@@ -14,6 +14,7 @@
     "title": "サインアップ",
     "name": "名前",
     "lastName": "苗字",
+    "birth": "生年月日",
     "email": "E-mail",
     "tel": "電話番号",
     "address1": "配達先1",
@@ -54,7 +55,8 @@
     "priceSelection": "価格範囲",
     "imageMessage": "既存の画像は削除されるので新しい画像を追加してください",
     "category": "カテゴリ",
-    "action": "アクション"
+    "action": "アクション",
+    "productExposure": "商品表示"
   },
   "Customer": {
     "listTitle": "顧客情報一覧",
@@ -136,6 +138,7 @@
     "updateTitle": "ユーザー情報登録",
     "detailTitle": "ユーザー詳細情報",
     "name": "名前",
+    "birth": "生年月日",
     "email": "メール",
     "tel": "電話番号",
     "phone": "電話",
@@ -155,7 +158,7 @@
     "point": "ポイント",
     "lastName": "苗字",
     "role": "権限",
-    "deletedAt": "無効になった日付"
+    "deletedAt": "論理削除"
   },
   "Mail": {
     "listTitle": "メール履歴一覧",
@@ -216,6 +219,7 @@
   "Coupon": {
     "listTitle": "クーポン情報一覧",
     "regTitle": "クーポン情報登録",
+    "birthRegTitle": "クーポン情報登録(誕生日)",
     "updateTitle": "クーポン情報更新",
     "historyTitle": "クーポン履歴一覧",
     "code": "クーポンコード",
@@ -255,7 +259,8 @@
     "jpMailComment": "コメント(日本語)",
     "cnMailComment": "コメント(中国語)",
     "enMailComment": "コメント(英語)",
-    "saleExcept": "セール対象外"
+    "saleExcept": "セール対象外",
+    "mailBatch": "メール予約"
   },
   "Point": {
     "listTitle": "ポイント情報一覧",

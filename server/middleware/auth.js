@@ -9,7 +9,6 @@ let auth = (req, res, next) => {
   // 유저 모델에서 메소드를 만들어서 처리한다
   User.findByToken(token, (err, user) => {
     if (err) throw err;
-    
     // 유저가 있으면 인증 Okay, 없으면 No
     if (!user)
       return res.json({ isAuth: false, error: true });

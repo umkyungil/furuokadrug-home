@@ -12,7 +12,16 @@ const { Product } = require('../models/Product');
 
 //=================================
 //          Sendmail
-//=================================
+//=================================]
+
+// AWS SES 접근 보안키
+process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
+process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
+const ses = new AWS.SES({
+    apiVersion: "2010-12-01",
+    region: "ap-northeast-1", 
+});
+const transporter = nodemailer.createTransport({ SES: ses, AWS })
 
 // 메일정보 등록
 const registerMailHistory = async (body) => {
@@ -33,15 +42,6 @@ const registerMailHistory = async (body) => {
 
 // UserList, CustomerList: 관리자가 고객에게 DM으로 메일전송
 router.post("/notice", auth, async (req, res) => {
-    // AWS SES 접근 보안키
-    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
-    const ses = new AWS.SES({
-        apiVersion: "2010-12-01",
-        region: "ap-northeast-1", 
-    });
-    const transporter = nodemailer.createTransport({ SES: ses, AWS });
-
     try {
         // 메일 전송
         let mailOptions = {
@@ -50,8 +50,7 @@ router.post("/notice", auth, async (req, res) => {
             subject: req.body.subject,
             text: req.body.message
         };
-
-        const mailResult = await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
 
         // 메일정보 등록
         const body = {
@@ -81,15 +80,6 @@ router.post("/notice", auth, async (req, res) => {
 
 // LiveStreaming: 라이브스트리밍에서 사용자가 룸인 했을때 관리자에게 보내는 메일
 router.post("/live", auth, async (req, res) => {
-    // AWS SES 접근 보안키
-    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
-    const ses = new AWS.SES({
-        apiVersion: "2010-12-01",
-        region: "ap-northeast-1", 
-    });
-    const transporter = nodemailer.createTransport({ SES: ses, AWS });
-
     // 관리자에 보낼 메일내용 설정
     let message = "管理者 様\n"
     message += "\nライブストリーミングの依頼がありました。\nルーム情報は以下のとおりです\n";
@@ -108,7 +98,7 @@ router.post("/live", auth, async (req, res) => {
             subject: "ライブストリーミングの依頼がありました",
             text: message
         };
-        const adminMailResult = await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
 
         // 관리자 메일정보 등록
         const body = {
@@ -133,15 +123,6 @@ router.post("/live", auth, async (req, res) => {
 
 // Contact Us: 고객으로 부터 문의메일 수신
 router.post("/inquiry", async (req, res) => {
-    // AWS SES 접근 보안키
-    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
-    const ses = new AWS.SES({
-        apiVersion: "2010-12-01",
-        region: "ap-northeast-1", 
-    });
-    const transporter = nodemailer.createTransport({ SES: ses, AWS })
-
     // 관리자에 보낼 메일내용 설정
     let adminMessage = "管理者 様\n\n"
     adminMessage += "お問い合わせがありました。\n問い合わせ内容は以下のとおりです。\n";
@@ -180,7 +161,7 @@ router.post("/inquiry", async (req, res) => {
             subject: 'お問い合わせがありました',
             text: adminMessage
         };
-        const adminMailResult = await transporter.sendMail(adminOptions);
+        await transporter.sendMail(adminOptions);
         
         // 사용자 메일 전송
         let userOptions = {
@@ -189,7 +170,7 @@ router.post("/inquiry", async (req, res) => {
             subject: 'お問い合わせありがとうございます',
             text: userMessage
         };
-        const userMailResult = await transporter.sendMail(userOptions);
+        await transporter.sendMail(userOptions);
 
         // 관리자 메일정보 등록
         const adminBody = {
@@ -223,15 +204,6 @@ router.post("/inquiry", async (req, res) => {
 
 // Virtual Reservation (고객이 예약메일을 관리자에게 송신)
 router.post("/reserve", async (req, res) => {
-    // AWS SES 접근 보안키
-    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
-    const ses = new AWS.SES({
-        apiVersion: "2010-12-01",
-        region: "ap-northeast-1", 
-    });
-    const transporter = nodemailer.createTransport({ SES: ses, AWS })
-    
     // 관리자에 보낼 메일내용 설정
     let adminMessage = "管理者 様\n"
     adminMessage += "\n仮想予約の依頼がありました。\n予約の詳細は以下の通りです。\n";
@@ -277,7 +249,7 @@ router.post("/reserve", async (req, res) => {
             subject: 'ご予約がありました',
             text: adminMessage
         };
-        const adminMailResult = await transporter.sendMail(adminOptions);
+        await transporter.sendMail(adminOptions);
 
         // 사용자 메일전송
         let userOptions = {
@@ -286,7 +258,7 @@ router.post("/reserve", async (req, res) => {
             subject: 'ご予約ありがとうございます',
             text: userMessage
         };
-        const userMailResult = await transporter.sendMail(userOptions);
+        await transporter.sendMail(userOptions);
 
         // 관리자 메일정보 등록
         const adminBody = {
@@ -318,15 +290,6 @@ router.post("/reserve", async (req, res) => {
 });
 
 router.post("/passwordChange", async (req, res) => {
-    // AWS SES 접근 보안키
-    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
-    const ses = new AWS.SES({
-        apiVersion: "2010-12-01",
-        region: "ap-northeast-1", 
-    });
-    const transporter = nodemailer.createTransport({ SES: ses, AWS });
-
     // 메일내용 설정
     let userMessage = req.body.lastName + " " + req.body.name + " 様\n\n";
     userMessage += "ログインのパスワードリセットの申請を受け付けました。\n\n";
@@ -353,7 +316,7 @@ router.post("/passwordChange", async (req, res) => {
         // 메일전송 실패
         if (!userMailResult.envelope) {
             //임시사용자 삭제 
-            const result = await User.remove({ _id: req.body._id });
+            await Sale.deleteOne({ _id: req.body._id });
             return res.status(400).json({ success: false, message: userMailResult.code });
         }
 
@@ -366,15 +329,6 @@ router.post("/passwordChange", async (req, res) => {
 
 // 비밀번호변경 확인메일 송신
 router.post("/passwordConfirm", async (req, res) => {
-    // AWS SES 접근 보안키
-    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
-    const ses = new AWS.SES({
-        apiVersion: "2010-12-01",
-        region: "ap-northeast-1", 
-    });
-    const transporter = nodemailer.createTransport({ SES: ses, AWS });
-
     // 메일내용 설정
     let userMessage = req.body.lastName + " " + req.body.name + " 様\n\n"
     userMessage += "パスワード変更完了いたしました。\n\n";
@@ -413,29 +367,51 @@ router.post("/passwordConfirm", async (req, res) => {
 
 // User Preregistration (사용자 임시가입)
 router.post("/preregister", async (req, res) => {
-    // AWS SES 접근 보안키
-    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
-    const ses = new AWS.SES({
-        apiVersion: "2010-12-01",
-        region: "ap-northeast-1", 
-    });
-    const transporter = nodemailer.createTransport({ SES: ses, AWS })
-
     // 메일내용 설정
-    let userMessage = req.body.lastName + " " + req.body.name + " 様\n\n";
-    userMessage += "この度は、「FURUOKADRUG」にお申し込み頂きまして誠にありがとうございます。\n\n";
-    userMessage += "ご本人様確認のため、下記URLへ「1時間以内」にアクセスし\n";
-    userMessage += "アカウントの本登録を完了させて下さい。\n";
-    userMessage += PRE_REGISTER_URL + `${req.body._id}\n\n`;
-    userMessage += "※当メール送信後、1時間を超過しますと、セキュリティ保持のため有効期限切れとなります。\n";
-    userMessage += "　その場合は再度、最初からお手続きをお願い致します。\n";
-    userMessage += "※当メールは送信専用メールアドレスから配信されています。\n";
-    userMessage += "　このままご返信いただいてもお答えできませんのでご了承ください。\n";
-    userMessage += "※当メールに心当たりの無い場合は、誠に恐れ入りますが\n";
-    userMessage += "　破棄して頂けますよう、よろしくお願い致します。";
+    let japaneseMessage = req.body.lastName + " " + req.body.name + " 様\n\n";
+    japaneseMessage += "この度は、「FURUOKADRUG」にお申し込み頂きまして誠にありがとうございます。\n\n";
+    japaneseMessage += "ご本人様確認のため、下記URLへ「1時間以内」にアクセスし\n";
+    japaneseMessage += "アカウントの本登録を完了させて下さい。\n";
+    japaneseMessage += PRE_REGISTER_URL + `${req.body._id}\n\n`;
+    japaneseMessage += "※当メール送信後、1時間を超過しますと、セキュリティ保持のため有効期限切れとなります。\n";
+    japaneseMessage += "　その場合は再度、最初からお手続きをお願い致します。\n";
+    japaneseMessage += "※当メールは送信専用メールアドレスから配信されています。\n";
+    japaneseMessage += "　このままご返信いただいてもお答えできませんのでご了承ください。\n";
+    japaneseMessage += "※当メールに心当たりの無い場合は、誠に恐れ入りますが\n";
+    japaneseMessage += "　破棄して頂けますよう、よろしくお願い致します。";
+    
+    let chineseMessage = "亲爱的" + req.body.lastName + " " + req.body.name + "\n\n";
+    chineseMessage += "非常感谢您在「FURUOKADRUG」注册账号。\n\n";
+    chineseMessage += "为了确认您的身份, 请您在1小时内点击以下链接, 完成账号注册。\n";
+    chineseMessage += PRE_REGISTER_URL + `${req.body._id}\n\n`;
+    chineseMessage += "※为了确认您的身份, 请您在1小时内点击以下链接, 完成账号注册。\n";
+    chineseMessage += "　如遇到这种情况, 请您重新操作注册流程。\n";
+    chineseMessage += "※此邮件是专用邮件地址发送的。\n";
+    chineseMessage += "　如果您给这个邮件地址回信, 我们也无法回复。\n";
+    chineseMessage += "※如果您对这封邮件没有印象, 给您带来的不便我们深表歉意。\n";
+    chineseMessage += "　请您删除这封邮件。";
+
+    let englishMessage = "Hi " + req.body.lastName + " " + req.body.name + "\n\n";
+    englishMessage += "Thank you very much for applying for「FURUOKADRUG」\n\n";
+    englishMessage += "Please access the following URL within 1 hour to confirm your identity.\n";
+    englishMessage += "Please complete the registration of your account.\n";
+    englishMessage += PRE_REGISTER_URL + `${req.body._id}\n\n`;
+    englishMessage += "※If 1 hour has passed since this email was sent, it will expire for security reasons.\n";
+    englishMessage += "　In that case, please repeat the procedure from the beginning.\n";
+    englishMessage += "※This email is sent from a send-only email address.\n";
+    englishMessage += "　Please note that even if you reply as is, we will not be able to answer.\n";
+    englishMessage += "※If you do not recognize this email, we apologize for the inconvenience.\n";
+    englishMessage += "　I would appreciate it if you could discard it.";
 
     try {
+        // 사용자 언어에 해당하는 메일 설정
+        let userMessage = japaneseMessage;
+        if (req.body.language === "en") {
+            userMessage = englishMessage;
+        } else if (req.body.language === "cn") {
+            userMessage = chineseMessage;
+        }
+
          // 사용자 메일전송
         let userOptions = {
             from: ADMIN_EMAIL,
@@ -447,8 +423,8 @@ router.post("/preregister", async (req, res) => {
 
         // 메일전송 실패
         if (!userMailResult.envelope) {
-            //임시사용자 삭제 
-            const result = await User.remove({ _id: req.body._id });
+            //임시사용자 삭제
+            await User.deleteOne({ _id: req.body._id });
             return res.status(400).json({ success: false, message: userMailResult.code });
         }
 
@@ -461,15 +437,6 @@ router.post("/preregister", async (req, res) => {
 
 // User Registration (회원가입감사 메일송신)
 router.post("/register", async (req, res) => {
-    // AWS SES 접근 보안키
-    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
-    const ses = new AWS.SES({
-        apiVersion: "2010-12-01",
-        region: "ap-northeast-1", 
-    });
-    const transporter = nodemailer.createTransport({ SES: ses, AWS })
-
     // 메일내용 설정
     let userMessage = req.body.lastName + " " + req.body.name + " 様\n\n"
     userMessage += "この度は「FURUOKADRUG」へのご登録、誠にありがとうございます。\n";
@@ -514,15 +481,6 @@ router.post("/register", async (req, res) => {
 
 // Coupon Registration (쿠폰등록시 메일송신)
 router.post("/coupon", async (req, res) => {
-    // AWS SES 접근 보안키
-    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
-    const ses = new AWS.SES({
-        apiVersion: "2010-12-01",
-        region: "ap-northeast-1", 
-    });
-    const transporter = nodemailer.createTransport({ SES: ses, AWS })
-
     try {
         // 메일내용 설정
         let japaneseMessage = "いつも「FURUOKADRUG」をご利用いただき、ありがとうございます。\n";
@@ -541,7 +499,7 @@ router.post("/coupon", async (req, res) => {
         japaneseMessage += " ・クーポン割引: " + req.body.amount
         if (tmpKey === "0") japaneseMessage += "%\n";
         if (tmpKey === "1") japaneseMessage += "(point)\n";
-        if (tmpKey === "2") japaneseMessage += "(JYP)\n";
+        if (tmpKey === "2") japaneseMessage += "(JPY)\n";
         // 카테고리
         MainCategory.map(item => {
             if (item.key === Number(req.body.item)) {
@@ -561,9 +519,9 @@ router.post("/coupon", async (req, res) => {
         })
         // 쿠폰 사용회수
         if (req.body.count === "") {
-            japaneseMessage += " ・使用回数: 無制限\n\n";
+            japaneseMessage += " ・使用次数: 無制限\n\n";
         } else {
-            japaneseMessage += " ・使用回数: " + req.body.count + "\n\n";
+            japaneseMessage += " ・使用次数: " + req.body.count + "\n\n";
         }
         japaneseMessage += "【クーポン有効期限】\n";
         japaneseMessage += req.body.validFrom + " ～ " + req.body.validTo + "\n\n";
@@ -573,14 +531,21 @@ router.post("/coupon", async (req, res) => {
 
         // 관리자 메일 전송
         const adminName = "管理者様\n\n";
-        // 메일내용 설정
-        let tmpActive = '';
-        if (req.body.active === '1') {
-            tmpActive = '「使用可」'
-        } else {
-            tmpActive = '「使用不可」'
+
+        // 쿠폰등록인 경우
+        let adminMessage = "";
+        if (req.body.mod === "reg") {
+            adminMessage = "";
+        } else if (req.body.mod === "modify") {
+            // 세일수정인 경우
+            let tmpActive = '';
+            if (req.body.active === '1') {
+                tmpActive = '「使用可」'
+            } else {
+                tmpActive = '「使用不可」'
+            }
+            adminMessage = "下記のセールを" + tmpActive + "に修正しました\n\n";
         }
-        let adminMessage = "下記のセールを" + tmpActive + "に修正しました\n\n";
 
         let adminOptions = {
             from: ADMIN_EMAIL,
@@ -625,7 +590,7 @@ router.post("/coupon", async (req, res) => {
                 englishMessage += " ・Coupon Discount: " + req.body.amount
                 if (tmpKey === "0") englishMessage += "%\n";
                 if (tmpKey === "1") englishMessage += "(point)\n";
-                if (tmpKey === "2") englishMessage += "(JYP)\n";
+                if (tmpKey === "2") englishMessage += "(JPY)\n";
                 // 카테고리
                 MainCategory.map(item => {
                     if (item.key === Number(req.body.item)) {
@@ -660,7 +625,7 @@ router.post("/coupon", async (req, res) => {
                 const englishOptions = {
                     from: ADMIN_EMAIL,
                     to: userInfo[0].email,
-                    subject: 'Coupon Information of「FURUOKADRUG」Special until ' + req.body.validTo,
+                    subject: 'Special Coupon Information of「FURUOKADRUG」until ' + req.body.validTo,
                     text: userName + englishMessage
                 };
 
@@ -671,21 +636,21 @@ router.post("/coupon", async (req, res) => {
                 // 메일본문 설정
                 let chineseMessage = "感谢你一直以来使用 【古冈药妆】。\n";
                 chineseMessage += "这是一封限定优惠活动的邮件，为只有收到这封邮件的客户专门提供的一个特别活动。\n\n"
-                chineseMessage += "从 「" + req.body.validFrom + "」到「" + req.body.validTo + "」的特别优惠信息\n";
+                chineseMessage += "从 「" + req.body.validFrom + "」到「" + req.body.validTo + "」的特别优惠券信息\n";
                 chineseMessage += "【优惠券内容】\n";
                 // 쿠폰종류 설정
                 let tmpKey = "";
                 SaleType.map(item => {
                     if (item.key === req.body.type) {
                         tmpKey = item.key; 
-                        chineseMessage += " ・优惠券种类: " + item.value + "\n";
+                        chineseMessage += " ・优惠券类型: " + item.value + "\n";
                     }
                 })
                 // 쿠폰종류에 따른 할인율 단위
                 chineseMessage += " ・优惠券折扣: " + req.body.amount
                 if (tmpKey === "0") chineseMessage += "%\n";
                 if (tmpKey === "1") chineseMessage += "(point)\n";
-                if (tmpKey === "2") chineseMessage += "(JYP)\n";
+                if (tmpKey === "2") chineseMessage += "(JPY)\n";
                 // 카테고리
                 MainCategory.map(item => {
                     if (item.key === Number(req.body.item)) {
@@ -700,14 +665,14 @@ router.post("/coupon", async (req, res) => {
                 // 세일과 함께 사용유무
                 UseWithSale.map(item => {
                     if (item.key === req.body.useWithSale) {
-                        chineseMessage += " ・与销售一起使用: " + item.value + "\n";
+                        chineseMessage += " ・与折扣一起使用: " + item.value + "\n";
                     }
                 })
                 // 쿠폰 사용회수
                 if (req.body.count === "") {
-                    chineseMessage += " ・使用回数: 无限\n\n";
+                    chineseMessage += " ・使用次数: 无限\n\n";
                 } else {
-                    chineseMessage += " ・使用回数: " + req.body.count + "\n\n";
+                    chineseMessage += " ・使用次数: " + req.body.count + "\n\n";
                 }
                 
                 chineseMessage += "【优惠截止日期】\n";
@@ -721,7 +686,7 @@ router.post("/coupon", async (req, res) => {
                 const chineseOptions = {
                     from: ADMIN_EMAIL,
                     to: userInfo[0].email,
-                    subject: '【古冈药妆】特别优惠活动至' + req.body.validTo + '为止',
+                    subject: '【古冈药妆】特别优惠券活动至' + req.body.validTo + '为止',
                     text: userName + chineseMessage
                 };
 
@@ -729,7 +694,7 @@ router.post("/coupon", async (req, res) => {
             }
         } else {
             // 논리삭제가 되지않은 모든 일반 사용자에게 메일 전송
-            const userInfos = await User.find({"deletedAt": { $exists: false }, "role": 0 });
+            const userInfos = await User.find({ "password": {$exists: true}, "deletedAt": null , "role": 0 });
             for (let i=0; i<userInfos.length; i++) {
                 // 사용자의 언어가 일본어인 경우
                 if (userInfos[i].language === "jp") {
@@ -763,7 +728,7 @@ router.post("/coupon", async (req, res) => {
                     englishMessage += " ・Coupon Discount: " + req.body.amount
                     if (tmpKey === "0") englishMessage += "%\n";
                     if (tmpKey === "1") englishMessage += "(point)\n";
-                    if (tmpKey === "2") englishMessage += "(JYP)\n";
+                    if (tmpKey === "2") englishMessage += "(JPY)\n";
                     // 카테고리
                     MainCategory.map(item => {
                         if (item.key === Number(req.body.item)) {
@@ -794,11 +759,11 @@ router.post("/coupon", async (req, res) => {
                     englishMessage += "This is a limited time offer. Please take advantage of this opportunity."
 
                     // 사용자 메일전송
-                    const userName = "Hi. " + userInfos[i].lastName + "." + userInfos[i].name + "\n\n"
+                    const userName = "Hi " + userInfos[i].lastName + "." + userInfos[i].name + "\n\n"
                     const englishOptions = {
                         from: ADMIN_EMAIL,
                         to: userInfos[i].email,
-                        subject: 'Coupon Information of「FURUOKADRUG」Special until ' + req.body.validTo,
+                        subject: 'Special Coupon Information of「FURUOKADRUG」until ' + req.body.validTo,
                         text: userName + englishMessage
                     };
 
@@ -809,21 +774,21 @@ router.post("/coupon", async (req, res) => {
                     // 메일본문 설정
                     let chineseMessage = "感谢你一直以来使用 【古冈药妆】。\n";
                     chineseMessage += "这是一封限定优惠活动的邮件，为只有收到这封邮件的客户专门提供的一个特别活动。\n\n"
-                    chineseMessage += "从 「" + req.body.validFrom + "」到「" + req.body.validTo + "」的特别优惠信息\n";
+                    chineseMessage += "从 「" + req.body.validFrom + "」到「" + req.body.validTo + "」的特别优惠券信息\n";
                     chineseMessage += "【优惠券内容】\n";
                     // 쿠폰종류 설정
                     let tmpKey = "";
                     SaleType.map(item => {
                         if (item.key === req.body.type) {
                             tmpKey = item.key; 
-                            chineseMessage += " ・优惠券种类: " + item.value + "\n";
+                            chineseMessage += " ・优惠券类型: " + item.value + "\n";
                         }
                     })
                     // 쿠폰종류에 따른 할인율 단위
                     chineseMessage += " ・优惠券折扣: " + req.body.amount
                     if (tmpKey === "0") chineseMessage += "%\n";
                     if (tmpKey === "1") chineseMessage += "(point)\n";
-                    if (tmpKey === "2") chineseMessage += "(JYP)\n";
+                    if (tmpKey === "2") chineseMessage += "(JPY)\n";
                     // 카테고리
                     MainCategory.map(item => {
                         if (item.key === Number(req.body.item)) {
@@ -838,14 +803,14 @@ router.post("/coupon", async (req, res) => {
                     // 세일과 함께 사용유무
                     UseWithSale.map(item => {
                         if (item.key === req.body.useWithSale) {
-                            chineseMessage += " ・与销售一起使用: " + item.value + "\n";
+                            chineseMessage += " ・与折扣一起使用: " + item.value + "\n";
                         }
                     })
                     // 쿠폰 사용회수
                     if (req.body.count === "") {
-                        chineseMessage += " ・使用回数: 無制限\n\n";
+                        chineseMessage += " ・使用次数: 無制限\n\n";
                     } else {
-                        chineseMessage += " ・使用回数: " + req.body.count + "\n\n";
+                        chineseMessage += " ・使用次数: " + req.body.count + "\n\n";
                     }
                     chineseMessage += "【优惠截止日期】\n";
                     chineseMessage += req.body.validFrom + " ～ " + req.body.validTo + "\n\n";
@@ -858,7 +823,364 @@ router.post("/coupon", async (req, res) => {
                     const chineseOptions = {
                         from: ADMIN_EMAIL,
                         to: userInfos[i].email,
-                        subject: '【古冈药妆】特别优惠活动至' + req.body.validTo + '为止',
+                        subject: '【古冈药妆】特别优惠券活动至' + req.body.validTo + '为止',
+                        text: userName + chineseMessage
+                    };
+
+                    await transporter.sendMail(chineseOptions);
+                }
+            }
+        }
+    } catch (err) {
+        console.log("Coupon send mail err:", err);
+    }
+});
+
+// Coupon Birthday Registration (생일자 쿠폰등록시 메일송신)
+router.post("/coupon/birth", async (req, res) => {
+    try {
+        // 메일내용 설정
+        let japaneseMessage = "いつも「FURUOKADRUG」をご利用いただき、ありがとうございます。\n";
+        japaneseMessage += "このメールを受け取られたお客様限定でキャンペーンをご案内させて頂いております。\n\n"
+        japaneseMessage += "「" + req.body.validFrom + "」から「" + req.body.validTo + "」までの特別クーポンのご案内\n";
+        japaneseMessage += "【クーポンの内容】\n";
+        // 쿠폰종류 설정
+        let tmpKey = "";
+        CouponType.map(item => {
+            if (item.key === req.body.type) {
+                tmpKey = item.key; 
+                japaneseMessage += " ・クーポン種類: " + item.value + "\n";
+            }
+        })
+        // 쿠폰종류에 따른 할인율 단위
+        japaneseMessage += " ・クーポン割引: " + req.body.amount
+        if (tmpKey === "0") japaneseMessage += "%\n";
+        if (tmpKey === "1") japaneseMessage += "(point)\n";
+        if (tmpKey === "2") japaneseMessage += "(JPY)\n";
+        // 카테고리
+        MainCategory.map(item => {
+            if (item.key === Number(req.body.item)) {
+                japaneseMessage += " ・カテゴリ: " + item.value + "\n";
+            }
+        })
+        // 상품정보 가져오기
+        if (req.body.productId !== "") {
+            const productInfo = await Product.find({ "_id": req.body.productId });
+            japaneseMessage += " ・対象商品: " + productInfo[0].title + "\n";
+        }
+        // 세일과 함께 사용유무
+        UseWithSale.map(item => {
+            if (item.key === req.body.useWithSale) {
+                japaneseMessage += " ・セール併用: " + item.value + "\n";
+            }
+        })
+        // 쿠폰 사용회수
+        if (req.body.count === "") {
+            japaneseMessage += " ・使用次数: 無制限\n\n";
+        } else {
+            japaneseMessage += " ・使用次数: " + req.body.count + "\n\n";
+        }
+        japaneseMessage += "【クーポン有効期限】\n";
+        japaneseMessage += req.body.validFrom + " ～ " + req.body.validTo + "\n\n";
+        japaneseMessage += "【クーポンコード】\n";
+        japaneseMessage += " ・コード: " + req.body.code + "\n\n";
+        japaneseMessage += "期間限定のクーポンとなります。是非この機会にご利用ください。\n"
+
+        // 관리자 메일 전송
+        const adminName = "管理者様\n\n";
+
+        // 쿠폰등록인 경우
+        let adminMessage = "";
+        if (req.body.mod === "reg") {
+            adminMessage = "";
+        } else if (req.body.mod === "modify") {
+            // 세일수정인 경우
+            let tmpActive = '';
+            if (req.body.active === '1') {
+                tmpActive = '「使用可」'
+            } else {
+                tmpActive = '「使用不可」'
+            }
+            adminMessage = "下記のセールを" + tmpActive + "に修正しました\n\n";
+        }
+
+        let adminOptions = {
+            from: ADMIN_EMAIL,
+            to: ADMIN_EMAIL,
+            subject: '「FURUOKADRUG」特別のクーポン案内 ' + req.body.validTo + 'まで',
+            text: adminName + adminMessage + japaneseMessage
+        };
+        await transporter.sendMail(adminOptions);
+
+        // 쿠폰 사용자가 지정되어 있는경우
+        if (req.body.userId !== "") {
+            // 사용자 정보 가져오기
+            const userInfo = await User.find({ "_id": req.body.userId });
+            // 사용자의 언어가 일본어인 경우
+            if (userInfo[0].language === "jp") {
+                const userName = userInfo[0].lastName + " " + userInfo[0].name + "様\n\n"
+                // 사용자 메일 전송
+                let userOptions = {
+                    from: ADMIN_EMAIL,
+                    to: userInfo[0].email,
+                    subject: '「FURUOKADRUG」特別のクーポン案内 ' + req.body.validTo + 'まで',
+                    text: userName + japaneseMessage
+                };
+                await transporter.sendMail(userOptions);
+            }
+            // 사용자의 언어가 영인 경우
+            if (userInfo[0].language === "en") {
+                // 메일본문 설정
+                let englishMessage = "Thank you for your continued use of「FURUOKADRUG」.\n";
+                englishMessage += "We are pleased to announce a special campaign only for customers who have received this e-mail.\n\n"
+                englishMessage += "Special Coupon Information from「" + req.body.validFrom + "」to「" + req.body.validTo + "」\n";
+                englishMessage += "【Coupon details】\n";
+                // 쿠폰종류 설정
+                let tmpKey = "";
+                CouponType.map(item => {
+                    if (item.key === req.body.type) {
+                        tmpKey = item.key; 
+                        englishMessage += " ・Coupon Type: " + item.value + "\n";
+                    }
+                })
+                // 쿠폰종류에 따른 할인율 단위
+                englishMessage += " ・Coupon Discount: " + req.body.amount
+                if (tmpKey === "0") englishMessage += "%\n";
+                if (tmpKey === "1") englishMessage += "(point)\n";
+                if (tmpKey === "2") englishMessage += "(JPY)\n";
+                // 카테고리
+                MainCategory.map(item => {
+                    if (item.key === Number(req.body.item)) {
+                        englishMessage += " ・Category: " + item.value + "\n";
+                    }
+                })
+                // 상품정보 가져오기
+                if (req.body.productId !== "") {
+                    const productInfo = await Product.find({ "_id": req.body.productId });
+                    englishMessage += " ・Product: " + productInfo[0].title + "\n";
+                }
+                // 세일과 함께 사용유무
+                UseWithSale.map(item => {
+                    if (item.key === req.body.useWithSale) {
+                        englishMessage += " ・Use with sale: " + item.value + "\n";
+                    }
+                })
+                // 쿠폰 사용회수
+                if (req.body.count === "") {
+                    englishMessage += " ・Number of use: Unlimited\n\n";
+                } else {
+                    englishMessage += " ・Number of use: " + req.body.count + "\n\n";
+                }
+                englishMessage += "【Coupon Expiration Date】\n";
+                englishMessage += req.body.validFrom + " ～ " + req.body.validTo + "\n\n";
+                englishMessage += "【Coupon code】\n";
+                englishMessage += " ・Code: " + req.body.code + "\n\n";
+                englishMessage += "This is a limited time offer. Please take advantage of this opportunity."
+
+                // 사용자 메일전송
+                const userName = "Hi " + userInfo[0].lastName + "." + userInfo[0].name + "\n\n"
+                const englishOptions = {
+                    from: ADMIN_EMAIL,
+                    to: userInfo[0].email,
+                    subject: 'Special Coupon Information of「FURUOKADRUG」until ' + req.body.validTo,
+                    text: userName + englishMessage
+                };
+
+                await transporter.sendMail(englishOptions);
+            }
+            // 사용자의 언어가 중국어인 경우
+            if (userInfo[0].language === "cn") {
+                // 메일본문 설정
+                let chineseMessage = "感谢你一直以来使用 【古冈药妆】。\n";
+                chineseMessage += "这是一封限定优惠活动的邮件，为只有收到这封邮件的客户专门提供的一个特别活动。\n\n"
+                chineseMessage += "从 「" + req.body.validFrom + "」到「" + req.body.validTo + "」的特别优惠券信息\n";
+                chineseMessage += "【优惠券内容】\n";
+                // 쿠폰종류 설정
+                let tmpKey = "";
+                SaleType.map(item => {
+                    if (item.key === req.body.type) {
+                        tmpKey = item.key; 
+                        chineseMessage += " ・优惠券类型: " + item.value + "\n";
+                    }
+                })
+                // 쿠폰종류에 따른 할인율 단위
+                chineseMessage += " ・优惠券折扣: " + req.body.amount
+                if (tmpKey === "0") chineseMessage += "%\n";
+                if (tmpKey === "1") chineseMessage += "(point)\n";
+                if (tmpKey === "2") chineseMessage += "(JPY)\n";
+                // 카테고리
+                MainCategory.map(item => {
+                    if (item.key === Number(req.body.item)) {
+                        chineseMessage += " ・可用类别: " + item.value + "\n";
+                    }
+                })
+                // 상품정보 가져오기
+                if (req.body.productId !== "") {
+                    const productInfo = await Product.find({ "_id": req.body.productId });
+                    chineseMessage += " ・产品: " + productInfo[0].title + "\n";
+                }
+                // 세일과 함께 사용유무
+                UseWithSale.map(item => {
+                    if (item.key === req.body.useWithSale) {
+                        chineseMessage += " ・与折扣一起使用: " + item.value + "\n";
+                    }
+                })
+                // 쿠폰 사용회수
+                if (req.body.count === "") {
+                    chineseMessage += " ・使用次数: 无限\n\n";
+                } else {
+                    chineseMessage += " ・使用次数: " + req.body.count + "\n\n";
+                }
+                
+                chineseMessage += "【优惠截止日期】\n";
+                chineseMessage += req.body.validFrom + " ～ " + req.body.validTo + "\n\n";
+                chineseMessage += "【优惠券代码】\n";
+                chineseMessage += " ・代码: " + req.body.code + "\n\n";
+                chineseMessage += "这是一个限时优惠。 请抓住这个机会。"
+
+                // 사용자 메일전송
+                const userName = "亲爱的" + userInfo[0].lastName + " " + userInfo[0].name + "\n\n"
+                const chineseOptions = {
+                    from: ADMIN_EMAIL,
+                    to: userInfo[0].email,
+                    subject: '【古冈药妆】特别优惠券活动至' + req.body.validTo + '为止',
+                    text: userName + chineseMessage
+                };
+
+                await transporter.sendMail(chineseOptions);
+            }
+        } else {
+            // 논리삭제가 되지않은 모든 일반 사용자에게 메일 전송
+            const userInfos = await User.find({ "password": {$exists: true}, "deletedAt": null , "role": 0 });
+            for (let i=0; i<userInfos.length; i++) {
+                // 사용자의 언어가 일본어인 경우
+                if (userInfos[i].language === "jp") {
+                    const userName = userInfos[i].lastName + " " + userInfos[i].name + "様\n\n"
+                    // 사용자 메일전송
+                    const japaneseOptions = {
+                        from: ADMIN_EMAIL,
+                        to: userInfos[i].email,
+                        subject: '「FURUOKADRUG」特別のセール案内 ' + req.body.validTo + 'まで',
+                        text: userName + japaneseMessage
+                    };
+
+                    await transporter.sendMail(japaneseOptions);
+                }
+                // 사용자의 언어가 영어인 경우
+                if (userInfos[i].language === "en") {
+                    // 메일본문 설정
+                    let englishMessage = "Thank you for your continued use of「FURUOKADRUG」.\n";
+                    englishMessage += "We are pleased to announce a special campaign only for customers who have received this e-mail.\n\n"
+                    englishMessage += "Special Coupon Information from「" + req.body.validFrom + "」to「" + req.body.validTo + "」\n";
+                    englishMessage += "【Coupon details】\n";
+                    // 쿠폰종류 설정
+                    let tmpKey = "";
+                    CouponType.map(item => {
+                        if (item.key === req.body.type) {
+                            tmpKey = item.key; 
+                            englishMessage += " ・Coupon Type: " + item.value + "\n";
+                        }
+                    })
+                    // 쿠폰종류에 따른 할인율 단위
+                    englishMessage += " ・Coupon Discount: " + req.body.amount
+                    if (tmpKey === "0") englishMessage += "%\n";
+                    if (tmpKey === "1") englishMessage += "(point)\n";
+                    if (tmpKey === "2") englishMessage += "(JPY)\n";
+                    // 카테고리
+                    MainCategory.map(item => {
+                        if (item.key === Number(req.body.item)) {
+                            englishMessage += " ・Category: " + item.value + "\n";
+                        }
+                    })
+                    // 상품정보 가져오기
+                    if (req.body.productId !== "") {
+                        const productInfo = await Product.find({ "_id": req.body.productId });
+                        englishMessage += " ・Product: " + productInfo[0].title + "\n";
+                    }
+                    // 세일과 함께 사용유무
+                    UseWithSale.map(item => {
+                        if (item.key === req.body.useWithSale) {
+                            englishMessage += " ・Use with sale: " + item.value + "\n";
+                        }
+                    })
+                    // 쿠폰 사용회수
+                    if (req.body.count === "") {
+                        englishMessage += " ・Number of uses: Unlimited\n\n";
+                    } else {
+                        englishMessage += " ・Number of uses: " + req.body.count + "\n\n";
+                    }
+                    englishMessage += "【Coupon Expiration Date】\n";
+                    englishMessage += req.body.validFrom + " ～ " + req.body.validTo + "\n\n";
+                    englishMessage += "【Coupon code】\n";
+                    englishMessage += " ・Code: " + req.body.code + "\n\n";
+                    englishMessage += "This is a limited time offer. Please take advantage of this opportunity."
+
+                    // 사용자 메일전송
+                    const userName = "Hi " + userInfos[i].lastName + "." + userInfos[i].name + "\n\n"
+                    const englishOptions = {
+                        from: ADMIN_EMAIL,
+                        to: userInfos[i].email,
+                        subject: 'Special Coupon Information of「FURUOKADRUG」until ' + req.body.validTo,
+                        text: userName + englishMessage
+                    };
+
+                    await transporter.sendMail(englishOptions);
+                }
+                // 사용자의 언어가 중국어인 경우
+                if (userInfos[i].language === "cn") {
+                    // 메일본문 설정
+                    let chineseMessage = "感谢你一直以来使用 【古冈药妆】。\n";
+                    chineseMessage += "这是一封限定优惠活动的邮件，为只有收到这封邮件的客户专门提供的一个特别活动。\n\n"
+                    chineseMessage += "从 「" + req.body.validFrom + "」到「" + req.body.validTo + "」的特别优惠券信息\n";
+                    chineseMessage += "【优惠券内容】\n";
+                    // 쿠폰종류 설정
+                    let tmpKey = "";
+                    SaleType.map(item => {
+                        if (item.key === req.body.type) {
+                            tmpKey = item.key; 
+                            chineseMessage += " ・优惠券类型: " + item.value + "\n";
+                        }
+                    })
+                    // 쿠폰종류에 따른 할인율 단위
+                    chineseMessage += " ・优惠券折扣: " + req.body.amount
+                    if (tmpKey === "0") chineseMessage += "%\n";
+                    if (tmpKey === "1") chineseMessage += "(point)\n";
+                    if (tmpKey === "2") chineseMessage += "(JPY)\n";
+                    // 카테고리
+                    MainCategory.map(item => {
+                        if (item.key === Number(req.body.item)) {
+                            chineseMessage += " ・可用类别: " + item.value + "\n";
+                        }
+                    })
+                    // 상품정보 가져오기
+                    if (req.body.productId !== "") {
+                        const productInfo = await Product.find({ "_id": req.body.productId });
+                        chineseMessage += " ・产品: " + productInfo[0].title + "\n";
+                    }
+                    // 세일과 함께 사용유무
+                    UseWithSale.map(item => {
+                        if (item.key === req.body.useWithSale) {
+                            chineseMessage += " ・与折扣一起使用: " + item.value + "\n";
+                        }
+                    })
+                    // 쿠폰 사용회수
+                    if (req.body.count === "") {
+                        chineseMessage += " ・使用次数: 無制限\n\n";
+                    } else {
+                        chineseMessage += " ・使用次数: " + req.body.count + "\n\n";
+                    }
+                    chineseMessage += "【优惠截止日期】\n";
+                    chineseMessage += req.body.validFrom + " ～ " + req.body.validTo + "\n\n";
+                    chineseMessage += "【优惠券代码】\n";
+                    chineseMessage += " ・代码: " + req.body.code + "\n\n";
+                    chineseMessage += "这是一个限时优惠。 请抓住这个机会。"
+
+                    // 사용자 메일전송
+                    const userName = "亲爱的" + userInfos[i].lastName + " " + userInfos[i].name + "\n\n"
+                    const chineseOptions = {
+                        from: ADMIN_EMAIL,
+                        to: userInfos[i].email,
+                        subject: '【古冈药妆】特别优惠券活动至' + req.body.validTo + '为止',
                         text: userName + chineseMessage
                     };
 
@@ -873,76 +1195,136 @@ router.post("/coupon", async (req, res) => {
 
 // 쿠폰 수정시 관리자에게 메일
 router.post("/coupon/admin", async (req, res) => {
-    // AWS SES 접근 보안키
-    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
-    const ses = new AWS.SES({
-        apiVersion: "2010-12-01",
-        region: "ap-northeast-1", 
-    });
-    const transporter = nodemailer.createTransport({ SES: ses, AWS })
-
     try {
         // 메일내용 설정
-        let adminMessage = "管理者様\n\n"
-        let tmpActive = '';
-        if (req.body.active === '1') {
-            tmpActive = '「使用可」'
-        } else {
-            tmpActive = '「使用不可」'
-        }
-        adminMessage += "下記のクーポンを" + tmpActive + "に修正しました\n\n";
-
-        adminMessage += "いつも「FURUOKADRUG」をご利用いただき、ありがとうございます。\n";
-        adminMessage += "このメールを受け取られたお客様限定でキャンペーンをご案内させて頂いております。\n\n"
-        adminMessage += "「" + req.body.validFrom + "」から「" + req.body.validTo + "」までの特別クーポンのご案内\n";
-        adminMessage += "【クーポンの内容】\n";
+        let japaneseMessage = "いつも「FURUOKADRUG」をご利用いただき、ありがとうございます。\n";
+        japaneseMessage += "このメールを受け取られたお客様限定でキャンペーンをご案内させて頂いております。\n\n"
+        japaneseMessage += "「" + req.body.validFrom + "」から「" + req.body.validTo + "」までの特別クーポンのご案内\n";
+        japaneseMessage += "【クーポンの内容】\n";
         // 쿠폰종류 설정
         let tmpKey = "";
         CouponType.map(item => {
             if (item.key === req.body.type) {
                 tmpKey = item.key; 
-                adminMessage += " ・クーポン種類: " + item.value + "\n";
+                japaneseMessage += " ・クーポン種類: " + item.value + "\n";
             }
         })
         // 쿠폰종류에 따른 할인율 단위
-        adminMessage += " ・クーポン割引: " + req.body.amount
-        if (tmpKey === "0") adminMessage += "%\n";
-        if (tmpKey === "1") adminMessage += "(point)\n";
-        if (tmpKey === "2") adminMessage += "(JYP)\n";
+        japaneseMessage += " ・クーポン割引: " + req.body.amount
+        if (tmpKey === "0") japaneseMessage += "%\n";
+        if (tmpKey === "1") japaneseMessage += "(point)\n";
+        if (tmpKey === "2") japaneseMessage += "(JPY)\n";
         // 카테고리
         MainCategory.map(item => {
             if (item.key === Number(req.body.item)) {
-                adminMessage += " ・カテゴリ: " + item.value + "\n";
+                japaneseMessage += " ・カテゴリ: " + item.value + "\n";
             }
         })
         // 상품정보 가져오기
         if (req.body.productId !== "") {
             const productInfo = await Product.find({ "_id": req.body.productId });
-            adminMessage += " ・対象商品: " + productInfo[0].title + "\n";
+            japaneseMessage += " ・対象商品: " + productInfo[0].title + "\n";
         }
         // 세일과 함께 사용유무
         UseWithSale.map(item => {
             if (item.key === req.body.useWithSale) {
-                adminMessage += " ・セール併用: " + item.value + "\n";
+                japaneseMessage += " ・セール併用: " + item.value + "\n";
             }
         })
         // 쿠폰 사용회수
         if (req.body.count === "") {
-            adminMessage += " ・使用回数: 無制限\n\n";
+            japaneseMessage += " ・使用次数: 無制限\n\n";
         } else {
-            adminMessage += " ・使用回数: " + req.body.count + "\n\n";
+            japaneseMessage += " ・使用次数: " + req.body.count + "\n\n";
         }
-        adminMessage += "【クーポン有効期限】: " + req.body.validFrom + " ～ " + req.body.validTo + "\n\n";
-        adminMessage += "【クーポンコード】: " + req.body.code + "\n\n";
-        adminMessage += "【メール送信有無】: " + req.body.sendMail + "\n\n";
+        japaneseMessage += "【クーポン有効期限】: " + req.body.validFrom + " ～ " + req.body.validTo + "\n\n";
+        japaneseMessage += "【クーポンコード】: " + req.body.code + "\n\n";
+        japaneseMessage += "【メール送信有無】: " + req.body.sendMail + "\n\n";
+
+        // 관리자 메일 전송
+        const adminName = "管理者様\n\n";
+        
+        // 쿠폰등록인 경우
+        let adminMessage = "";
+        if (req.body.mod === "reg") {
+            adminMessage = "";
+        } else if (req.body.mod === "modify") {
+            // 세일수정인 경우
+            let tmpActive = '';
+            if (req.body.active === '1') {
+                tmpActive = '「使用可」'
+            } else {
+                tmpActive = '「使用不可」'
+            }
+            adminMessage = "下記のセールを" + tmpActive + "に修正しました\n\n";
+        }
 
         // 관리자 메일 전송
         let adminOptions = {
             from: ADMIN_EMAIL,
             to: ADMIN_EMAIL,
             subject: '【クーポン修正のお知らせ】「FURUOKADRUG」特別のクーポン案内 ' + req.body.validTo + 'まで',
-            text: adminMessage
+            text: adminName + adminMessage + japaneseMessage
+        };
+        await transporter.sendMail(adminOptions);
+    } catch (err) {
+        console.log(err);
+    }
+});
+
+// 생일자 쿠폰 등록시 관리자에게 메일
+router.post("/coupon/birth/admin", async (req, res) => {
+    try {
+        // 메일내용 설정
+        let japaneseMessage = "いつも「FURUOKADRUG」をご利用いただき、ありがとうございます。\n";
+        japaneseMessage += "このメールを受け取られたお客様限定でキャンペーンをご案内させて頂いております。\n\n"
+        japaneseMessage += "誕生日クーポンのご案内\n";
+        japaneseMessage += "【クーポンの内容】\n";
+        // 쿠폰종류 설정
+        let tmpKey = "";
+        CouponType.map(item => {
+            if (item.key === req.body.type) {
+                tmpKey = item.key; 
+                japaneseMessage += " ・クーポン種類: " + item.value + "\n";
+            }
+        })
+        // 쿠폰종류에 따른 할인율 단위
+        japaneseMessage += " ・クーポン割引: " + req.body.amount
+        if (tmpKey === "0") japaneseMessage += "%\n";
+        if (tmpKey === "1") japaneseMessage += "(point)\n";
+        if (tmpKey === "2") japaneseMessage += "(JPY)\n";
+        // 카테고리
+        MainCategory.map(item => {
+            if (item.key === Number(req.body.item)) {
+                japaneseMessage += " ・カテゴリ: " + item.value + "\n";
+            }
+        })
+        // 상품정보 가져오기
+        if (req.body.productId !== "") {
+            const productInfo = await Product.find({ "_id": req.body.productId });
+            japaneseMessage += " ・対象商品: " + productInfo[0].title + "\n";
+        }
+        // 세일과 함께 사용유무
+        UseWithSale.map(item => {
+            if (item.key === req.body.useWithSale) {
+                japaneseMessage += " ・セール併用: " + item.value + "\n";
+            }
+        })
+        // 쿠폰 사용회수
+        japaneseMessage += " ・使用次数: " + req.body.count + "\n\n";
+        japaneseMessage += "【クーポン有効期限】: " + "誕生日" + req.body.beforeBirthday + "前 ～ 誕生日"+ req.body.afterBirthday + "まで\n\n";
+        japaneseMessage += "【クーポンコード】: " + req.body.code + "\n\n";
+        japaneseMessage += "【メール送信有無】: " + req.body.sendMail + "\n\n";
+
+        // 관리자 메일 전송
+        const adminName = "管理者様\n\n";
+
+        // 관리자 메일 전송
+        let adminOptions = {
+            from: ADMIN_EMAIL,
+            to: ADMIN_EMAIL,
+            subject: '「FURUOKADRUG」誕生日のクーポン案内 ',
+            text: adminName + japaneseMessage
         };
         await transporter.sendMail(adminOptions);
     } catch (err) {
@@ -952,15 +1334,6 @@ router.post("/coupon/admin", async (req, res) => {
 
 // 세일등록시 메일송신(모든 사용자 및 관리자)
 router.post("/sale", async (req, res) => {
-    // AWS SES 접근 보안키
-    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
-    const ses = new AWS.SES({
-        apiVersion: "2010-12-01",
-        region: "ap-northeast-1", 
-    });
-    const transporter = nodemailer.createTransport({ SES: ses, AWS })
-
     try {
         // 메일본문 설정
         let japaneseMessage = "いつも「FURUOKADRUG」をご利用いただき、ありがとうございます。\n";
@@ -979,7 +1352,7 @@ router.post("/sale", async (req, res) => {
         japaneseMessage += " ・セール割引: " + req.body.amount
         if (tmpKey === "0") japaneseMessage += "%\n";
         if (tmpKey === "1") japaneseMessage += "(point)\n";
-        if (tmpKey === "2") japaneseMessage += "(JYP)\n";
+        if (tmpKey === "2") japaneseMessage += "(JPY)\n";
         // 카테고리
         MainCategory.map(item => {
             if (item.key === Number(req.body.item)) {
@@ -1004,14 +1377,21 @@ router.post("/sale", async (req, res) => {
 
         // 관리자 메일전송
         const adminName = "管理者様\n\n";
-        // 메일내용 설정
-        let tmpActive = '';
-        if (req.body.active === '1') {
-            tmpActive = '「使用可」'
-        } else {
-            tmpActive = '「使用不可」'
+
+        // 세일등록인 경우
+        let adminMessage = "";
+        if (req.body.mod === "reg") {
+            adminMessage = "";
+        } else if (req.body.mod === "modify") {
+            // 세일수정인 경우
+            let tmpActive = '';
+            if (req.body.active === '1') {
+                tmpActive = '「使用可」'
+            } else {
+                tmpActive = '「使用不可」'
+            }
+            adminMessage = "下記のセールを" + tmpActive + "に修正しました\n\n";
         }
-        let adminMessage = "下記のセールを" + tmpActive + "に修正しました\n\n";
 
         let adminOptions = {
             from: ADMIN_EMAIL,
@@ -1022,7 +1402,7 @@ router.post("/sale", async (req, res) => {
         await transporter.sendMail(adminOptions);
         
         // 논리삭제가 되지않은 모든 일반 사용자에게 메일 전송
-        const userInfos = await User.find({"deletedAt": { $exists: false }, "role": 0 });
+        const userInfos = await User.find({ "password": {$exists: true}, "deletedAt": null , "role": 0 });
 
         for (let i=0; i<userInfos.length; i++) {
             // 사용자의 언어가 일본어인 경우
@@ -1035,7 +1415,6 @@ router.post("/sale", async (req, res) => {
                     subject: '「FURUOKADRUG」特別のセール案内 ' + req.body.validTo + 'まで',
                     text: userName + japaneseMessage
                 };
-
                 await transporter.sendMail(japaneseOptions);
             }
 
@@ -1058,7 +1437,7 @@ router.post("/sale", async (req, res) => {
                 englishMessage += " ・Sale Discount: " + req.body.amount
                 if (tmpKey === "0") englishMessage += "%\n";
                 if (tmpKey === "1") englishMessage += "(point)\n";
-                if (tmpKey === "2") englishMessage += "(JYP)\n";
+                if (tmpKey === "2") englishMessage += "(JPY)\n";
                 // 카테고리
                 MainCategory.map(item => {
                     if (item.key === Number(req.body.item)) {
@@ -1090,7 +1469,7 @@ router.post("/sale", async (req, res) => {
                     subject: 'Sale Information of「FURUOKADRUG」Special until ' + req.body.validTo,
                     text: userName + englishMessage
                 };
-
+                
                 await transporter.sendMail(englishOptions);
             }
 
@@ -1099,7 +1478,7 @@ router.post("/sale", async (req, res) => {
                 // 메일본문 설정
                 let chineseMessage = "感谢你一直以来使用 【古冈药妆】。\n";
                 chineseMessage += "这是一封限定优惠活动的邮件，为只有收到这封邮件的客户专门提供的一个特别活动。\n\n"
-                chineseMessage += "从 「" + req.body.validFrom + "」到「" + req.body.validTo + "」的特别优惠信息\n";
+                chineseMessage += "从 「" + req.body.validFrom + "」到「" + req.body.validTo + "」的特别优惠券信息\n";
                 chineseMessage += "【优惠内容】\n";
                 // 세일종류 설정
                 let tmpKey = "";
@@ -1113,7 +1492,7 @@ router.post("/sale", async (req, res) => {
                 chineseMessage += " ・优惠折扣: " + req.body.amount
                 if (tmpKey === "0") chineseMessage += "%\n";
                 if (tmpKey === "1") chineseMessage += "(point)\n";
-                if (tmpKey === "2") chineseMessage += "(JYP)\n";
+                if (tmpKey === "2") chineseMessage += "(JPY)\n";
                 // 카테고리
                 MainCategory.map(item => {
                     if (item.key === Number(req.body.item)) {
@@ -1142,7 +1521,7 @@ router.post("/sale", async (req, res) => {
                 const chineseOptions = {
                     from: ADMIN_EMAIL,
                     to: userInfos[i].email,
-                    subject: '【古冈药妆】特别优惠活动至' + req.body.validTo + '为止',
+                    subject: '【古冈药妆】特别优惠券活动至' + req.body.validTo + '为止',
                     text: userName + chineseMessage
                 };
 
@@ -1150,21 +1529,12 @@ router.post("/sale", async (req, res) => {
             }
         }
     } catch (err) {
-        console.log(err);
+        console.log("Sale registration failed: ", err);
     }
 });
 
 // 세일등록시 세일제외 정보인 경우 관리자에게 메일전송
 router.post("/saleExcept", async (req, res) => {
-    // AWS SES 접근 보안키
-    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
-    const ses = new AWS.SES({
-        apiVersion: "2010-12-01",
-        region: "ap-northeast-1", 
-    });
-    const transporter = nodemailer.createTransport({ SES: ses, AWS })
-
     try {
         let adminMessage = "「" + req.body.validFrom + "」から「" + req.body.validTo + "」までのセール対象外情報の案内\n";
         adminMessage += "【セール対象外の内容】\n";
@@ -1210,79 +1580,79 @@ router.post("/saleExcept", async (req, res) => {
 
 // 세일 수정시 관리자에게 메일
 router.post("/sale/admin", async (req, res) => {
-    // AWS SES 접근 보안키
-    process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
-    const ses = new AWS.SES({
-        apiVersion: "2010-12-01",
-        region: "ap-northeast-1", 
-    });
-    const transporter = nodemailer.createTransport({ SES: ses, AWS })
-
     try {
         // 메일내용 설정
-        let adminMessage = "管理者様\n\n"
-        let tmpActive = '';
-        if (req.body.active === '1') {
-            tmpActive = '「使用可」'
-        } else {
-            tmpActive = '「使用不可」'
-        }
-        adminMessage += "下記のセールを" + tmpActive + "に修正しました\n\n";
-        adminMessage += "いつも「FURUOKADRUG」をご利用いただき、ありがとうございます。\n";
-        adminMessage += "このメールを受け取られたお客様限定でキャンペーンをご案内させて頂いております。\n\n"
-        adminMessage += "「" + req.body.validFrom + "」から「" + req.body.validTo + "」までの特別セールのご案内\n";
-        adminMessage += "【セールの内容】\n";
+        let japaneseMessage = "いつも「FURUOKADRUG」をご利用いただき、ありがとうございます。\n";
+        japaneseMessage += "このメールを受け取られたお客様限定でキャンペーンをご案内させて頂いております。\n\n"
+        japaneseMessage += "「" + req.body.validFrom + "」から「" + req.body.validTo + "」までの特別セールのご案内\n";
+        japaneseMessage += "【セールの内容】\n";
         
         // 세일종류 설정
         let tmpKey = "";
         CouponType.map(item => {
             if (item.key === req.body.type) {
                 tmpKey = item.key; 
-                adminMessage += " ・セール種類: " + item.value + "\n";
+                japaneseMessage += " ・セール種類: " + item.value + "\n";
             }
         })
         // 쿠폰종류에 따른 할인율 단위
         if (req.body.amount !== "") {
-            adminMessage += " ・セール割引: " + req.body.amount
-            if (tmpKey === "0") adminMessage += "%\n";
-            if (tmpKey === "1") adminMessage += "(point)\n";
-            if (tmpKey === "2") adminMessage += "(JYP)\n";
+            japaneseMessage += " ・セール割引: " + req.body.amount
+            if (tmpKey === "0") japaneseMessage += "%\n";
+            if (tmpKey === "1") japaneseMessage += "(point)\n";
+            if (tmpKey === "2") japaneseMessage += "(JPY)\n";
         }
         // 카테고리
         MainCategory.map(item => {
             if (item.key === Number(req.body.item)) {
-                adminMessage += " ・カテゴリ: " + item.value + "\n";
+                japaneseMessage += " ・カテゴリ: " + item.value + "\n";
             }
         })
         // 상품정보 가져오기
         if (req.body.productId !== "") {
             const productInfo = await Product.find({ "_id": req.body.productId });
-            adminMessage += " ・対象商品: " + productInfo[0].title + "\n\n";
+            japaneseMessage += " ・対象商品: " + productInfo[0].title + "\n\n";
         } else {
-            adminMessage += "\n";
+            japaneseMessage += "\n";
         }
         // 관리자 커멘트
-        adminMessage += "【管理者コメント】\n";
+        japaneseMessage += "【管理者コメント】\n";
         if (req.body.jpMailComment !== "") {
-            adminMessage += " ・日本語: " + req.body.jpMailComment + "\n";
+            japaneseMessage += " ・日本語: " + req.body.jpMailComment + "\n";
         } 
         if (req.body.enMailComment !== "") {
-            adminMessage += " ・英語: " + req.body.enMailComment + "\n";
+            japaneseMessage += " ・英語: " + req.body.enMailComment + "\n";
         }
         if (req.body.cnMailComment !== "") {
-            adminMessage += " ・中国語: " + req.body.cnMailComment + "\n\n";
+            japaneseMessage += " ・中国語: " + req.body.cnMailComment + "\n\n";
         }
-        adminMessage += "【セール有効期限】: " + req.body.validFrom + " ～ " + req.body.validTo + "\n\n";
-        adminMessage += "【セールコード】: " + req.body.code + "\n\n";
-        adminMessage += "【メール送信有無】: " + req.body.sendMail + "\n\n";
+        japaneseMessage += "【セール有効期限】: " + req.body.validFrom + " ～ " + req.body.validTo + "\n\n";
+        japaneseMessage += "【セールコード】: " + req.body.code + "\n\n";
+        japaneseMessage += "【メール送信有無】: " + req.body.sendMail + "\n\n";
+
+        // 관리자 메일전송
+        const adminName = "管理者様\n\n"
+        // 세일등록인 경우
+        let adminMessage = "";
+        if (req.body.mod === "reg") {
+            adminMessage = "";
+        } else if (req.body.mod === "modify") {
+            // 세일수정인 경우
+            let tmpActive = '';
+            if (req.body.active === '1') {
+                tmpActive = '「使用可」'
+            } else {
+                tmpActive = '「使用不可」'
+            }
+            adminMessage = "下記のセールを" + tmpActive + "に修正しました\n\n";
+        }
 
         // 관리자 메일 전송
         let adminOptions = {
             from: ADMIN_EMAIL,
             to: ADMIN_EMAIL,
             subject: '【セール修正のお知らせ】「FURUOKADRUG」特別のセール案内 ' + req.body.validTo + 'まで',
-            text: adminMessage
+            text: adminName + adminMessage + japaneseMessage
         };
         await transporter.sendMail(adminOptions);
     } catch (err) {

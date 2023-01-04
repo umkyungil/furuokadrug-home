@@ -5,11 +5,12 @@ import { useTranslation } from 'react-i18next';
 const { Panel } = Collapse;
 
 function RadioBox(props) {
-  const [Value, setValue] = useState(0)
+  const [Value, setValue] = useState(0);
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국적언어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
 	}, [])
 
    // props.list && : props.list가 있으면 그 이후의 처리를 한다
@@ -21,12 +22,6 @@ function RadioBox(props) {
     setValue(event.target.value);
     // 부모 컨텐츠에 보내기(라디오라서 선택한건 하나만 보냄)
     props.handleFilters(event.target.value);
-  }
-
-  // 다국적언어 설정
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
   }
 
   return (

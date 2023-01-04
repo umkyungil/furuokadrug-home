@@ -71,10 +71,11 @@ router.post('/delete', (req, res) => {
     try {
         let customerId = req.body.customerId;
         // customerId를 이용해서 DB에서 customerId와 같은 고객의 정보를 가져온다
-        Customer.remove({ _id: customerId })
-        .exec((err, customer) => {
-            if (err) return res.status(400).send(err)
-            return res.status(200).send({success: true, customer});
+        Customer.deleteOne({ _id: customerId })
+        .then((deletedCount)=>{
+            return res.status(200).send({success: true, deletedCount});
+        }, (err)=>{
+            if (err) return res.status(400).send(err);
         })
     } catch (error) {
         console.log(err);

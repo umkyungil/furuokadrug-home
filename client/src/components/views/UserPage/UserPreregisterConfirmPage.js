@@ -9,7 +9,6 @@ import { Select, Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER, USER_SERVER } from '../../Config';
 import axios from 'axios';
-import swal from 'sweetalert'
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -43,24 +42,19 @@ function UserPreregisterConfirmPage(props) {
   const [LastName, setLastName] = useState("");
   const [Language, setLanguage] = useState("");
   const [Email, setEmail] = useState("");
-
   const dispatch = useDispatch();
   const history = useHistory();
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
     // query string 취득
     const userId = props.match.params.userId;
     // 사용자 정보 취득
     getUser(userId);
   }, [])
 
-  // 다국어 설정
-  const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
   // Landing pageへ戻る
   const listHandler = () => {
     history.push("/");
@@ -82,25 +76,13 @@ function UserPreregisterConfirmPage(props) {
         setLastName(result.data.user[0].lastName);
         setLanguage(result.data.user[0].language);
       } else {
-        swal({
-          title: "Failed to retrieve user information",
-          text: "Please contact the administrator.",
-          icon: "error",
-          button: "OK",
-        }).then((value) => {
-          history.push("/");
-        });
+        alert("Please contact the administrator");
+        history.push("/");
       }      
     } catch (err) {
-      swal({
-        title: "Failed to retrieve user information",
-        text: "Please contact the administrator.",
-        icon: "error",
-        button: "OK",
-      }).then((value) => {
-        history.push("/");
-      });
       console.log("UserPreregisterConfirmPage err: ",err);
+      alert("Please contact the administrator");
+      history.push("/");
     }
   }
 
@@ -129,6 +111,7 @@ function UserPreregisterConfirmPage(props) {
       initialValues={{
         name: '',
         lastName: '',
+        birthday: '',
         tel: '',
         password: '',
         confirmPassword: '',
@@ -146,6 +129,8 @@ function UserPreregisterConfirmPage(props) {
       validationSchema={Yup.object().shape({
         tel: Yup.string()
           .required('Telephone number is required'),
+        birthday: Yup.string()
+          .required('Date of birth is required'),
         address1: Yup.string()          
           .required('Address is required'),
         receiver1: Yup.string()          
@@ -161,10 +146,29 @@ function UserPreregisterConfirmPage(props) {
       })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
+          const birthday = values.birthday;
+          
+          if (birthday.length !== 8) {
+            alert("Must be exactly 8 characters");
+            setSubmitting(false);
+            return false;
+          }
+          if (isNaN(Number(birthday))) {
+            alert("Only numbers can be entered for the birthday");
+            setSubmitting(false);
+            return false;
+          }
+          if (Number(birthday) < 1) {
+            alert("Only positive numbers can be entered for the birthday");
+            setSubmitting(false);
+            return false;
+          }
+
           let dataToSubmit = {
             userId: Id,
             name: Name,
             lastName: LastName,
+            birthday: values.birthday,
             email: Email,
             tel: values.tel,
             password: values.password,
@@ -190,45 +194,21 @@ function UserPreregisterConfirmPage(props) {
               const mailResult = sendEmail(dataToSubmit);
               mailResult.then((res) => {
                 if (res) {
-                  swal({
-                    title: "Success",
-                    text: "Membership registration has been completed.",
-                    icon: "success",
-                    button: "OK",
-                  }).then((value) => {
-                    props.history.push("/login");
-                  });
+                  alert("Membership registration has been completed");
+                  props.history.push("/login");
                 } else {
-                  swal({
-                    title: "Membership registration failed.",
-                    text: "Please inquire at the Contact Us.",
-                    icon: "error",
-                    button: "OK",
-                  }).then((value) => {
-                    history.push("/");
-                  });
+                  alert("Request user registration again.\nPlease try again later.");
+                  history.push("/");
                 }
               });
             } else {
-              swal({
-                title: "Membership registration failed.",
-                text: "Please inquire at the Contact Us.",
-                icon: "error",
-                button: "OK",
-              }).then((value) => {
-                history.push("/");
-              });
+              alert("Request user registration again.\nPlease try again later.");
+              history.push("/");
             }
           })
           .catch( function(err) {
-            swal({
-              title: "Timed out",
-              text: "Request user registration again.\nPlease try again later.",
-              icon: "error",
-              button: "OK",
-            }).then((value) => {
-              history.push("/");
-            })
+            alert("Request user registration again.\nPlease try again later.");
+            history.push("/");
           })
 
           setSubmitting(false);
@@ -239,6 +219,13 @@ function UserPreregisterConfirmPage(props) {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
           <div className="app">
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            
             <h1>{t('SignUp.title')}</h1><br />
             <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 이름 */}  
@@ -251,6 +238,14 @@ function UserPreregisterConfirmPage(props) {
                 <Form.Item name="lastName" style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
                   <Input id="lastName" placeholder="Enter your last Name" type="text" value={LastName} readOnly />
                 </Form.Item>
+              </Form.Item>
+              {/* 생년월일 */}
+              <Form.Item required label={t('SignUp.birth')} >
+                <Input id="birthday" placeholder="ex) 19700911" type="text" value={values.birthday} onChange={handleChange} onBlur={handleBlur}
+                  className={ errors.birthday && touched.birthday ? 'text-input error' : 'text-input' } />
+                {errors.birthday && touched.birthday && (
+                  <div className="input-feedback">{errors.birthday}</div>
+                )}
               </Form.Item>
               {/* 메일주소 */}
               <Form.Item label={t('SignUp.email')}  >

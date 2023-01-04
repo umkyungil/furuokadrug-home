@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import { Button, Descriptions } from 'antd';
 import { useDispatch } from 'react-redux';
 import { deleteCustomer } from '../../../../_actions/customer_actions';

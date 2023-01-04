@@ -6,10 +6,11 @@ const { Panel } = Collapse;
 
 function CheckBox(props) {
   const [Checked, setChecked] = useState([]);
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국적언어 설정
-		setMultiLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
 	}, [])
 
   const handleToggle = (value) => {
@@ -40,12 +41,6 @@ function CheckBox(props) {
 
     </React.Fragment>
   ))
-
-  // 다국적언어 설정
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
-  }
 
   return (
     <div>
