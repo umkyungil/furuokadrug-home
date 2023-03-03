@@ -69,6 +69,7 @@ function FileUpload(props) {
         )}
       </Dropzone>
       
+      {/* 이미지를 클릭해서 삭제할 경우 */}
       {/* <div style={{ display:'flex', width:'350px', height:'240px', overflowX:'scroll' }}> */}
       <div style={{ display:'flex', width:'350px', height:'240px' }}>
         {Images.map((image, index) => (
@@ -83,4 +84,4 @@ function FileUpload(props) {
   )
 }
 
-export default FileUpload
+export default FileUpload;

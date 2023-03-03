@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useContext} from "react";
 import { Formik } from 'formik';
 import { updateCustomer } from "../../../_actions/customer_actions";
 import { useDispatch } from "react-redux";
@@ -7,6 +7,7 @@ import axios from 'axios';
 import { CUSTOMER_SERVER } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -45,11 +46,12 @@ function CustomerUpdatePage(props) {
   const [Address3, setAddress3] = useState("");
   const [Salesman, setSalesman] = useState("");
   const [Point, setPoint] = useState("");
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
   
   useEffect(() => {
     // 다국적언어
-    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(isLanguage);
     // query string 취득
     const customerId = props.match.params.customerId;
     // 고객정보 취득

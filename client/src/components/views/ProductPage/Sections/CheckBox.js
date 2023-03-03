@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Collapse, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../../context/LanguageContext';
 
 const { Panel } = Collapse;
 
 function CheckBox(props) {
   const [Checked, setChecked] = useState([]);
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국적언어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
 	}, [])
 
   const handleToggle = (value) => {

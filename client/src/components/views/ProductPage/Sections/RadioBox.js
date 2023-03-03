@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Collapse, Radio } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../../context/LanguageContext';
 
 const { Panel } = Collapse;
 
 function RadioBox(props) {
   const [Value, setValue] = useState(0);
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국적언어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
 	}, [])
 
    // props.list && : props.list가 있으면 그 이후의 처리를 한다

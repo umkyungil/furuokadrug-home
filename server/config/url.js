@@ -1,17 +1,20 @@
 ////////////////////////////////////////////////////////////////
 // DEV
 ////////////////////////////////////////////////////////////////
-let ADMIN_EMAIL = 'umkyungil@hirosophy.co.jp';
-let PRE_REGISTER_URL = 'http://localhost:3000/user/preregisterConfirm/';
-let CHANGE_PASSWORD_URL = 'http://localhost:3000/user/confirm/';
+const ADMIN_EMAIL = 'umkyungil@hirosophy.co.jp';
+const PRE_REGISTER_URL = 'http://localhost:3000/user/preregisterConfirm/';
+const CHANGE_PASSWORD_URL = 'http://localhost:3000/user/confirm/';
 
 
 ////////////////////////////////////////////////////////////////
 // PROD
 ////////////////////////////////////////////////////////////////
-// let ADMIN_EMAIL = 'test1@hirosophy.co.jp';
-// let ADMIN_EMAIL = 'umkyungil@hirosophy.co.jp';
-// let PRE_REGISTER_URL = 'http://furuokadrug.herokuapp.com/user/preregisterConfirm/'
-// let CHANGE_PASSWORD_URL = 'http://furuokadrug.herokuapp.com/user/confirm/'
+// const ADMIN_EMAIL = 'test1@hirosophy.co.jp';
+// const ADMIN_EMAIL = 'umkyungil@hirosophy.co.jp';
+// const PRE_REGISTER_URL = 'https://furuokadrug.herokuapp.com/user/preregisterConfirm/'
+// const CHANGE_PASSWORD_URL = 'https://furuokadrug.herokuapp.com/user/confirm/'
 
-module.exports = { ADMIN_EMAIL,  PRE_REGISTER_URL, CHANGE_PASSWORD_URL};
+const HIROSOPHY_URL = 'http://www.hirosophy.co.jp';
+const FURUOKADRUG_URL =  'https://furuokadrug.herokuapp.com/';
+
+module.exports = { ADMIN_EMAIL,  PRE_REGISTER_URL, CHANGE_PASSWORD_URL, HIROSOPHY_URL, FURUOKADRUG_URL};

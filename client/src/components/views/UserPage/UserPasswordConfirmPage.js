@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { passwordConfirm } from "../../../_actions/user_actions";
@@ -8,7 +8,7 @@ import { Select, Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER } from '../../Config';
 import axios from 'axios';
-import swal from 'sweetalert'
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -37,17 +37,22 @@ const tailFormItemLayout = {
 };
 
 function UserPasswordConfirmPage(props) {
-
   const [UserId, setUserId] = useState({});
   const dispatch = useDispatch();
   const history = useHistory();
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
-		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
-    // query string 취득
-    setUserId(props.match.params.userId);
+    if (!props.match.params.userId) {
+      alert("Please contact the manager");
+      history.push("/");
+    } else {
+      // 다국어 설정
+      i18n.changeLanguage(isLanguage);
+      // query string 취득
+      setUserId(props.match.params.userId);
+    }
   }, [])
 
   // Landing pageへ戻る
@@ -108,44 +113,21 @@ function UserPasswordConfirmPage(props) {
               mailResult.then((res) => {
                 console.log(res);
                 if (res) {
-                  swal({
-                    title: "Password change successful",
-                    text: "You have successfully changed your password.",
-                    icon: "success",
-                    button: "OK",
-                  }).then((value) => {
-                    history.push("/login");
-                  });
+                  alert("Password change successful\nYou have successfully changed your password");
+                  history.push("/login");
                 } else {
-                  swal({
-                    title: "Failed to send mail",
-                    text: "Please inquire at the Contact Us.",
-                    icon: "error",
-                    button: "OK",
-                  }).then((value) => {
-                    history.push("/login");
-                  });
+                  alert("Please contact the administrator");
+                  history.push("/login");
                 }
               });
             } else {
-              swal({
-                title: "Failed to change password",
-                text: "Please try again later.",
-                icon: "error",
-                button: "OK",
-              }).then((value) => {
-                history.push("/login");
-              });
+              alert("Please contact the administrator");
+              history.push("/login");
             }
           }).catch( function(err) {
-            swal({
-              title: "Timed out",
-              text: "Please request to change your password again.\nPlease try again later.",
-              icon: "error",
-              button: "OK",
-            }).then((value) => {
-              history.push("/login");
-            })
+            console.log("err: ", err);
+            alert("Please contact the administrator");
+            history.push("/login");
           })
 
           setSubmitting(false);

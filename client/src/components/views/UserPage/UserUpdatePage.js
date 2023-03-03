@@ -1,13 +1,14 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useContext} from "react";
 import { Formik } from 'formik';
-import * as Yup from 'yup';
 import { updateUser } from "../../../_actions/user_actions";
 import { useDispatch } from "react-redux";
 import { Select, Form, Input, Button, Checkbox } from 'antd';
-import axios from 'axios';
-import { USER_SERVER } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
+import { getUser } from '../../utils/CommonFunction';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../context/LanguageContext';
+import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
+import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -38,6 +39,9 @@ const tailFormItemLayout = {
 
 function UserUpdatePage(props) {
   const dispatch = useDispatch();
+  const {isLanguage} = useContext(LanguageContext);
+  const {t, i18n} = useTranslation();
+
   const [Id, setId] = useState("");
   const [Name, setName] = useState("");
   const [LastName, setLastName] = useState("");
@@ -55,90 +59,90 @@ function UserUpdatePage(props) {
   const [Role, setRole] = useState(0);
   const [Language, setLanguage] = useState("");
   const [Checked, setChecked] = useState(false);
-  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국적언어
-    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
-    // query string 취득
+    i18n.changeLanguage(isLanguage);
+    // query string 가져오기
     const userId = props.match.params.userId;
-     // 사용자 정보 취득
-    getUser(userId);
+    // 사용자 정보 가져오기
+    getUserInfo(userId);
   }, [])
 
   // 사용자 정보 취득
-  const getUser = async (userId) => {
+  const getUserInfo = async (userId) => {
     try {
-      const result = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}&type=single`);
+      const userInfo = await getUser(userId);
       
-      if (result.data.success) {
-        setId(result.data.user[0]._id);          
-        setName(result.data.user[0].name);
-        setLastName(result.data.user[0].lastName);
-        setBirthday(result.data.user[0].birthday);
-        setTel(result.data.user[0].tel);
-        setAddress1(result.data.user[0].address1);
-        setAddress2(result.data.user[0].address2);
-        setAddress3(result.data.user[0].address3);
-        setReceiver1(result.data.user[0].receiver1);
-        setReceiver2(result.data.user[0].receiver2);
-        setReceiver3(result.data.user[0].receiver3);
-        setTel1(result.data.user[0].tel1);
-        setTel2(result.data.user[0].tel2);
-        setTel3(result.data.user[0].tel3);
-        setRole(result.data.user[0].role);
-        setLanguage(result.data.user[0].language);
-        if (result.data.user[0].deletedAt) {
-          setChecked(true)
+      if (userInfo) {
+        setId(userInfo._id);          
+        setName(userInfo.name);
+        setLastName(userInfo.lastName);
+        setBirthday(userInfo.birthday);
+        setTel(userInfo.tel);
+        setAddress1(userInfo.address1);
+        setAddress2(userInfo.address2);
+        setAddress3(userInfo.address3);
+        setReceiver1(userInfo.receiver1);
+        setReceiver2(userInfo.receiver2);
+        setReceiver3(userInfo.receiver3);
+        setTel1(userInfo.tel1);
+        setTel2(userInfo.tel2);
+        setTel3(userInfo.tel3);
+        setRole(userInfo.role);
+        setLanguage(userInfo.language);
+        if (userInfo.deletedAt) {
+          setChecked(true);
         } else {
-          setChecked(false)
+          setChecked(false);
         }
       } else {
-        alert("Failed to get user information.")
+        alert("Please contact the administrator");
       }      
     } catch (err) {
-      console.log("UserUpdatePage err: ",err);
+      console.log("err: ",err);
+      alert("Please contact the administrator");
     }
   }
   // 핸들러
   const nameHandler = (event) => {
-    setName(event.currentTarget.value);
+    setName(event.target.value);
   }
   const lastNameHandler = (event) => {
-    setLastName(event.currentTarget.value);
+    setLastName(event.target.value);
   }
   const birthdayHandler = (event) => {
-    setBirthday(event.currentTarget.value);
+    setBirthday(event.target.value);
   }
   const telHandler = (event) => {
-    setTel(event.currentTarget.value);
+    setTel(event.target.value);
   }  
   const address1Handler = (event) => {
-    setAddress1(event.currentTarget.value);
+    setAddress1(event.target.value);
   }
   const address2Handler = (event) => {
-    setAddress2(event.currentTarget.value);
+    setAddress2(event.target.value);
   }
   const address3Handler = (event) => {
-    setAddress3(event.currentTarget.value);
+    setAddress3(event.target.value);
   }
   const receiver1Handler = (event) => {
-    setReceiver1(event.currentTarget.value);
+    setReceiver1(event.target.value);
   }
   const receiver2Handler = (event) => {
-    setReceiver2(event.currentTarget.value);
+    setReceiver2(event.target.value);
   }
   const receiver3Handler = (event) => {
-    setReceiver3(event.currentTarget.value);
+    setReceiver3(event.target.value);
   }
   const tel1Handler = (event) => {
-    setTel1(event.currentTarget.value);
+    setTel1(event.target.value);
   }
   const tel2Handler = (event) => {
-    setTel2(event.currentTarget.value);
+    setTel2(event.target.value);
   }
   const tel3Handler = (event) => {
-    setTel3(event.currentTarget.value);
+    setTel3(event.target.value);
   }
   const roleHandler = (value) => {
     setRole(value);
@@ -157,94 +161,93 @@ function UserUpdatePage(props) {
   }
   
   const submitHandler = (e) => {
-    setTimeout(() => {
+    e.preventDefault();
 
-      if (!LastName) {
-        alert("Last name is required");
-        return false;
-      }
-      if (!Name) {
-        alert("Name is required");
-        return false;
-      }
-      if (!Birthday) {
-        alert("Date of birth is required");
-        return false;
-      }
-      if (!Tel) {
-        alert("Telephone number is required");
-        return false;
-      }
-
-      if (!Address1) {
-        alert("Address is required");
-        return false;
-      }
-      if (!Receiver1) {
-        alert("Receiver is required");
-        return false;
-      }
-      if (!Tel1) {
-        alert("Telephone is required");
-        return false;
-      }
-      if (Birthday.length !== 8) {
-        alert("Must be exactly 8 characters");
-        // setSubmitting(false);
-        return false;
-      }
-      if (isNaN(Number(Birthday))) {
-        alert("Only numbers can be entered for the birthday");
-        // setSubmitting(false);
-        return false;
-      }
-      if (Number(Birthday) < 1) {
-        alert("Only positive numbers can be entered for the birthday");
-        // setSubmitting(false);
-        return false;
-      }
-
-      let dataToSubmit = {
-        id: Id,
-        name: Name,
-        lastName: LastName,
-        birthday: Birthday,
-        tel: Tel,
-        address1: Address1,
-        receiver1: Receiver1,
-        tel1: Tel1,
-        address2: Address2,
-        receiver2: Receiver2,
-        tel2: Tel2,
-        address3: Address3,
-        receiver3: Receiver3,
-        tel3: Tel3,
-        role: Role,
-        language: Language,
-        deletedAt: Checked, // 삭제인 경우 서버쪽에서 날짜를 대입
-      };
-
-      dispatch(updateUser(dataToSubmit)).then(response => {
-        if (response.payload.success) {
-          props.history.push("/user/list");
-        } else {
-          alert(response.payload.err.errmsg)
-        }
-      })
-
+    if (LastName === "") {
+      alert("Last name is required");
+      return false;
+    }
+    if (Name === "") {
+      alert("Name is required");
+      return false;
+    }
+    if (Birthday === "") {
+      alert("Date of birth is required");
+      return false;
+    }
+    if (Tel === "") {
+      alert("Telephone number is required");
+      return false;
+    }
+    if (Address1 === "") {
+      alert("Address is required");
+      return false;
+    }
+    if (Receiver1 === "") {
+      alert("Receiver is required");
+      return false;
+    }
+    if (Tel1 === "") {
+      alert("Telephone is required");
+      return false;
+    }
+    if (Birthday.length !== 8) {
+      alert("Must be exactly 8 characters");
       // setSubmitting(false);
-    }, 500);
+      return false;
+    }
+    if (Number(Birthday)) {
+      alert("Only numbers can be entered for the birthday");
+      // setSubmitting(false);
+      return false;
+    }
+    if (Number(Birthday) < 1) {
+      alert("Only positive numbers can be entered for the birthday");
+      // setSubmitting(false);
+      return false;
+    }
+
+    let dataToSubmit = {
+      id: Id,
+      name: Name,
+      lastName: LastName,
+      birthday: Birthday,
+      tel: Tel,
+      address1: Address1,
+      receiver1: Receiver1,
+      tel1: Tel1,
+      address2: Address2,
+      receiver2: Receiver2,
+      tel2: Tel2,
+      address3: Address3,
+      receiver3: Receiver3,
+      tel3: Tel3,
+      role: Role,
+      language: Language,
+      deletedAt: Checked, // 삭제인 경우 서버쪽에서 날짜를 대입
+    };
+
+    dispatch(updateUser(dataToSubmit)).then(response => {
+      if (response.payload.success) {
+        alert('User update was successful');
+        props.history.push("/user/list");
+      } else {
+        alert('Please contact the administrator');
+      }
+    })
   };
 
   return (
     <Formik
     >
       {props => {
-        const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
+        const { isSubmitting, handleBlur, handleSubmit, } = props;
         return (
           <div className="app">
-            <h1>{t('User.updateTitle')}</h1>
-            <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
+            <div style={{ textAlign: 'center' }}>
+              <h1>{t('User.updateTitle')}</h1>
+            </div>
+            <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 성명 */}
               <Form.Item required label={t('User.name')} style={{ marginBottom: 0, }} >
                 {/* 성 */}
@@ -320,13 +323,13 @@ function UserUpdatePage(props) {
               {/* 언어 */}
               <Form.Item required label={t('User.language')}>
                 <Select value={Language} style={{ width: 120 }} onChange={languageHandler}>
-                  <Option value="jp">日本語</Option>
-                  <Option value="en">English</Option>
-                  <Option value="cn">中文（簡体）</Option>
+                  <Option value="jp">{JAPANESE}</Option>
+                  <Option value="en">{ENGLISH}</Option>
+                  <Option value="cn">{CHINESE}</Option>
                 </Select>
               </Form.Item>
               {/* 삭제일 */}
-              <Form.Item label={t('User.deletedAt')}>
+              <Form.Item label={t('User.deletedAt')} >
                 <Checkbox checked={Checked} onChange={deletedHandler}>※Please check if you want to delete</Checkbox>
               </Form.Item>
 
@@ -338,6 +341,8 @@ function UserUpdatePage(props) {
                   Submit
                 </Button>
               </Form.Item>
+              <br />
+
             </Form>
           </div>
         );
@@ -346,4 +351,4 @@ function UserUpdatePage(props) {
   );
 };
 
-export default UserUpdatePage
+export default UserUpdatePage;

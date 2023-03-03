@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { preregisterUser } from "../../../_actions/user_actions";
@@ -8,7 +8,7 @@ import { Select, Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER, USER_SERVER } from '../../Config';
 import axios from 'axios';
-import swal from 'sweetalert'
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -38,11 +38,12 @@ const tailFormItemLayout = {
 
 function UserPasswordChangePage(props) {
   const history = useHistory();
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
   }, [])
 
   // Landing pageへ戻る
@@ -64,6 +65,7 @@ function UserPasswordChangePage(props) {
 				return false;
 			}
 		} catch (err) {
+      console.log("getUser err: ", err);
 			return false;
 		}
   }
@@ -80,7 +82,7 @@ function UserPasswordChangePage(props) {
       }
       return true;
     } catch(err) {
-      console.log("UserPasswordChangePage err: ", err);
+      console.log("sendEmail err: ", err);
       return false;
     }
   }
@@ -112,44 +114,21 @@ function UserPasswordChangePage(props) {
                 mailResult.then((res) => {
                   console.log(res);
                   if (res) {
-                    swal({
-                      title: "Send mail successfully.",
-                      text: "Please continue to change your password.",
-                      icon: "success",
-                      button: "OK",
-                    }).then((value) => {
-                      history.push("/login");
-                    });
+                    alert("Send mail successfully\nPlease continue to change your password");
+                    history.push("/login");
                   } else {
-                    swal({
-                      title: "Failed to send mail",
-                      text: "Please check your email address and contact us.",
-                      icon: "error",
-                      button: "OK",
-                    }).then((value) => {
-                      history.push("/login");
-                    });
+                    alert("Please contact the administrator");
+                    history.push("/login");
                   }
                 });
               } else {
-                swal({
-                  title: "Failed to send mail",
-                  text: "Please check your email address and contact us.",
-                  icon: "error",
-                  button: "OK",
-                }).then((value) => {
-                  history.push("/");
-                });
-              }
-            }).catch( function(err) {
-              swal({
-                title: "Failed to change password",
-                text: "Please check your email address and contact us.",
-                icon: "error",
-                button: "OK",
-              }).then((value) => {
+                alert("Please contact the administrator");
                 history.push("/login");
-              })
+              }
+            }).catch(function(err) {
+              console.log("err: ", err);
+              alert("Please contact the administrator");
+              history.push("/login");
             });
           } catch (err) {
             console.log("UserListPage err: ",err);

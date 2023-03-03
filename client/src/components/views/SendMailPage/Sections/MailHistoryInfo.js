@@ -1,15 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Button, Descriptions } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../../context/LanguageContext';
 
 function MailHistoryInfo(props) {
   const history = useHistory();
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
   }, [])
 
   // 메일 이력리스트 화면에 이동

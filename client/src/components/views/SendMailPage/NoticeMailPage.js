@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Alert } from 'antd';
+import React, { useState, useEffect, useContext } from 'react';
+import { Form, Input, Button } from 'antd';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
-import swal from 'sweetalert'
+import { LanguageContext } from '../../context/LanguageContext.js';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -48,11 +48,12 @@ const NoticeMailPage = (props) => {
   const [ToEmail, setToEmail] = useState(to_email);
   const [Message, setMessage] = useState("");
   const history = useHistory();
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
   
   useEffect(() => {
     // 다국어 설정
-    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(isLanguage);
   }, [])
 
   const body = {
@@ -69,37 +70,16 @@ const NoticeMailPage = (props) => {
 
     try {
       const result = await axios.post(`${MAIL_SERVER}/notice`, body);
-      console.log("result.data: ", result.data);
       if (result.data.success) {
-        swal({
-          title: "Success",
-          text: "The mail has been sent",
-          icon: "success",
-          button: "OK",
-        }).then((value) => {
-          history.push("/");
-        });
+        history.push("/");
       } else {
-        console.log("NoticeMailPage err");
-        swal({
-          title: "Failed",
-          text: "Please try again after a while",
-          icon: "error",
-          button: "OK",
-        }).then((value) => {
-          history.push("/");
-        });
+        alert("Please contact the administrator");
+        history.push("/");
       }
     } catch(err) {
-      console.log("NoticeMailPage err: ", err);
-      swal({
-        title: "Failed",
-        text: "Please try again after a while",
-        icon: "error",
-        button: "OK",
-      }).then((value) => {
-        history.push("/");
-      });
+      console.log("sendEmail err: ", err);
+      alert("Please contact the administrator");
+      history.push("/");
     }
   }
 

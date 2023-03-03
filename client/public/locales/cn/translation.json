@@ -27,9 +27,6 @@
     "password": "密码",
     "confirm": "确认"
   },
-  "Landing": {
-    "title": "商品信息一览"
-  },
   "Product": {
     "productName": "商品名称",
     "listTitle": "商品信息列表",
@@ -56,7 +53,7 @@
     "imageMessage": "现有图片将被删除，请添加新图片",
     "category": "类别",
     "action": "行动",
-    "productExposure": "产品曝光"
+    "exposure": "接触"
   },
   "Customer": {
     "listTitle": "客户信息列表",
@@ -134,8 +131,9 @@
     "errorAlert": "发生意外错误，请联系系统管理员"
   },
   "User": {
+    "regTitle": "用户信息登记",
     "listTitle": "用户信息列表",
-    "updateTitle": "用户信息登记",
+    "updateTitle": "用户信息更新",
     "detailTitle": "用户信息详情",
     "name": "姓名",
     "birth": "出生日期",
@@ -277,5 +275,42 @@
     "name": "姓名",
     "lastName": "姓",
     "totalPoints": "总积分"
+  },
+  "Banner": {
+    "listTitle": "广告一览",
+    "regTitle": "广告登记",
+    "updateTitle": "广告更新",
+    "image": "图片",
+    "exposure": "暴露",
+    "createdDate": "创建日期",
+    "updateDate": "更新日期",
+    "action": "Action"
+  },
+  "Images": {
+    "listTitle": "图片一览",
+    "regTitle": "图片登记",
+    "updateTitle": "图片更新",
+    "image": "图像",
+    "visible": "可见的",
+    "description": "说明",
+    "createdDate": "创建日期",
+    "updateDate": "更新日期",
+    "action": "Action",
+    "screenVisible": "屏幕可见",
+    "language": "语言属性",
+    "types": "图像属性"
+  },
+  "Landing": {
+    "recommendTitle": "推荐清单",
+    "saleTitle": "销售清单",
+    "itemTitle": "物品清单",
+    "pharmaceuticalsTitle": "医药品",
+    "pharmaceuticalsDesc": "Description",
+    "cosmeticsTitle": "化妆品",
+    "cosmeticsDesc": "Description",
+    "dailyNecessariesTitle": "生活用品",
+    "dailyNecessariesDesc": "Description",
+    "foodTitle": "食物",
+    "foodDesc": "Description"
   }
 }

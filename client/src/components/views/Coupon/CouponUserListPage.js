@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Table, Button } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { USER_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function CouponUserListPage() {
 	const [Users, setUsers] = useState([]);
 	const {t, i18n} = useTranslation();
+	const { isLanguage, setIsLanguage } = useContext(LanguageContext);
 
 	useEffect(() => {
-		// 다국어 설정
-    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(isLanguage);
 		// 사용자정보 취득	
 		let body = {skip: 0, limit: 8}
 		getUsers(body);
@@ -54,7 +55,7 @@ function CouponUserListPage() {
 		try {
 			const result = await axios.post(`${USER_SERVER}/coupon/list`, body);
 
-			if (result.data.success)  {
+			if (result.data.success) {
 				for (let i=0; i<result.data.userInfo.length; i++) {
 					count++;
 
@@ -82,7 +83,6 @@ function CouponUserListPage() {
 		let body = {
 			searchTerm: newSearchTerm
 		}
-
 		getUsers(body);
 	}
 
@@ -110,4 +110,4 @@ function CouponUserListPage() {
 	)
 }
 
-export default CouponUserListPage
+export default CouponUserListPage;

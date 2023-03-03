@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Formik } from 'formik';
 import { useHistory } from 'react-router-dom';
 import { DatePicker, Select, Form, Input, Button, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { MainCategory, SaleType } from '../../utils/Const';
+import { MAIN_CATEGORY, SaleType } from '../../utils/Const';
 import { dateFormatYMD } from '../../utils/CommonFunction'
 import { MAIL_SERVER, SALE_SERVER, PRODUCT_SERVER } from '../../Config.js'
 import schedule from 'node-schedule'
 import axios from 'axios';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -16,7 +17,7 @@ const { RangePicker } = DatePicker;
 const { TextArea } = Input;
 const dateFormat = 'YYYY-MM-DD';
 
-const items = MainCategory;
+const items = MAIN_CATEGORY;
 const types = SaleType;
 
 const formItemLayout = {
@@ -62,11 +63,12 @@ function SaleRegisterPage() {
   const [ShowMailComment, setShowMailComment] = useState(false);
   const [ShowExcept, setShowExcept] = useState(false);
   const history = useHistory();
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
   }, [])
 
   // Landing pageへ戻る
@@ -318,7 +320,7 @@ function SaleRegisterPage() {
             }
           }
           // 카테고리가 ALL인데 상품이 지정되어 있는경우
-          if (Item === MainCategory[0].key) {
+          if (Item === MAIN_CATEGORY[0].key) {
             if (ProductId !== "") {
               alert("If the category is ALL, you cannot designate a product");
               setSubmitting(false);
@@ -326,7 +328,7 @@ function SaleRegisterPage() {
             }
           }
           // 카테고리의 상품인지 확인
-          if (Item !== MainCategory[0].key) {
+          if (Item !== MAIN_CATEGORY[0].key) {
             if (ProductId !== "") {
               getProduct(ProductId);
                 
@@ -473,17 +475,13 @@ function SaleRegisterPage() {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
           <div className="app">
-            <br />
-            <br />
-            <br />
-            <br />
-
-            <h1>{t('Sale.regTitle')}</h1><br />
-            <Form style={{ height: '100%', margin: '1em' }} {...formItemLayout} onSubmit={handleSubmit} >
+            <div style={{textAlign: 'center'}}>
+              <h1>{t('Sale.regTitle')}</h1>
+            </div>
+            <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 세일코드 */}
               <Form.Item required label={t('Sale.code')} >
-                <Input id="code" placeholder="Sale code" type="text" value={SaleCode} onChange={saleCodeHandler} 
-                  onBlur={handleBlur} />
+                <Input id="code" placeholder="Sale code" type="text" value={SaleCode} onChange={saleCodeHandler} onBlur={handleBlur} />
               </Form.Item>
               {/* 세일종류 */}
               <Form.Item required label={t('Sale.type')} >
@@ -496,8 +494,7 @@ function SaleRegisterPage() {
               {/* 세일할인율 또는 금액 */}
               {!ShowExcept &&
                 <Form.Item required label={t('Sale.amount')} >
-                  <Input id="amount" placeholder="Sale amount" type="text" value={Amount} onChange={amountHandler} 
-                    onBlur={handleBlur} />
+                  <Input id="amount" placeholder="Sale amount" type="text" value={Amount} onChange={amountHandler} onBlur={handleBlur} />
                 </Form.Item>
               }
               {/* 세일할인 최소금액 */}
@@ -509,12 +506,7 @@ function SaleRegisterPage() {
               }
               {/* 세일 유효기간 */}
               <Form.Item required label={t('Sale.validTo')}>
-                <RangePicker 
-                  id="validTo" 
-                  format={dateFormat}
-                  onChange={dateHandler}
-                  onOk={onOk}
-                />
+                <RangePicker id="validTo" format={dateFormat} onChange={dateHandler} onOk={onOk} />
               </Form.Item>
               {/* 세일 카테고리 */}
               <Form.Item required label={t('Sale.item')} >
@@ -573,6 +565,7 @@ function SaleRegisterPage() {
                 </Button>
               </Form.Item>
               <br />
+
             </Form>
           </div>
         );
@@ -581,4 +574,4 @@ function SaleRegisterPage() {
   );
 };
 
-export default SaleRegisterPage
+export default SaleRegisterPage;

@@ -4,9 +4,9 @@ const { auth } = require("../middleware/auth");
 const nodemailer = require("nodemailer");
 const AWS = require('aws-sdk');
 const { Mail } = require("../models/Mail");
-const { ADMIN_EMAIL, PRE_REGISTER_URL, CHANGE_PASSWORD_URL } = require('../config/url');
-const { MainCategory, CouponType, SaleType, UseWithSale } = require('../config/const');
-const sesConfig = require("../config/sesConfig");
+const { ADMIN_EMAIL, PRE_REGISTER_URL, CHANGE_PASSWORD_URL, HIROSOPHY_URL, FURUOKADRUG_URL } = require('../config/url');
+const { MAIN_CATEGORY, CouponType, SaleType, UseWithSale } = require('../config/const');
+const { SES_CONFIG } = require("../config/aws");
 const { User } = require('../models/User');
 const { Product } = require('../models/Product');
 
@@ -15,8 +15,8 @@ const { Product } = require('../models/Product');
 //=================================]
 
 // AWS SES 접근 보안키
-process.env.AWS_ACCESS_KEY_ID = sesConfig.accessKeyId;
-process.env.AWS_SECRET_ACCESS_KEY = sesConfig.secretAccessKey;
+process.env.AWS_ACCESS_KEY_ID = SES_CONFIG.access;
+process.env.AWS_SECRET_ACCESS_KEY = SES_CONFIG.secret;
 const ses = new AWS.SES({
     apiVersion: "2010-12-01",
     region: "ap-northeast-1", 
@@ -150,8 +150,8 @@ router.post("/inquiry", async (req, res) => {
     userMessage += "〒108-0014\n";
     userMessage += "東京都港区芝4-6-4 ヒロソフィー三田ビル\n";
     userMessage += "TEL: 0120-074-833\n";
-    userMessage += "Mail: " + ADMIN_EMAIL;
-    userMessage += "\nURL: http://www.hirosophy.co.jp";
+    userMessage += "Mail: " + ADMIN_EMAIL + "\n";
+    userMessage += `URL: ${HIROSOPHY_URL}`;
 
     try {
         // 관리자 메일 전송
@@ -238,8 +238,8 @@ router.post("/reserve", async (req, res) => {
     userMessage += "〒108-0014\n";
     userMessage += "東京都港区芝4-6-4 ヒロソフィー三田ビル\n";
     userMessage += "TEL: 0120-074-833\n";
-    userMessage += "Mail: " + ADMIN_EMAIL;
-    userMessage += "\nURL: http://www.hirosophy.co.jp";
+    userMessage += "Mail: " + ADMIN_EMAIL + "\n";
+    userMessage += `URL: ${HIROSOPHY_URL}`;
     
     try {
         // 관리자 메일전송
@@ -443,7 +443,7 @@ router.post("/register", async (req, res) => {
     userMessage += "本日より、FURUOKADRUGシステムのサービスがご利用いただけます。\n";
     userMessage += "引き続きFURUOKADRUGをよろしくお願いいたします。\n\n";
     userMessage += "ご不明な点、お問い合わせは下記ユーザーサポートページをご確認くださいませ。\n"
-    userMessage += "URL: https://furuokadrug.herokuapp.com/ \n"
+    userMessage += `URL: ${FURUOKADRUG_URL}`
 
     try {
         // 사용자 메일전송
@@ -501,7 +501,7 @@ router.post("/coupon", async (req, res) => {
         if (tmpKey === "1") japaneseMessage += "(point)\n";
         if (tmpKey === "2") japaneseMessage += "(JPY)\n";
         // 카테고리
-        MainCategory.map(item => {
+        MAIN_CATEGORY.map(item => {
             if (item.key === Number(req.body.item)) {
                 japaneseMessage += " ・カテゴリ: " + item.value + "\n";
             }
@@ -592,7 +592,7 @@ router.post("/coupon", async (req, res) => {
                 if (tmpKey === "1") englishMessage += "(point)\n";
                 if (tmpKey === "2") englishMessage += "(JPY)\n";
                 // 카테고리
-                MainCategory.map(item => {
+                MAIN_CATEGORY.map(item => {
                     if (item.key === Number(req.body.item)) {
                         englishMessage += " ・Category: " + item.value + "\n";
                     }
@@ -652,7 +652,7 @@ router.post("/coupon", async (req, res) => {
                 if (tmpKey === "1") chineseMessage += "(point)\n";
                 if (tmpKey === "2") chineseMessage += "(JPY)\n";
                 // 카테고리
-                MainCategory.map(item => {
+                MAIN_CATEGORY.map(item => {
                     if (item.key === Number(req.body.item)) {
                         chineseMessage += " ・可用类别: " + item.value + "\n";
                     }
@@ -730,7 +730,7 @@ router.post("/coupon", async (req, res) => {
                     if (tmpKey === "1") englishMessage += "(point)\n";
                     if (tmpKey === "2") englishMessage += "(JPY)\n";
                     // 카테고리
-                    MainCategory.map(item => {
+                    MAIN_CATEGORY.map(item => {
                         if (item.key === Number(req.body.item)) {
                             englishMessage += " ・Category: " + item.value + "\n";
                         }
@@ -790,7 +790,7 @@ router.post("/coupon", async (req, res) => {
                     if (tmpKey === "1") chineseMessage += "(point)\n";
                     if (tmpKey === "2") chineseMessage += "(JPY)\n";
                     // 카테고리
-                    MainCategory.map(item => {
+                    MAIN_CATEGORY.map(item => {
                         if (item.key === Number(req.body.item)) {
                             chineseMessage += " ・可用类别: " + item.value + "\n";
                         }
@@ -858,7 +858,7 @@ router.post("/coupon/birth", async (req, res) => {
         if (tmpKey === "1") japaneseMessage += "(point)\n";
         if (tmpKey === "2") japaneseMessage += "(JPY)\n";
         // 카테고리
-        MainCategory.map(item => {
+        MAIN_CATEGORY.map(item => {
             if (item.key === Number(req.body.item)) {
                 japaneseMessage += " ・カテゴリ: " + item.value + "\n";
             }
@@ -949,7 +949,7 @@ router.post("/coupon/birth", async (req, res) => {
                 if (tmpKey === "1") englishMessage += "(point)\n";
                 if (tmpKey === "2") englishMessage += "(JPY)\n";
                 // 카테고리
-                MainCategory.map(item => {
+                MAIN_CATEGORY.map(item => {
                     if (item.key === Number(req.body.item)) {
                         englishMessage += " ・Category: " + item.value + "\n";
                     }
@@ -1009,7 +1009,7 @@ router.post("/coupon/birth", async (req, res) => {
                 if (tmpKey === "1") chineseMessage += "(point)\n";
                 if (tmpKey === "2") chineseMessage += "(JPY)\n";
                 // 카테고리
-                MainCategory.map(item => {
+                MAIN_CATEGORY.map(item => {
                     if (item.key === Number(req.body.item)) {
                         chineseMessage += " ・可用类别: " + item.value + "\n";
                     }
@@ -1087,7 +1087,7 @@ router.post("/coupon/birth", async (req, res) => {
                     if (tmpKey === "1") englishMessage += "(point)\n";
                     if (tmpKey === "2") englishMessage += "(JPY)\n";
                     // 카테고리
-                    MainCategory.map(item => {
+                    MAIN_CATEGORY.map(item => {
                         if (item.key === Number(req.body.item)) {
                             englishMessage += " ・Category: " + item.value + "\n";
                         }
@@ -1147,7 +1147,7 @@ router.post("/coupon/birth", async (req, res) => {
                     if (tmpKey === "1") chineseMessage += "(point)\n";
                     if (tmpKey === "2") chineseMessage += "(JPY)\n";
                     // 카테고리
-                    MainCategory.map(item => {
+                    MAIN_CATEGORY.map(item => {
                         if (item.key === Number(req.body.item)) {
                             chineseMessage += " ・可用类别: " + item.value + "\n";
                         }
@@ -1215,7 +1215,7 @@ router.post("/coupon/admin", async (req, res) => {
         if (tmpKey === "1") japaneseMessage += "(point)\n";
         if (tmpKey === "2") japaneseMessage += "(JPY)\n";
         // 카테고리
-        MainCategory.map(item => {
+        MAIN_CATEGORY.map(item => {
             if (item.key === Number(req.body.item)) {
                 japaneseMessage += " ・カテゴリ: " + item.value + "\n";
             }
@@ -1294,7 +1294,7 @@ router.post("/coupon/birth/admin", async (req, res) => {
         if (tmpKey === "1") japaneseMessage += "(point)\n";
         if (tmpKey === "2") japaneseMessage += "(JPY)\n";
         // 카테고리
-        MainCategory.map(item => {
+        MAIN_CATEGORY.map(item => {
             if (item.key === Number(req.body.item)) {
                 japaneseMessage += " ・カテゴリ: " + item.value + "\n";
             }
@@ -1354,7 +1354,7 @@ router.post("/sale", async (req, res) => {
         if (tmpKey === "1") japaneseMessage += "(point)\n";
         if (tmpKey === "2") japaneseMessage += "(JPY)\n";
         // 카테고리
-        MainCategory.map(item => {
+        MAIN_CATEGORY.map(item => {
             if (item.key === Number(req.body.item)) {
                 japaneseMessage += " ・カテゴリ: " + item.value + "\n";
             }
@@ -1439,7 +1439,7 @@ router.post("/sale", async (req, res) => {
                 if (tmpKey === "1") englishMessage += "(point)\n";
                 if (tmpKey === "2") englishMessage += "(JPY)\n";
                 // 카테고리
-                MainCategory.map(item => {
+                MAIN_CATEGORY.map(item => {
                     if (item.key === Number(req.body.item)) {
                         englishMessage += " ・Category: " + item.value + "\n";
                     }
@@ -1494,7 +1494,7 @@ router.post("/sale", async (req, res) => {
                 if (tmpKey === "1") chineseMessage += "(point)\n";
                 if (tmpKey === "2") chineseMessage += "(JPY)\n";
                 // 카테고리
-                MainCategory.map(item => {
+                MAIN_CATEGORY.map(item => {
                     if (item.key === Number(req.body.item)) {
                         chineseMessage += " ・可用类别: " + item.value + "\n";
                     }
@@ -1547,7 +1547,7 @@ router.post("/saleExcept", async (req, res) => {
             }
         })
         // 카테고리
-        MainCategory.map(item => {
+        MAIN_CATEGORY.map(item => {
             if (item.key === Number(req.body.item)) {
                 adminMessage += " ・カテゴリ: " + item.value + "\n";
             }
@@ -1603,7 +1603,7 @@ router.post("/sale/admin", async (req, res) => {
             if (tmpKey === "2") japaneseMessage += "(JPY)\n";
         }
         // 카테고리
-        MainCategory.map(item => {
+        MAIN_CATEGORY.map(item => {
             if (item.key === Number(req.body.item)) {
                 japaneseMessage += " ・カテゴリ: " + item.value + "\n";
             }

@@ -1,20 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState, useContext } from 'react';
 import MailHistoryInfo from './Sections/MailHistoryInfo'
 import { Row, Col } from 'antd';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../context/LanguageContext';
+import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function MailHistoryDetailPage(props) {
   const [MailHistory, setMailHistory] = useState({});
   const mailId = props.match.params.mailId;
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
     // 메일정보 취득
     getMailHistory();
   }, [])

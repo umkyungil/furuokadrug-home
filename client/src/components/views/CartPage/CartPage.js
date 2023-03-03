@@ -5,11 +5,10 @@ import { useHistory } from 'react-router-dom';
 import UserCardBlock from './Sections/UserCardBlock';
 import Paypal from '../../utils/Paypal'
 import axios from 'axios';
-import swal from 'sweetalert'
 import { Empty, Button, Result, Icon, Input } from 'antd';
 import { getCartItems, removeCartItem, onSuccessBuy, onSuccessBuyTmp } from '../../../_actions/user_actions';
 import { ORDER_SERVER, COUPON_SERVER, POINT_SERVER, SALE_SERVER, SID } from '../../Config.js';
-import { NotSet, Unidentified, Deposited, ECSystem, MainCategory, UseWithSale, CouponType, SaleType } from '../../utils/Const';
+import { NotSet, Unidentified, Deposited, ECSystem, MAIN_CATEGORY, UseWithSale, CouponType, SaleType } from '../../utils/Const';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -65,7 +64,7 @@ function CartPage(props) {
       if (props.user.userData.cart.length > 0) {
         // 불특정 사용자인지 확인
         if (props.user.userData.role === 3) {
-          setShowPoint(false);
+          setShowPoint(false); // 사용하고 있지않음(포인트입력 항목을 보여주지 않을 예정이었으나 사용하지 않고 있음)
         }
 
         // 사용자의 사용가능 포인트 재 계산
@@ -121,6 +120,7 @@ function CartPage(props) {
     let saleInfos = [];
     try {
       const result = await axios.get(`${SALE_SERVER}/listOfAvailable`);
+
       if (result.data.success) {
         for (let i=0; i<result.data.saleInfos.length; i++) {
           saleInfos.push(result.data.saleInfos[i]);
@@ -135,18 +135,18 @@ function CartPage(props) {
 
   // 카테고리 또는 상품이 지정된 경우 세일금액을 계산한다.
   const calcBySaleItem = async (saleInfos, cartDetail) => {
-    // 상품아이디의 세일정보를 저장(카테고리 ALL인 경우는 상품을 지정할수 없다)
+    // 특정상품의 세일정보를 저장(화면에서 카테고리 ALL인 경우는 상품을 지정할수 없다)
     let saleProduct = [];
     for (let i=0; i<saleInfos.length; i++) {
-      // 카테고리와 관계없이 상품아이디 세일정보가 있는경우
+      // 카테고리와 관계없이 특정상품 세일정보가 있는경우
       if (!saleInfos[i].except && saleInfos[i].productId !== "") {
         saleProduct.push(saleInfos[i]);
       }
     }
-    // 카테고리가 ALL이 아닌 세일정보를 저장
+    // 카테고리가 ALL이 아닌 카테고리 세일정보를 저장
     let saleCategory = [];
     for (let i=0; i<saleInfos.length; i++) {
-      // 카테고리 세일정보가 ALL이 아니고 상품아이디가 지정되지 않은경우 
+      // 카테고리 세일정보가 ALL이 아니고 특정상품이 지정되지 않은경우 
       if (!saleInfos[i].except && saleInfos[i].item !== 0 && saleInfos[i].productId === "") {
         saleCategory.push(saleInfos[i]);
       } 
@@ -154,7 +154,7 @@ function CartPage(props) {
     // 카테고리가 ALL인 세일정보를 저장
     let allCategory = [];
     for (let i=0; i<saleInfos.length; i++) {
-      // 카테고리 세일정보가 ALL이고 상품아이디가 지정되지 않은경우 
+      // 카테고리 세일정보가 ALL이고 특정상품이 지정되지 않은경우 
       if (!saleInfos[i].except && saleInfos[i].item === 0 && saleInfos[i].productId === "") {
         allCategory.push(saleInfos[i]);
       } 
@@ -167,7 +167,7 @@ function CartPage(props) {
         exceptCategory.push(saleInfos[i]);
       } 
     }
-    // 세일대상 제외인 상품아이디 세일정보를 저장
+    // 세일대상 제외인 특정상품 세일정보를 저장
     let exceptProduct = [];
     for (let i=0; i<saleInfos.length; i++) {
       // 카테고리가 세일대상 제외이고 상품아이디가 지정되지 않은경우 
@@ -202,13 +202,13 @@ function CartPage(props) {
         }
       }
     }
-    // 상품세일이 있으면 적용
+    // 특정 상품세일이 있으면 적용
     tmpCartDetail =[...cpCartDetail];
     for (let i=0; i<saleProduct.length; i++) {
       let price = 0;
       let count = 0;
       
-      // for문 이지만 상품하나의 전체 값이 계산된다
+      // 동일상품의 수량만큼 값이 계산된다
       for (let j=0; j<tmpCartDetail.length; j++) {
         // 상품세일의 대상 상품이 카트에 있다면 해당상품의 합계를 구한다
         if (saleProduct[i].productId === tmpCartDetail[j]._id) {
@@ -219,7 +219,7 @@ function CartPage(props) {
         }
       }
 
-      // 상품세일에 최소금액이 있는경우
+      // 상품세일에 최소금액이 있는경우(동일상품이 하나이상있는 경우 합계금액에 대해 최소금액을 비교한다)
       if (saleProduct[i].minAmount !== "") {
         const minProductAmount = Number(saleProduct[i].minAmount);
         // 해당 상품의 합계금액이 최소금액보다 작은경우 세일계산을 하지 않는다
@@ -499,14 +499,8 @@ function CartPage(props) {
           if (response.data.success) {
             console.log('Order information registration success');
           } else {
-            swal({
-              title: "An error occurred in registering payment information",
-              text: "Please contact the administrator.",
-              icon: "error",
-              button: "OK",
-            }).then((value) => {
-              history.push("/");
-            });
+            alert("Please contact the administrator");
+            history.push("/");
           }
         });
       }
@@ -894,7 +888,7 @@ function CartPage(props) {
     let price = 0;
 
     // 카테고리가 ALL이 아닌경우
-    if (category !== MainCategory[0].key) {
+    if (category !== MAIN_CATEGORY[0].key) {
       // 쿠폰 대상상품이 정해진 경우
       if (productId !== "") {
         // 대상상품의 금액을 가져온다
@@ -931,7 +925,7 @@ function CartPage(props) {
         return false;
       }
     // 카테고리가 All인 경우
-    } else if (category === MainCategory[0].key) {
+    } else if (category === MAIN_CATEGORY[0].key) {
       // 카트안의 전체상품의 값을 계산
       CartDetail.map(item => {
         price += parseInt(item.price,10) * item.quantity;
@@ -1195,4 +1189,4 @@ function CartPage(props) {
   )
 }
 
-export default CartPage
+export default CartPage;

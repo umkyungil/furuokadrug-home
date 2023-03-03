@@ -33,7 +33,6 @@ router.get('/users_by_id', async (req, res) => {
         }
         
         return res.status(200).send({success: true, pointInfos});
-
     } catch (err) {
         console.log(err);
         return res.status(500).json({ success: false, message: err.message });

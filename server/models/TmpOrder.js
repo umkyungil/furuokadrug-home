@@ -1,14 +1,15 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const tmpOrderSchema = mongoose.Schema({
+const TmpOrderSchema = new Schema(
+{
     type: {
         type: String,
         trim: true,
     },
-	userId: {
-		type:String,
+    userId: {
+        type:String,
         trim: true,
-	},
+    },
     name: {
         type: String,
         trim: true,
@@ -26,17 +27,17 @@ const tmpOrderSchema = mongoose.Schema({
         trim: true,
     },
     address: {
-		type: String,
+        type: String,
         trim: true,
-	},
+    },
     receiver: {
-		type: String,
+        type: String,
         trim: true,
-	},
+    },
     receiverTel: {
-		type: String,
+        type: String,
         trim: true,
-	},
+    },
     sod: {
         type: String,
         trim: true,
@@ -63,7 +64,7 @@ const tmpOrderSchema = mongoose.Schema({
     }
 }, { timestamps: true })
 
-tmpOrderSchema.index({
+TmpOrderSchema.index({
     deliveryStatus: 'text',
     sod: 'text',
     staffName: 'text'
@@ -75,5 +76,5 @@ tmpOrderSchema.index({
     }
 })
 
-const TmpOrder = mongoose.model('TmpOrder', tmpOrderSchema);
-module.exports = { TmpOrder }
+const TmpOrder = model('TmpOrder', TmpOrderSchema);
+module.exports = { TmpOrder };

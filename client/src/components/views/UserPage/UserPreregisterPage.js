@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { preregisterUser } from "../../../_actions/user_actions";
@@ -7,20 +7,23 @@ import { useHistory } from 'react-router-dom';
 import { Select, Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER } from '../../Config';
+import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
+import { LanguageContext } from '../../context/LanguageContext';
 import axios from 'axios';
-import swal from 'sweetalert'
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 const {Option} = Select;
 const formItemLayout = {
   labelCol: {
-    xs: { span: 24 },
-    sm: { span: 8 },
+    span: 6
+    // xs: { span: 24 },
+    // sm: { span: 8 },
   },
   wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 16 },
+    span: 14
+    // xs: { span: 24 },
+    // sm: { span: 16 },
   },
 };
 const tailFormItemLayout = {
@@ -31,7 +34,7 @@ const tailFormItemLayout = {
     },
     sm: {
       span: 16,
-      offset: 8,
+      offset: 6,
     },
   },
 };
@@ -40,11 +43,12 @@ function UserPreregisterPage(props) {
   const [SelectItem, setSelectItem] = useState("jp");
   const dispatch = useDispatch();
   const history = useHistory();
+  const { isLanguage } = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
   }, [])
 
   // Landing pageへ戻る
@@ -106,45 +110,21 @@ function UserPreregisterPage(props) {
               const mailResult = sendEmail(dataToSubmit);
               mailResult.then((res) => {
                 if (res) {
-                  swal({
-                    title: "Temporary user registration successful",
-                    text: "Please continue with the user registration process.",
-                    icon: "success",
-                    button: "OK",
-                  }).then((value) => {
-                    props.history.push("/login");
-                  });
+                  alert("Please continue with the user registration process");
+                  props.history.push("/login");
                 } else {
-                  swal({
-                    title: "Temporary user registration failed",
-                    text: "Please inquire at the Contact Us.",
-                    icon: "error",
-                    button: "OK",
-                  }).then((value) => {
-                    history.push("/");
-                  });
+                  alert("Please contact the administrator");
+                  history.push("/");
                 }
               });
             } else {
-              swal({
-                title: "Temporary user registration failed",
-                text: "Please inquire at the Contact Us.",
-                icon: "error",
-                button: "OK",
-              }).then((value) => {
-                history.push("/");
-              });
+              alert("Please contact the administrator");
+              history.push("/");
             }
           })
           .catch( function(err) {
-            swal({
-              title: "Temporary user registration failed",
-              text: "Please inquire at the Contact Us.",
-              icon: "error",
-              button: "OK",
-            }).then((value) => {
-              history.push("/");
-            });
+            alert("Please contact the administrator");
+            history.push("/");
           })
 
           setSubmitting(false);
@@ -155,15 +135,12 @@ function UserPreregisterPage(props) {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
           <div className="app">
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            
-            <h1>{t('SignUp.title')}</h1><br />
-            <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
+            <h1>{t('SignUp.title')}</h1>
+
+            <Form 
+              style={{ minWidth: '350px', margin:'1em' }} {...formItemLayout} onSubmit={handleSubmit} 
+              autoComplete="off"
+              >
               {/* 이름 */}
               <Form.Item required label={t('SignUp.name')} style={{ marginBottom: 0, }} >
                 {/* 이름 */}
@@ -194,9 +171,9 @@ function UserPreregisterPage(props) {
               {/* 언어 */}
               <Form.Item required label={t('SignUp.language')}>
                 <Select defaultValue="jp" style={{ width: 120 }} onChange={selectHandler}>
-                  <Option value="jp">日本語</Option>
-                  <Option value="en">English</Option>
-                  <Option value="cn">中文（簡体）</Option>
+                  <Option value="jp">{JAPANESE}</Option>
+                  <Option value="en">{ENGLISH}</Option>
+                  <Option value="cn">{CHINESE}</Option>
                 </Select>&nbsp;&nbsp;
               </Form.Item>
 

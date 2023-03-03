@@ -1,7 +1,7 @@
 import React, {useEffect, useRef} from "react";
 import { Form, Input, Button, Radio, Tooltip } from 'antd';
 import axios from 'axios';
-import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER } from '../../Config.js';
+import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER, UPC_PAYMENT } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
 import { NotSet, ECSystem, Unidentified } from '../../utils/Const';
 import { useCookies } from "react-cookie";
@@ -32,33 +32,6 @@ const tailFormItemLayout = {
 };
 
 function ConfirmAlipayPage(props) {
-  // const [UserId, setUserId] = useState("");
-  // const [Name, setName] = useState("");  
-  // const [LastName, setLastName] = useState("");
-  // const [Email, setEmail] = useState("");
-  // const [Tel, setTel] = useState("");
-  // const [Siam1, setSiam1] = useState("");
-  // const [Sod, setSod] = useState("");
-  // const [UniqueField, setUniqueField] = useState("");
-  // const [Address1, setAddress1] = useState("");
-  // const [Address2, setAddress2] = useState("");
-  // const [Address3, setAddress3] = useState("");
-  // const [ShortAddress1, setShortAddress1] = useState("");
-  // const [ShortAddress2, setShortAddress2] = useState("");
-  // const [ShortAddress3, setShortAddress3] = useState("");
-  // const [Receiver1, setReceiver1] = useState("");
-  // const [Receiver2, setReceiver2] = useState("");
-  // const [Receiver3, setReceiver3] = useState("");
-  // const [Tel1, setTel1] = useState("");
-  // const [Tel2, setTel2] = useState("");
-  // const [Tel3, setTel3] = useState("");
-  // const [ChangeAddress, setChangeAddress] = useState("");
-  // const [ChangeReceiver, setChangeReceiver] = useState("");
-  // const [ChangeTel, setChangeTel] = useState("");
-  // const [SelectedAddress, setSelectedAddress] = useState(""); // Radio 선택된 값
-  // const [StaffName, setStaffName] = useState("");
-  // const [AcquisitionPoints, setAcquisitionPoints] = useState(0);
-  // const [Role, setRole] = useState(0);
   const [Cookies, setCookie, removeCookie] = useCookies(["w_auth"]);
 
   const idRef = useRef("");
@@ -365,7 +338,8 @@ function ConfirmAlipayPage(props) {
     var popupY= (window.screen.height / 2) - (popupHeight / 2);
     const settings = 'resizable=no, status=no, height=' + popupHeight  + ', width=' + popupWidth  + ', left='+ popupX + ', top='+ popupY;
 
-    let url = "https://gw.ccps.jp/payment.aspx";
+    // let url = "https://gw.ccps.jp/payment.aspx";
+    let url = UPC_PAYMENT;
     Object.keys(alipay_variable).forEach(function(key, index) {
       url = url + (index === 0 ? "?" : "&") + key + "=" + alipay_variable[key];
     });
@@ -487,4 +461,4 @@ function ConfirmAlipayPage(props) {
   );
 };
 
-export default ConfirmAlipayPage
+export default ConfirmAlipayPage;

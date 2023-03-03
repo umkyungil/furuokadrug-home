@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { Schema, model } = require('mongoose');
 
-const pointSchema = mongoose.Schema({
+const PointSchema = new Schema(
+{
   seq: {
     type: Number,
     default: 0
@@ -55,6 +55,5 @@ const pointSchema = mongoose.Schema({
   }
 }, { timestamps: true })
 
-const Point = mongoose.model('Point', pointSchema);
-
-module.exports = { Point }
+const Point = model('Point', PointSchema);
+module.exports = { Point };

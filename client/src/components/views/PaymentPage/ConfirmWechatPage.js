@@ -1,7 +1,7 @@
 import React, {useEffect, useRef} from "react";
 import { Form, Input, Button, Radio, Tooltip } from 'antd';
 import axios from 'axios';
-import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER } from '../../Config.js';
+import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER, UPC_PAYMENT } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
 import { NotSet, ECSystem, Unidentified } from '../../utils/Const';
 import { useCookies } from "react-cookie";
@@ -339,7 +339,8 @@ function ConfirmWechatPage(props) {
     var popupY= (window.screen.height / 2) - (popupHeight / 2);
     const settings = 'resizable=no, status=no, height=' + popupHeight  + ', width=' + popupWidth  + ', left='+ popupX + ', top='+ popupY;
 
-    let url = "https://gw.ccps.jp/payment.aspx";
+    // let url = "https://gw.ccps.jp/payment.aspx";
+    let url = UPC_PAYMENT;
     Object.keys(wechat_variable).forEach(function(key, index) {
       url = url + (index === 0 ? "?" : "&") + key + "=" + wechat_variable[key];
     });

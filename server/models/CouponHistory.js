@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const couponHistorySchema = mongoose.Schema({
+const CouponHistorySchema = new Schema(
+{
   code: {
     type: String
   },
@@ -43,7 +44,7 @@ const couponHistorySchema = mongoose.Schema({
   }
 }, { timestamps: true })
 
-couponHistorySchema.index({
+CouponHistorySchema.index({
   targetUserId: 'text',
   code: 'text'
 }, {
@@ -53,5 +54,5 @@ couponHistorySchema.index({
   }
 })
 
-const CouponHistory = mongoose.model('CouponHistory', couponHistorySchema);
-module.exports = { CouponHistory }
+const CouponHistory = model('CouponHistory', CouponHistorySchema);
+module.exports = { CouponHistory };

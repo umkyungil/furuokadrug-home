@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Table } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
@@ -6,6 +6,7 @@ import { ORDER_SERVER, USER_SERVER } from '../../Config.js';
 import { Unidentified, DeliveryCompleted } from '../../utils/Const.js';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -17,11 +18,12 @@ function ListOrderPage(props) {
 	const [Mode, setMode] = useState(true); // 스텝 초기페이지 모드
 	// delivery 링크를 눌렀을때 다시 이 화면을 호출하면서 주문id를 보낸다
 	const paramOrderId = props.match.params.orderId;	
+	const {isLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 	
 	useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
 
 		// 사용자 ID 취득
 		let userId = "";
@@ -250,43 +252,27 @@ function ListOrderPage(props) {
 			history.push("/login");
 		}
 	}
-
-	// 일반사용자인 경우
-	if (UserRole === 0) {
-		return (
-			<div style={{ width:'80%', margin: '3rem auto'}}>
-				<div style={{ textAlign: 'center' }}>
-					<h1>{t('Order.listTitle')}</h1>
-				</div>
-
-				{/* Filter */}
-				{/* Search */}
-				<div style={{ display:'flex', justifyContent:'flex-end', margin:'1rem auto' }}>
-					<SearchFeature refreshFunction={updateSearchTerm} />
-				</div>
-				{/* Search */}
-
-				<Table columns={userColumns} dataSource={OrderInfo} />
-			</div>	
-		)
-	} else {
-		return (
-			<div style={{ width:'80%', margin: '3rem auto'}}>
-				<div style={{ textAlign: 'center' }}>
-					<h1>{t('Order.listTitle')}</h1>
-				</div>
-				<br />
-				{/* Filter */}
-				{/* Search */}
-				<div style={{ display:'flex', justifyContent:'flex-end', margin:'1rem auto' }}>
-					<SearchFeature refreshFunction={updateSearchTerm}/>
-				</div>
-				{/* Search */}
-
-				<Table columns={adminColumns} dataSource={OrderInfo} />
+	
+	return (
+		<div style={{ width:'80%', margin: '3rem auto'}}>
+			<div style={{ textAlign: 'center' }}>
+				<h1>{t('Order.listTitle')}</h1>
 			</div>
-		)
-	}
+
+			{/* Filter */}
+			{/* Search */}
+			<div style={{ display:'flex', justifyContent:'flex-end', margin:'1rem auto' }}>
+				<SearchFeature refreshFunction={updateSearchTerm} />
+			</div>
+			{/* 일반사용자인 경우 */}
+			{UserRole === 0 &&
+				<Table columns={userColumns} dataSource={OrderInfo} />
+			}
+			{UserRole !== 0 &&
+				<Table columns={adminColumns} dataSource={OrderInfo} />
+			}
+		</div>	
+	)
 }
 
 export default ListOrderPage

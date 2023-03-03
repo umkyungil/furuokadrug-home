@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const csvUnivaPayCastSchema = mongoose.Schema({
+const CSVUnivaPayCastSchema = new Schema(
+{
 	// 決済番号
 	paymentNumber: {
 		type:String,
@@ -189,7 +190,7 @@ const csvUnivaPayCastSchema = mongoose.Schema({
 	}
 })
 
-csvUnivaPayCastSchema.index({
+CSVUnivaPayCastSchema.index({
   nameJapanese: 'text',
 	email: 'text'
 }, {
@@ -199,5 +200,5 @@ csvUnivaPayCastSchema.index({
   }
 })
 
-const CSVUnivaPayCast = mongoose.model('CSVUnivaPayCast', csvUnivaPayCastSchema);
-module.exports = { CSVUnivaPayCast }
+const CSVUnivaPayCast = model('CSVUnivaPayCast', CSVUnivaPayCastSchema);
+module.exports = { CSVUnivaPayCast };

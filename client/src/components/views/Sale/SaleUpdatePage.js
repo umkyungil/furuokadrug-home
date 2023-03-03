@@ -1,18 +1,19 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useContext} from "react";
 import { Formik } from 'formik';
 import { useHistory } from 'react-router-dom';
 import { DatePicker, Form, Input, Button, Select, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { MainCategory, SaleType, SaleActive } from '../../utils/Const';
+import { MAIN_CATEGORY, SaleType, SaleActive } from '../../utils/Const';
 import { SALE_SERVER, MAIL_SERVER, PRODUCT_SERVER } from '../../Config.js';
 import schedule from 'node-schedule'
 import axios from 'axios';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 const { Option } = Select;
 const { TextArea } = Input;
-const items = MainCategory;
+const items = MAIN_CATEGORY;
 const types = SaleType;
 const actives = SaleActive;
 
@@ -60,11 +61,12 @@ function SaleUpdatePage(props) {
   const [EnMailComment, setEnMailComment] = useState("");
   const [Except, setExcept] = useState(false);
   const [ShowExcept, setShowExcept] = useState(false);
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
   
   useEffect(() => {
     // 다국적언어
-    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(isLanguage);
     // Query string에서 세일ID 가져오기
     const saleId = props.match.params.saleId;
      // 세일정보 가져오기

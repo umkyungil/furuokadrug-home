@@ -1,332 +1,324 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Col, Card, Row, Button } from 'antd';
-import ImageSlider from '../../utils/ImageSlider';
-import Meta from 'antd/lib/card/Meta';
-import CheckBox from './Sections/CheckBox';
-import RadioBox from './Sections/RadioBox';
-import SearchFeature from './Sections/SearchFeature';
-import { continents, price } from './Sections/Datas';
-import { PRODUCT_SERVER, SALE_SERVER } from '../../Config.js';
-import { SaleType } from '../../utils/Const';
+import React, { useState, useEffect, useContext } from "react";
+import styles from './LandingPage.module.css';
+import Slider from "react-slick";
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import { PRODUCT_SERVER, IMAGES_SERVER } from '../../Config.js';
+import { PRODUCT_VISIBLE_TYPE, IMAGES_TYPE, I18N_ENGLISH, I18N_JAPANESE, I18N_CHINESE, IMAGES_VISIBLE_ITEM, 
+  VIDEO_ENGLISH, VIDEO_JAPANESE, VIDEO_CHINESE, SALE_TAG, NOTICE_TAG  } from '../../utils/Const';
+import { Button, Tag } from 'antd';
+import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../context/LanguageContext';
+import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function LandingPage() {
-	const [Products, setProducts] = useState([]);
-	const [Skip, setSkip] = useState(0);
-	const [Limit, setLimit] = useState(4)
-	const [PostSize, setPostSize] = useState(0)
-	const [Filters, setFilters] = useState({continents: [], price: []	})
-	const [SaleInfos, setSaleInfos] = useState([]); // 세일정보
-  const [ShowSaleTotal, setShowSaleTotal] = useState(false);
-	const {t, i18n} = useTranslation();
-	
-	useEffect(() => {
-		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
-		
-		// 세일정보 가져오기
-		const mySale = getSale();
-		mySale.then(saleInfos => {
-			if (saleInfos) {
-				setSaleInfos(saleInfos);
-			} else {
-				setShowSaleTotal(false);
-			}
-		})
-		// 상품 가져오기
-		let body = { skip: Skip, limit: Limit	}
-		getProducts(body);
-	}, [])
+  const history = useHistory();
 
-	// limit, skip은 mongo의 옵션
-	const getProducts = (body) => {
-		axios.post(`${PRODUCT_SERVER}/products`, body)
-			.then(response => {
-					if (response.data.success) {
-						// 더 보기 버튼인지 확인
-						if (body.loadMore) {
-							if (localStorage.getItem('i18nextLng') === "en") {
-								response.data.productInfo.map((value, index) => {
-									value.title = value.englishTitle;
-								})
-							} else if (localStorage.getItem('i18nextLng') === "cn") {
-								response.data.productInfo.map((value, index) => {
-									value.title = value.chineseTitle;
-								})
-							}
+  const [nowOnAir, setNowOnAir] = useState([]);
+  const [recommended, setRecommended] = useState([]);
+  const [sale, setSale] = useState([]);
+  const [Banner, setBanner] = useState({});
+  const [Pharmaceutical, setPharmaceutical] = useState({});
+  const [Cosmetics, setCosmetics] = useState({});
+  const [DailyNecessaries, setDailyNecessaries] = useState({});
+  const [Food, setFood] = useState({});
+  
 
-							setProducts([...Products, ...response.data.productInfo]);
-						} else {
-							if (localStorage.getItem('i18nextLng') === "en") {
-								response.data.productInfo.map((value, index) => {
-									value.title = value.englishTitle;
-								})
-							} else if (localStorage.getItem('i18nextLng') === "cn") {
-								response.data.productInfo.map((value, index) => {
-									value.title = value.chineseTitle;
-								})
-							}
-							
-							setProducts(response.data.productInfo);
-						}
+  const {t, i18n} = useTranslation();
+  const {isLanguage} = useContext(LanguageContext);
 
-						setPostSize(response.data.postSize)
-					} else {
-							alert("Failed to get products.")
-					}
-			})
-	}
+  useEffect(() => {
+    i18n.changeLanguage(isLanguage);
+    process();
+  },[]);
 
-	// 더보기 버튼눌렀을때 상품 가져오기
-	const loadMoreHandler = () => {
-		let skip = Skip + Limit;
-		// body 작성
-		let body = {
-			skip: skip,
-			limit: Limit,
-			loadMore: true // 더 보기 버튼을 눌렀다는 flag
-		}	
-		// 상품 가져오기
-		getProducts(body);
-		// skip정보 status에 보관
-		setSkip(skip);
-	}
-
-	// 현재날짜가 포함되어 있는세일정보 가져오기
-  const getSale = async () => {
-		let saleInfos = [];
-    try {
-      const result = await axios.get(`${SALE_SERVER}/listOfAvailable`);
-      if (result.data.success) {
-        for (let i=0; i<result.data.saleInfos.length; i++) {
-          saleInfos.push(result.data.saleInfos[i]);
-        }
-
-        return saleInfos;
-      }
-    } catch (err) {
-      console.log("getSale err: ", err);
-    }
+  const process = async () => {
+    // 노출상풍을 가져오기
+    await getExposureProducts(); // type 1:now on air, type 2:recording, type 3: recommended, type 4: sale
+    // 이미지 가져오기
+    await getImages(); // visible 0:private, visible:public
   }
 
-	// 카테고리 또는 상품이 지정된 경우 세일금액을 계산한다.
-  const calcBySaleItem = (saleInfos, product) => {
-    // 상품아이디의 세일정보를 저장(카테고리 ALL인 경우는 상품을 지정할수 없다)
-    let saleProduct = [];
-    for (let i=0; i<saleInfos.length; i++) {
-      // 카테고리와 관계없이 상품아이디 세일정보가 있는경우
-      if (!saleInfos[i].except && saleInfos[i].productId !== "") {
-        saleProduct.push(saleInfos[i]);
-      }
+  
+	const truncate = (str, n) => {
+		return str?.length > n ? str.substr(0, n-1) + "..." : str;
+	}
+  
+  // 노출상풍을 가져오기
+  const getExposureProducts = async () => {
+    const body = { 
+      skip: 0, limit: 4, 
+      type: [
+        PRODUCT_VISIBLE_TYPE[1].key, PRODUCT_VISIBLE_TYPE[2].key, PRODUCT_VISIBLE_TYPE[3].key, PRODUCT_VISIBLE_TYPE[4].key
+      ]
     }
-    // 세일대상 제외인 상품아이디 세일정보를 저장
-    let exceptProduct = [];
-    for (let i=0; i<saleInfos.length; i++) {
-      // 카테고리가 세일대상 제외이고 상품아이디가 지정되지 않은경우 
-      if (saleInfos[i].except && saleInfos[i].item !== 0 && saleInfos[i].productId !== "") {
-        exceptProduct.push(saleInfos[i]);
-      } 
-    }
-
-    //=================================
-    //            세일계산
-    //=================================
-
-    // 세일대상 제외 상품인지 확인
-    for (let i=0; i<exceptProduct.length; i++) {
-      if (exceptProduct[i].productId === product._id) {
-        return 0;
-      }
-    }
-    // 상품세일 대상이면 적용
-		if (saleProduct.length > 0) {
-			for (let i=0; i<saleProduct.length; i++) {
-				let price = 0;
-				
-				// 상품세일의 대상이면 상품의 금액을 구한다
-				if (saleProduct[i].productId === product._id) {
-					price = Number(product.price);
-				}
-				// 상품세일에 최소금액이 있는경우 
-				if (saleProduct[i].minAmount !== "") {
-					const minProductAmount = Number(saleProduct[i].minAmount);
-					// 해당 상품의 금액이 최소금액보다 작은경우 세일계산을 하지 않는다
-					if (price < minProductAmount) {
-						price = 0;
-					}
-				}
-				
-				if (price > 0) {
-					// 상품세일에 의한 할인금액 또는 포인트를  구한다
-					const saleProductAmount  = calcBySaleType(price, saleProduct[i]);
-					
-					// 상품세일이 포인트 부여인 경우
-					if (saleProduct[i].type === SaleType[1].key) {
-						return 0;
-					} else {
-						return saleProductAmount;
-					}
-				}
-			}
-
-			return 0;
-		} else {
-			return 0;
-		}
-  }
-
-  // 세일 타입에 의한 할인금액을 구한다
-  const calcBySaleType = (targetProductPrice, saleInfo) => {
-    // 세일 타입("0": "Gross Percentage", "1": "Granting points", "2": "Discount amount")
-    const type = saleInfo.type;
-    const amount = Number(saleInfo.amount);
-    let discountAmount = 0;
+    const products =  await axios.post(`${PRODUCT_SERVER}/products_by_type`, body);
     
-    // 0: Gross Percentage(총 금액의 몇 퍼센트 할인)
-    if (type === SaleType[0].key) {
-      // 전체금액이 아닌 해당상품의 총 금액에서 할인율을 적용한다
-      discountAmount = parseInt((targetProductPrice * amount) / 100);
-    // 1: Granting points(포인트 부여)
-    } else if (type === SaleType[1].key) {
-      // 포인트를 돌려준다
-      discountAmount = amount;
-    // 2: Discount amount(할인금액)
-    } else if (type === SaleType[2].key) {
-      discountAmount = amount
-    }
+    if (products.data.productInfos.length > 0) {
+      let arrNowOnAir = [], arrRecommended = [], arrSale = [];
 
-    return discountAmount;
+      console.log("products.data.productInfos: ", products.data.productInfos)
+      
+      products.data.productInfos.map((product) => {
+        for (let i = 0; i < product.exposureType.length; i++) {
+          // 일반상품: 0, 방송상품: 1, 동영상 존재 상품: 2, 추천상품: 3, 세일상품: 4
+          // 1: 방송상품(now on sale)과 2: recording가 같이 등록된 상품은 없기에 같은 배열에 넣어도 상품이 중복안된다
+          if (product.exposureType[i] === PRODUCT_VISIBLE_TYPE[1].key) {
+            arrNowOnAir.push(product);
+          } else if (product.exposureType[i] === PRODUCT_VISIBLE_TYPE[2].key) {
+            arrNowOnAir.push(product);
+          } else if (product.exposureType[i] === PRODUCT_VISIBLE_TYPE[3].key) {
+            arrRecommended.push(product);
+          } else if (product.exposureType[i] === PRODUCT_VISIBLE_TYPE[4].key) {
+            arrSale.push(product);
+          }
+        }
+      });
+      setNowOnAir(arrNowOnAir);
+      setRecommended(arrRecommended);
+      setSale(arrSale);
+    }
   }
 
-	// 상품별 카드를 생성
-	const renderCards = Products.map((product, index) => {
-		// 상품가격에 콤마 추가
-		const price = Number(product.price).toLocaleString();
-		// 세일계산
-		let saleAmount = calcBySaleItem(SaleInfos, product);
-		const minusSalesAmount = Number(product.price) - saleAmount;
+  // 이미지 가져오기
+  const getImages = async () => {
+    const images = await axios.get(`${IMAGES_SERVER}/list`);
 
-		// 한 Row는 24사이즈 즉 카드 하나당 6사이즈로 하면 화면에 4개가 표시된다 
-		// lg: 화면이 가장 클때, md: 중간 
-		return <Col lg={6} md={8} xs={24} key={index} > 
-			<Card
-				// ImageSlider에 images라는 이름으로 데이터를 넘김
-				cover={<a href={`/product/${product._id}`}><ImageSlider images={product.images}/></a>} 
-			>	
-				<Meta 
-					title={product.title}
-					// 세일값이 있으면 원래 가격을 보여주고 삭제표시를 하고 세일값이 없으면 아무것도 안보여준다
-					description={<span style={{textDecoration:"line-through"}}>{saleAmount > 0 ? price:undefined}</span>}
-				/>
-				{/* 세일로 계산된 상품이 있으면 카드의 왁구를 맞추기 위해서 개행을 넣는다 */}
-				{saleAmount < 1 && 
-					<br />
-				}
-				{/* 세일로 계산된 값 또는 원래 상품값을 표시한다 */}
-				<b>{minusSalesAmount.toLocaleString()} (JPY)</b>
-			</Card>
-		</Col>
-	});
+    if (images.data.imageInfos.length > 0) {
+      images.data.imageInfos.map((item) => {
+        if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
+          if (item.type === IMAGES_TYPE[1]._id) {
+            console.log("banner: " + JSON.stringify(item));
+            setBanner(() => item);
+          } else if (item.type === IMAGES_TYPE[2]._id) {
+            setPharmaceutical(() => item);;
+          } else if (item.type === IMAGES_TYPE[3]._id) {
+            setCosmetics(() => item);;
+          } else if (item.type === IMAGES_TYPE[4]._id) {
+            setDailyNecessaries(() => item);;
+          } else if (item.type === IMAGES_TYPE[5]._id) {
+            setFood(() => item);;
+          }
+        }
+      })
+    }
+  }
+  
+  // 상품리스트 화면이동
+  const handleProductList = (type) => {
+    // type 0: 일반상품, 1: Now on air, 2: 추천상품, 3: 세일상품 
+    history.push(`/product/list/${type}`);
+  }
 
-	// 라디오 또는 체크박스 눌렀을때 상품검색해서 가져오기
-	const showFilteredResults = (filters) => {
-		let body = {
-			skip: 0,
-			limit: Limit,
-			filters: filters
-		}
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 1000,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    variableWidth: true
+  };
 
-		// 상품 가져오기
-		getProducts(body);
-		// Skip정보 보관하기(body에서 0으로 했기때문에 0으로 변경)
-		setSkip(0);
-	}
+  return (
+    <div id="container">
+      <main>
+        {/* スライドショー（slick） */}
+        <div className={styles.bg1}>
+          <section>
+            <video autoPlay loop controls style={{width:"100%", height:"28em", backgroundColor:"black"}} >
+              {isLanguage === I18N_ENGLISH && 
+                <source src={VIDEO_ENGLISH} type="video/mp4" />
+              }
+              {isLanguage === I18N_CHINESE && 
+                <source src={VIDEO_CHINESE} type="video/mp4" />
+              }
+              {(isLanguage === I18N_JAPANESE || isLanguage === "") && 
+                <source src={VIDEO_JAPANESE} type="video/mp4" />
+              }
+            </video>
 
-	// 화면에서 선택한 라디오 버튼의 값을 가져오기
-	const handlePrice = (value) => {
-		// price전체 데이터
-		const data = price;
-		let array = [];
+            <ul className={styles.scrollContent} >
+              {nowOnAir.map((nowProduct, idx) => {
+                
+                let isOnAirTag = false;
+                let isRecommendedTag = false;
+                let isSaleTag = false;
+                nowProduct.exposureType.map((item) => {
+                  // now on air 상품인지 확인
+                  if (item === PRODUCT_VISIBLE_TYPE[1].key) isOnAirTag = true;
+                  // 추천상품인지 
+                  if (item === PRODUCT_VISIBLE_TYPE[3].key) isRecommendedTag = true;
+                  // 세일상품인지
+                  if (item === PRODUCT_VISIBLE_TYPE[4].key) isSaleTag = true;
+                })
+                
+                return (
+                  <li key={idx}>
+                    <div className={styles.scrollOnAirProduct} >
+                      <img src={nowProduct.images[0]} alt={nowProduct.englishTitle} />
+                      {isOnAirTag && <p className={styles.nowOnAirTxt}>Now On Air</p>}
+                      {isLanguage === I18N_ENGLISH && 
+                        <div className={styles.onAirPicName}>{nowProduct.englishTitle}</div>
+                      }
+                      {isLanguage === I18N_CHINESE && 
+                        <div className={styles.onAirPicName}>{nowProduct.chineseTitle}</div>
+                      }
+                      {(isLanguage === I18N_JAPANESE || isLanguage === "") && 
+                        <div className={styles.onAirPicName}>{nowProduct.title}</div>
+                      }
+                      <p className={styles.onAirPicCap}>{Number(nowProduct.price).toLocaleString()} (JPY)</p>
+                      {isSaleTag &&
+                        <Tag className={styles.onAirSale} color="#f50">{SALE_TAG}</Tag>
+                        // <button className={styles.onAirSale}>sale</button>
+                      }
+                      {isRecommendedTag &&
+                        <Tag className={styles.onAirNotice} color="#2db7f5">{NOTICE_TAG}</Tag>
+                        // <button className={styles.onAirNotice}>notice</button>
+                      }
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+            {/* 배너 */}
+            { Banner &&
+              <div>
+                <img src={Banner.image} style={{ maxWidth:"100%", height:"auto" }} />
+              </div>
+            }
 
-		for (let key in data) {
-			if (data[key]._id === parseInt(value, 10)) {
-				array = data[key].array;
-			}
-		}
+            { recommended.length > 0 &&
+            <>
+              <h2>{t('Landing.recommendTitle')}</h2>
+                <Slider {...settings}>
+                  {recommended.map((recProduct, idx) => {
 
-		return array;
-	}
+                    return (
+                      <div key={idx} >
+                        <div className={styles.recomProductBox} >
+                          <img src={recProduct.images[0]} />
+                          {isLanguage === I18N_ENGLISH && 
+                            <p className={styles.proNameS}>{recProduct.englishTitle}</p>
+                          }
+                          {isLanguage === I18N_CHINESE && 
+                            <p className={styles.proNameS}>{recProduct.chineseTitle}</p>
+                          }
+                          {(isLanguage === I18N_JAPANESE || isLanguage === "") && 
+                            <p className={styles.proNameS}>{recProduct.title}</p>
+                          }
 
-	// 라디오 또는 체크박스 선택했을 때 처리
-	const handleFilters = (filters, category) => {
-		const newFilters = {...Filters };
-		newFilters[category] = filters;
+                          <p className={styles.capS}>{Number(recProduct.price).toLocaleString()} (JPY)</p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </Slider>
+              <div style={{ display:'flex', justifyContent:'center' }}>
+                <Button 
+                  type="primary" 
+                  shape="round" 
+                  style={{ marginTop:"50px", height:"40px", width:"40%", background:"#1a1e65" }}
+                  onClick={() => handleProductList(1)}>
+                    More
+                </Button>
+              </div>
+            </>
+            }
 
-		if (category === "price") {
-			let priceValues = handlePrice(filters);
-			newFilters[category] = priceValues;
-		}
+            { sale.length > 0 &&
+            <>
+              <h2>{t('Landing.saleTitle')}</h2>
+              
+                <Slider {...settings}>
+                  {sale.map((salProduct, idx) => {
 
-		showFilteredResults(newFilters);
-		setFilters(newFilters);
-	}
+                    return (
+                      <div key={idx} >
+                        <div className={styles.saleProductBox} >
+                          <img src={salProduct.images[0]} />
+                          {isLanguage === I18N_ENGLISH && 
+                            <p className={styles.saleNameS}>{salProduct.englishTitle}</p>
+                          }
+                          {isLanguage === I18N_CHINESE && 
+                            <p className={styles.saleNameS}>{salProduct.chineseTitle}</p>
+                          }
+                          {(isLanguage === I18N_JAPANESE || isLanguage === "") && 
+                            <p className={styles.saleNameS}>{salProduct.title}</p>
+                          }
 
-	// 키워드 검색시 상품 가져오기
-	const updateSearchTerm = (newSearchTerm) => {		
-		let body = {
-			skip:0,
-			limit:Limit,
-			filters:Filters,
-			searchTerm: newSearchTerm
-		}
+                          <p className={styles.salecapS}>{Number(salProduct.price).toLocaleString()} (JPY)</p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </Slider>
+              
+              <div style={{ display:'flex', justifyContent:'center' }}>
+                <Button 
+                  type="primary" 
+                  shape="round" 
+                  style={{ marginTop:"50px", height:"40px", width:"40%", background:"#1a1e65" }}
+                  onClick={() => handleProductList(1)}>
+                    More
+                </Button>
+              </div>
+            </>
+            }
+            {/* <!--/.list-container-->  */}
+            <h2>{t('Landing.itemTitle')}</h2>
+            
+            <div className={styles.itemlistContent}>
+              {Pharmaceutical && 
+                <div className={styles.itemlistBox}>
+                  <div className={styles.itemlistImage}>
+                    <img src={Pharmaceutical.image} style={{ maxWidth: "100%", height: "auto" }} />
+                  </div>
+                  <div className={styles.itemlistProduct}>{t('Landing.pharmaceuticalsTitle')}
+                    <p className={styles.itemlistText} >{Pharmaceutical.description}</p>
+                  </div>
+                </div>
+              }
+              {Cosmetics &&
+                <div className={styles.itemlistBox}>
+                  <div className={styles.itemlistImage}>
+                    <img src={Cosmetics.image} style={{ maxWidth: "100%", height: "auto" }} />
+                  </div>
+                  <div className={styles.itemlistProduct}>{t('Landing.cosmeticsTitle')}
+                    <p className={styles.itemlistText} >{Cosmetics.description}</p>
+                  </div>
+                </div>
+              }
+              {DailyNecessaries &&
+                <div className={styles.itemlistBox}>
+                  <div className={styles.itemlistImage}>
+                    <img src={DailyNecessaries.image} style={{ maxWidth: "100%", height: "auto" }} />
+                  </div>
+                  <div className={styles.itemlistProduct}>{t('Landing.dailyNecessariesTitle')}
+                    <p className={styles.itemlistText} >{DailyNecessaries.description}</p>
+                  </div>
+                </div>
+              }
+              {Food && 
+                <div className={styles.itemlistBox}>
+                  <div className={styles.itemlistImage}>
+                    <img src={Food.image} style={{ maxWidth: "100%", height: "auto" }} />
+                  </div>
+                  <div className={styles.itemlistProduct}>{t('Landing.foodTitle')}
+                    <p className={styles.itemlistText} >{Food.description}</p>
+                  </div>
+                </div> 
+              }
+            </div>
+          </section>
 
-		setSkip(0);
-		getProducts(body);
-	}
-
-	return (
-		<div style={{ width:'75%', margin:'3rem auto' }}>
-			<div style={{ textAlign:'center' }}>
-				<h1>{t('Landing.title')}</h1>
-			</div>
-
-			{/* Filter */}
-			<Row gutter={[16, 16]}>{/* gutter 여백 */}
-				<Col lg={12} xs={24}>
-					{/* CheckBox */}
-					<CheckBox list={continents} handleFilters={filters => handleFilters(filters, "continents")}/>
-				</Col>
-				<Col lg={12} xs={24}>
-					{/* RadioBox */}
-					<RadioBox list={price} handleFilters={filters => handleFilters(filters, "price")}/>
-				</Col>
-			</Row>
-
-			{/* Search */}
-			<div style={{ display:'flex', justifyContent:'flex-end', margin:'1rem auto' }}>
-				<SearchFeature refreshFunction={updateSearchTerm}/>
-			</div>
-
-			{/* Cards */}
-
-			{/* gutter: 카드의 여백 설정 */}
-			<Row gutter={[16, 16]}>
-				{renderCards}
-			</Row>
-
-			<br />
-			{/* PostSize가 Limit보다 크거나 같으면 더보기 버튼을 보여주는 조건 */}
-			{/* PostSize: Product Size */}
-			{PostSize >= Limit && 
-				<div style={{ display:'flex', justifyContent:'center' }}>
-					<Button onClick={loadMoreHandler}>More</Button>
-				</div>
-			}
-		</div>
-	)
+        </div>
+      </main>
+    </div>
+  )
 }
 
-export default LandingPage
+export default LandingPage;

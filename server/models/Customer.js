@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const customerSchema = mongoose.Schema({
+const CustomerSchema = new Schema(
+{
 	smaregiId: {
 		type:String,
 		maxlength:50
@@ -44,7 +45,7 @@ const customerSchema = mongoose.Schema({
 	}
 })
 
-customerSchema.index({
+CustomerSchema.index({
   name: 'text',
   lastName: 'text',
 	salesman: 'text'
@@ -56,5 +57,5 @@ customerSchema.index({
   }
 })
 
-const Customer = mongoose.model('Customer', customerSchema);
+const Customer = model('Customer', CustomerSchema);
 module.exports = { Customer }

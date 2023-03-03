@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Table } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { CUSTOMER_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function CustomerListPage() {
 	const [Customers, setCustomers] = useState([]);
+	const {isLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 
 	useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
 		// 고객정보 취득
 		let body = {skip: 0, limit: 8}
 		getCustomers(body);
@@ -119,4 +121,4 @@ function CustomerListPage() {
 	)
 }
 
-export default CustomerListPage
+export default CustomerListPage;

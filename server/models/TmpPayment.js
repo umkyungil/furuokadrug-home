@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { Schema, model } = require('mongoose');
 
-const tmpPaymentSchema = mongoose.Schema({
+const TmpPaymentSchema = new Schema(
+  {
     user: {
       type: Array,
       default: []
@@ -14,7 +14,8 @@ const tmpPaymentSchema = mongoose.Schema({
       type: Array,
       default: []
     }
-}, { timestamps: true })
+  }, { timestamps: true }
+)
 
-const TmpPayment = mongoose.model('TmpPayment', tmpPaymentSchema);
-module.exports = { TmpPayment }
+const TmpPayment = model('TmpPayment', TmpPaymentSchema);
+module.exports = { TmpPayment };

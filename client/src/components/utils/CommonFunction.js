@@ -1,3 +1,8 @@
+import axios from 'axios';
+import { USER_SERVER } from '../Config';
+// CORS 대책
+axios.defaults.withCredentials = true;
+
 // 일본 표준시간을 날짜 객체로 반환 
 export function toDateJST() {
   return new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
@@ -25,4 +30,14 @@ export function getUTC() {
 export function getCurrentDateInUTCFormat() {
   var now = new Date();
   return  new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString();
+}
+
+// 사용자 정보 가져오기
+export const getUser = async (userId) => {
+  try {
+    const userInfo = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}&type=single`);
+    if (userInfo.data.success) return userInfo.data.user[0];
+  } catch (err) {
+    console.log("err: ",err);
+  }
 }

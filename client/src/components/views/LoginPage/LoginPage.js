@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { withRouter } from "react-router-dom";
 import { loginUser } from "../../../_actions/user_actions";
 import { USER_SERVER } from '../../Config';
@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
 import { useCookies } from "react-cookie";
 import axios from 'axios';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -18,11 +19,11 @@ function LoginPage(props) {
   const [Cookies, setCookie, removeCookie] = useCookies(["w_auth"]);
   const [formErrorMessage, setFormErrorMessage] = useState('');
   const [rememberMe, setRememberMe] = useState(rememberMeChecked);
+  const { isLanguage, setIsLanguage } = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
-		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
   }, [])
 
   // const handleRememberMe = () => {
@@ -87,7 +88,7 @@ function LoginPage(props) {
                 sessionStorage.removeItem('userName');
                 // 사용자 정보의 언어 속송값을 다국어에서 사용하기 위해 로컬스토리지에 셋팅
                 if (userInfo.payload.userInfo.language) {
-                  localStorage.setItem('i18nextLng', userInfo.payload.userInfo.language);
+                  setIsLanguage(userInfo.payload.userInfo.language);
                 }
 
                 if (rememberMe === true) {

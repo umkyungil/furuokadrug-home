@@ -1,79 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Table } from 'antd';
 import { SALE_SERVER, PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
-import { SaleType, MainCategory } from '../../utils/Const.js'
+import { SaleType, MAIN_CATEGORY } from '../../utils/Const.js'
+import { LanguageContext } from '../../context/LanguageContext.js';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function SaleListPage() {
 	const [Sales, setSales] = useState([]);
+	const {isLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 
 	useEffect(() => {
 		// 다국어 설정
-    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(isLanguage);
 		// 세일정보 취득	
 		getSales();
 	}, [])
-
-	const columns = [
-		{
-      title: t('Sale.code'),
-      dataIndex: 'code',
-      key: 'code'
-    },
-    {
-      title: t('Sale.type'),
-      dataIndex: 'type',
-      key: 'type'
-    },
-		{
-      title: t('Sale.item'),
-      dataIndex: 'item',
-      key: 'item'
-    },
-    {
-      title: t('Sale.amount'),
-      dataIndex: 'amount',
-      key: 'amount',
-    },
-    {
-      title: t('Sale.validFrom'),
-      dataIndex: 'validFrom',
-      key: 'validFrom',
-    },
-    {
-      title: t('Sale.validTo'),
-      dataIndex: 'validTo',
-      key: 'validTo',
-    },
-		{
-      title: t('Sale.product'),
-      dataIndex: 'productId',
-      key: 'productId',
-    },
-		{
-      title: t('Sale.saleExcept'),
-      dataIndex: 'except',
-      key: 'except',
-    },
-		{
-      title: t('Sale.active'),
-      dataIndex: 'active',
-      key: 'active',
-    },
-		{
-			title: t('Sale.action'),
-			key: 'action',
-			render: (_, record) => (
-				<>
-					<a href={`/sale/update/${record._id}`}>edit</a>&nbsp;&nbsp;
-				</>
-			),
-		},
-  ];
 
 	// 세일정보 취득
 	const getSales = async () => {
@@ -96,9 +41,9 @@ function SaleListPage() {
 						}
 					}
 					// 세일적용 상품 카테고리 데이터 변경
-					for (let j=0; j<MainCategory.length; j++) {
-						if (saleInfos[i].item === MainCategory[j].key) {
-							saleInfos[i].item = MainCategory[j].value;
+					for (let j=0; j<MAIN_CATEGORY.length; j++) {
+						if (saleInfos[i].item === MAIN_CATEGORY[j].key) {
+							saleInfos[i].item = MAIN_CATEGORY[j].value;
 						}
 					}
 
@@ -165,6 +110,63 @@ function SaleListPage() {
       console.log("getProduct err: ",err);
     }
   }
+
+	const columns = [
+		{
+      title: t('Sale.code'),
+      dataIndex: 'code',
+      key: 'code'
+    },
+    {
+      title: t('Sale.type'),
+      dataIndex: 'type',
+      key: 'type'
+    },
+		{
+      title: t('Sale.item'),
+      dataIndex: 'item',
+      key: 'item'
+    },
+    {
+      title: t('Sale.amount'),
+      dataIndex: 'amount',
+      key: 'amount',
+    },
+    {
+      title: t('Sale.validFrom'),
+      dataIndex: 'validFrom',
+      key: 'validFrom',
+    },
+    {
+      title: t('Sale.validTo'),
+      dataIndex: 'validTo',
+      key: 'validTo',
+    },
+		{
+      title: t('Sale.product'),
+      dataIndex: 'productId',
+      key: 'productId',
+    },
+		{
+      title: t('Sale.saleExcept'),
+      dataIndex: 'except',
+      key: 'except',
+    },
+		{
+      title: t('Sale.active'),
+      dataIndex: 'active',
+      key: 'active',
+    },
+		{
+			title: t('Sale.action'),
+			key: 'action',
+			render: (_, record) => (
+				<>
+					<a href={`/sale/update/${record._id}`}>edit</a>&nbsp;&nbsp;
+				</>
+			),
+		},
+  ];
 
 	return (
 		<div style={{ width:'80%', margin: '3rem auto'}}>

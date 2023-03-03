@@ -1,22 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import AlipayInfo from './Sections/AlipayInfo'
 import { Row, Col } from 'antd';
 import { PAYMENT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function DetailAlipayPage(props) {
   const [Alipay, setAlipay] = useState({});
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
-    const alipayId = props.match.params.alipayId;
-    // 알리페이 정보 취득
-    getAlipay(alipayId);
     // 다국적언어
-    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(isLanguage);
+    // 알리페이 정보 취득
+    const alipayId = props.match.params.alipayId;
+    getAlipay(alipayId);
   }, [])
 
   // 알리페이 정보 취득
@@ -49,4 +51,4 @@ function DetailAlipayPage(props) {
   )
 }
 
-export default DetailAlipayPage
+export default DetailAlipayPage;

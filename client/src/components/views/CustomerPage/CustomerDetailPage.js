@@ -1,28 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import CustomerInfo from './Sections/CustomerInfo'
 import { Row, Col } from 'antd';
 import { CUSTOMER_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-function DetailCustomerPage(props) {
+function CustomerDetailPage(props) {
   const [Customer, setCustomer] = useState({});
   const customerId = props.match.params.customerId;
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
     axios.get(`${CUSTOMER_SERVER}/customers_by_id?id=${customerId}&type=single`)
-      .then(response => {
-        if (response.data.success) {
-          setCustomer(response.data.customer[0])
-          // 다국적언어
-          i18n.changeLanguage(localStorage.getItem("i18nextLng"));
-        } else {
-          alert("Failed to get customer information")
-        }
-      })
+    .then(response => {
+      if (response.data.success) {
+        setCustomer(response.data.customer[0]);
+        // 다국적언어
+        i18n.changeLanguage(isLanguage);
+      } else {
+        alert("Failed to get customer information");
+      }
+    })
   }, [])
 
   return (
@@ -43,4 +45,4 @@ function DetailCustomerPage(props) {
   )
 }
 
-export default DetailCustomerPage
+export default CustomerDetailPage;

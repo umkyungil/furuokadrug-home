@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const WechatSchema = mongoose.Schema({
+const WechatSchema = new Schema(
+{
 	// 決済番号
 	pid: {
 		type:String,
@@ -68,5 +69,5 @@ WechatSchema.index({
   }
 })
 
-const Wechat = mongoose.model('Wechat', WechatSchema);
-module.exports = { Wechat }
+const Wechat = model('Wechat', WechatSchema);
+module.exports = { Wechat };

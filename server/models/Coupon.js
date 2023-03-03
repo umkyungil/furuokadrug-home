@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { Schema, model } = require('mongoose');
 
-const couponSchema = mongoose.Schema({
+const CouponSchema = new Schema(
+{
   code: {
     type: String
   },
@@ -64,7 +64,7 @@ const couponSchema = mongoose.Schema({
   }
 }, { timestamps: true })
 
-couponSchema.index({
+CouponSchema.index({
   code: 'text',
   type: 'text'
 }, {
@@ -74,5 +74,5 @@ couponSchema.index({
   }
 })
 
-const Coupon = mongoose.model('Coupon', couponSchema);
-module.exports = { Coupon }
+const Coupon = model('Coupon', CouponSchema);
+module.exports = { Coupon };

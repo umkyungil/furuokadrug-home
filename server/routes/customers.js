@@ -77,7 +77,7 @@ router.post('/delete', (req, res) => {
         }, (err)=>{
             if (err) return res.status(400).send(err);
         })
-    } catch (error) {
+    } catch (err) {
         console.log(err);
         return res.status(500).json({ success: false, message: err.message });
     }

@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Formik } from 'formik';
 import { useHistory } from 'react-router-dom';
 import { DatePicker, Select, Form, Input, Button, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { MainCategory, CouponType, UseWithSale } from '../../utils/Const';
+import { MAIN_CATEGORY, CouponType, UseWithSale } from '../../utils/Const';
 import { dateFormatYMD } from '../../utils/CommonFunction'
 import { COUPON_SERVER, MAIL_SERVER, USER_SERVER, PRODUCT_SERVER } from '../../Config.js'
 import schedule from 'node-schedule'
 import axios from 'axios';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -15,18 +16,19 @@ const {Option} = Select;
 const {RangePicker} = DatePicker;
 const dateFormat = 'YYYY-MM-DD';
 
-const items = MainCategory; // 쿠폰적용 Item
+const items = MAIN_CATEGORY; // 쿠폰적용 Item
 const types = CouponType;
 const sale = UseWithSale;
-
 const formItemLayout = {
   labelCol: {
-    xs: { span: 24 },
-    sm: { span: 8 },
+    span: 6
+    // xs: { span: 24 },
+    // sm: { span: 8 },
   },
   wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 16 },
+    span: 14
+    // xs: { span: 24 },
+    // sm: { span: 16 },
   },
 };
 const tailFormItemLayout = {
@@ -58,11 +60,12 @@ function CouponRegisterPage() {
   const [ProductItem, setProductItem] = useState("");
   const [Count, setCount] = useState("1");
   const history = useHistory();
+
+  const { isLanguage, setIsLanguage } = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
-		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
   }, [])
 
   // Landing pageへ戻る
@@ -281,7 +284,7 @@ function CouponRegisterPage() {
             return false;
           }
           // 카테고리가 ALL인데 상품이 지정되어 있는경우
-          if (Item === MainCategory[0].key) {
+          if (Item === MAIN_CATEGORY[0].key) {
             if (ProductId !== "") {
               alert("If the category is ALL, you cannot designate a product");
               setSubmitting(false);
@@ -289,7 +292,7 @@ function CouponRegisterPage() {
             }
           }
           // 카테고리의 상품인지 확인
-          if (Item !== MainCategory[0].key) {
+          if (Item !== MAIN_CATEGORY[0].key) {
             if (ProductId !== "") {
               getProduct(ProductId);
               
@@ -445,21 +448,20 @@ function CouponRegisterPage() {
     }}
     >
       {props => {
-        const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
+        const { isSubmitting, handleBlur, handleSubmit, } = props;
         return (
-          <div className="app">
-            <h1>{t('Coupon.regTitle')}</h1><br />
-            
-            <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
+          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <h1>{t('Coupon.regTitle')}</h1>
+            </div>
+            <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} autoComplete="off" >
               {/* 쿠폰코드 */}
               <Form.Item required label={t('Coupon.code')} >
-                <Input id="code" placeholder="Coupon code" type="text" value={CouponCode} onChange={couponCodeHandler} 
-                  onBlur={handleBlur} style={{ width: 250 }}
-                />
+                <Input id="code" placeholder="Coupon code" type="text" value={CouponCode} onChange={couponCodeHandler} onBlur={handleBlur} />
               </Form.Item>
               {/* 쿠폰종류 */}
               <Form.Item required label={t('Coupon.type')} >
-                <Select value={Type} style={{ width: 250 }} onChange={typeHandler}>
+                <Select value={Type} onChange={typeHandler}>
                 {types.map(item => (
                   <Option key={item.key} value={item.key}> {item.value} </Option>
                 ))}
@@ -467,9 +469,7 @@ function CouponRegisterPage() {
               </Form.Item>
               {/* 쿠폰할인율 또는 금액 */}
               <Form.Item required label={t('Coupon.amount')} >
-                <Input id="amount" placeholder="Coupon amount" type="text" value={Amount} onChange={amountHandler} 
-                  onBlur={handleBlur} style={{ width: 250 }}
-                />
+                <Input id="amount" placeholder="Coupon type value" type="text" value={Amount} onChange={amountHandler} onBlur={handleBlur} />
               </Form.Item>
               {/* 쿠폰 유효기간 */}
               <Form.Item required label={t('Coupon.validTo')}>
@@ -478,12 +478,11 @@ function CouponRegisterPage() {
                   format={dateFormat}
                   onChange={dateHandler}
                   onOk={onOk} 
-                  style={{ width: 250 }} 
                 />
               </Form.Item>
               {/* 쿠폰적용 카테고리 */}
               <Form.Item required label={t('Coupon.item')} >
-                <Select value={Item} style={{ width: 250 }} onChange={itemHandler}>
+                <Select value={Item} onChange={itemHandler}>
                   {items.map(item => (
                     <Option key={item.key} value={item.key}> {item.value} </Option>
                   ))}
@@ -491,14 +490,14 @@ function CouponRegisterPage() {
               </Form.Item>
               {/* 쿠폰적용 상품 아이디 */}
               <Form.Item label={t('Coupon.product')} >
-                <Input id="userId" placeholder="Enter product" type="text" value={ProductName} style={{ width: 110 }} readOnly/>&nbsp;
-                <Button onClick={productPopupHandler} style={{width: '70px'}}>Search</Button>&nbsp;
-                <Button onClick={productClearHandler} style={{width: '65px'}}>Clear</Button>
+                <Input id="userId" type="text" value={ProductName} style={{width: '7em'}} readOnly/>&nbsp;
+                <Button onClick={productPopupHandler} style={{width: '5em'}}>Search</Button>&nbsp;
+                <Button onClick={productClearHandler} style={{width: '5em'}}>Clear</Button>
                 <br />
               </Form.Item>
               {/* 쿠폰과 세일 병행사용 여부 */}
               <Form.Item required label={t('Coupon.useWithSale')} >
-                <Select value={UseWithSale} style={{ width: 250 }} onChange={useWithSaleHandler}>
+                <Select value={UseWithSale} onChange={useWithSaleHandler}>
                 {sale.map(item => (
                   <Option key={item.key} value={item.key}> {item.value} </Option>
                 ))}
@@ -507,17 +506,15 @@ function CouponRegisterPage() {
               {/* 쿠폰 사용횟수 */}
               <Form.Item required label={t('Coupon.count')} >
                 <Input id="count" placeholder="Coupon use count" type="text" value={Count} onChange={countHandler} 
-                  onBlur={handleBlur} 
-                  style={{ width: 250 }} 
-                />
-                <br />
-                <span style={{ color: "red" }}>※Unlimited use is possible if no value is set</span>
+                  onBlur={handleBlur} style={{ width: '7em' }} />
+                  <br />
+                <span style={{ color: "red" }}>※Unlimited use if no value is entered</span>
               </Form.Item>
               {/* 쿠폰적용 사용자 아이디 */}
               <Form.Item label={t('Coupon.user')} >
-                <Input id="userId" placeholder="Enter user" type="text" value={UserName} style={{ width: 110 }} readOnly/>&nbsp;
-                <Button onClick={popupHandler} style={{width: '70px'}}>Search</Button>&nbsp;
-                <Button onClick={clearHandler} style={{width: '65px'}}>Clear</Button>
+                <Input id="userId" type="text" value={UserName} style={{ width: '7em' }} readOnly/>&nbsp;
+                <Button onClick={popupHandler} style={{width: '5em'}}>Search</Button>&nbsp;
+                <Button onClick={clearHandler} style={{width: '5em'}}>Clear</Button>
                 <br />
               </Form.Item>
               {/* 메일전송 유무 */}
@@ -539,6 +536,8 @@ function CouponRegisterPage() {
                   Submit
                 </Button>
               </Form.Item>
+              <br />
+              
             </Form>
           </div>
         );
@@ -547,4 +546,4 @@ function CouponRegisterPage() {
   );
 };
 
-export default CouponRegisterPage
+export default CouponRegisterPage;

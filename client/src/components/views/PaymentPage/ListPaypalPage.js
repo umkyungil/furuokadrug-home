@@ -1,21 +1,23 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { Table } from 'antd';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
 import { USER_SERVER } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
 import SearchFeature from './Sections/PaypalSearchFeature';
+import { LanguageContext } from '../../context/LanguageContext.js';
+import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function ListPaypalPage() {
   const [PaypalInfo, setPaypalInfo] = useState([]);
   const history = useHistory();
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국어 설정
-    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(isLanguage);
     // 사용자정보 취득
     if (localStorage.getItem("userId")) {
       let body = {userId: localStorage.getItem("userId")}

@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { Form, Input, Button } from 'antd';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
-import swal from 'sweetalert'
+import { LanguageContext } from '../../context/LanguageContext.js';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 const { TextArea } = Input;
 const formItemLayout = {
   labelCol: {
-    xs: { span: 24 },
-    sm: { span: 8 },
+    span: 6
+    // xs: { span: 24 },
+    // sm: { span: 8 },
   },
   wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 16 },
+    span: 14
+    // xs: { span: 24 },
+    // sm: { span: 16 },
   },
 };
 
@@ -28,13 +30,15 @@ const tailFormItemLayout = {
     },
     sm: {
       span: 16,
-      offset: 8,
+      offset: 6,
     },
   },
 };
 
 function VirtualReservationPage(props) {
   const history = useHistory();
+  // 다국적언어 설정
+  const { isLanguage } = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   // query string 취득  
@@ -51,6 +55,11 @@ function VirtualReservationPage(props) {
   const [ReservationDate, setReservationDate] = useState("");
   const [InterestedItem, setInterestedItem] = useState("");
   const [Email, setEmail] = useState("");
+
+  useEffect(() => {
+		// 다국어 설정
+		i18n.changeLanguage(isLanguage);
+  }, [])
   
   const body = {
     name: Name,
@@ -68,34 +77,15 @@ function VirtualReservationPage(props) {
     try {
       const result = await axios.post(`${MAIL_SERVER}/reserve`, body);
       if (result.data.success) {
-        swal({
-          title: "Success",
-          text: "Your virtual reservation has been received.",
-          icon: "success",
-          button: "OK",
-        }).then((value) => {
-          history.push("/");
-        });
+        alert("Your virtual reservation has been received");
       } else {
-        swal({
-          title: "Failed",
-          text: "Please try again after a while",
-          icon: "error",
-          button: "OK",
-        }).then((value) => {
-          history.push("/");
-        });
+        alert("Please try again after a while");
       }
+      history.push("/");
     } catch(err) {
       console.log("VirtualReservationPage err: ", err);
-      swal({
-        title: "Failed",
-        text: "Please try again after a while",
-        icon: "error",
-        button: "OK",
-      }).then((value) => {
-        history.push("/");
-      });
+      alert("Please try again after a while");
+      history.push("/");
     }
   }
   
@@ -117,35 +107,52 @@ function VirtualReservationPage(props) {
   const emailHandler = (event) => {
     setEmail(event.currentTarget.value)
   }
+  // Landing pageへ戻る
+  const listHandler = () => {
+    history.push('/')
+  }
 
   return (
-    <div className="app">
-      <h1>{t('Reservation.title')}</h1><br />
-      <Form style={{ minWidth: '375px' }} onSubmit={sendEmail} {...formItemLayout} >
-        <Form.Item label={t('Reservation.name')} required>
-          <Input name="name" placeholder="Please enter your name" type="text" value={Name} onChange={nameHandler} required />
+    
+    <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <h1>{t('Reservation.title')}</h1>
+      </div>
+
+      <Form 
+        style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={sendEmail} 
+        autoComplete="off"
+        >
+        
+        <Form.Item label={t('Reservation.name')} name="username" rules={[{ required: true }]}>
+          <Input placeholder="Please enter name" type="text" value={Name} onChange={nameHandler} />
         </Form.Item>
         <Form.Item label={t('Reservation.weChatId')} required>
-          <Input name="weChatID" placeholder="Please enter your WeChat ID" type="text" value={WeChatID} onChange={weChatIDHandler} required />
+          <Input name="weChatID" placeholder="Please enter WeChat ID" type="text" value={WeChatID} onChange={weChatIDHandler} required />
         </Form.Item>
         <Form.Item label={t('Reservation.tel')} required>
-          <Input name="telephoneNumber" placeholder="Please enter your phone number" type="text" value={TelephoneNumber} onChange={telephoneNumberHandler} required />
+          <Input name="telephoneNumber" placeholder="Please enter phone number" type="text" value={TelephoneNumber} onChange={telephoneNumberHandler} required />
         </Form.Item>
         <Form.Item label={t('Reservation.date')} required>
           <Input name="reservationDate" placeholder="Please select a reservation date" type="datetime-local" value={ReservationDate} onChange={reservationDateHandler} required />
         </Form.Item>
         <Form.Item label={t('Reservation.item')} required>
-          <TextArea maxLength={500} name="interestedItem" label="Interested" style={{ height: 120, minWidth: '375px' }} value={InterestedItem} onChange={interestedItemHandler} 
-            placeholder="Please enter the item you are interested in." required />
+          <TextArea maxLength={100} name="interestedItem" label="Interested"  style={{ height: '1rem', minWidth: '375px' }} value={InterestedItem} onChange={interestedItemHandler} 
+            placeholder="Please enter interested item" required />
         </Form.Item>
         <Form.Item label={t('Reservation.email')} required>
-        <Input name="email" placeholder="Please enter your email address" type="email" value={Email} onChange={emailHandler} required />
+        <Input name="email" placeholder="Please enter email address" type="email" value={Email} onChange={emailHandler} required />
         </Form.Item>
+
         <Form.Item {...tailFormItemLayout}>
+          <Button onClick={listHandler}>
+            Landing Page
+          </Button>&nbsp;&nbsp;
           <Button htmlType="submit" type="primary">
             Send
-          </Button>          
+          </Button>
         </Form.Item>
+        
       </Form>  
     </div>
   );

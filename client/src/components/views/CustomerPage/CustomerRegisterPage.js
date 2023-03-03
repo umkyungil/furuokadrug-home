@@ -1,10 +1,11 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useContext} from "react";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { registerCustomer } from "../../../_actions/customer_actions";
 import { useDispatch } from "react-redux";
 import { Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../context/LanguageContext';
 
 const formItemLayout = {
   labelCol: {
@@ -31,10 +32,11 @@ const tailFormItemLayout = {
 
 function CustomerRegisterPage(props) {
   const dispatch = useDispatch();
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
 	}, [])
 
   return (
@@ -96,8 +98,10 @@ function CustomerRegisterPage(props) {
         } = props;
         return (
           <div className="app">
-            <h1>{t('Customer.regTitle')}</h1><br />
-            <Form style={{ minWidth: '375px' }} {...formItemLayout} onSubmit={handleSubmit} >
+            <div style={{textAlign: 'center'}}>
+              <h1>{t('Customer.regTitle')}</h1>
+            </div>
+            <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 스마레지 아이디 */}
               <Form.Item label={t('Customer.smaregiId')}>
                 <Input id="smaregiId" placeholder="Enter the customer's Smaregi id" type="text" value={values.smaregiId} onChange={handleChange} onBlur={handleBlur}
@@ -176,4 +180,4 @@ function CustomerRegisterPage(props) {
   );
 };
 
-export default CustomerRegisterPage
+export default CustomerRegisterPage;

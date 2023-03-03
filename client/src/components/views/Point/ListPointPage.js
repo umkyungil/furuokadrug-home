@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Table, Input, Form, Button  } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { POINT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import { EXPIRED_CN, EXPIRED_JP, EXPIRED_EN } from '../../utils/Const'
+import { EXPIRED_CN, EXPIRED_JP, EXPIRED_EN, I18N_ENGLISH, I18N_JAPANESE, I18N_CHINESE } from '../../utils/Const'
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -16,11 +17,12 @@ function ListPointPage(props) {
 	const [InvalidData, setInvalidData] = useState([]);
 	const [ShowButton, setShowButton] = useState(true);
 	const history = useHistory();
+	const {isLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 
 	useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
 
 		let userId = props.match.params.userId; // 관리자에서 들어올 경우
 		if (!userId) {
@@ -35,7 +37,7 @@ function ListPointPage(props) {
 		// 포인트 정보 가져오기
 		let body = {userId: userId, searchTerm: []}
 		getPointInfo(body);
-	}, [localStorage.getItem("i18nextLng")])
+	}, [])
 	
 	// 포인트 정보 검색
 	const updateSearchTerm = (newSearchTerm) => {
@@ -117,9 +119,9 @@ function ListPointPage(props) {
 					if (invalidData.length > 0) {
 						for (let i=0; i<invalidData.length; i++) {
 							if (tmpPointInfo._id === invalidData[i]) {
-								if (localStorage.getItem("i18nextLng") === "jp") tmpPointInfo.remainingPoints = EXPIRED_JP;
-								if (localStorage.getItem("i18nextLng") === "en") tmpPointInfo.remainingPoints = EXPIRED_EN;
-								if (localStorage.getItem("i18nextLng") === "cn") tmpPointInfo.remainingPoints = EXPIRED_CN;
+								if (localStorage.getItem("i18nextLng") === I18N_JAPANESE) tmpPointInfo.remainingPoints = EXPIRED_JP;
+								if (localStorage.getItem("i18nextLng") === I18N_ENGLISH) tmpPointInfo.remainingPoints = EXPIRED_EN;
+								if (localStorage.getItem("i18nextLng") === I18N_CHINESE) tmpPointInfo.remainingPoints = EXPIRED_CN;
 							}
 						}
 					}

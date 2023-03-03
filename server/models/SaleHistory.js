@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const saleHistorySchema = mongoose.Schema({
+const SaleHistorySchema = new Schema(
+{
   code: {
     type: String
   },
@@ -31,7 +32,7 @@ const saleHistorySchema = mongoose.Schema({
   }
 }, { timestamps: true })
 
-saleHistorySchema.index({
+SaleHistorySchema.index({
   validFrom: 'text',
   code: 'text'
 }, {
@@ -41,5 +42,5 @@ saleHistorySchema.index({
   }
 })
 
-const SaleHistory = mongoose.model('SaleHistory', saleHistorySchema);
-module.exports = { SaleHistory }
+const SaleHistory = model('SaleHistory', SaleHistorySchema);
+module.exports = { SaleHistory };

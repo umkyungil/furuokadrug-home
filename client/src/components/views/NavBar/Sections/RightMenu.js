@@ -1,23 +1,35 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { Menu, Icon, Badge } from 'antd';
 import { USER_SERVER } from '../../../Config';
+import { ENGLISH, JAPANESE, CHINESE, I18N_ENGLISH, I18N_CHINESE, I18N_JAPANESE } from '../../../utils/Const';
 import { withRouter } from 'react-router-dom';
 import { useSelector } from "react-redux";
 import { useCookies } from "react-cookie";
+import { LanguageContext } from '../../../context/LanguageContext';
 import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
+
 const SubMenu = Menu.SubMenu;
 
 function RightMenu(props) {
   const user = useSelector(state => state.user)
   const [Cookies, setCookie, removeCookie] = useCookies(["w_auth", "w_authExp"]);
+  const { setIsLanguage } = useContext(LanguageContext)
+
+  // 다국적언어
+	// const {i18n} = useTranslation();
+  // const setMultiLanguage = (lang) => {
+  //   i18n.changeLanguage(lang);
+  // }
+  const setMultiLanguage = (lang) => {
+    setIsLanguage(lang);
+  }
   
-  // Login
+  // Logout
   const logoutHandler = () => {
     axios.get(`${USER_SERVER}/logout`).then(response => {
-
       if (response.status === 200) {
         // 로컬스토리지 사용자 정보 삭제
         localStorage.removeItem("userId");
@@ -37,16 +49,18 @@ function RightMenu(props) {
       }
     });
   };
-  // Chat Popup
-  const chatHandler = () => {
-    let href = "https://umkyungil.github.io/furuokadrug-twitter/#/";
-    let w = 450;
-    let h = 800;
-    let xPos = (document.body.offsetWidth-w); //오른쪽 정렬
-    let yPos = (document.body.offsetHeight/2) - (h/2);
 
-    window.open(href, "pop_name", "width="+w+", height="+h+", left="+xPos+", top="+yPos+", menubar=yes, status=yes, titlebar=yes, resizable=yes");
-  };
+  // Chat Popup
+  // const chatHandler = () => {
+  //   let href = "https://umkyungil.github.io/furuokadrug-twitter/#/";
+  //   let w = 450;
+  //   let h = 800;
+  //   let xPos = (document.body.offsetWidth-w); //오른쪽 정렬
+  //   let yPos = (document.body.offsetHeight/2) - (h/2);
+
+  //   window.open(href, "pop_name", "width="+w+", height="+h+", left="+xPos+", top="+yPos+", menubar=yes, status=yes, titlebar=yes, resizable=yes");
+  // };
+  
 
   // login 하지 않았을때
   // 참고: 로그인 했을때는 로컬스토리지에 userName에 사용자 아이디가 저장되며 
@@ -64,7 +78,22 @@ function RightMenu(props) {
       }
     }
     return (
-      <Menu mode={props.mode}>
+      <Menu mode={props.mode} style={{backgroundColor: '#1a1e65'}}>
+        <Menu.Item key="reserve">
+          <a href="/mail/reserve" style={{color: 'white'}}>Reservation</a>
+        </Menu.Item>
+        <SubMenu title={<span style={{color: 'white'}}>Language</span>}>          
+          <Menu.Item key="english">
+            <span onClick={() => setMultiLanguage(I18N_ENGLISH)}>{ENGLISH}</span>
+          </Menu.Item>
+          <Menu.Item key="japanese">
+            <span onClick={() => setMultiLanguage(I18N_JAPANESE)}>{JAPANESE}</span>
+          </Menu.Item>
+          <Menu.Item key="chinese">
+            <span onClick={() => setMultiLanguage(I18N_CHINESE)}>{CHINESE}</span>
+          </Menu.Item>
+        </SubMenu>
+
         <Menu.Item key="cart" style={{paddingBottom:3}}>
           <Badge count={count}>
             <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
@@ -73,13 +102,13 @@ function RightMenu(props) {
           </Badge>
         </Menu.Item>
         <Menu.Item key="login">
-          <a href="/login">Sign In</a>
+          <a href="/login" style={{color: 'white'}}>Sign In</a>
         </Menu.Item>
         <Menu.Item key="preregister">
-          <a href="/preregister">Sign Up</a>
+          <a href="/preregister" style={{color: 'white'}}>Sign Up</a>
         </Menu.Item>
         <Menu.Item key="inquiry">
-          <a href="/mail/inquiry">Contact Us</a>
+          <a href="/mail/inquiry" style={{color: 'white'}}>Contact Us</a>
         </Menu.Item>
       </Menu>
     )
@@ -115,7 +144,22 @@ function RightMenu(props) {
       }
     }
     return (
-      <Menu mode={props.mode}>
+      <Menu mode={props.mode} style={{backgroundColor: '#1a1e65'}}>
+        <Menu.Item key="reserve" >
+          <a href="/mail/reserve" style={{color: 'white'}}>Reservation</a>
+        </Menu.Item>
+        <SubMenu title={<span style={{color: 'white'}}>Language</span>}>          
+          <Menu.Item key="english">
+            <span onClick={() => setMultiLanguage(I18N_ENGLISH)}>{ENGLISH}</span>
+          </Menu.Item>
+          <Menu.Item key="japanese">
+            <span onClick={() => setMultiLanguage(I18N_JAPANESE)}>{JAPANESE}</span>
+          </Menu.Item>
+          <Menu.Item key="chinese">
+            <span onClick={() => setMultiLanguage(I18N_CHINESE)}>{CHINESE}</span>
+          </Menu.Item>
+        </SubMenu>
+
         <Menu.Item key="cart" style={{paddingBottom:3}}>
           <Badge count={count}>
             <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
@@ -124,13 +168,13 @@ function RightMenu(props) {
           </Badge>
         </Menu.Item>
         <Menu.Item key="login">
-          <a href="/login">Sign In</a>
+          <a href="/login" style={{color: 'white'}}>Sign In</a>
         </Menu.Item>
         <Menu.Item key="preregister">
-          <a href="/preregister">Sign Up</a>
+          <a href="/preregister" style={{color: 'white'}}>Sign Up</a>
         </Menu.Item>
         <Menu.Item key="inquiry">
-          <a href="/mail/inquiry">Contact Us</a>
+          <a href="/mail/inquiry" style={{color: 'white'}}>Contact Us</a>
         </Menu.Item>
       </Menu>
     )
@@ -146,23 +190,38 @@ function RightMenu(props) {
       // 일반 사용자
       if (user.userData.role === 0) {
         return (
-          <Menu mode={props.mode}>            
+          <Menu mode={props.mode} style={{backgroundColor: '#1a1e65'}}>
+            <Menu.Item key="reserve">
+              <a href="/mail/reserve" style={{color: 'white'}}>Reservation</a>
+            </Menu.Item>
+            <SubMenu title={<span style={{color: 'white'}}>Language</span>}>          
+              <Menu.Item key="english">
+                <span onClick={() => setMultiLanguage(I18N_ENGLISH)}>{ENGLISH}</span>
+              </Menu.Item>
+              <Menu.Item key="japanese">
+                <span onClick={() => setMultiLanguage(I18N_JAPANESE)}>{JAPANESE}</span>
+              </Menu.Item>
+              <Menu.Item key="chinese">
+                <span onClick={() => setMultiLanguage(I18N_CHINESE)}>{CHINESE}</span>
+              </Menu.Item>
+            </SubMenu>
+
             {/* <Menu.Item key="chat">
               <a onClick={chatHandler}>Chat</a>
             </Menu.Item> */}
-            <SubMenu title={<span>My Information</span>}>
+            <SubMenu title={<span style={{color: 'white'}}>My Information</span>}>
               <Menu.Item key="pointList">
                 <a href="/point/list">Point List</a>
               </Menu.Item>
             </SubMenu>
             <Menu.Item key="live">
-              <a href="/live">Live Streaming</a>
+              <a href="/live" style={{color: 'white'}}>Live Streaming</a>
             </Menu.Item>
             <Menu.Item key="paypalList">
-              <a href="/payment/paypal/list">Cart Payment List</a>
+              <a href="/payment/paypal/list" style={{color: 'white'}}>Cart Payment List</a>
             </Menu.Item>
             <Menu.Item key="list">
-              <a href="/order/list">Order list</a>
+              <a href="/order/list" style={{color: 'white'}}>Order list</a>
             </Menu.Item>
             <Menu.Item key="cart" style={{paddingBottom:3}}>
               <Badge count={count}>
@@ -172,24 +231,36 @@ function RightMenu(props) {
               </Badge>
             </Menu.Item>
             <Menu.Item key="inquiry">
-              <a href="/mail/inquiry">Contact Us</a>
+              <a href="/mail/inquiry" style={{color: 'white'}}>Contact Us</a>
             </Menu.Item>
             <Menu.Item key="logout">
-              <a onClick={logoutHandler}>Logout</a>
+              <a onClick={logoutHandler} style={{color: 'white'}}>Logout</a>
             </Menu.Item>
           </Menu>
         )
       // 스텝
       } else if (user.userData.role === 1) {
         return (
-          <Menu mode={props.mode}>
+          <Menu mode={props.mode} style={{backgroundColor: '#1a1e65'}}>
+            <SubMenu title={<span style={{color: 'white'}}>Language</span>}>          
+              <Menu.Item key="english">
+                <span onClick={() => setMultiLanguage(I18N_ENGLISH)}>{ENGLISH}</span>
+              </Menu.Item>
+              <Menu.Item key="japanese">
+                <span onClick={() => setMultiLanguage(I18N_JAPANESE)}>{JAPANESE}</span>
+              </Menu.Item>
+              <Menu.Item key="chinese">
+                <span onClick={() => setMultiLanguage(I18N_CHINESE)}>{CHINESE}</span>
+              </Menu.Item>
+            </SubMenu>
+
             {/* <Menu.Item key="chat">
               <a onClick={chatHandler}>Chat</a>
             </Menu.Item> */}
             <Menu.Item key="live">
-              <a href="/live">Live Streaming</a>
+              <a href="/live" style={{color: 'white'}}>Live Streaming</a>
             </Menu.Item>
-            <SubMenu title={<span>History</span>}>
+            <SubMenu title={<span style={{color: 'white'}}>History</span>}>
               <SubMenu title={<span>Payment</span>}>
                 <Menu.Item key="aliPayList">
                   <a href="/payment/alipay/list">Alipay Payment History</a>
@@ -206,40 +277,81 @@ function RightMenu(props) {
               </Menu.Item>
             </SubMenu>
             <Menu.Item key="logout">
-              <a onClick={logoutHandler}>Logout</a>
+              <a onClick={logoutHandler} style={{color: 'white'}}>Logout</a>
             </Menu.Item>
           </Menu>
         )
       // 관리자
       } else if (user.userData.role === 2) {
         return (
-          <Menu mode={props.mode}>
+          <Menu mode={props.mode} style={{backgroundColor: '#1a1e65'}}>
+            <SubMenu title={<span style={{color: 'white'}}>Language</span>}>          
+              <Menu.Item key="english">
+                <span onClick={() => setMultiLanguage(I18N_ENGLISH)}>{ENGLISH}</span>
+              </Menu.Item>
+              <Menu.Item key="japanese">
+                <span onClick={() => setMultiLanguage(I18N_JAPANESE)}>{JAPANESE}</span>
+              </Menu.Item>
+              <Menu.Item key="chinese">
+                <span onClick={() => setMultiLanguage(I18N_CHINESE)}>{CHINESE}</span>
+              </Menu.Item>
+            </SubMenu>
+
             {/* <Menu.Item key="chat">
               <a onClick={chatHandler}>Chat</a>
             </Menu.Item> */}
             <Menu.Item key="live">
-              <a href="/live">Live Streaming</a>
+              <a href="/live" style={{color: 'white'}}>Live Streaming</a>
             </Menu.Item>
-            <SubMenu title={<span>Coupon</span>}> 
-              <Menu.Item key="couponList">
-                <a href="/coupon/list">Coupon List</a>
+            <SubMenu title={<span style={{color: 'white'}}>User</span>}>
+              <Menu.Item key="userRegister">
+                <a href="/register">User Register</a>
               </Menu.Item>
-              <Menu.Item key="couponRegister">
-                <a href="/coupon/register">Coupon Register</a>
-              </Menu.Item>
-              <Menu.Item key="couponBirthRegister">
-                <a href="/coupon/birth/register">Coupon Birthday Register</a>
+              <Menu.Item key="userList">
+                <a href="/user/list">User List</a>
               </Menu.Item>
             </SubMenu>
-            <SubMenu title={<span>Sale</span>}> 
-              <Menu.Item key="saleList">
-                <a href="/sale/list">Sale List</a>
+            <SubMenu title={<span style={{color: 'white'}}>Product</span>}> 
+              <Menu.Item key="productList">
+                <a href="/product/list">Product List</a>
               </Menu.Item>
-              <Menu.Item key="saleRegister">
-                <a href="/sale/register">Sale Register</a>
+              <Menu.Item key="productRegister">
+                <a href="/product/upload">Product Register</a>
+              </Menu.Item>
+              <SubMenu title={<span>Sale</span>}>
+                <Menu.Item key="saleList">
+                  <a href="/sale/list">Sale List</a>
+                </Menu.Item>
+                <Menu.Item key="saleRegister">
+                  <a href="/sale/register">Sale Register</a>
+                </Menu.Item>
+              </SubMenu>
+              <SubMenu title={<span>Coupon</span>}>
+                <Menu.Item key="couponList">
+                  <a href="/coupon/list">Coupon List</a>
+                </Menu.Item>
+                <Menu.Item key="couponRegister">
+                  <a href="/coupon/register">Coupon Register</a>
+                </Menu.Item>
+                <Menu.Item key="couponBirthRegister">
+                  <a href="/coupon/birth/register">Coupon Birthday Register</a>
+                </Menu.Item>
+              </SubMenu>
+            </SubMenu>
+            <SubMenu title={<span style={{color: 'white'}}>Upload</span>}>
+              <SubMenu title={<span>Images</span>}>
+                <Menu.Item key="imagesRegister">
+                  <a href="/images/register">Images Register</a>
+                </Menu.Item>
+                <Menu.Item key="imagesList">
+                  <a href="/images/list">Images List</a>
+                </Menu.Item>
+              </SubMenu>
+              <Menu.Item key="csv">
+                <a href="/csv/upload/univaPayCast">UPC CSV</a>
               </Menu.Item>
             </SubMenu>
-            <SubMenu title={<span>History</span>}>
+            <SubMenu title={<span style={{color: 'white'}}>History</span>}>
               <SubMenu title={<span>Payment</span>}>
                 <Menu.Item key="alipayList">
                   <a href="/payment/alipay/list">Alipay Payment History</a>
@@ -258,30 +370,31 @@ function RightMenu(props) {
                 <a href="/coupon/history">Coupon History</a>
               </Menu.Item>
             </SubMenu>
-            <SubMenu title={<span>Upload</span>}>
-              <Menu.Item key="upload">
-                <a href="/product/upload">Product Upload</a>
-              </Menu.Item>
-              <Menu.Item key="csvUpload">
-                <a href="/csv/upload/univaPayCast">UPC CSV Upload</a>
-              </Menu.Item>
-            </SubMenu>
-            <SubMenu title={<span>User</span>}>
-              <Menu.Item key="userRegister">
-                <a href="/register">User Register</a>
-              </Menu.Item>
-              <Menu.Item key="userList">
-                <a href="/user/list">User List</a>
-              </Menu.Item>
-            </SubMenu>            
+            
             <Menu.Item key="logout">
-              <a onClick={logoutHandler}>Logout</a>
+              <a onClick={logoutHandler} style={{color: 'white'}}>Logout</a>
             </Menu.Item>
           </Menu>
         ) 
       } else {
+        // 처음 화면이 표시될때 이쪽 메뉴를 탄다
         return (
-          <Menu mode={props.mode}>
+          <Menu mode={props.mode} style={{backgroundColor: '#1a1e65'}}>
+            <Menu.Item key="reserve">
+              <a href="/mail/reserve" style={{color: 'white'}}>Reservation</a>
+            </Menu.Item>
+            <SubMenu title={<span style={{color: 'white'}}>Language</span>}>          
+              <Menu.Item key="english">
+                <span onClick={() => setMultiLanguage(I18N_ENGLISH)}>{ENGLISH}</span>
+              </Menu.Item>
+              <Menu.Item key="japanese">
+                <span onClick={() => setMultiLanguage(I18N_JAPANESE)}>{JAPANESE}</span>
+              </Menu.Item>
+              <Menu.Item key="chinese">
+                <span onClick={() => setMultiLanguage(I18N_CHINESE)}>{CHINESE}</span>
+              </Menu.Item>
+            </SubMenu>
+
             <Menu.Item key="cart" style={{paddingBottom:3}}>
               <Badge count={count}>
                 <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
@@ -290,13 +403,13 @@ function RightMenu(props) {
               </Badge>
             </Menu.Item>
             <Menu.Item key="login">
-              <a href="/login">Sign In</a>
+              <a href="/login" style={{color: 'white'}}>Sign In</a>
             </Menu.Item>
             <Menu.Item key="preregister">
-              <a href="/preregister">Sign Up</a>
+              <a href="/preregister" style={{color: 'white'}}>Sign Up</a>
             </Menu.Item>
             <Menu.Item key="inquiry">
-              <a href="/mail/inquiry">Contact Us</a>
+              <a href="/mail/inquiry" style={{color: 'white'}}>Contact Us</a>
             </Menu.Item>
           </Menu>
         )
@@ -312,7 +425,22 @@ function RightMenu(props) {
         }
       }
       return (
-        <Menu mode={props.mode}>
+        <Menu mode={props.mode} style={{backgroundColor: '#1a1e65'}}>
+          <Menu.Item key="reserve">
+            <a href="/mail/reserve" style={{color: 'white'}}>Reservation</a>
+          </Menu.Item>
+          <SubMenu title={<span style={{color: 'white'}}>Language</span>}>          
+            <Menu.Item key="english">
+              <span onClick={() => setMultiLanguage(I18N_ENGLISH)}>{ENGLISH}</span>
+            </Menu.Item>
+            <Menu.Item key="japanese">
+              <span onClick={() => setMultiLanguage(I18N_JAPANESE)}>{JAPANESE}</span>
+            </Menu.Item>
+            <Menu.Item key="chinese">
+              <span onClick={() => setMultiLanguage(I18N_CHINESE)}>{CHINESE}</span>
+            </Menu.Item>
+          </SubMenu>
+
           <Menu.Item key="cart" style={{paddingBottom:3}}>
             <Badge count={count}>
               <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
@@ -321,13 +449,13 @@ function RightMenu(props) {
             </Badge>
           </Menu.Item>
           <Menu.Item key="login">
-            <a href="/login">Sign In</a>
+            <a href="/login" style={{color: 'white'}}>Sign In</a>
           </Menu.Item>
           <Menu.Item key="preregister">
-            <a href="/preregister">Sign Up</a>
+            <a href="/preregister" style={{color: 'white'}}>Sign Up</a>
           </Menu.Item>
           <Menu.Item key="inquiry">
-            <a href="/mail/inquiry">Contact Us</a>
+            <a href="/mail/inquiry" style={{color: 'white'}}>Contact Us</a>
           </Menu.Item>
         </Menu>
       )

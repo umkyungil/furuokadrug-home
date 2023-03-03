@@ -1,26 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import OrderInfo from './Sections/OrderInfo'
 import { Row, Col } from 'antd';
 import { ORDER_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function DetailOrderPage(props) {
   const [Order, setOrder] = useState({});
   const orderId = props.match.params.orderId;
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
     axios.get(`${ORDER_SERVER}/orders_by_id?id=${orderId}`)
       .then(response => {
         if (response.data.success) {
-          setOrder(response.data.orders[0])
+          setOrder(response.data.orders[0]);
           // 다국적언어 설정
-          i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+          i18n.changeLanguage(isLanguage);
         } else {
-          alert("Failed to get order information.")
+          alert("Failed to get order information");
         }
       })
   }, [])
@@ -43,4 +45,4 @@ function DetailOrderPage(props) {
   )
 }
 
-export default DetailOrderPage
+export default DetailOrderPage;

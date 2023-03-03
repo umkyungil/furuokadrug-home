@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import moment from "moment";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -8,6 +8,8 @@ import { useHistory } from 'react-router-dom';
 import { Select, Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER } from '../../Config';
+import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
+import { LanguageContext } from '../../context/LanguageContext';
 import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
@@ -15,12 +17,14 @@ axios.defaults.withCredentials = true;
 const {Option} = Select;
 const formItemLayout = {
   labelCol: {
-    xs: { span: 24 },
-    sm: { span: 8 },
+    span: 6
+    // xs: { span: 4 },
+    // sm: { span: 8 },
   },
   wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 16 },
+    span: 14
+    // xs: { span: 24 },
+    // sm: { span: 16 },
   },
 };
 const tailFormItemLayout = {
@@ -31,20 +35,21 @@ const tailFormItemLayout = {
     },
     sm: {
       span: 16,
-      offset: 8,
-    },
-  },
+      offset: 6,
+    }
+  }
 };
 
 function UserRegisterPage(props) {
   const [SelectItem, setSelectItem] = useState("jp");
   const dispatch = useDispatch();
   const history = useHistory();
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
   }, [])
 
   // Landing pageへ戻る
@@ -181,20 +186,18 @@ function UserRegisterPage(props) {
       {props => {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
-          <div className="app">
-            <br />
-            <br />
-            <br />
-            <br />
-
-            <h1>{t('SignUp.title')}</h1>
-            <Form style={{ height: '100%', margin: '1em' }} {...formItemLayout} onSubmit={handleSubmit} >
+          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <h1>{t('User.regTitle')}</h1>
+            </div>
+            
+            <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} autoComplete="off" >
               {/* 이름 */}
               <Form.Item required label={t('SignUp.name')} style={{ marginBottom: 0, }} >
                 {/* 성 */}
                 <Form.Item name="lastName" required style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
-                  <Input id="lastName" placeholder="Enter your last name" type="text" value={values.lastName} onChange={handleChange} onBlur={handleBlur}
-                    className={ errors.lastName && touched.lastName ? 'text-input error' : 'text-input' } />
+                  <Input id="lastName" placeholder="Enter your last name" type="text" value={values.lastName} onChange={handleChange} 
+                    onBlur={handleBlur} className={ errors.lastName && touched.lastName ? 'text-input error' : 'text-input' } />
                   {errors.lastName && touched.lastName && (
                     <div className="input-feedback">{errors.lastName}</div>
                   )}
@@ -294,9 +297,9 @@ function UserRegisterPage(props) {
               {/* 언어 */}
               <Form.Item required label={t('SignUp.language')}>
                 <Select defaultValue="jp" style={{ width: 120 }} onChange={selectHandler}>
-                  <Option value="jp">日本語</Option>
-                  <Option value="en">English</Option>
-                  <Option value="cn">中文（簡体）</Option>
+                  <Option value="jp">{JAPANESE}</Option>
+                  <Option value="en">{ENGLISH}</Option>
+                  <Option value="cn">{CHINESE}</Option>
                 </Select>&nbsp;&nbsp;
               </Form.Item>
               {/* 비밀번호 */}
@@ -335,4 +338,4 @@ function UserRegisterPage(props) {
   );
 };
 
-export default UserRegisterPage
+export default UserRegisterPage;

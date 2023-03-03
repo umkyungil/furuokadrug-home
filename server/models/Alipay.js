@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const AlipaySchema = mongoose.Schema({
+const AlipaySchema = new Schema(
+{
 	// 決済番号
 	pid: {
 		type:String,
@@ -59,5 +60,5 @@ AlipaySchema.index({
   }
 })
 
-const Alipay = mongoose.model('Alipay', AlipaySchema);
-module.exports = { Alipay }
+const Alipay = model('Alipay', AlipaySchema);
+module.exports = { Alipay };

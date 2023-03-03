@@ -1,12 +1,20 @@
 @import '~antd/dist/antd.css';
 
 .menu {
+  /* padding: 0 20px; */
+  border-bottom: solid 1px #e8e8e8;
+  overflow: auto;
+  box-shadow: 0 0 30px #f3f1f1;
+  background-color: #1a1e65;
+}
+
+/* .menu {
   padding: 0 20px;
   border-bottom: solid 1px #e8e8e8;
   overflow: auto;
   box-shadow: 0 0 30px #f3f1f1;
   background-color: white;
-}
+} */
 
 .menu__logo {
   width: 150px;
@@ -16,7 +24,7 @@
 .menu__logo a {
   display: inline-block;
   font-size: 20px;
-  padding: 19px 20px;
+  padding: 0px 20px;
 }
 
 .menu__container .ant-menu-item {
@@ -52,6 +60,15 @@
   display: none !important; /* use of important to overwrite ant-btn */
   background: #3e91f7;
 }
+  
+/* .menu__mobile-button {
+  float: right;
+  height: 32px;
+  padding: 6px;
+  margin-top: 8px;
+  display: none !important;  use of important to overwrite ant-btn 
+  background: #3e91f7;
+} */
 
 .menu_drawer .ant-drawer-body {
   padding: 0 !important;
@@ -72,7 +89,7 @@
     display: none;
   }
 
-  .menu__logo a {
+  .menu__logo a { 
     margin-left: -20px;
   }
 
@@ -82,6 +99,6 @@
   }
 
   .menu__logo a {
-    padding: 10px 20px;
+    padding: 0px 20px;
   }
 }

@@ -1,10 +1,11 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const moment = require("moment");
 
-const userSchema = mongoose.Schema({
+const UserSchema = new Schema(
+{
     name: {
         type: String,
         trim: true
@@ -101,7 +102,7 @@ const userSchema = mongoose.Schema({
     }
 }, { timestamps: true })
 
-userSchema.pre('save', function( next ) {
+UserSchema.pre('save', function( next ) {
     var user = this;    
     if(user.isModified('password')){    
         bcrypt.genSalt(saltRounds, function(err, salt){
@@ -119,7 +120,7 @@ userSchema.pre('save', function( next ) {
 });
 
 // 암호 비교
-userSchema.methods.comparePassword = function(plainPassword,cb){
+UserSchema.methods.comparePassword = function(plainPassword,cb){
     // plan password를 암호화 해서 비교한다, 기존 DB의 암호를 복화화 할수 없다
     bcrypt.compare(plainPassword, this.password, function(err, isMatch){
         if (err) return cb(err);
@@ -128,7 +129,7 @@ userSchema.methods.comparePassword = function(plainPassword,cb){
 }
 
 // jsonwebtoken을 이용해서 token생성
-userSchema.methods.generateToken = function(cb) {
+UserSchema.methods.generateToken = function(cb) {
     var user = this;
     var token =  jwt.sign(user._id.toHexString(),'secret')
     var oneHour = moment().add(1, 'hour').valueOf();
@@ -141,7 +142,7 @@ userSchema.methods.generateToken = function(cb) {
     })
 }
 
-userSchema.statics.findByToken = function (token, cb) {
+UserSchema.statics.findByToken = function (token, cb) {
     var user = this;
     // 토큰을 decode 한다
     jwt.verify(token,'secret', function(err, decode){
@@ -154,6 +155,5 @@ userSchema.statics.findByToken = function (token, cb) {
     })
 }
 
-const User = mongoose.model('User', userSchema);
-
-module.exports = { User }
+const User = model('User', UserSchema);
+module.exports = { User };

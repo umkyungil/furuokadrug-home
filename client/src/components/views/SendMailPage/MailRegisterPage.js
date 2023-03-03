@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import moment from "moment";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { useHistory } from 'react-router-dom';
 import { Select, Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../context/LanguageContext';
 
 const { TextArea } = Input;
 const {Option} = Select;
@@ -39,11 +40,12 @@ function MailRegisterPage(props) {
   const [Message, setMessage] = useState("");
   const dispatch = useDispatch();
   const history = useHistory();
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
   }, [])
 
   const listHandler = () => {
@@ -58,7 +60,6 @@ function MailRegisterPage(props) {
   const messageHandler = (event) => {
     setMessage(event.currentTarget.value)
   }
-
 
   return (
     <Formik
@@ -164,4 +165,4 @@ function MailRegisterPage(props) {
   );
 };
 
-export default MailRegisterPage
+export default MailRegisterPage;

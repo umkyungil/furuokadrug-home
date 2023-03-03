@@ -1,18 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Button, Descriptions, Tooltip } from 'antd';
 import { useDispatch } from 'react-redux';
 import { deleteUser } from '../../../../_actions/user_actions';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { NOTHING, ENGLISH, JAPANESE, CHINESE, I18N_ENGLISH, I18N_CHINESE, I18N_JAPANESE } from '../../../utils/Const';
+import { LanguageContext } from '../../../context/LanguageContext';
 
 function UserInfo(props) {
   const history = useHistory();
   const dispatch = useDispatch();
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(isLanguage);
 	}, [])
 
   let address1 = "";
@@ -53,9 +56,9 @@ function UserInfo(props) {
   if (props.detail.role === 1) role = "スタッフ";
   if (props.detail.role === 2) role = "管理者";
   // 언어값 변경
-  if (props.detail.language === "en") language = "英語";
-  if (props.detail.language === "cn") language = "中国語（簡体）";
-  if (props.detail.language === "jp") language = "日本語";
+  if (props.detail.language === I18N_ENGLISH) language = ENGLISH;
+  if (props.detail.language === I18N_CHINESE) language = CHINESE;
+  if (props.detail.language === I18N_JAPANESE) language = JAPANESE;
   // 포인트 변경
   if (!props.detail.point || props.detail.point === "") point = "0";
   // 최근 로그인날짜 변형(date 추가)
@@ -64,7 +67,7 @@ function UserInfo(props) {
     let lastLoginDate = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
     lastDate = lastLoginDate.replace('T', ' ').substring(0, 19) + ' (JST)';
   } else {
-    lastDate = '無し';
+    lastDate = NOTHING;
   }
   // 삭제날짜 변형(delDate 추가)
   if (props.detail.deletedAt) {
@@ -72,7 +75,7 @@ function UserInfo(props) {
     let deletedDate = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
     delDate = deletedDate.replace('T', ' ').substring(0, 19) + ' (JST)';
   } else {
-    delDate = '無し';
+    delDate = NOTHING;
   }
   
   // 사용자 정보 삭제

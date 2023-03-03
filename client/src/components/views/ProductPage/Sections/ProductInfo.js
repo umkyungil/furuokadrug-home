@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Button, Descriptions, Collapse } from 'antd';
 import { useDispatch } from 'react-redux';
 import { addToCart, anyRegisterUser, loginUser } from '../../../../_actions/user_actions';
@@ -7,6 +7,7 @@ import axios from 'axios';
 import { PRODUCT_SERVER, USER_SERVER } from '../../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { useCookies } from "react-cookie";
+import { LanguageContext } from '../../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -14,15 +15,20 @@ axios.defaults.withCredentials = true;
 function ProductInfo(props) {
   const history = useHistory();
   const dispatch = useDispatch();
-  const { Panel } = Collapse;
+  const {Panel} = Collapse;
   const productInfo = props.productInfo;
   const userInfo = props.userInfo;
   const price = Number(productInfo.price).toLocaleString();
   const point = Number(productInfo.point).toLocaleString();
   const [Cookies, setCookie, removeCookie] = useCookies(["w_auth"]);
   const [User, setUser] = useState({});
+  const {isLanguage} = useContext(LanguageContext);
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
+    // 다국적언어 설정
+    i18n.changeLanguage(isLanguage);
+    // 사용자 정보 로컬스토리지에서 가져오기
     const userId = localStorage.getItem("userId");
     if (userId) {
       getUser(userId);
@@ -181,12 +187,6 @@ function ProductInfo(props) {
   // Landing pageへ戻る
   const listHandler = () => {
     history.push("/");
-  }
-  
-  // 다국적언어 설정
-	const {t, i18n} = useTranslation();
-  function setMultiLanguage(lang) {
-    i18n.changeLanguage(lang);
   }
 
   // 로그인 후

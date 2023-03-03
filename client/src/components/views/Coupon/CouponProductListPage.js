@@ -1,26 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Table, Button } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
-import { MainCategory } from '../../utils/Const';
+import { MAIN_CATEGORY } from '../../utils/Const';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-const items = MainCategory;
+const items = MAIN_CATEGORY;
 
 function CouponProductListPage(props) {
 	const [Products, setProducts] = useState([]);
 	const [Item, setItem] = useState(0);
-	const {t, i18n} = useTranslation();
+	const { isLanguage, setIsLanguage } = useContext(LanguageContext);
+  const {t, i18n} = useTranslation();
 
 	useEffect(() => {
+		i18n.changeLanguage(isLanguage);
+
 		// query string 가져오기
 		const item = props.match.params.item;
 		setItem(item);
-		// 다국어 설정
-    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
 		// 사용자정보 취득	
 		let body = { item: item, searchTerm: ""	}
 		getProducts(body);

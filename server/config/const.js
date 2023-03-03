@@ -3,7 +3,7 @@ const Unidentified = "未確認"
 const DeliveryCompleted = "配送手続き完了"
 const Deposited = "入金済み"
 
-const MainCategory = [
+const MAIN_CATEGORY = [
   {key:0, value: "All"},
   {key:1, value: "Cosmetic"},
   {key:2, value: "Drug"},
@@ -31,4 +31,6 @@ const UseWithSale = [
   {key:2, value: "Sale only"}
 ]
 
-module.exports = { NotSet, Unidentified, DeliveryCompleted, Deposited, MainCategory, CouponType, UseWithSale, SaleType };
+const BUCKET_NAME = "furuokadrug-bucket";
+
+module.exports = { NotSet, Unidentified, DeliveryCompleted, Deposited, MAIN_CATEGORY, CouponType, UseWithSale, SaleType, BUCKET_NAME };

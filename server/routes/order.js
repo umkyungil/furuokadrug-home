@@ -15,12 +15,9 @@ const { Unidentified, DeliveryCompleted } = require('../config/const');
 router.post("/register", (req, res) => {
   try {
     const order = new Order(req.body);
-
     order.save((err, doc) => {
       if (err) return res.json({ success: false, err });
-      return res.status(200).json({
-        success: true
-      });
+      return res.status(200).json({ success: true });
     });
   } catch (err) {
     console.log(err);

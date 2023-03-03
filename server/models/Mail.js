@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const MailSchema = mongoose.Schema({
+const MailSchema = new Schema(
+{
 	// 메일종류(메일발송 페이지)
 	type: {
 		type:String
@@ -34,5 +35,5 @@ MailSchema.index({
   }
 })
 
-const Mail = mongoose.model('Mail', MailSchema);
+const Mail = model('Mail', MailSchema);
 module.exports = { Mail }

@@ -1,5 +1,7 @@
-const mongoose = require('mongoose');
-const counterSchema = mongoose.Schema({
+const { Schema, model } = require('mongoose');
+
+const CounterSchema = new Schema(
+{
   name: {
     type: String
   },
@@ -9,7 +11,7 @@ const counterSchema = mongoose.Schema({
   }
 }, { timestamps: true })
 
-counterSchema.index({
+CounterSchema.index({
   name: 'text'
 }, {
   weights: {
@@ -17,5 +19,5 @@ counterSchema.index({
   }
 })
 
-const Counter = mongoose.model('Counter', counterSchema);
-module.exports = { Counter }
+const Counter = model('Counter', CounterSchema);
+module.exports = { Counter };

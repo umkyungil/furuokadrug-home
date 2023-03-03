@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import moment from "moment";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -8,19 +8,23 @@ import { useHistory } from 'react-router-dom';
 import { Select, Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER, USER_SERVER } from '../../Config';
+import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
 import axios from 'axios';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 const {Option} = Select;
 const formItemLayout = {
   labelCol: {
-    xs: { span: 24 },
-    sm: { span: 8 },
+    span: 6
+    // xs: { span: 24 },
+    // sm: { span: 8 },
   },
   wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 16 },
+    span: 14
+    // xs: { span: 24 },
+    // sm: { span: 16 },
   },
 };
 const tailFormItemLayout = {
@@ -31,7 +35,8 @@ const tailFormItemLayout = {
     },
     sm: {
       span: 16,
-      offset: 8,
+      offset: 6,
+      // offset: 8,
     },
   },
 };
@@ -44,15 +49,20 @@ function UserPreregisterConfirmPage(props) {
   const [Email, setEmail] = useState("");
   const dispatch = useDispatch();
   const history = useHistory();
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
-		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
     // query string 취득
-    const userId = props.match.params.userId;
-    // 사용자 정보 취득
-    getUser(userId);
+    if (!props.match.params.userId) {
+      alert("Please contact the manager");
+      history.push("/");
+    } else {
+      // 다국어 설정
+      i18n.changeLanguage(isLanguage);
+      // 사용자 정보 취득
+      getUser(props.match.params.userId);
+    }
   }, [])
 
   // Landing pageへ戻る
@@ -218,16 +228,12 @@ function UserPreregisterConfirmPage(props) {
       {props => {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
-          <div className="app">
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
+          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <h1>{t('SignUp.title')}</h1>
+            </div>
             
-            <h1>{t('SignUp.title')}</h1><br />
-            <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
+            <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} autoComplete="off" >
               {/* 이름 */}  
               <Form.Item label={t('SignUp.name')} style={{ marginBottom: 0, }} >
                 {/* 성 */}
@@ -320,9 +326,9 @@ function UserPreregisterConfirmPage(props) {
               {/* 언어 */}
               <Form.Item required label={t('SignUp.language')} >
                 <Select value={Language} style={{ width: 120 }} onChange={languageHandler}>
-                  <Option value="jp">日本語</Option>
-                  <Option value="en">English</Option>
-                  <Option value="cn">中文（簡体）</Option>
+                  <Option value="jp">{JAPANESE}</Option>
+                  <Option value="en">{ENGLISH}</Option>
+                  <Option value="cn">{CHINESE}</Option>
                 </Select>&nbsp;&nbsp;
               </Form.Item>
               {/* 비밀번호 */}
@@ -351,6 +357,7 @@ function UserPreregisterConfirmPage(props) {
                   Submit
                 </Button>
               </Form.Item>
+              <br />
             </Form>
           </div>
         );
@@ -359,4 +366,4 @@ function UserPreregisterConfirmPage(props) {
   );
 };
 
-export default UserPreregisterConfirmPage
+export default UserPreregisterConfirmPage;

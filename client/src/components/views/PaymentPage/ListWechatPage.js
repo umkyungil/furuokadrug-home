@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState, useContext } from 'react';
 import { Table } from 'antd';
 import SearchFeature from './Sections/WechatSearchFeature';
 import { PAYMENT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../context/LanguageContext';
+import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function ListWechatPage() {
 	const [WechatInfo, setWechatInfo] = useState([]);
+	const {isLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 
 	useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+		i18n.changeLanguage(isLanguage);
 		// 위쳇 정보 취득
 		let body = {skip: 0, limit: 8}
 		getWechatInfo(body);

@@ -338,7 +338,7 @@ router.post("/coupon/list", (req, res) => {
 });
 
 // 사용자 수정
-router.post("/update", (req, res) => {
+router.post("/update", async (req, res) => {
     // 삭제여부 확인
     let deletedAt;
     if (req.body.deletedAt) {
@@ -348,29 +348,26 @@ router.post("/update", (req, res) => {
     }
 
     try {
-        User.updateMany(
-            { _id: req.body.id },
-            {   
-                name: req.body.name,
-                lastName: req.body.lastName, 
-                birthday: req.body.birthday,
-                tel: req.body.tel,
-                address1: req.body.address1,
-                receiver1: req.body.receiver1,
-                tel1: req.body.tel1,
-                address2: req.body.address2,
-                receiver2: req.body.receiver2,
-                tel2: req.body.tel2,
-                address3: req.body.address3,
-                receiver3: req.body.receiver3,
-                tel3: req.body.tel3,
-                role: req.body.role,
-                language: req.body.language,
-                deletedAt: deletedAt
-            }, (err, doc) => {
-            if (err) return res.json({ success: false, err });
-            return res.status(200).send({ success: true });
-        });
+        let user = await User.findById(req.body.id);
+        user.name = req.body.name;
+        user.lastName = req.body.lastName;
+        user.birthday = req.body.birthday;
+        user.tel = req.body.tel;
+        user.address1 = req.body.address1;
+        user.receiver1 = req.body.receiver1;
+        user.tel1 = req.body.tel1;
+        user.address2 = req.body.address2;
+        user.receiver2 = req.body.receiver2;
+        user.tel2 = req.body.tel2;
+        user.address3 = req.body.address3;
+        user.receiver3 = req.body.receiver3;
+        user.tel3 = req.body.tel3;
+        user.role = req.body.role;
+        user.language = req.body.language;
+        user.deletedAt = req.body.deletedAt;
+
+        await user.save();
+        return res.status(200).send({ success: true });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ success: false, message: err.message });

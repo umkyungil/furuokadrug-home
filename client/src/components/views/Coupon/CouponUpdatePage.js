@@ -1,29 +1,32 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useContext} from "react";
 import { Formik } from 'formik';
 import { useHistory } from 'react-router-dom';
 import { DatePicker, Form, Input, Button, Select, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { MainCategory, CouponType, CouponActive, UseWithSale, ReferenceDate } from '../../utils/Const';
+import { MAIN_CATEGORY, CouponType, CouponActive, UseWithSale } from '../../utils/Const';
 import { COUPON_SERVER, MAIL_SERVER, PRODUCT_SERVER, USER_SERVER } from '../../Config.js';
 import schedule from 'node-schedule'
 import axios from 'axios';
+import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 const { Option } = Select;
-const items = MainCategory;
+const items = MAIN_CATEGORY;
 const types = CouponType;
 const actives = CouponActive;
 const withSale = UseWithSale;
 
 const formItemLayout = {
   labelCol: {
-    xs: { span: 24 },
-    sm: { span: 8 },
+    span: 6
+    // xs: { span: 24 },
+    // sm: { span: 8 },
   },
   wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 16 },
+    span: 14
+    // xs: { span: 24 },
+    // sm: { span: 16 },
   },
 };
 const tailFormItemLayout = {
@@ -57,15 +60,14 @@ function CouponUpdatePage(props) {
   const [SendMail, setSendMail] = useState(false);
   const [MailBatch, setMailBatch] = useState("");
   const [BirthdayCoupon, setBirthdayCoupon] = useState(false);
+
+  const { isLanguage, setIsLanguage } = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
   
   useEffect(() => {
-    // 다국적언어
-    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
-    // Query string에서 쿠폰ID 가져오기
-    const couponId = props.match.params.couponId;
+    i18n.changeLanguage(isLanguage);
      // 쿠폰정보 가져오기
-    getCoupon(couponId);
+    getCoupon(props.match.params.couponId);
   }, [])
 
   // 쿠폰정보 가져오기
@@ -302,12 +304,13 @@ function CouponUpdatePage(props) {
       }}
     >
       {props => {
-        const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
+        const { isSubmitting, handleSubmit, } = props;
         return (
-          <div className="app">
-            <h1>{t('Coupon.updateTitle')}</h1>
-            <br />
-            <Form style={{ minWidth: '375px' }} {...formItemLayout} onSubmit={handleSubmit} >
+          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <h1>{t('Coupon.updateTitle')}</h1>
+            </div>
+            <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} autoComplete="off" >
               {/* 쿠폰코드 */}
               <Form.Item label={t('Coupon.code')}>
                 <Input id="code"  type="text" value={Code} style={{ width: 250 }} readOnly/>

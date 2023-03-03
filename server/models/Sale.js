@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const saleSchema = mongoose.Schema({
+const SaleSchema = new Schema(
+{
   code: {
     type: String
   },
@@ -71,7 +72,7 @@ const saleSchema = mongoose.Schema({
   }
 }, { timestamps: true })
 
-saleSchema.index({
+SaleSchema.index({
   code: 'text',
   type: 'text'
 }, {
@@ -81,5 +82,5 @@ saleSchema.index({
   }
 })
 
-const Sale = mongoose.model('Sale', saleSchema);
-module.exports = { Sale }
+const Sale = model('Sale', SaleSchema);
+module.exports = { Sale };

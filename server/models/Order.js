@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const orderSchema = mongoose.Schema({
+const OrderSchema = new Schema(
+{
     type: {
         type: String,
         trim: true,
@@ -63,7 +64,7 @@ const orderSchema = mongoose.Schema({
     },
 }, { timestamps: true })
 
-orderSchema.index({
+OrderSchema.index({
     deliveryStatus: 'text',
     sod: 'text',
     staffName: 'text'
@@ -75,5 +76,5 @@ orderSchema.index({
     }
 })
 
-const Order = mongoose.model('Order', orderSchema);
-module.exports = { Order }
+const Order = model('Order', OrderSchema);
+module.exports = { Order };

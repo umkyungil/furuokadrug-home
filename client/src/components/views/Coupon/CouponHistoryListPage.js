@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Table } from 'antd';
 import { COUPON_SERVER, USER_SERVER, PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
-import { CouponType, CouponActive, MainCategory, UseWithSale } from '../../utils/Const.js'
+import { CouponType, CouponActive, MAIN_CATEGORY, UseWithSale } from '../../utils/Const.js'
+import { LanguageContext } from '../../context/LanguageContext.js';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 function CouponHistoryListPage() {
 	const [Coupons, setCoupons] = useState([]);
-	const {t, i18n} = useTranslation();
+
+	const { isLanguage, setIsLanguage } = useContext(LanguageContext);
+  const {t, i18n} = useTranslation();
 
 	useEffect(() => {
-		// 다국어 설정
-    i18n.changeLanguage(localStorage.getItem("i18nextLng"));
+    i18n.changeLanguage(isLanguage);
 		// 쿠폰정보 취득	
 		getHistoryCoupons();
 	}, [])
@@ -114,9 +116,9 @@ function CouponHistoryListPage() {
 						}
 					}
 					// 쿠폰적용 상품 카테고리 데이터 변경
-					for (let j=0; j<MainCategory.length; j++) {
-						if (history.item === MainCategory[j].key) {
-							history.item = MainCategory[j].value;
+					for (let j=0; j<MAIN_CATEGORY.length; j++) {
+						if (history.item === MAIN_CATEGORY[j].key) {
+							history.item = MAIN_CATEGORY[j].value;
 						}
 					}
 					// 세일과 같이 사용여부
@@ -170,7 +172,7 @@ function CouponHistoryListPage() {
 
 	return (
 		<div style={{ width:'80%', margin: '3rem auto'}}>
-			<div style={{ textAlign: 'center' }}>
+			<div style={{ textAlign: 'center', marginBottom: '2rem' }}>
 				<h1>{t('Coupon.historyTitle')}</h1>
 			</div>
 
