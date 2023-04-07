@@ -187,7 +187,7 @@ function UserRegisterPage(props) {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
           <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>{t('User.regTitle')}</h1>
             </div>
             
@@ -323,7 +323,7 @@ function UserRegisterPage(props) {
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={listHandler}>
                   Landing Page
-                </Button>&nbsp;&nbsp;
+                </Button>
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
                   Submit
                 </Button>

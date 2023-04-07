@@ -2,7 +2,7 @@ import React, { useEffect, useContext, useState } from 'react';
 import { Button, Form, Radio, Divider, Input } from 'antd';
 import FileUpload from '../../utils/FileUpload';
 import { IMAGES_SERVER } from '../../Config.js';
-import { IMAGES_VISIBLE_ITEM, IMAGES_TYPE, IMAGES_LANGUAGE } from '../../utils/Const';
+import { IMAGES_VISIBLE_ITEM, IMAGES_TYPE, IMAGES_LANGUAGE, I18N_JAPANESE } from '../../utils/Const';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
 import axios from 'axios';
@@ -25,11 +25,11 @@ const tailFormItemLayout = {
 function ImagesRegisterPage(props) {
   const [Visible, setVisible] = useState(0);
   const [Type, setType] = useState(1);
-  const [Language, setLanguage] = useState(0);
+  const [Language, setLanguage] = useState(I18N_JAPANESE);
   const [Images, setImages] = useState([]);
+  const [OldImages, setOldImages] = useState([]); // 실제 사용하지는 않지만 빈 배열을 props로 넘기는 용도로 사용
   const [IsShow, setIsShow] = useState(false);
   const [Description, setDescription] = useState("");
-
   const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
@@ -50,9 +50,7 @@ function ImagesRegisterPage(props) {
     <Radio key={item._id} value={item._id}> {item.name} </Radio>
   ))
   // 이미지 설정
-  const uploadImage = (newImages) => {
-    console.log("newImages: ", newImages);
-    
+  const updateImages = (newImages) => {
     setImages(newImages);
   }
   // 이미지 화면노출 여부
@@ -87,7 +85,6 @@ function ImagesRegisterPage(props) {
       alert("Image is required");
       return false; 
     }
-    // 유효성 체크
     if (Images.length > 1) {
       alert("Only one image can be registered\nClick on the image you want to delete to delete it");
       return false; 
@@ -96,7 +93,6 @@ function ImagesRegisterPage(props) {
     let isExists = false;
     if (Visible === 1) {
       const image = await axios.post(`${IMAGES_SERVER}/images_by_type`, {type: Type, visible: Visible, language: Language});
-      console.log("image: " + image);
       if (image.data.imageInfo.length > 0) {
         isExists = true;
       }
@@ -132,13 +128,13 @@ function ImagesRegisterPage(props) {
 
   return (
     <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Images.regTitle')}</h1>
       </div>
 
       <Form style={{height:'80%', margin:'1em'}} labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} onSubmit={submitHandler}>
         {/* DropZone*/}
-        <FileUpload refreshFunction={uploadImage} />
+        <FileUpload refreshFunction={updateImages} oldImages={OldImages} />
         <br />
         <br />
         
@@ -147,7 +143,7 @@ function ImagesRegisterPage(props) {
           {itemRadioBoxLists()}
         </Radio.Group>
         <Divider orientation="left" plain="true">{t('Images.language')}</Divider>
-        <Radio.Group value={Language} readOnly>
+        <Radio.Group onChange={languageHandler} value={Language} >
           {languageRadioBoxLists()}
         </Radio.Group>
         <Divider orientation="left" plain="true">{t('Images.types')}</Divider>

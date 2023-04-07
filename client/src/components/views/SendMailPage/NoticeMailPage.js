@@ -101,9 +101,12 @@ const NoticeMailPage = (props) => {
   }
 
   return (
-    <div className="app">
-      <h1>{t('Mail.noticeTitle')}</h1><br />
-      <Form style={{ minWidth: '375px' }} onSubmit={sendEmail} {...formItemLayout} >
+    <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
+        <h1>{t('Mail.noticeTitle')}</h1>
+      </div>
+
+      <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={sendEmail} >
         <Form.Item label={t('Mail.subject')} required>
           <Input name="subject" placeholder="Please enter your subject" type="text" value={Subject} onChange={subjectHandler} required/>
         </Form.Item>
@@ -116,12 +119,12 @@ const NoticeMailPage = (props) => {
         </Form.Item>
 
         <Form.Item label={t('Mail.message')} required>
-          <TextArea maxLength={100} name="message" label="Message" style={{ height: 120, minWidth: '500px' }} value={Message} onChange={messageHandler} placeholder="Please enter your message" required/>
+          <TextArea maxLength={100} name="message" label="Message" style={{ height: 120 }} value={Message} onChange={messageHandler} placeholder="Please enter your message" required/>
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>
           <Button onClick={listHandler}>
             Landing Page
-          </Button>&nbsp;&nbsp;&nbsp;
+          </Button>
           <Button htmlType="submit" type="primary">
             Send
           </Button>

@@ -47,13 +47,15 @@
     "price": "Price(JPY)",
     "priceDisplay": "Price",
     "point": "Point",
-    "contents": "Capacity",
+    "contents": "Contents",
     "itemSelection": "Item selection",
     "priceSelection": "Price selection",
-    "imageMessage": "Existing images will be deleted so please add new ones",
     "category": "Category",
     "action": "Action",
-    "exposure": "Exposure"
+    "exposure": "Exposure",
+    "englishUrl": "Product URL(EN)",
+    "japaneseUrl": "Product URL(JP)",
+    "chineseUrl": "Product URL(CN)"
   },
   "Customer": {
     "listTitle": "Customer list",
@@ -276,17 +278,6 @@
     "lastName": "Last name",
     "totalPoints": "Total points"
   },
-  "Banner": {
-    "listTitle": "Banner list",
-    "regTitle": "Banner register",
-    "updateTitle": "Banner update",
-    "id": "Banner ID",
-    "image": "Images",
-    "exposure": "Exposure",
-    "createdDate": "Created date",
-    "updateDate": "Updated date",
-    "action": "Action"
-  },
   "Images": {
     "listTitle": "Images list",
     "regTitle": "Images register",
@@ -307,12 +298,19 @@
     "saleTitle": "Sale list",
     "itemTitle": "Item list",
     "pharmaceuticalsTitle": "PHARMACEUTICALS",
-    "pharmaceuticalsDesc": "Description",
     "cosmeticsTitle": "COSMETICS",
-    "cosmeticsDesc": "Description",
     "dailyNecessariesTitle": "DAILY NECESSARIES",
-    "dailyNecessariesDesc": "Description",
-    "foodTitle": "FOOD",
-    "foodDesc": "Description"
+    "foodTitle": "FOOD"
+  },
+  "AWS": {
+    "listTitle": "AWS list",
+    "regTitle": "AWS register",
+    "deleteTitle": "AWS delete",
+    "type": "AWS Type",
+    "access": "Access code",
+    "secret": "Secret code",
+    "region": "Region",
+    "createdDate": "Created date",
+    "action": "Action"
   }
 }

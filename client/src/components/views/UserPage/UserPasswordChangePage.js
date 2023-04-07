@@ -141,8 +141,10 @@ function UserPasswordChangePage(props) {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
           <div className="app">
-            <h1>{t('Password.title')}</h1><br />
-            <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
+            <h1>{t('Password.title')}</h1>
+            <br />
+
+            <Form style={{ minWidth: '350px' }} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 메일주소 */}
               <Form.Item required label={t('SignUp.email')} hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
                 <Input id="email" placeholder="Enter your Email" type="email" value={values.email} onChange={handleChange} onBlur={handleBlur}
@@ -154,7 +156,7 @@ function UserPasswordChangePage(props) {
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={listHandler}>
                   Landing Page
-                </Button>&nbsp;&nbsp;
+                </Button>
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
                   Submit
                 </Button>
@@ -167,4 +169,4 @@ function UserPasswordChangePage(props) {
   );
 };
 
-export default UserPasswordChangePage
+export default UserPasswordChangePage;

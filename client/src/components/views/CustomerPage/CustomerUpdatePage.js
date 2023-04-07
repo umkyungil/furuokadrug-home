@@ -189,10 +189,12 @@ function CustomerUpdatePage(props) {
       {props => {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
-          <div className="app">
-            <h1>{t('Customer.updateTitle')}</h1>
-            <br />
-            <Form style={{ minWidth: '375px' }} {...formItemLayout} onSubmit={handleSubmit} >
+          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
+              <h1>{t('Customer.updateTitle')}</h1>
+            </div>
+
+            <Form style={{ height:'80%', margin:'1em' }} {...formItemLayout} onSubmit={handleSubmit} >
               <Form.Item label={t('Customer.smaregiId')}>
                 <Input id="smaregiId" placeholder="Enter the customer's Smaregi id" type="text" value={SmaregiId} 
                   onChange={smaregiIdChangeHandler} onBlur={handleBlur} required />
@@ -233,7 +235,7 @@ function CustomerUpdatePage(props) {
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={listHandler}>
                   Customer List
-                </Button>&nbsp;&nbsp;
+                </Button>
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
                   Submit
                 </Button>

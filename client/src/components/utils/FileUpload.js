@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Dropzone from 'react-dropzone';
 import { Icon } from 'antd';
 import axios from 'axios';
@@ -9,20 +9,27 @@ axios.defaults.withCredentials = true;
 function FileUpload(props) {
   const [Images, setImages] = useState([]);
 
+  useEffect(() => {
+    // 업데이트인 경우 기존 이미지를 화면에 보여준다다
+    setImages(props.oldImages)
+  }, [props.oldImages])
+
   // 이미지 등록
   const dropHandler = (files) => {
     let formData = new FormData();
     const config = {
       header: { 'content-type': 'multipart/form-data' }
     }
+    
     formData.append("file", files[0]);
 
+    // AWS에서 이미지를 등록
     axios.post(`${PRODUCT_SERVER}/image`, formData, config)
     .then(response => {
       if (response.data.success) {
         setImages([...Images, response.data.filePath]);
 
-        // 이미지에 대한 상태 변경이 있을때 부모 컴포넌트에도 이미지 정보를 전달
+        // 부모 컴포넌트에도 이미지 정보를 전달해서 저장할수 있게한다
         props.refreshFunction([...Images, response.data.filePath]);
       } else {
         alert('Failed to save file.');
@@ -49,7 +56,7 @@ function FileUpload(props) {
         }
       });
 
-    // 이미지에 대한 상태 변경이 있을때 부모 컴포넌트에도 이미지 정보를 전달
+    // 부모 컴포넌트에도 이미지 정보를 전달해서 디비에서 삭제할수 있게 한다
     props.refreshFunction(newImages);
   }
 
@@ -74,8 +81,6 @@ function FileUpload(props) {
       <div style={{ display:'flex', width:'350px', height:'240px' }}>
         {Images.map((image, index) => (
           <div onClick={() => deleteHandler(image)} key={index}>
-            {/* <img style={{ minWidth:'300px', width:'300px', height:'240px' }} src={`http://localhost:5000/${image}`}/> */}
-            {/* <img style={{ minWidth:'300px', width:'300px', height:'240px' }} src={`https://furuokadrug.herokuapp.com/${image}`}/> */}
             <img style={{ minWidth:'300px', width:'300px', height:'240px' }} src={image}/>
           </div>
         ))}

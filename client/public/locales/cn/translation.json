@@ -50,10 +50,12 @@
     "contents": "容量",
     "itemSelection": "商品筛选",
     "priceSelection": "价格筛选",
-    "imageMessage": "现有图片将被删除，请添加新图片",
     "category": "类别",
     "action": "行动",
-    "exposure": "接触"
+    "exposure": "接触",
+    "englishUrl": "产品网址(EN)",
+    "japaneseUrl": "产品网址(JP)",
+    "chineseUrl": "产品网址(CN)"
   },
   "Customer": {
     "listTitle": "客户信息列表",
@@ -276,16 +278,6 @@
     "lastName": "姓",
     "totalPoints": "总积分"
   },
-  "Banner": {
-    "listTitle": "广告一览",
-    "regTitle": "广告登记",
-    "updateTitle": "广告更新",
-    "image": "图片",
-    "exposure": "暴露",
-    "createdDate": "创建日期",
-    "updateDate": "更新日期",
-    "action": "Action"
-  },
   "Images": {
     "listTitle": "图片一览",
     "regTitle": "图片登记",
@@ -305,12 +297,19 @@
     "saleTitle": "销售清单",
     "itemTitle": "物品清单",
     "pharmaceuticalsTitle": "医药品",
-    "pharmaceuticalsDesc": "Description",
     "cosmeticsTitle": "化妆品",
-    "cosmeticsDesc": "Description",
     "dailyNecessariesTitle": "生活用品",
-    "dailyNecessariesDesc": "Description",
-    "foodTitle": "食物",
-    "foodDesc": "Description"
+    "foodTitle": "食物"
+  },
+  "AWS": {
+    "listTitle": "AWS list",
+    "regTitle": "AWS register",
+    "detailTitle": "AWS detail",
+    "type": "AWS Type",
+    "access": "Access code",
+    "secret": "Secret code",
+    "region": "Region",
+    "createdDate": "Created date",
+    "action": "Action"
   }
 }

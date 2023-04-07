@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { 
     LOGIN_USER, 
     REGISTER_USER, 
@@ -16,9 +15,9 @@ import {
     ON_SUCCESS_BUY,
     ON_SUCCESS_BUY_TMP,
     PASSWORD_CONFIRM
- } from './types';
+} from './types';
 import { USER_SERVER, PRODUCT_SERVER } from '../components/Config.js';
-
+import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 

@@ -11,7 +11,6 @@ axios.defaults.withCredentials = true;
 
 const { TextArea } = Input;;
 const {Option} = Select;
-let defaultArray = [];
 
 function ProductUpdatePage(props) {
   const [JapaneseTitle, setJapaneseTitle] = useState("");
@@ -28,8 +27,13 @@ function ProductUpdatePage(props) {
   const [Point, setPoint] = useState(0);
   const [Continent, setContinent] = useState(1);
   const [ExposureType, setExposureType] = useState([]);
-  const [Images, setImages] = useState([]);
+  const [Images, setImages] = useState([]);  
   const [OldImages, setOldImages] = useState([]);
+
+  const [UrlShow, setUrlShow] = useState(false);
+  const [JapaneseUrl, setJapaneseUrl] = useState("");
+  const [EnglishUrl, setEnglishUrl] = useState("");
+  const [ChineseUrl, setChineseUrl] = useState("");
   // QueryString에서 상품아이디 취득
   const productId = props.match.params.productId;
   const { isLanguage } = useContext(LanguageContext);
@@ -50,8 +54,12 @@ function ProductUpdatePage(props) {
     // 다국적언어 설정
     i18n.changeLanguage(isLanguage);
     // 상품가져오기
-    getProduct();
+    process();
   }, [])
+
+  const process = async () => {
+    await getProduct();
+  }
 
   const getProduct = async () => {
     try {
@@ -73,6 +81,13 @@ function ProductUpdatePage(props) {
         setPoint(product.data[0].point);
         setContinent(product.data[0].continents);
         setExposureType(product.data[0].exposureType);
+        // 상품의 동영상이 있는지 확인
+        if (product.data[0].japaneseUrl !== "") {
+          setUrlShow(true);
+          setJapaneseUrl(product.data[0].japaneseUrl);
+          setEnglishUrl(product.data[0].englishUrl);
+          setChineseUrl(product.data[0].chineseUrl);
+        }
       } else {
         alert("Please contact the administrator")
       }
@@ -126,8 +141,30 @@ function ProductUpdatePage(props) {
   }
   // 상품노출 옵션
   const exposureHandler = (event) => {
-    setExposureType(event);
-  };
+    // now on sale 또는 recording이면 주소입력 항목을 보여준다
+    let isExists = false;    
+    for (let i=0; i<event.length; i++) {
+      if (event[i] === PRODUCT_VISIBLE_TYPE[1].key || event[i] === PRODUCT_VISIBLE_TYPE[2].key) {
+        isExists = true;
+        break;
+      } else {
+        isExists = false;
+      }
+    }
+    setUrlShow(isExists)
+    if (event !== undefined) {
+      setExposureType(event);
+    }
+  }
+  const japaneseUrlHandler = (event) => {
+    setJapaneseUrl(event.currentTarget.value);
+  }
+  const englishUrlHandler = (event) => {
+    setEnglishUrl(event.currentTarget.value);
+  }
+  const chineseUrlHandler = (event) => {
+    setChineseUrl(event.currentTarget.value);
+  }
 
   // Submit
   const submitHandler = async (event) => {
@@ -214,6 +251,19 @@ function ProductUpdatePage(props) {
       alert("Now on air and recording cannot be selected together");
       return false;
     }
+    // now on sale 또는 recording이 선택되어 있으면 url은 필수항목이 된다
+    if (UrlShow) {
+      if (JapaneseUrl === "" || EnglishUrl === "" || ChineseUrl === "") {
+        alert("URL is required");
+        return false;
+      }
+    } else {
+      // 주소를 전부 삭제함
+      if (JapaneseUrl !== "") setJapaneseUrl("");
+      if (EnglishUrl !== "") setEnglishUrl("");
+      if (ChineseUrl !== "") setChineseUrl("");
+    }
+
     // Now on sale 상품이 이미 등록되어 있는지 확인
     let isExists = false;
     if (isNowOnAir) {
@@ -251,9 +301,11 @@ function ProductUpdatePage(props) {
       price: Price,
       point: Point,
       images: Images,
-      oldImages: OldImages,
       continents: Continent,
-      exposureType: ExposureType
+      exposureType: ExposureType,
+      japaneseUrl: JapaneseUrl,
+      englishUrl: EnglishUrl,
+      chineseUrl: ChineseUrl
     }
 
     const result = await axios.post(`${PRODUCT_SERVER}/update`, body);
@@ -273,19 +325,13 @@ function ProductUpdatePage(props) {
 
   return (
     <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Product.updateTitle')}</h1>
       </div>
 
       <Form labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} onSubmit={submitHandler}>
         {/* DropZone*/}
-        <FileUpload refreshFunction={updateImages} />
-        <br />
-        <label style={{color: 'red'}}>{t('Product.imageMessage')}</label>
-        <br />
-        {OldImages.map((image, index) => (
-          <img key={index} src={`${image}`} width="70" height="70" />
-        ))}
+        <FileUpload refreshFunction={updateImages} oldImages={OldImages} />
         <br />
         <br />
         <Form.Item required label={t('Product.japaneseTitle')}>
@@ -298,7 +344,7 @@ function ProductUpdatePage(props) {
           <Input type="text" value={ChineseTitle} style={{width: '100%'}} onChange={chineseTitleHandler} />
         </Form.Item>
         
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.description')}</label>
+        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.japaneseDescription')}</label>
         <TextArea onChange={japaneseDescriptionHandler} value={JapaneseDescription}/>
         <br />
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.englishDescription')}</label>
@@ -307,7 +353,7 @@ function ProductUpdatePage(props) {
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.chineseDescription')}</label>
         <TextArea onChange={chineseDescriptionHandler} value={ChineseDescription}/>
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.howToUse')}</label>
+        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.japaneseHowToUse')}</label>
         <TextArea onChange={japaneseUsageHandler} value={JapaneseUsage}/>
         <br />
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.englishHowToUse')}</label>
@@ -337,22 +383,29 @@ function ProductUpdatePage(props) {
             </Select>
         </Form.Item>
 
-        <Divider />
-        
+        <Divider orientation="left" plain="true">Screen exposure</Divider>
         <Form.Item label={t('Product.exposure')}>
-          {ExposureType.map(item => {
-            defaultArray.push(item);
-          })}
-            
-          <Checkbox.Group options={options} defaultValue={defaultArray} onChange={exposureHandler} />
+          <Checkbox.Group options={options} value={ExposureType} onChange={exposureHandler} />
         </Form.Item>
+
+        {UrlShow && 
+          <>
+            <Form.Item required label={t('Product.japaneseUrl')}>
+              <Input type="text" value={JapaneseUrl} onChange={japaneseUrlHandler} />
+            </Form.Item>
+            <Form.Item required label={t('Product.chineseUrl')}>
+              <Input type="text" value={ChineseUrl} onChange={chineseUrlHandler} />
+            </Form.Item>
+            <Form.Item required label={t('Product.englishUrl')}>
+              <Input type="text" value={EnglishUrl} onChange={englishUrlHandler} />
+            </Form.Item>
+          </>
+        }
         
-        <br />
-        <br />
         <br />
         <Button onClick={listHandler}>
           Landing Page
-        </Button>&nbsp;&nbsp;&nbsp;
+        </Button>
         <Button htmlType="submit" type="primary">
           Submit
         </Button>

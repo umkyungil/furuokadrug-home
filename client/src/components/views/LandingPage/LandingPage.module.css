@@ -28,7 +28,8 @@ table {
 /*videoタグ*/
 video {
   max-width: 100%;
-  /* padding: 20; */
+  /* added by kium 20230330 */
+  background-color: black;
 }
 
 /*ul,olタグ*/
@@ -39,7 +40,7 @@ ol {
 
 /*リンクテキスト全般の設定*/
 a {
-  color: #57524b;
+  color: #999999;
   /*文字色*/
   transition: 0.3s;
 }
@@ -62,7 +63,7 @@ main>article {
   margin: 0 auto;
   max-width: 1200px;
   /*最大幅。これ以上広がらない。*/
-  padding: 2% 5%;
+  padding: 5% 5%;
   /*ボックス内の余白*/
 }
 
@@ -147,11 +148,11 @@ main {
 .scrollOnAirProduct {
   /* NowOnAir 商品情報BOXのスタイル */
   display: flex;
-  width: 320px;
-  height: 180px;
+  width: 310px;
+  height: 200px;
   border-radius: 0px 10px 10px 10px;
   padding: 5px;
-  margin: 10px;
+  margin: 0px 5px;
   flex-shrink: 0;
   border: 1px solid;
   border-color: #3f3c1d;
@@ -159,17 +160,59 @@ main {
   position: relative;
   background: #FFFFFF;
   /* 背景色。白。*/
+
+  /* added by kium 20230314 */  
+  /* transition: transform 450ms; */
 }
+
+/* added by kium 20230314 */
+/* .scrollOnAirProduct:hover {
+  transform: scale(1.08);
+} */
 
 .scrollContent img {
   /* NowOnAir 画像のスタイル */
-  max-width: 120px;
-  height: 120px;
+  max-width: 140px;
+  height: 140px;
+  padding: 5px;
   position: relative;
   top: 30px;
   left: 10px;
   border: 1px solid;
   border-color: #8f8c70;
+}
+
+.playButton {
+  position: absolute;
+  z-index: 1;
+  /* added by kium 20230330 */
+  cursor: pointer
+}
+.playButton::before {
+  position: absolute;
+  content: '';
+  width: 46px;
+  height: 26px;
+  background-color: rgba(255, 0, 98, 0.6);
+  border: 1px solid;
+  border-color: #ffffff;
+  border-radius: 10%;
+  top: 50%;
+  left: 0;
+  margin-top: 78px;
+  margin-left: 58px;
+}
+.playButton::after {
+  position: absolute;
+  content: '';
+  width: 0;
+  height: 0;
+  border: solid 9px transparent;
+  border-left: solid 12px #fff;
+  top: 50%;
+  left:8px;
+  margin-top: 82px;
+  margin-left: 68px;
 }
 
 .onAirPicName {
@@ -201,7 +244,7 @@ main {
   text-align: left;
   font-weight: bold;
   position: absolute;
-  top: 90px;
+  top: 110px;
   right: 30px
 }
 
@@ -210,14 +253,13 @@ main {
   font-size: 12px;
   font-weight: bold;
   position: absolute;
-  top: 130px;
-  left: 150px;
-  width: 65px;
+  top: 150px;
+  left: 165px;
+  width: 60px;
   height: 25px;
   color: #ffffff;
   background: #ff0404;
-  /* 背景色。白。*/
-  /* text-align: right; */
+  text-align: center;
 }
 
 .onAirNotice {
@@ -225,14 +267,13 @@ main {
   font-size: 12px;
   font-weight: bold;
   position: absolute;
-  top: 130px;
-  left: 225px;
-  width: 65px;
+  top: 150px;
+  left: 230px;
+  width: 60px;
   height: 25px;
   color: #ffffff;
-  background: #ff0404;
-  /* 背景色。白。*/
-  /* text-align: right; */
+  background: #ff8800;
+  text-align: center;
 }
 
 .nowOnAirTxt {
@@ -313,6 +354,9 @@ main h2.linestyle .uline::before {
   border-radius: 10px;
   box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.2);
   /* background: #ff0000; */
+
+  /* added by kium 20230328 */
+  cursor: pointer
 }
 
 .itemlistImage {
@@ -348,14 +392,22 @@ main h2.linestyle .uline::before {
   text-decoration: none;
 }
 
+/* added by kium 20230330 */
+.recordings__button:hover {
+  color: #000;
+  background-color: rgba(170, 170, 170, 0.9);
+  transition: a00 0.2s;
+}
+.play {
+  background-color: white;
+  color: black;
+}
+
 @media (min-width: 900px) {
   .itemlistBox {
     width: calc(50% - 20px);
   }
 }
-
-
-
 
 .itemlistContent {
   display: flex;
@@ -392,11 +444,12 @@ main h2.linestyle .uline::before {
   /* おすすめ一覧製品BOXのスタイル */
   width: 280px;
   border-radius: 10px;
-  padding: 15px;
+  padding: 25px;
   margin: 10px 10px 0px;
   flex-shrink: 1;
   border: 1px solid;
   border-color: #3f3c1d;
+  box-sizing: border-box;
   top: 0;
   position: relative;
   text-align: center;
@@ -425,7 +478,7 @@ main h2.linestyle .uline::before {
   overflow: hidden;
   white-space: nowrap;
   position: relative;
-  top: 5px;
+  top: 15px;
   /* left:25px; */
   /* padding: 10px 0 0 0; */
   color: #582424;
@@ -434,13 +487,13 @@ main h2.linestyle .uline::before {
   /* 上下に1em・左右に0px */
   /* text-align: left; */
   font-weight: bold;
-  line-height: 1.5
+  /* line-height: 1.5 */
 }
 
 .capS {
-  line-height: 1.5;
+  /* line-height: 1.5; */
   color: #000000;
-  margin: 0.5em 0px 0em 0;
+  margin: 1.5em 0px 0em 0;
   text-align: center;
   font-weight: bold;
   position: relative;
@@ -452,11 +505,12 @@ main h2.linestyle .uline::before {
   /* セール一覧製品BOXのスタイル */
   width: 280px;
   border-radius: 10px;
-  padding: 15px;
+  padding: 25px;
   margin: 10px 10px 0px;
   /* flex-shrink: 1; */
-  border: 1px solid;
+  border: 1.5px solid;
   border-color: #b90707;
+  box-sizing: border-box;
   top: 0;
   position: relative;
   text-align: center;
@@ -484,7 +538,7 @@ main h2.linestyle .uline::before {
   overflow: hidden;
   white-space: nowrap;
   position: relative;
-  top: 5px;
+  top: 15px;
   /* left:25px; */
   /* padding: 10px 0 0 0; */
   color: #582424;
@@ -499,7 +553,7 @@ main h2.linestyle .uline::before {
 .salecapS {
   line-height: 1.5;
   color: #000000;
-  margin: 0.5em 0px 0em 0;
+  margin: 1.5em 0px 0em 0;
   text-align: center;
   font-weight: bold;
   position: relative;

@@ -17,45 +17,49 @@ function ImagesListPage() {
 	useEffect(() => {
 		// 다국어 설정
     i18n.changeLanguage(isLanguage);
-		// 배너정보 취득
+		// 이미지정보 가져오기
 		getImages();
 	}, [])
 
-	// 배너 가져오기
+	// 이미지정보 가져오기
 	const getImages = async () => {
+		let data = [];
+
 		try {
 			const images = await axios.get(`${IMAGES_SERVER}/list`);
-			if (images.data.imageInfos.length > 0) {
-				let imageInfos = images.data.imageInfos;
+			
+			let imageInfos = images.data.imageInfos;
+			for (let i = 0; i < imageInfos.length; i++) {
+				// 이미지 타입변환
+				for (let j = 0; j < IMAGES_TYPE.length; j++) {
+					if (imageInfos[i].type === IMAGES_TYPE[j]._id) {
+						imageInfos[i].type = IMAGES_TYPE[j].name;
+					}
+				}
+				// 화면표시여부 변환
+				for (let j = 0; j < IMAGES_VISIBLE_ITEM.length; j++) {
+					if (imageInfos[i].visible === IMAGES_VISIBLE_ITEM[j]._id) {
+						imageInfos[i].visible = IMAGES_VISIBLE_ITEM[j].name;
+					}
+				}
+				// 언어코드 변환
+				for (let j = 0; j < IMAGES_LANGUAGE.length; j++) {
+					if (imageInfos[i].language === IMAGES_LANGUAGE[j]._id) {
+						imageInfos[i].language = IMAGES_LANGUAGE[j].name;
+					}
+				}
+				// 이미지 주소 문자열 자르기
+				imageInfos[i].image = imageInfos[i].image.substring(59);
+				// 생성일 utc -> jp 변환 
+				imageInfos[i].createdAt = getLocalTime(imageInfos[i].createdAt);
 
-				// for (let i = 0; i < imageInfos.length; i++) {
-				// 	// 이미지 타입변환
-				// 	for (let j = 0; j < IMAGES_TYPE.length; j++) {
-				// 		if (imageInfos[i].type === IMAGES_TYPE[j]._id) {
-				// 			imageInfos[i].type = IMAGES_TYPE[j].name;
-				// 		}
-				// 	}
-				// 	// 화면표시여부 변환
-				// 	for (let j = 0; j < IMAGES_VISIBLE_ITEM.length; j++) {
-				// 		if (imageInfos[i].visible === IMAGES_VISIBLE_ITEM[j]._id) {
-				// 			imageInfos[i].visible = IMAGES_VISIBLE_ITEM[j].name;
-				// 		}
-				// 	}
-				// 	// 언어코드 변환
-				// 	for (let j = 0; j < IMAGES_LANGUAGE.length; j++) {
-				// 		if (imageInfos[i].language === IMAGES_LANGUAGE[j]._id) {
-				// 			imageInfos[i].language = IMAGES_LANGUAGE[j].name;
-				// 		}
-				// 	}
-				// 	// 이미지 주소 문자열 자르기
-				// 	imageInfos[i].image = imageInfos[i].image.substring(59);
-				// 	// 생성일 utc -> jp 변환 
-				// 	imageInfos[i].createdAt = getLocalTime(imageInfos[i].createdAt);
-				// }
-
-				console.log("images.data.imageInfos: ", images.data.imageInfos);
-				setImages(imageInfos);
+				// key 추가
+				imageInfos[i].key = i;
+				data.push(imageInfos[i]);
 			}
+			
+			setImages([...data]);
+			
 		} catch (err) {
 			console.log("err: ",err);
 		}
@@ -111,7 +115,7 @@ function ImagesListPage() {
 
 	return (
 		<div style={{ width:'80%', margin: '3rem auto'}}>
-			<div style={{ textAlign: 'center' }}>
+			<div style={{ textAlign: 'center', paddingTop: '38px' }}>
 				<h1>{t('Images.listTitle')}</h1>
 			</div>
 			<Table columns={columns} dataSource={Images} />

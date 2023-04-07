@@ -102,15 +102,21 @@ const UserSchema = new Schema(
     }
 }, { timestamps: true })
 
+// 사용자 정보 등록(save)전의 처리
 UserSchema.pre('save', function( next ) {
-    var user = this;    
+    // 위의 스키마를 가져온다
+    var user = this;
+    // 위의 모델안의 비밀번호 필드가 변경할때만 암호화를 한다
     if(user.isModified('password')){    
         bcrypt.genSalt(saltRounds, function(err, salt){
             if(err) return next(err);
     
+            // 스키마 User에는 이미 텍스트 비밀번호가 들어가 있다
             bcrypt.hash(user.password, salt, function(err, hash){
                 if(err) return next(err);
+                // hash를 스키마에 대입한다
                 user.password = hash;
+                // 원래 save메소드로 넘긴다
                 next();
             })
         })
@@ -119,40 +125,48 @@ UserSchema.pre('save', function( next ) {
     }
 });
 
-// 암호 비교
-UserSchema.methods.comparePassword = function(plainPassword,cb){
-    // plan password를 암호화 해서 비교한다, 기존 DB의 암호를 복화화 할수 없다
-    bcrypt.compare(plainPassword, this.password, function(err, isMatch){
+// 로그인 할때 암호 비교
+UserSchema.methods.comparePassword = function(plainPassword, cb) {
+    // 기존 DB의 암호화된 비밀번호는 복화화 할수 없기 때문에 plan password를 암호화 해서 비교한다: compare메소드 
+    bcrypt.compare(plainPassword, this.password, function(err, isMatch) {
         if (err) return cb(err);
         cb(null, isMatch);
     })
 }
 
-// jsonwebtoken을 이용해서 token생성
+// jsonwebtoken을 이용해서 token생성하기
 UserSchema.methods.generateToken = function(cb) {
-    var user = this;
-    var token =  jwt.sign(user._id.toHexString(),'secret')
-    var oneHour = moment().add(1, 'hour').valueOf();
+    let user = this;
+    let token =  jwt.sign(user._id.toHexString(),'secret')
+    // valueOf(): moment 객체를 숫자(밀리세컨드)로 변환
+    let oneHour = moment().add(1, 'hour').valueOf();
 
+    // 토큰 유효시간 설정
     user.tokenExp = oneHour;
+    // User스키마의 token필드에 생성된 token을 넣어준다
     user.token = token;
     user.save(function (err, user){
         if(err) return cb(err);
+        // save가 정상적으로 종료되면 에러는 null, 그리고 user정보를 넘긴다
         cb(null, user);
     })
 }
 
+// UserSchema.methods
 UserSchema.statics.findByToken = function (token, cb) {
-    var user = this;
+    let user = this;
     // 토큰을 decode 한다
+    // 콜백함수는 비동기로 호출되며 에러와 디코딩된 결과(user id)를 받는다
     jwt.verify(token,'secret', function(err, decode){
-        // 유저 아이드를 이용해서 유저를 찾은 다음에
+        // user id를 이용해서 user를 찾은 다음에
         // 클라이언트에서 가져온 token과 DB에서 보관된 토큰이 일치하는지 확인
         user.findOne({"_id":decode, "token":token}, function(err, user){
+
             if(err) return cb(err);
             cb(null, user);
         })
     })
+    
 }
 
 const User = model('User', UserSchema);

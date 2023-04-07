@@ -11,7 +11,7 @@ const { Product } = require('../models/Product');
 const { Point } = require('../models/Point');
 const { Counter } = require('../models/Counter');
 const async = require('async');
-const { NotSet, Deposited } = require('../config/const')
+const { NOT_SET, Deposited } = require('../config/const')
 
 //=================================
 //             Payment
@@ -91,20 +91,20 @@ router.get('/alipay/register', async (req, res) => {
           let paymentData = [];
           paymentData.push({
             address: {
-              city: NotSet,
-              country_code: NotSet,
+              city: NOT_SET,
+              country_code: NOT_SET,
               line1: orderInfo.address,
-              postal_code: NotSet,
+              postal_code: NOT_SET,
               recipient_name: orderInfo.receiver,
-              state: NotSet,
+              state: NOT_SET,
             },
             cancelled: false,
-            email: NotSet,
+            email: NOT_SET,
             paid: true,
-            payerID: NotSet,
+            payerID: NOT_SET,
             paymentID: req.query.pid, // 실제 결제ID
-            paymentToken: NotSet,
-            returnUrl: NotSet,
+            paymentToken: NOT_SET,
+            returnUrl: NOT_SET,
           });
 
           // 카트결제인 경우만 uniqueKey에 PaymentId가 들어온다
@@ -307,20 +307,20 @@ router.get('/wechat/register', async (req, res) => {
           let paymentData = [];
           paymentData.push({
             address: {
-              city: NotSet,
-              country_code: NotSet,
+              city: NOT_SET,
+              country_code: NOT_SET,
               line1: orderInfo.address,
-              postal_code: NotSet,
+              postal_code: NOT_SET,
               recipient_name: orderInfo.receiver,
-              state: NotSet,
+              state: NOT_SET,
             },
             cancelled: false,
-            email: NotSet,
+            email: NOT_SET,
             paid: true,
-            payerID: NotSet,
+            payerID: NOT_SET,
             paymentID: req.query.pid, // 실제 결제ID
-            paymentToken: NotSet,
-            returnUrl: NotSet,
+            paymentToken: NOT_SET,
+            returnUrl: NOT_SET,
           });
 
           // 카트결제인 경우만 uniqueKey에 PaymentId가 들어온다

@@ -1,89 +1,206 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import axios from 'axios';
-import { Col, Card, Row, Button } from 'antd';
+import styles from '../LandingPage/LandingPage.module.css';
+import { Col, Card, Row, Button, Tag } from 'antd';
 import ImageSlider from '../../utils/ImageSlider';
 import Meta from 'antd/lib/card/Meta';
 import CheckBox from './Sections/CheckBox';
 import RadioBox from './Sections/RadioBox';
 import SearchFeature from './Sections/SearchFeature';
-import { continents, price } from './Sections/Datas';
 import { PRODUCT_SERVER, SALE_SERVER } from '../../Config.js';
-import { I18N_ENGLISH, I18N_CHINESE, SaleType } from '../../utils/Const';
+import { I18N_ENGLISH, I18N_CHINESE, SaleType, PRODUCT_LIST_CATEGORY, PRICE, PRODUCT_VISIBLE_TYPE, SALE_TAG, NOTICE_TAG } from '../../utils/Const';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
+const onAirSale = {
+  fontSize: "12px",
+  fontWeight: "bold",
+  top: "150px",
+  left: "165px",
+  width: "60px",
+  height: "25px",
+  color: "#ffffff",
+  background: "#ff0404",
+  textAlign: "center"
+}
+
+const onAirNotice = {
+  fontSize: "12px",
+  fontWeight: "bold",
+  top: "150px",
+  left: "165px",
+  width: "60px",
+  height: "25px",
+  color: "#ffffff",
+  background: "#ff8800",
+  textAlign: "center"
+}
+
 function ProductListPage(props) {
 	const [Products, setProducts] = useState([]);
-	const [Skip, setSkip] = useState(0);
-	const [Limit, setLimit] = useState(4)
-	const [PostSize, setPostSize] = useState(0)
 	const [Filters, setFilters] = useState({continents: [], price: []	})
 	const [SaleInfos, setSaleInfos] = useState([]); // 세일정보
+
+	const skipRef = useRef(0);
+	const limitRef = useRef(20);
+	const postSizeRef = useRef(0);
+	const typeRef = useRef(0);
+	const categoryRef = useRef(0);
+	const newSearchTermRef = useRef("");
+	
   const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
-	
+
 	useEffect(() => {
 		// 다국적언어 설정
 		i18n.changeLanguage(isLanguage);
-		// 세일정보 가져오기
-		getSale();
-		// 상품 가져오기
-		getProducts({skip: Skip, limit: Limit, type: props.match.params.type});
-	}, [])
+
+		process();
+	}, [props.match.params.type, props.match.params.category, props.match.params.searchTerm])
+
+	const process = async () => {
+    // 세일정보 가져오기
+		await getSale();
+
+		// 화면 노출타입 검색 Landing page(3: Sale, 4: Recommend)
+		if (props.match.params.type) {
+			// 노출 검색정보를 저장
+			typeRef.current = Number(props.match.params.type);
+			// 키워드 검색정보를 초기화
+			newSearchTermRef.current = "";
+			// 카테고리 검색정보를 초기화
+			categoryRef.current = 0;
+			// 상품 가져오기
+			await getProductsByType({skip: skipRef.current, limit: limitRef.current, type: typeRef.current});
+		}
+		// 카테고리 검색
+		if (props.match.params.category) {
+			// 카테고리 검색정보를 저장
+			categoryRef.current = Number(props.match.params.category);
+			// 노출 검색정보를 초기화
+			typeRef.current = 0;
+			// 키워드 검색정보를 초기화
+			newSearchTermRef.current = "";
+
+			let arr = [];
+			arr.push(props.match.params.category);
+			// 상품 가져오기(배열로 넘긴다)
+			handleFilters(arr, "continents")
+		}
+		// 키워드 검색
+		if (props.match.params.searchTerm) {			
+			// 키워드 검색정보를 저장
+			newSearchTermRef.current = props.match.params.searchTerm;
+			// 카테고리 검색정보를 저장
+			categoryRef.current = 0;
+			// 노출 검색정보를 초기화
+			typeRef.current = 0;
+			// 상품 가져오기
+			await updateSearchTerm(props.match.params.searchTerm)
+		}
+  }
+
+	const getProductsByType = async (body) => {
+		const response = await axios.post(`${PRODUCT_SERVER}/products_by_type`, body)
+		const products = response.data;
+
+		// 키워드 검색시 문자 하나하나로 검색을 하기때문에 success로 조건을 줘야헌다
+		if (products.success) {
+			if (isLanguage === I18N_ENGLISH) {
+				products.productInfos.map((value) => {
+					value.title = value.englishTitle;
+				})
+			} else if (isLanguage === I18N_CHINESE) {
+				products.productInfos.map((value) => {
+					value.title = value.chineseTitle;
+				})
+			}
+			
+			// 더 보기 버튼인지 확인
+			if (body.loadMore) {
+				// 기존 상품에 검색한 상품을 추가한다
+				setProducts([...Products, ...products.productInfos]);
+			} else {
+				setProducts(products.productInfos);
+			}
+			// 검색한 상품의 갯수
+			postSizeRef.current = Number(products.productInfos.length);
+		} else {
+			alert("Please contact the administrator")
+		}
+	}
+	
 
 	// limit, skip은 mongo의 옵션
 	const getProducts = async (body) => {
-		// const response = await axios.get(`${PRODUCT_SERVER}/products_by_type?type=${type}`)
-		const response = await axios.post(`${PRODUCT_SERVER}/products`, body);
+    const response =  await axios.post(`${PRODUCT_SERVER}/list`, body);
 		const products = response.data;
 
+		// 키워드 검색시 문자 하나하나로 검색을 하기때문에 success로 조건을 줘야헌다
 		if (products.success) {
+			if (isLanguage === I18N_ENGLISH) {
+				products.productInfo.map((value) => {
+					value.title = value.englishTitle;
+				})
+			} else if (isLanguage === I18N_CHINESE) {
+				products.productInfo.map((value) => {
+					value.title = value.chineseTitle;
+				})
+			}	
+			
 			// 더 보기 버튼인지 확인
 			if (body.loadMore) {
-				if (isLanguage === I18N_ENGLISH) {
-					products.productInfo.map((value) => {
-						value.title = value.englishTitle;
-					})
-				} else if (isLanguage === I18N_CHINESE) {
-					products.productInfo.map((value) => {
-						value.title = value.chineseTitle;
-					})
-				}
+				// 기존 상품에 검색한 상품을 추가한다
 				setProducts([...Products, ...products.productInfo]);
 			} else {
-				if (isLanguage === I18N_ENGLISH) {
-					products.productInfo.map((value) => {
-						value.title = value.englishTitle;
-					})
-				} else if (isLanguage === I18N_CHINESE) {
-					products.productInfo.map((value) => {
-						value.title = value.chineseTitle;
-					})
-				}
 				setProducts(products.productInfo);
 			}
-
-			setPostSize(products.postSize)
+			// 검색한 상품의 갯수
+			postSizeRef.current = Number(products.postSize);
 		} else {
-			alert("Failed to get products.")
+			alert("Please contact the administrator")
 		}
 	}
 
 	// 더보기 버튼눌렀을때 상품 가져오기
-	const loadMoreHandler = () => {
-		let skip = Skip + Limit;
+	const loadMoreHandler = async () => {
+		let tmpSkip = skipRef.current + limitRef.current;
+
 		// body 작성
 		let body = {
-			skip: skip,
-			limit: Limit,
+			skip: tmpSkip,
+			limit: limitRef.current,
 			loadMore: true // 더 보기 버튼을 눌렀다는 flag
+		}
+
+		// 노출상품 검색
+		if (typeRef.current !== 0) {
+			body.type = typeRef.current;
+			// 상품 가져오기
+			await getProductsByType(body);
+		}
+		// 카테고리 상품 검색
+		if (categoryRef.current !== 0) {
+			let arr = [categoryRef.current];
+			// 기존의 배열값인 객체를 대입한다
+			const newFilters = {...Filters };
+			newFilters["continents"] = arr;
+			setFilters(newFilters);
+			body.filters = newFilters;
+			// 상품 가져오기
+			await getProducts(body);
+		}
+		// 키워드 상품 검색
+		if (newSearchTermRef !== "") {
+			body.searchTerm = newSearchTermRef;
+			// 상품 가져오기
+			await getProducts(body);
 		}	
-		// 상품 가져오기
-		getProducts(body);
-		// skip정보 status에 보관
-		setSkip(skip);
+		
+		// more버튼 검색을 위해 skip정보 보관
+		skipRef.current = tmpSkip;
 	}
 
 	// 현재날짜가 포함되어 있는세일정보 가져오기
@@ -99,7 +216,7 @@ function ProductListPage(props) {
 				setSaleInfos(saleInfos);
       }
     } catch (err) {
-      console.log("getSale err: ", err);
+      console.log("err: ", err);
     }
   }
 
@@ -129,7 +246,7 @@ function ProductListPage(props) {
     // 세일대상 제외 상품인지 확인
     for (let i=0; i<exceptProduct.length; i++) {
       if (exceptProduct[i].productId === product._id) {
-        return 0;
+        return false;
       }
     }
     // 상품세일 대상이면 적용
@@ -156,16 +273,16 @@ function ProductListPage(props) {
 					
 					// 상품세일이 포인트 부여인 경우
 					if (saleProduct[i].type === SaleType[1].key) {
-						return 0;
+						return false;
 					} else {
 						return saleProductAmount;
 					}
 				}
 			}
 
-			return 0;
+			return false;
 		} else {
-			return 0;
+			return false;
 		}
   }
 
@@ -200,6 +317,24 @@ function ProductListPage(props) {
 		let saleAmount = calcBySaleItem(SaleInfos, product);
 		const minusSalesAmount = Number(product.price) - saleAmount;
 
+		let isSale = false;
+		let isRecommended = false;
+		let exposureType = product.exposureType;
+
+		console.log("product.exposureType: ", product.exposureType);
+		
+		for (let i = 0; i < product.exposureType.length; i++) {
+			if (product.exposureType[i] === PRODUCT_VISIBLE_TYPE[3].key) {
+				isRecommended = true;
+			} 
+			if (product.exposureType[i] === PRODUCT_VISIBLE_TYPE[4].key) {
+				isSale = true;
+			} 
+		}
+
+		console.log("isSale: ", isSale);
+		console.log("isRecommended: ", isRecommended);
+
 		// 한 Row는 24사이즈 즉 카드 하나당 6사이즈로 하면 화면에 4개가 표시된다 
 		// lg: 화면이 가장 클때, md: 중간 
 		return <Col lg={6} md={8} xs={24} key={index} > 
@@ -218,28 +353,35 @@ function ProductListPage(props) {
 				}
 				{/* 세일로 계산된 값 또는 원래 상품값을 표시한다 */}
 				<b>{minusSalesAmount.toLocaleString()} (JPY)</b>
+				&nbsp;&nbsp;
+				{isSale && 
+					<Tag style={onAirSale} >{SALE_TAG}</Tag>
+				}
+				{isRecommended && 
+					<Tag style={onAirNotice} >{NOTICE_TAG}</Tag>
+				}
 			</Card>
 		</Col>
 	});
 
 	// 라디오 또는 체크박스 눌렀을때 상품검색해서 가져오기
-	const showFilteredResults = (filters) => {
+	const showFilteredResults = async (filters) => {
+		// 재 검색이니까 skip=0으로 한다
 		let body = {
 			skip: 0,
-			limit: Limit,
+			limit: limitRef.current,
 			filters: filters
 		}
-
 		// 상품 가져오기
-		getProducts(body);
+		await getProducts(body);
 		// Skip정보 보관하기(body에서 0으로 했기때문에 0으로 변경)
-		setSkip(0);
+		skipRef.current = 0;
 	}
 
 	// 화면에서 선택한 라디오 버튼의 값을 가져오기
 	const handlePrice = (value) => {
 		// price전체 데이터
-		const data = price;
+		const data = PRICE;
 		let array = [];
 
 		for (let key in data) {
@@ -252,8 +394,10 @@ function ProductListPage(props) {
 	}
 
 	// 라디오 또는 체크박스 선택했을 때 처리
-	const handleFilters = (filters, category) => {
+	const handleFilters = async (filters, category) => {
+		// 기존의 배열값인 객체를 대입한다
 		const newFilters = {...Filters };
+		// 객체안의 배열에 값을 입력
 		newFilters[category] = filters;
 
 		if (category === "price") {
@@ -261,50 +405,50 @@ function ProductListPage(props) {
 			newFilters[category] = priceValues;
 		}
 
-		showFilteredResults(newFilters);
 		setFilters(newFilters);
+		await showFilteredResults(newFilters);
 	}
 
 	// 키워드 검색시 상품 가져오기
-	const updateSearchTerm = (newSearchTerm) => {		
+	const updateSearchTerm = async (newSearchTerm) => {
 		let body = {
 			skip:0,
-			limit:Limit,
-			filters:Filters,
+			limit:limitRef.current,
 			searchTerm: newSearchTerm
 		}
-
-		setSkip(0);
-		getProducts(body);
+		
+		await getProducts(body);
+		// Skip정보 보관하기(body에서 0으로 했기때문에 0으로 변경)
+		skipRef.current = 0;
 	}
 
 	return (
 		<div style={{ width:'75%', margin:'3rem auto' }}>
+			<br />
+			<br />
+			<br />
 			<div style={{ textAlign:'center' }}>
 				<h1>{t('Product.listTitle')}</h1>
 			</div>
-			<br />
 
 			{/* Filter */}
-			<Row gutter={[16, 16]}>{/* gutter 여백 */}
+			{/* gutter 여백 */}
+			{/* <Row gutter={[16, 16]}>
 				<Col lg={12} xs={24}>
-					{/* CheckBox */}
-					<CheckBox list={continents} handleFilters={filters => handleFilters(filters, "continents")}/>
+					<CheckBox list={PRODUCT_LIST_CATEGORY} handleFilters={filters => handleFilters(filters, "continents")}/>
 				</Col>
 				<Col lg={12} xs={24}>
-					{/* RadioBox */}
-					<RadioBox list={price} handleFilters={filters => handleFilters(filters, "price")}/>
+					<RadioBox list={PRICE} handleFilters={filters => handleFilters(filters, "price")}/>
 				</Col>
-			</Row>
+			</Row> */}
 
 			{/* Search */}
-			<div style={{ display:'flex', justifyContent:'flex-end', margin:'1rem auto' }}>
+			{/* <div style={{ display:'flex', justifyContent:'flex-end', margin:'1rem auto' }}>
 				<SearchFeature refreshFunction={updateSearchTerm}/>
-			</div>
+			</div> */}
 
 			{/* Cards */}
-
-			{/* gutter: 카드의 여백 설정 */}
+			{/* gutter={[16, 16]}: [옆 카드사이의 여백, 위 아래 카드사이의 여백] */}
 			<Row gutter={[16, 16]}>
 				{renderCards}
 			</Row>
@@ -312,7 +456,7 @@ function ProductListPage(props) {
 			<br />
 			{/* PostSize가 Limit보다 크거나 같으면 더보기 버튼을 보여주는 조건 */}
 			{/* PostSize: Product Size */}
-			{PostSize >= Limit && 
+			{postSizeRef.current >= limitRef.current && 
 				<div style={{ display:'flex', justifyContent:'center' }}>
 					<Button onClick={loadMoreHandler}>More</Button>
 				</div>

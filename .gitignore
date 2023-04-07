@@ -2,8 +2,6 @@
 /build
 
 dev.js
-aws.js
-sesConfig.js
 
 .DS_Store
 

@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { ORDER_SERVER } from '../../../Config.js';
 import { useSelector } from "react-redux";
 import { useTranslation } from 'react-i18next';
-import { NotSet } from '../../../utils/Const';
+import { NOT_SET } from '../../../utils/Const';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -45,7 +45,7 @@ function OrderInfo(props) {
     if (props.detail.staffName) {
       staffName = props.detail.staffName;
     } else {
-      staffName = NotSet;
+      staffName = NOT_SET;
     }
   }
 
@@ -151,4 +151,4 @@ function OrderInfo(props) {
   }
 }
 
-export default OrderInfo
+export default OrderInfo;

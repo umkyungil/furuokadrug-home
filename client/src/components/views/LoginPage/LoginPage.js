@@ -83,7 +83,7 @@ function LoginPage(props) {
                 // local storage에 등록
                 localStorage.setItem('userId', userInfo.payload.userInfo._id);
                 localStorage.setItem('userName', userInfo.payload.userInfo.name);
-                // session storage에 등록
+                // session storage delete
                 sessionStorage.removeItem('userId');
                 sessionStorage.removeItem('userName');
                 // 사용자 정보의 언어 속송값을 다국어에서 사용하기 위해 로컬스토리지에 셋팅

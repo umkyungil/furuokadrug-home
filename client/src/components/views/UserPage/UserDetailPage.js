@@ -34,7 +34,7 @@ function UserDetailPage(props) {
 
   return (
     <div style={{ width:'100%', padding:'3rem 4rem' }}>
-      <div style={{ display:'flex', justifyContent:'center' }}>
+      <div style={{ textAlign: 'center', paddingTop: '38px' }}>
         <h1>{t('User.detailTitle')}</h1>
       </div>
       <br />
@@ -50,4 +50,4 @@ function UserDetailPage(props) {
   )
 }
 
-export default UserDetailPage
+export default UserDetailPage;

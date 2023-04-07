@@ -9,11 +9,11 @@ import App from './components/App';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter } from "react-router-dom";
 
-import Reducer from './_reducers'; // _reducers안의 index.js를 알아서 처리해 준다 
+import Reducer from './_reducers'; // ./_reducers.index.js를 자동으로 알아서 지정해 준다 
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
-import promiseMiddleware from 'redux-promise';
-import ReduxThunk from 'redux-thunk';
+import promiseMiddleware from 'redux-promise'; // redux는 원래 객체만 받을수 있는데 promise도 받게 해주는 미들웨어
+import ReduxThunk from 'redux-thunk'; // redux에서 function도 받게 해주는 미들웨어
 import './i18next'; // multi language
 import { CookiesProvider } from "react-cookie";
 
@@ -22,6 +22,8 @@ const createStoreWithMiddleware = applyMiddleware(promiseMiddleware, ReduxThunk)
 
 ReactDOM.render(
     // redux에서 제공하는 provider로 감싸주면 redux와 어플리케이션이 연결된다.
+    // Reducer: 통합된 reducer
+    // window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()는 브라우저의 확장툴과 연결하기 위한 옵션
     <Provider
         store={createStoreWithMiddleware(
             Reducer,
@@ -36,7 +38,5 @@ ReactDOM.render(
         </CookiesProvider>
     </Provider>
     , document.getElementById('root'));
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
+    
 serviceWorker.unregister();

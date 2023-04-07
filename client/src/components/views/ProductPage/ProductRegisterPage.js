@@ -1,5 +1,5 @@
-import React, { useEffect, useContext, useRef } from 'react';
-import { Button, Form, Input, Checkbox, Select } from 'antd';
+import React, { useEffect, useContext, useRef, useState } from 'react';
+import { Button, Form, Input, Checkbox, Select, Divider } from 'antd';
 import FileUpload from '../../utils/FileUpload';
 import { PRODUCT_SERVER } from '../../Config.js';
 import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE } from '../../utils/Const';
@@ -51,6 +51,12 @@ function ProductRegisterPage(props) {
   const continentRef = useRef(1);
   const exposureTypeRef = useRef([]);
   const imagesRef = useRef([]);
+  const oldImagesRef = useRef([]); // 실제 사용하지는 않지만 빈 배열을 props로 넘기는 용도로 사용
+
+  const [UrlShow, setUrlShow] = useState(false);
+  const japaneseUrlRef = useRef("");
+  const englishUrlRef = useRef("");
+  const chineseUrlRef = useRef("");
 
   const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
@@ -114,9 +120,29 @@ function ProductRegisterPage(props) {
   const updateImages = (newImages) => {
     imagesRef.current = newImages
   }
+  const japaneseUrlHandler = (event) => {
+    japaneseUrlRef.current = event.currentTarget.value;
+  }
+  const englishUrlHandler = (event) => {
+    englishUrlRef.current = event.currentTarget.value;
+  }
+  const chineseUrlHandler = (event) => {
+    chineseUrlRef.current = event.currentTarget.value;
+  }
   // 상품노출 옵션
   const exposureHandler = (event) => {
-    exposureTypeRef.current = event;
+    // now on sale 또는 recording이면 주소입력 항목을 보여준다
+    let isExists = false;    
+    for (let i=0; i<event.length; i++) {
+      if (event[i] === PRODUCT_VISIBLE_TYPE[1].key || event[i] === PRODUCT_VISIBLE_TYPE[2].key) {
+        isExists = true;
+        break;
+      } else {
+        isExists = false;
+      }
+    }
+    setUrlShow(isExists);
+    if (event !== undefined) exposureTypeRef.current = event;
   };
 
   // Submit
@@ -204,6 +230,19 @@ function ProductRegisterPage(props) {
       alert("Now on air and recording cannot be selected together");
       return false;
     }
+    // now on sale 또는 recording이 선택되어 있으면 url은 필수항목이 된다
+    if (UrlShow) {
+      if (japaneseUrlRef.current === "" || englishUrlRef.current === "" || chineseUrlRef.current === "") {
+        alert("URL is required");
+        return false;
+      }
+    } else {
+      // 주소를 전부 삭제함
+      japaneseUrlRef.current = ""
+      englishUrlRef.current = ""
+      chineseUrlRef.current = ""
+    }
+
     // Now on sale 상품이 이미 등록되어 있는지 확인
     let isExists = false;
     if (isNowOnAir) {
@@ -238,15 +277,20 @@ function ProductRegisterPage(props) {
       images: imagesRef.current,
       continents: continentRef.current,
       exposureType: exposureTypeRef.current,
+      japaneseUrl: japaneseUrlRef.current,
+      englishUrl: englishUrlRef.current,
+      chineseUrl: chineseUrlRef.current
     }
     
     const result = await axios.post(`${PRODUCT_SERVER}/register`, body);
     if (result.data.success) {
       alert('Product upload was successful');
       // 상품상세 이동
-      props.history.push('/')
+      listHandler();
     } else {
       alert('Please contact the administrator');
+      // 상품상세 이동
+      listHandler();
     }
   }
 
@@ -257,23 +301,23 @@ function ProductRegisterPage(props) {
 
   return (
     <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Product.uploadTitle')}</h1>
       </div>
 
       <Form style={{height:'80%', margin:'1em'}} labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} onSubmit={submitHandler}>
         {/* DropZone*/}
-        <FileUpload refreshFunction={updateImages} />
+        <FileUpload refreshFunction={updateImages} oldImages={oldImagesRef.current}/>
         <br />
         <br />
         <Form.Item required label={t('Product.japaneseTitle')}>
-          <Input type="text" style={{width: '100%'}} onChange={japaneseTitleHandler} />
+          <Input type="text" onChange={japaneseTitleHandler} />
         </Form.Item>
         <Form.Item required label={t('Product.englishTitle')}>
-          <Input type="text" style={{width: '100%'}} onChange={englishTitleHandler} />
+          <Input type="text" onChange={englishTitleHandler} />
         </Form.Item>
         <Form.Item required label={t('Product.chineseTitle')}>
-          <Input type="text" style={{width: '100%'}} onChange={chineseTitleHandler} />
+          <Input type="text" onChange={chineseTitleHandler} />
         </Form.Item>
 
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.japaneseDescription')}</label>
@@ -296,32 +340,47 @@ function ProductRegisterPage(props) {
         <br />
         <br />
         <Form.Item required label={t('Product.contents')}>
-          <Input type="text" placeholder='例) 500ml' style={{width: '100%'}} onChange={contentsHandler} />
+          <Input type="text" placeholder='例) 500ml' onChange={contentsHandler} />
         </Form.Item>
         <Form.Item required label={t('Product.price')}>
-          <Input type="text" defaultValue="0" style={{width: '100%'}} onChange={priceHandler} />
+          <Input type="text" defaultValue="0" onChange={priceHandler} />
         </Form.Item>
         <Form.Item required label={t('Product.point')}>
-          <Input type="text" defaultValue="0" style={{width: '100%'}} onChange={pointHandler} />
+          <Input type="text" defaultValue="0" onChange={pointHandler} />
         </Form.Item>
         <Form.Item required label={t('Product.itemSelection')}>
-          <Select defaultValue="Cosmetic" style={{ width: 120 }} onChange={continentHandler} >
+          <Select defaultValue="Cosmetic" style={{ width: 150 }} onChange={continentHandler} >
             {MAIN_CATEGORY.map(item => {
               // 카테고리에서 All제외
               if (item.key !== 0) {
                 return (<Option key={item.key} value={item.key} > {item.value} </Option>);
               }
             })}
-            </Select>
+          </Select>
         </Form.Item>
+
+        <Divider orientation="left" plain="true">Screen exposure</Divider>
         <Form.Item label={t('Product.exposure')}>
           <Checkbox.Group options={options} onChange={exposureHandler} />
         </Form.Item>
+        {UrlShow && 
+          <>
+            <Form.Item required label={t('Product.japaneseUrl')}>
+              <Input type="text" placeholder='https://www.hirosophy.co.jp/test/furuokadrug/samplemotion_jp.mp4' onChange={japaneseUrlHandler} />
+            </Form.Item>
+            <Form.Item required label={t('Product.chineseUrl')}>
+              <Input type="text" placeholder='https://www.hirosophy.co.jp/test/furuokadrug/samplemotion_cn.mp4' onChange={chineseUrlHandler} />
+            </Form.Item>
+            <Form.Item required label={t('Product.englishUrl')}>
+              <Input type="text" placeholder='https://www.hirosophy.co.jp/test/furuokadrug/samplemotion_en.mp4' onChange={englishUrlHandler} />
+            </Form.Item>
+          </>
+        }
 
         <Form.Item {...tailFormItemLayout}>
           <Button onClick={listHandler}>
             Landing Page
-          </Button>&nbsp;&nbsp;
+          </Button>
           <Button htmlType="submit" type="primary">
             Submit
           </Button>
@@ -333,4 +392,4 @@ function ProductRegisterPage(props) {
   )
 }
 
-export default ProductRegisterPage
+export default ProductRegisterPage;

@@ -8,7 +8,6 @@ function SearchFeature(props) {
   
   const searchHandler = (event) => {
     setSearchTerm(event.currentTarget.value);
-
     // 부모 컨테이너에 값을 보내기
     props.refreshFunction(event.currentTarget.value);
   }
@@ -25,4 +24,4 @@ function SearchFeature(props) {
   )
 }
 
-export default SearchFeature
+export default SearchFeature;

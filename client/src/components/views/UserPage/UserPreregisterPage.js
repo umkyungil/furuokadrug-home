@@ -134,13 +134,12 @@ function UserPreregisterPage(props) {
       {props => {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
-          <div className="app">
-            <h1>{t('SignUp.title')}</h1>
+          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
+              <h1>{t('SignUp.title')}</h1>
+            </div>
 
-            <Form 
-              style={{ minWidth: '350px', margin:'1em' }} {...formItemLayout} onSubmit={handleSubmit} 
-              autoComplete="off"
-              >
+            <Form style={{ height:'80%', margin:'1em' }} {...formItemLayout} onSubmit={handleSubmit} autoComplete="off" >
               {/* 이름 */}
               <Form.Item required label={t('SignUp.name')} style={{ marginBottom: 0, }} >
                 {/* 이름 */}
@@ -180,7 +179,7 @@ function UserPreregisterPage(props) {
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={listHandler}>
                   Landing Page
-                </Button>&nbsp;&nbsp;
+                </Button>
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
                   Submit
                 </Button>
@@ -193,4 +192,4 @@ function UserPreregisterPage(props) {
   );
 };
 
-export default UserPreregisterPage
+export default UserPreregisterPage;

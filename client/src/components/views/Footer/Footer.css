@@ -1,0 +1,33 @@
+@import '~antd/dist/antd.css';
+
+.footer {
+    display: block;
+    text-align: 'center';
+    list-style: 'none';
+    display: 'inline-block';
+    color: '#fff';
+    height: 'auto';
+    padding: '120px';
+    /* flexDirection: 'column'; */
+    /* justifyContent: 'center'; */
+    /* fontSize: '1rem'; */
+    background-color: #1a1e65;
+}
+
+
+.footermenu ul{
+    /* display: 'inline'; */
+    display: 'inline-block';
+    text-align: 'center';
+    color: '#ffffff';
+    font-size: '1rem';
+    /* backgroundColor: '#1a1e65'; */
+}
+
+.footermenu li {
+    display:'inline-block';
+    list-style: 'none';
+    text-align: 'center';
+    color: '#ffffff';
+    font-size: '15pt';
+}

@@ -2,26 +2,30 @@ const express = require('express');
 const router = express.Router();
 const { auth } = require("../middleware/auth");
 const nodemailer = require("nodemailer");
-const AWS = require('aws-sdk');
+const AWS_SDK = require('aws-sdk');
 const { Mail } = require("../models/Mail");
 const { ADMIN_EMAIL, PRE_REGISTER_URL, CHANGE_PASSWORD_URL, HIROSOPHY_URL, FURUOKADRUG_URL } = require('../config/url');
-const { MAIN_CATEGORY, CouponType, SaleType, UseWithSale } = require('../config/const');
-const { SES_CONFIG } = require("../config/aws");
+const { MAIN_CATEGORY, CouponType, SaleType, UseWithSale, AWS_SES } = require('../config/const');
 const { User } = require('../models/User');
 const { Product } = require('../models/Product');
+const { AmazonWebService }  = require('../models/AmazonWebService');
 
 //=================================
 //          Sendmail
 //=================================]
 
-// AWS SES 접근 보안키
-process.env.AWS_ACCESS_KEY_ID = SES_CONFIG.access;
-process.env.AWS_SECRET_ACCESS_KEY = SES_CONFIG.secret;
-const ses = new AWS.SES({
-    apiVersion: "2010-12-01",
-    region: "ap-northeast-1", 
-});
-const transporter = nodemailer.createTransport({ SES: ses, AWS })
+// AWS SES 접근 보안키 가져와서 메일전송
+const sendMailProcess = async (mailOptions) => {
+    const sesInfos = await AmazonWebService.findOne({ type: AWS_SES });
+    const sesObject = new AWS_SDK.SES({
+        accessKeyId: sesInfos.access,
+        secretAccessKey: sesInfos.secret,
+        region: sesInfos.region
+    });
+
+    const transporter = nodemailer.createTransport({ SES: sesObject, AWS_SDK });
+    await transporter.sendMail(mailOptions);
+}
 
 // 메일정보 등록
 const registerMailHistory = async (body) => {
@@ -50,7 +54,8 @@ router.post("/notice", auth, async (req, res) => {
             subject: req.body.subject,
             text: req.body.message
         };
-        await transporter.sendMail(mailOptions);
+        
+        await sendMailProcess(mailOptions);
 
         // 메일정보 등록
         const body = {
@@ -69,11 +74,6 @@ router.post("/notice", auth, async (req, res) => {
         }
     } catch (err) {
         console.log(err);
-        if (err.statusCode === 400) {
-            // 사용자 논리삭제
-            //...
-            //...
-        }
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -98,9 +98,9 @@ router.post("/live", auth, async (req, res) => {
             subject: "ライブストリーミングの依頼がありました",
             text: message
         };
-        await transporter.sendMail(mailOptions);
+        await sendMailProcess(mailOptions);
 
-        // 관리자 메일정보 등록
+        // 메일정보 등록
         const body = {
             type: "Live",
             from: ADMIN_EMAIL,
@@ -161,7 +161,7 @@ router.post("/inquiry", async (req, res) => {
             subject: 'お問い合わせがありました',
             text: adminMessage
         };
-        await transporter.sendMail(adminOptions);
+        await sendMailProcess(adminOptions);
         
         // 사용자 메일 전송
         let userOptions = {
@@ -170,7 +170,7 @@ router.post("/inquiry", async (req, res) => {
             subject: 'お問い合わせありがとうございます',
             text: userMessage
         };
-        await transporter.sendMail(userOptions);
+        await sendMailProcess(userOptions);
 
         // 관리자 메일정보 등록
         const adminBody = {
@@ -249,7 +249,7 @@ router.post("/reserve", async (req, res) => {
             subject: 'ご予約がありました',
             text: adminMessage
         };
-        await transporter.sendMail(adminOptions);
+        await sendMailProcess(adminOptions);
 
         // 사용자 메일전송
         let userOptions = {
@@ -258,7 +258,7 @@ router.post("/reserve", async (req, res) => {
             subject: 'ご予約ありがとうございます',
             text: userMessage
         };
-        await transporter.sendMail(userOptions);
+        await sendMailProcess(userOptions);
 
         // 관리자 메일정보 등록
         const adminBody = {
@@ -311,7 +311,7 @@ router.post("/passwordChange", async (req, res) => {
             subject: 'パスワードリセットのお知らせ',
             text: userMessage
         };
-        const userMailResult = await transporter.sendMail(userOptions);
+        const userMailResult = await sendMailProcess(userOptions);
 
         // 메일전송 실패
         if (!userMailResult.envelope) {
@@ -345,7 +345,7 @@ router.post("/passwordConfirm", async (req, res) => {
             subject: 'パスワード変更完了のお知らせ',
             text: userMessage
         };
-        const userMailResult = await transporter.sendMail(userOptions);
+        const userMailResult = await sendMailProcess(userOptions);
 
         // 관리자 메일정보 등록
         const userBody = {
@@ -419,7 +419,7 @@ router.post("/preregister", async (req, res) => {
             subject: '仮登録完了メール',
             text: userMessage
         };
-        const userMailResult = await transporter.sendMail(userOptions);
+        const userMailResult = await sendMailProcess(userOptions);
 
         // 메일전송 실패
         if (!userMailResult.envelope) {
@@ -453,7 +453,7 @@ router.post("/register", async (req, res) => {
             subject: '会員登録完了のお知らせ',
             text: userMessage
         };
-        const userMailResult = await transporter.sendMail(userOptions);
+        const userMailResult = await sendMailProcess(userOptions);
 
         // 관리자 메일정보 등록
         const userBody = {
@@ -553,7 +553,7 @@ router.post("/coupon", async (req, res) => {
             subject: '「FURUOKADRUG」特別のクーポン案内 ' + req.body.validTo + 'まで',
             text: adminName + adminMessage + japaneseMessage
         };
-        await transporter.sendMail(adminOptions);
+        await sendMailProcess(adminOptions);
 
         // 쿠폰 사용자가 지정되어 있는경우
         if (req.body.userId !== "") {
@@ -569,7 +569,7 @@ router.post("/coupon", async (req, res) => {
                     subject: '「FURUOKADRUG」特別のクーポン案内 ' + req.body.validTo + 'まで',
                     text: userName + japaneseMessage
                 };
-                await transporter.sendMail(userOptions);
+                await sendMailProcess(userOptions);
             }
             // 사용자의 언어가 영인 경우
             if (userInfo[0].language === "en") {
@@ -629,7 +629,7 @@ router.post("/coupon", async (req, res) => {
                     text: userName + englishMessage
                 };
 
-                await transporter.sendMail(englishOptions);
+                await sendMailProcess(englishOptions);
             }
             // 사용자의 언어가 중국어인 경우
             if (userInfo[0].language === "cn") {
@@ -690,7 +690,7 @@ router.post("/coupon", async (req, res) => {
                     text: userName + chineseMessage
                 };
 
-                await transporter.sendMail(chineseOptions);
+                await sendMailProcess(chineseOptions);
             }
         } else {
             // 논리삭제가 되지않은 모든 일반 사용자에게 메일 전송
@@ -707,7 +707,7 @@ router.post("/coupon", async (req, res) => {
                         text: userName + japaneseMessage
                     };
 
-                    await transporter.sendMail(japaneseOptions);
+                    await sendMailProcess(japaneseOptions);
                 }
                 // 사용자의 언어가 영어인 경우
                 if (userInfos[i].language === "en") {
@@ -767,7 +767,7 @@ router.post("/coupon", async (req, res) => {
                         text: userName + englishMessage
                     };
 
-                    await transporter.sendMail(englishOptions);
+                    await sendMailProcess(englishOptions);
                 }
                 // 사용자의 언어가 중국어인 경우
                 if (userInfos[i].language === "cn") {
@@ -827,7 +827,7 @@ router.post("/coupon", async (req, res) => {
                         text: userName + chineseMessage
                     };
 
-                    await transporter.sendMail(chineseOptions);
+                    await sendMailProcess(chineseOptions);
                 }
             }
         }
@@ -910,7 +910,7 @@ router.post("/coupon/birth", async (req, res) => {
             subject: '「FURUOKADRUG」特別のクーポン案内 ' + req.body.validTo + 'まで',
             text: adminName + adminMessage + japaneseMessage
         };
-        await transporter.sendMail(adminOptions);
+        await sendMailProcess(adminOptions);
 
         // 쿠폰 사용자가 지정되어 있는경우
         if (req.body.userId !== "") {
@@ -926,7 +926,7 @@ router.post("/coupon/birth", async (req, res) => {
                     subject: '「FURUOKADRUG」特別のクーポン案内 ' + req.body.validTo + 'まで',
                     text: userName + japaneseMessage
                 };
-                await transporter.sendMail(userOptions);
+                await sendMailProcess(userOptions);
             }
             // 사용자의 언어가 영인 경우
             if (userInfo[0].language === "en") {
@@ -986,7 +986,7 @@ router.post("/coupon/birth", async (req, res) => {
                     text: userName + englishMessage
                 };
 
-                await transporter.sendMail(englishOptions);
+                await sendMailProcess(englishOptions);
             }
             // 사용자의 언어가 중국어인 경우
             if (userInfo[0].language === "cn") {
@@ -1047,7 +1047,7 @@ router.post("/coupon/birth", async (req, res) => {
                     text: userName + chineseMessage
                 };
 
-                await transporter.sendMail(chineseOptions);
+                await sendMailProcess(chineseOptions);
             }
         } else {
             // 논리삭제가 되지않은 모든 일반 사용자에게 메일 전송
@@ -1064,7 +1064,7 @@ router.post("/coupon/birth", async (req, res) => {
                         text: userName + japaneseMessage
                     };
 
-                    await transporter.sendMail(japaneseOptions);
+                    await sendMailProcess(japaneseOptions);
                 }
                 // 사용자의 언어가 영어인 경우
                 if (userInfos[i].language === "en") {
@@ -1124,7 +1124,7 @@ router.post("/coupon/birth", async (req, res) => {
                         text: userName + englishMessage
                     };
 
-                    await transporter.sendMail(englishOptions);
+                    await sendMailProcess(englishOptions);
                 }
                 // 사용자의 언어가 중국어인 경우
                 if (userInfos[i].language === "cn") {
@@ -1184,7 +1184,7 @@ router.post("/coupon/birth", async (req, res) => {
                         text: userName + chineseMessage
                     };
 
-                    await transporter.sendMail(chineseOptions);
+                    await sendMailProcess(chineseOptions);
                 }
             }
         }
@@ -1266,7 +1266,7 @@ router.post("/coupon/admin", async (req, res) => {
             subject: '【クーポン修正のお知らせ】「FURUOKADRUG」特別のクーポン案内 ' + req.body.validTo + 'まで',
             text: adminName + adminMessage + japaneseMessage
         };
-        await transporter.sendMail(adminOptions);
+        await sendMailProcess(adminOptions);
     } catch (err) {
         console.log(err);
     }
@@ -1326,7 +1326,7 @@ router.post("/coupon/birth/admin", async (req, res) => {
             subject: '「FURUOKADRUG」誕生日のクーポン案内 ',
             text: adminName + japaneseMessage
         };
-        await transporter.sendMail(adminOptions);
+        await sendMailProcess(adminOptions);
     } catch (err) {
         console.log(err);
     }
@@ -1399,7 +1399,7 @@ router.post("/sale", async (req, res) => {
             subject: '「FURUOKADRUG」特別のセール案内 ' + req.body.validTo + 'まで',
             text: adminName + adminMessage + japaneseMessage
         };
-        await transporter.sendMail(adminOptions);
+        await sendMailProcess(adminOptions);
         
         // 논리삭제가 되지않은 모든 일반 사용자에게 메일 전송
         const userInfos = await User.find({ "password": {$exists: true}, "deletedAt": null , "role": 0 });
@@ -1415,7 +1415,7 @@ router.post("/sale", async (req, res) => {
                     subject: '「FURUOKADRUG」特別のセール案内 ' + req.body.validTo + 'まで',
                     text: userName + japaneseMessage
                 };
-                await transporter.sendMail(japaneseOptions);
+                await sendMailProcess(japaneseOptions);
             }
 
             // 사용자의 언어가 영어인 경우
@@ -1470,7 +1470,7 @@ router.post("/sale", async (req, res) => {
                     text: userName + englishMessage
                 };
                 
-                await transporter.sendMail(englishOptions);
+                await sendMailProcess(englishOptions);
             }
 
             // 사용자의 언어가 중국어인 경우
@@ -1525,7 +1525,7 @@ router.post("/sale", async (req, res) => {
                     text: userName + chineseMessage
                 };
 
-                await transporter.sendMail(chineseOptions);
+                await sendMailProcess(chineseOptions);
             }
         }
     } catch (err) {
@@ -1570,7 +1570,7 @@ router.post("/saleExcept", async (req, res) => {
             subject: '「FURUOKADRUG」セール対象外の案内 ' + req.body.validTo + 'まで',
             text: adminName + adminMessage
         };
-        await transporter.sendMail(adminOptions);
+        await sendMailProcess(adminOptions);
         
         
     } catch (err) {
@@ -1654,7 +1654,7 @@ router.post("/sale/admin", async (req, res) => {
             subject: '【セール修正のお知らせ】「FURUOKADRUG」特別のセール案内 ' + req.body.validTo + 'まで',
             text: adminName + adminMessage + japaneseMessage
         };
-        await transporter.sendMail(adminOptions);
+        await sendMailProcess(adminOptions);
     } catch (err) {
         console.log(err);
     }

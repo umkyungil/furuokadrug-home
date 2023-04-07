@@ -1,51 +1,41 @@
 const express = require('express');
 const router = express.Router();
 const { Images } = require('../models/Images');
+const { AmazonWebService }  = require('../models/AmazonWebService');
 const multer = require('multer');
 const multerS3 = require('multer-s3')
-const AWS = require('aws-sdk');
-const { S3_CONFIG } = require("../config/aws");
-const { BUCKET_NAME } = require('../config/const');
+const AWS_SDK = require('aws-sdk');
+const { AWS_S3, AWS_BUCKET_NAME } = require("../config/const");
 
 //=================================
 //             Images
 //=================================
 
-// AWS S3 접속 Key
-const s3 = new AWS.S3({
-  accessKeyId: S3_CONFIG.access,
-  secretAccessKey: S3_CONFIG.secret,
-  region: S3_CONFIG.region
-});
-// AWS 이미지 등록
-const s3upload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: BUCKET_NAME,
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname});
-    },
-    key: function (req, file, cb) {
-      cb(null, `${ Date.now()}_${file.originalname }`);
-    },
-  }),
-});
-// AWS 이미지 삭제
-const s3delete = (params) => {
-  s3.deleteObject(params, (err, data) => {
-    if (err) {
-      console.log('aws file delete error');
-      console.log(err, err.stack);
-      return false;
-    } else {
-      console.log('aws video delete success' + data);
-      return true
-    }
-  })
-}
 // 파일 업로드에서 AWS 이미지 등록하기
-router.post('/image', (req, res) => {
-  const uploadSingle = s3upload.single("file");
+router.post('/image', async (req, res) => {
+  // AWS 정보가져오기(환경변수가 아닌 DB에서 가져오기)
+  const s3Infos = await AmazonWebService.findOne({ type: AWS_S3 });
+  const s3Object = new AWS_SDK.S3({
+    accessKeyId: s3Infos.access,
+    secretAccessKey: s3Infos.secret,
+    region: s3Infos.region
+  });
+  
+  // AWS 이미지 등록
+  const s3Upload = multer({
+    storage: multerS3({
+      s3: s3Object,
+      bucket: AWS_BUCKET_NAME,
+      metadata: function (req, file, cb) {
+        cb(null, { fieldName: file.fieldname});
+      },
+      key: function (req, file, cb) {
+        cb(null, `${ Date.now()}_${file.originalname }`);
+      },
+    }),
+  });
+  
+  const uploadSingle = s3Upload.single("file");
   uploadSingle(req, res, err => {
     if(err) return res.json({success: false, err});
     return res.json({ success: true, filePath: res.req.file.location});
@@ -98,7 +88,7 @@ router.get('/images_by_id', async (req, res) => {
   }
 });
 
-// 이미지 수정
+// 이미지 수정(이미지 파일은 수정이 안된다)
 router.post("/update", async (req, res) => {
   try {
       let imageInfo = await Images.findById(req.body.id);
@@ -118,14 +108,25 @@ router.post("/update", async (req, res) => {
 // 이미지 삭제
 router.post('/delete', async (req, res) => {
   try {
+    // AWS 정보가져오기(환경변수가 아닌 DB에서 가져오기)
+    const s3Infos = await AmazonWebService.findOne({ type: AWS_S3 });
+    const s3Object = new AWS_SDK.S3({
+      accessKeyId: s3Infos.access,
+      secretAccessKey: s3Infos.secret,
+      region: s3Infos.region
+    });    
+
     // AWS S3 이미지 삭제
     let words = req.body.image.split('/');
-    let fileName = words[words.length-1]
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: fileName
-    }        
-    s3delete(params);
+    let fileName = words[words.length-1];
+    const params = { Bucket: AWS_BUCKET_NAME, Key: fileName };
+    
+    s3Object.deleteObject(params, (err, data) => {
+      if (err) {
+        console.log(err, err.stack);
+        return res.json({success: false, err});
+      }
+    })
 
     // DataBase 삭제
     await Images.findOneAndDelete({_id: req.body.id});

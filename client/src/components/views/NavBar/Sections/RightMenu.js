@@ -19,10 +19,6 @@ function RightMenu(props) {
   const { setIsLanguage } = useContext(LanguageContext)
 
   // 다국적언어
-	// const {i18n} = useTranslation();
-  // const setMultiLanguage = (lang) => {
-  //   i18n.changeLanguage(lang);
-  // }
   const setMultiLanguage = (lang) => {
     setIsLanguage(lang);
   }
@@ -39,6 +35,10 @@ function RightMenu(props) {
         // 세션스토리지 사용자 정보 삭제
         sessionStorage.removeItem("userId");
         sessionStorage.removeItem("userName");
+        // 세션스토리지 랜딩페이지 비디오 정보 삭제
+        sessionStorage.removeItem("video_cn");
+        sessionStorage.removeItem("video_en");
+        sessionStorage.removeItem("video_jp");
         // 쿠키 삭제
         removeCookie("w_auth", { path: '/' });
         removeCookie("w_authExp", { path: '/' });
@@ -311,13 +311,15 @@ function RightMenu(props) {
                 <a href="/user/list">User List</a>
               </Menu.Item>
             </SubMenu>
-            <SubMenu title={<span style={{color: 'white'}}>Product</span>}> 
-              <Menu.Item key="productList">
-                <a href="/product/list">Product List</a>
-              </Menu.Item>
-              <Menu.Item key="productRegister">
-                <a href="/product/upload">Product Register</a>
-              </Menu.Item>
+            <SubMenu title={<span style={{color: 'white'}}>Product</span>}>
+              <SubMenu title={<span>Product</span>}>
+                <Menu.Item key="productRegister">
+                  <a href="/product/upload">Product Register</a>
+                </Menu.Item>
+                <Menu.Item key="productCsv">
+                  <a href="/product/csv/upload">Product CSV</a>
+                </Menu.Item>
+              </SubMenu>
               <SubMenu title={<span>Sale</span>}>
                 <Menu.Item key="saleList">
                   <a href="/sale/list">Sale List</a>
@@ -345,6 +347,14 @@ function RightMenu(props) {
                 </Menu.Item>
                 <Menu.Item key="imagesList">
                   <a href="/images/list">Images List</a>
+                </Menu.Item>
+              </SubMenu>
+              <SubMenu title={<span>AWS</span>}>
+                <Menu.Item key="awsRegister">
+                  <a href="/aws/register">AWS Register</a>
+                </Menu.Item>
+                <Menu.Item key="awsList">
+                  <a href="/aws/list">AWS List</a>
                 </Menu.Item>
               </SubMenu>
               <Menu.Item key="csv">

@@ -25,4 +25,4 @@ function ProductImage(props) {
   )
 }
 
-export default ProductImage
+export default ProductImage;

@@ -3,7 +3,7 @@ import { Form, Input, Button, Radio, Tooltip } from 'antd';
 import axios from 'axios';
 import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER, UPC_PAYMENT } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
-import { NotSet, ECSystem, Unidentified } from '../../utils/Const';
+import { NOT_SET, ECSystem, Unidentified } from '../../utils/Const';
 import { useCookies } from "react-cookie";
 // CORS 대책
 axios.defaults.withCredentials = true;
@@ -71,10 +71,17 @@ function ConfirmWechatPage(props) {
   const staffName = decodeURIComponent(props.match.params.staffName);
 
   const history = useHistory();
-  
+  let interval;
+
   useEffect(() => {
     // 로그인 사용자정보 가져오기
     getUserInfo();
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, [])
 
   // 로그인 사용자정보 가져오기
@@ -170,7 +177,7 @@ function ConfirmWechatPage(props) {
           getStaffInfo(staffName);
         }
       } else {
-        staffNameRef.current = NotSet;
+        staffNameRef.current = NOT_SET;
       }
     } else {
       alert("Please contact the administrator");
@@ -348,7 +355,7 @@ function ConfirmWechatPage(props) {
     // UPC 결제 팝업창을 닫는지 1초마다 확인, 닫았을때 화면을 이동 또는 조건에 따라 탭을 종료한다.
     const openDialog = (url, settings, closeCallback) => {
       let win = window.open(url, "_blank", settings);
-      let interval = window.setInterval(() => {
+      interval = window.setInterval(() => {
         try {
           if (win == null || win.closed) {
             window.clearInterval(interval);
@@ -377,10 +384,17 @@ function ConfirmWechatPage(props) {
   }
 
   return (
-    <div className="app">
-      <h1>Wechat payment confirm</h1>
-      <br />
-      <Form style={{ minWidth: '500px' }} onSubmit={sendPaymentInfo} {...formItemLayout} >
+    // <div className="app">
+    //   <h1>Wechat payment confirm</h1>
+    //   <br />
+    //   <Form style={{ minWidth: '500px' }} onSubmit={sendPaymentInfo} {...formItemLayout} >
+
+    <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
+        <h1>Wechat payment confirm</h1>
+      </div>
+
+      <Form style={{ height:'80%', margin:'1em' }} onSubmit={sendPaymentInfo} {...formItemLayout} >      
         { roleRef.current !== 3 && 
           <Form.Item label="Name">
             <Input name="name" type="text" value={nameRef.current} readOnly />
@@ -458,4 +472,4 @@ function ConfirmWechatPage(props) {
   );
 };
 
-export default ConfirmWechatPage
+export default ConfirmWechatPage;

@@ -1,14 +1,9 @@
-const NotSet = "未設定"
-const Unidentified = "未確認"
-const DeliveryCompleted = "配送手続き完了"
-const Deposited = "入金済み"
-
 const MAIN_CATEGORY = [
   {key:0, value: "All"},
   {key:1, value: "Cosmetic"},
-  {key:2, value: "Drug"},
+  {key:2, value: "Pharmaceuticals"},
   {key:3, value: "Food/Supplement"},
-  {key:4, value: "Home appliances"},
+  {key:4, value: "Daily Necessaries"},
   {key:5, value: "Goods"},
   {key:6, value: "Etc"}
 ]
@@ -31,6 +26,14 @@ const UseWithSale = [
   {key:2, value: "Sale only"}
 ]
 
-const BUCKET_NAME = "furuokadrug-bucket";
+const NOT_SET = "未設定"
+const Unidentified = "未確認"
+const DeliveryCompleted = "配送手続き完了"
+const Deposited = "入金済み"
 
-module.exports = { NotSet, Unidentified, DeliveryCompleted, Deposited, MAIN_CATEGORY, CouponType, UseWithSale, SaleType, BUCKET_NAME };
+const AWS_S3 = "S3";
+const AWS_SES = "SES";
+const AWS_BUCKET_NAME = "furuokadrug-bucket";
+const AWS_REGION = "ap-northeast-1"
+
+module.exports = { NOT_SET, Unidentified, DeliveryCompleted, Deposited, MAIN_CATEGORY, CouponType, UseWithSale, SaleType, AWS_S3, AWS_SES, AWS_BUCKET_NAME, AWS_REGION };

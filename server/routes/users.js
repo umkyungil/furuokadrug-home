@@ -18,11 +18,11 @@ const bodyParser = require('body-parser');
 
 router.get("/auth", auth, (req, res) => {
     // 여기까지 미들웨어를 통과해 왔다는 거는 Authentication이 True라는 말
-    // role : 0 일반유저 role : 0이 아니면 관리자
+    // role:2 면 관리자
     res.status(200).json({
         _id: req.user._id,
         isAdmin: req.user.role === 2 ? true : false,
-        isAuth: true,
+        isAuth: true, // 여기까지 통과했기 때문에 true를 대입
         email: req.user.email,
         name: req.user.name,
         lastName: req.user.lastName,
@@ -45,32 +45,37 @@ router.get("/auth", auth, (req, res) => {
         room: req.user.room,
         deletedAt: req.user.deletedAt,
         myPoint: req.user.myPoint,
+        tokenExp: req.user.tokenExp,
     });
 });
 
 // Login
 router.post("/login", (req, res) => {
     try {
+        // 요청된 이메일을 데이터베이스에서 있는지 찾는다
         User.findOne({ email: req.body.email }, (err, user) => {
+            // 한명도 없다면
             if (!user) {
                 return res.json({ loginSuccess: false, message: "Auth failed, email not found" });
             }
             
-            // 요청된 이메일이 DB에 있다면 비밀번호가 맞는 비밀번호 인지 확인
+            // 요청된 이메일이 DB에 있다면 비밀번호가 맞는 비밀번호 인지 확인(comparePassword메소드는 User모델에 정의)
             user.comparePassword(req.body.password, (err, isMatch) => {
                 if (!isMatch) {
                     return res.json({ loginSuccess: false, message: "Wrong password" });
                 }
-                // 비밀번호 까지 맞다면 토큰을 생성하기
+                
+                // 비밀번호까지 맞다면 토큰을 생성하기
                 user.generateToken((err, user) => {
                     if (err) return res.status(400).send(err);
-                    // 토큰을 쿠키에 저장한다
+                    // 토큰을 클라이언트의 쿠키에 저장한다
                     res.cookie("w_authExp", user.tokenExp);
                     res.cookie("w_auth", user.token).status(200).json({
                         //loginSuccess: true, userId: user._id
                         loginSuccess: true, userInfo: user
                     });
                 });
+
                 // 로그인한 시간을 업데이트
                 User.findOneAndUpdate({ email: req.body.email }, { lastLogin: new Date() }, (err, doc) => {
                     if (err) return res.json({ success: false, err });
@@ -86,6 +91,7 @@ router.post("/login", (req, res) => {
 // Logout
 router.get("/logout", auth, (req, res) => {
     try {
+        // 토큰 정보를 삭제한다
         User.findOneAndUpdate({ _id: req.user._id }, { token: "", tokenExp: "" }, (err, doc) => {
             if (err) return res.json({ success: false, err });
             return res.status(200).send({ success: true });

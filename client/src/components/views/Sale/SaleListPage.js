@@ -94,7 +94,7 @@ function SaleListPage() {
 				setSales([...data]);
 			}
 		} catch (err) {
-			console.log("ListSalePage err: ",err);
+			console.log("err: ",err);
 		}
 	}
 
@@ -107,7 +107,7 @@ function SaleListPage() {
       }
     } catch (err) {
       alert("Failed to get product information")
-      console.log("getProduct err: ",err);
+      console.log("err: ",err);
     }
   }
 
@@ -170,7 +170,7 @@ function SaleListPage() {
 
 	return (
 		<div style={{ width:'80%', margin: '3rem auto'}}>
-			<div style={{ textAlign: 'center' }}>
+			<div style={{ textAlign: 'center', paddingTop: '38px' }}>
 				<h1>{t('Sale.listTitle')}</h1>
 			</div>
 
@@ -179,4 +179,4 @@ function SaleListPage() {
 	)
 }
 
-export default SaleListPage
+export default SaleListPage;

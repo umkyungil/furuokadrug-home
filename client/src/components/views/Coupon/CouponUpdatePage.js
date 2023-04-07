@@ -307,7 +307,7 @@ function CouponUpdatePage(props) {
         const { isSubmitting, handleSubmit, } = props;
         return (
           <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>{t('Coupon.updateTitle')}</h1>
             </div>
             <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} autoComplete="off" >
@@ -408,11 +408,11 @@ function CouponUpdatePage(props) {
 
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={listHandler}>
-                  　List　
-                </Button>&nbsp;&nbsp;
+                  List
+                </Button>
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
                   Submit
-                </Button>&nbsp;&nbsp;
+                </Button>
                 <Button onClick={deleteHandler} type="danger">
                   Delete
                 </Button>

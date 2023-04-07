@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { USER_SERVER } from '../Config';
+import moment from 'moment';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -32,6 +33,13 @@ export function getCurrentDateInUTCFormat() {
   return  new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString();
 }
 
+// utc시간을 현지 local date로 변환
+export const getLocalTime = (utcTime) => {
+  let localTime = moment.utc(utcTime).toDate();
+  localTime = moment(localTime).format('YYYY-MM-DD HH:mm');
+  return localTime;
+}
+
 // 사용자 정보 가져오기
 export const getUser = async (userId) => {
   try {
@@ -40,4 +48,9 @@ export const getUser = async (userId) => {
   } catch (err) {
     console.log("err: ",err);
   }
+}
+
+// 문자열 자르기  
+const truncate = (str, n) => {
+  return str?.length > n ? str.substr(0, n-1) + "..." : str;
 }

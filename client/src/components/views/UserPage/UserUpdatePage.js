@@ -243,10 +243,11 @@ function UserUpdatePage(props) {
       {props => {
         const { isSubmitting, handleBlur, handleSubmit, } = props;
         return (
-          <div className="app">
-            <div style={{ textAlign: 'center' }}>
+          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>{t('User.updateTitle')}</h1>
             </div>
+            
             <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 성명 */}
               <Form.Item required label={t('User.name')} style={{ marginBottom: 0, }} >
@@ -336,7 +337,7 @@ function UserUpdatePage(props) {
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={listHandler}>
                   User List
-                </Button>&nbsp;&nbsp;
+                </Button>
                 <Button onClick={submitHandler} type="primary" disabled={isSubmitting}>
                   Submit
                 </Button>

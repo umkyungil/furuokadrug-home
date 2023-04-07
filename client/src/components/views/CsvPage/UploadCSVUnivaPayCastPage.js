@@ -113,7 +113,7 @@ function UploadCSVUnivaPayCastPage() {
 
   return (
     <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h2>UNIVA PAYCAST CSV Upload</h2>
       </div>
       <br />
@@ -140,4 +140,4 @@ function UploadCSVUnivaPayCastPage() {
   );
 }
 
-export default UploadCSVUnivaPayCastPage
+export default UploadCSVUnivaPayCastPage;

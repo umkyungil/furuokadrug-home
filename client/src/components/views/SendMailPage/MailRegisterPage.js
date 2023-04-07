@@ -125,11 +125,14 @@ function MailRegisterPage(props) {
       }}
     >
       {props => {
-        const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
+        const { touched, errors, isSubmitting, handleSubmit, } = props;
         return (
-          <div className="app">
-            <h1>Mail Content Registration</h1><br />
-            <Form style={{ minWidth: '375px' }} {...formItemLayout} onSubmit={handleSubmit} >
+          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
+              <h1>Mail Content Registration</h1>
+            </div>
+
+            <Form style={{ height:'80%', margin:'1em' }} {...formItemLayout} onSubmit={handleSubmit} >
               <Form.Item required label= "Mail Type">
                 <Select defaultValue="notice" style={{ width: 120 }} onChange={selectHandler}>
                   <Option value="notice">notice</Option>
@@ -152,7 +155,7 @@ function MailRegisterPage(props) {
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={listHandler}>
                   User List
-                </Button>&nbsp;&nbsp;
+                </Button>
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
                   Submit
                 </Button>

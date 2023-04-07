@@ -451,7 +451,7 @@ function CouponRegisterPage() {
         const { isSubmitting, handleBlur, handleSubmit, } = props;
         return (
           <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>{t('Coupon.regTitle')}</h1>
             </div>
             <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} autoComplete="off" >
@@ -531,7 +531,7 @@ function CouponRegisterPage() {
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={listHandler}>
                   Landing Page
-                </Button>&nbsp;&nbsp;
+                </Button>
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
                   Submit
                 </Button>

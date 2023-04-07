@@ -18,7 +18,7 @@ const ImagesSchema = new Schema(
   },
   // 0: JP, 1: CP, 2: EN
   language: {
-    type:Number,
+    type:String,
     required: true
   },
   // 카테고리 이미지인 경우 설명

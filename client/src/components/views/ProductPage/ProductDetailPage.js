@@ -69,9 +69,8 @@ function ProductDetailPage(props) {
   }
 
   return (
-    // <div style={{ width:'90%', padding:'3rem 4rem' }}>
     <div style={{ width:'100%', padding:'3rem 4rem' }}>
-      <div style={{ display:'flex', justifyContent:'center' }}>
+      <div style={{ textAlign: 'center', paddingTop: '38px' }}>
         <h1>{Product.title}</h1>
       </div>
       <br />
@@ -91,4 +90,4 @@ function ProductDetailPage(props) {
   )
 }
 
-export default ProductDetailPage
+export default ProductDetailPage;

@@ -24,6 +24,7 @@ import ProductDetailPage from "./views/ProductPage/ProductDetailPage.js";
 import ProductUpdatePage from "./views/ProductPage/ProductUpdatePage.js";
 import ProductRegisterPage from "./views/ProductPage/ProductRegisterPage.js";
 import ProductListPage from "./views/ProductPage/ProductListPage.js";
+import ProductUploadCsvPage from "./views/ProductPage/ProductUploadCsvPage.js";
 // 고객관리
 import CustomerRegisterPage from "./views/CustomerPage/CustomerRegisterPage.js";
 import CustomerListPage from "./views/CustomerPage/CustomerListPage.js";
@@ -70,6 +71,10 @@ import ListPointPage from "./views/Point/ListPointPage.js";
 import ImagesRegisterPage from "./views/Images/ImagesRegisterPage.js";
 import ImagesListPage from "./views/Images/ImagesListPage.js";
 import ImagesUpdatePage from "./views/Images/ImagesUpdatePage.js";
+// AWS
+import AWSRegisterPage from "./views/AWS/AWSRegisterPage.js";
+import AWSListPage from "./views/AWS/AWSListPage.js";
+import AWSDeletePage from "./views/AWS/AWSDeletePage.js";
 // Context
 import { LanguageContext } from "./context/LanguageContext.js";
 // 404 페이지
@@ -85,8 +90,9 @@ function App() {
   return (
     <Suspense fallback={(<div>Loading...</div>)}>
       <LanguageContext.Provider value={{ isLanguage, setIsLanguage }}>
-      
+        
         <NavBar />
+        
         <div style={{ paddingTop: '69px', minHeight: 'calc(100vh - 80px)' }}>
           <Switch>
             <Route exact path="/" component={Auth(LandingPage, null)} />
@@ -105,8 +111,12 @@ function App() {
             {/* 상품관리 */}
             <Route exact path="/product/upload" component={Auth(ProductRegisterPage, true)} />
             <Route exact path="/product/list/:type" component={Auth(ProductListPage, null)} />
+            <Route exact path="/product/list/category/:category/" component={Auth(ProductListPage, null)} />
+            <Route exact path="/product/list/searchTerm/:searchTerm/" component={Auth(ProductListPage, null)} />
             <Route exact path="/product/:productId" component={Auth(ProductDetailPage, null)} />
             <Route exact path="/product/update/:productId/" component={Auth(ProductUpdatePage, null)} />
+            <Route exact path="/product/csv/upload" component={Auth(ProductUploadCsvPage, null)} />
+
             {/* 고객관리 */}
             <Route exact path="/customer/register" component={Auth(CustomerRegisterPage, true)} />
             <Route exact path="/customer/list" component={Auth(CustomerListPage, true)} />
@@ -155,6 +165,10 @@ function App() {
             <Route exact path="/images/register" component={Auth(ImagesRegisterPage, true)} />
             <Route exact path="/images/list" component={Auth(ImagesListPage, true)} />
             <Route exact path="/images/update/:imageId" component={Auth(ImagesUpdatePage, true)} />
+            {/* AWS관리 */}
+            <Route exact path="/aws/register" component={Auth(AWSRegisterPage, true)} />
+            <Route exact path="/aws/list" component={Auth(AWSListPage, true)} />
+            <Route exact path="/aws/delete/:awsId" component={Auth(AWSDeletePage, true)} />
             {/* 404 Not Found */}
             <Route path={"*"} component={NotFoundPage} />
           </Switch>

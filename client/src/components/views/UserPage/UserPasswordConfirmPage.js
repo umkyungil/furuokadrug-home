@@ -138,8 +138,10 @@ function UserPasswordConfirmPage(props) {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
           <div className="app">
-            <h1>{t('Password.subTitle')}</h1><br />
-            <Form style={{ minWidth: '500px' }} {...formItemLayout} onSubmit={handleSubmit} >
+            <h1>{t('Password.subTitle')}</h1>
+            <br />
+
+            <Form style={{ minWidth: '350px' }} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 비밀번호 */}
               <Form.Item required label={t('Password.password')} hasFeedback validateStatus={errors.password && touched.password ? "error" : 'success'} >
                 <Input id="password" placeholder="Enter your password" type="password" value={values.password} onChange={handleChange} onBlur={handleBlur}
@@ -161,7 +163,7 @@ function UserPasswordConfirmPage(props) {
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={listHandler}>
                   Landing Page
-                </Button>&nbsp;&nbsp;
+                </Button>
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
                   Submit
                 </Button>
@@ -174,4 +176,4 @@ function UserPasswordConfirmPage(props) {
   );
 };
 
-export default UserPasswordConfirmPage
+export default UserPasswordConfirmPage;

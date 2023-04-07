@@ -347,10 +347,12 @@ function SaleUpdatePage(props) {
       {props => {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
-          <div className="app">
-            <h1>{t('Sale.updateTitle')}</h1>
-            <br />
-            <Form {...formItemLayout} onSubmit={handleSubmit} >
+          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
+              <h1>{t('Sale.updateTitle')}</h1>
+            </div>
+
+            <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 세일코드 */}
               <Form.Item label={t('Sale.code')}>
                 <Input id="code"  type="text" value={Code} style={{ width: 250 }} readOnly/>
@@ -453,10 +455,10 @@ function SaleUpdatePage(props) {
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={listHandler}>
                   Sale List
-                </Button>&nbsp;&nbsp;
+                </Button>
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
                   Submit
-                </Button>&nbsp;&nbsp;
+                </Button>
                 <Button onClick={deleteHandler} type="danger" >
                   Delete
                 </Button>

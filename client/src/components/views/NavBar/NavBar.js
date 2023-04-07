@@ -1,45 +1,52 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 // import LeftMenu from './Sections/LeftMenu';
 import RightMenu from './Sections/RightMenu';
 import { IMAGES_SERVER } from '../../Config';
-import { IMAGES_TYPE, IMAGES_VISIBLE_ITEM, IMAGES_LANGUAGE, I18N_ENGLISH, I18N_CHINESE, I18N_JAPANESE } from '../../utils/Const';
-import { LanguageContext } from '../../context/LanguageContext';
-import { Drawer, Button, Icon } from 'antd';
+import { MAIN_CATEGORY, IMAGES_TYPE, IMAGES_VISIBLE_ITEM, I18N_JAPANESE } from '../../utils/Const';
+import SearchFeature from './Sections/SearchFeature';
+import { Drawer, Button, Icon, Select } from 'antd';
 import './Sections/Navbar.css';
+import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
+const {Option} = Select;
 
 function NavBar() {
-  const [visible, setVisible] = useState(false)
-  const [image, setImage] = useState("")
-  const {isLanguage} = useContext(LanguageContext);
+  const [visible, setVisible] = useState(false);
+  const [image, setImage] = useState("");
+  const history = useHistory();
 
   useEffect(() => {
-    // 다국적언어 설정
 		getLogo();
 	}, [])
 
-   // 배너 가져오기
+   // 로고 가져오기
 	const getLogo = async () => {
 		try {
-      console.log("isLanguage: ", isLanguage);
-      
-      let imgLan = "";
-      if (isLanguage === "" || isLanguage === I18N_JAPANESE) {
-        imgLan = IMAGES_LANGUAGE[0]._id
-      } else if (isLanguage === I18N_CHINESE) {
-        imgLan = IMAGES_LANGUAGE[1]._id
-      } else if (isLanguage === I18N_ENGLISH) {
-        imgLan = IMAGES_LANGUAGE[2]._id
-      }
-      const image = await axios.post(`${IMAGES_SERVER}/images_by_type`, {type: IMAGES_TYPE[0]._id, visible: IMAGES_VISIBLE_ITEM[1]._id, language: imgLan});
+      const image = await axios.post(`${IMAGES_SERVER}/images_by_type`, {type: IMAGES_TYPE[0]._id, visible: IMAGES_VISIBLE_ITEM[1]._id, language: I18N_JAPANESE});
       if (image.data.imageInfo.length > 0) {
         setImage(image.data.imageInfo[0].image);
       }
 		} catch (err) {
 			console.log("err: ",err);
 		}
+	}
+
+  // 키워드 검색시 상품 가져오기
+	const handleSearchTerm = (newSearchTerm) => {
+    if (newSearchTerm !== "") {
+      // 상품리스트로 이동해서 키워드로 검색을 한다
+      history.push(`/product/list/searchTerm/${newSearchTerm}`);
+    }
+	}
+
+  // 카테고리 검색시 상품 가져오기
+	const handleCategory = (category) => {
+    if (category !== "") {
+      // 상품리스트로 이동해서 카에고리 검색을 한다
+      history.push(`/product/list/category/${category}`);
+    }
 	}
 
   const showDrawer = () => {
@@ -52,11 +59,17 @@ function NavBar() {
 
   return (
     <>
-      <nav className="menu" style={{ position: 'fixed', zIndex: 5, width: '100%', padding: '10px', height:"80px"}}>
+      {/* <nav className="menu" style={{ position: 'fixed', zIndex: 5, width: '100%', padding: '10px', height:"80px"}}>
         <div className="menu__logo">
-          {/* <a href="/" ><img style={{ width:"270px" }} src={ require('./fd_logo670.png')} /></a> */}
           <a href="/" ><img style={{ width:"270px" }} src={image} /></a>
+        </div> */}
+
+      <nav className="menu" >
+        <div className="menu__logo">
+          <a href="/" ><img style={{ width:"270px" }} src={image} /></a>
+          {/* <a href="/" ><img style={{ width: "270px" }} src={image} /></a> */}
         </div>
+        
         <div className="menu__container">
           {/* <div className="menu_left">
             <LeftMenu mode="horizontal" />
@@ -82,6 +95,21 @@ function NavBar() {
             {/* <LeftMenu mode="inline" /> */}
             <RightMenu mode="inline" />
           </Drawer>
+        </div>
+        {/* Search */}
+        <div className="headMenu2">
+          <SearchFeature refreshFunction={handleSearchTerm} />
+        </div>
+        <div className="listblock">
+          <Select defaultValue="" style={{ width:"48%", float:"right", position:"relative", textAlign:"lest" }} onChange={handleCategory} >
+            <Option key={0} value={""} > {""} </Option>
+            {MAIN_CATEGORY.map(item => {
+              // 카테고리에서 All제외
+              if (item.key !== 0) {
+                return (<Option key={item.key} value={item.key} > {item.value} </Option>);
+              }
+            })}
+          </Select>
         </div>
       </nav>
     </>

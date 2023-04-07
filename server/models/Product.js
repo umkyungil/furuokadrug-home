@@ -66,10 +66,22 @@ const ProductSchema = new Schema(
     type: Number,
     default: 0
   },
-  // 일반상품: 0, 방송상품: 1, 동영상 존재 상품: 2, 추천상품: 3, 세일상품: 4
+  // 노출상품 구분: 일반상품: 0, 방송상품: 1, 동영상 존재 상품: 2, 추천상품: 3, 세일상품: 4
   exposureType: {
     type: Array,
     default: []
+  },
+  japaneseUrl: {
+    type: String,
+    default: ""
+  },
+  englishUrl: {
+    type: String,
+    default: ""
+  },
+  chineseUrl: {
+    type: String,
+    default: ""
   }
 }, { timestamps: true })
 

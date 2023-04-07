@@ -50,10 +50,12 @@
     "contents": "容量",
     "itemSelection": "アイテム",
     "priceSelection": "価格範囲",
-    "imageMessage": "既存の画像は削除されるので新しい画像を追加してください",
     "category": "カテゴリ",
     "action": "アクション",
-    "exposure": "商品表示"
+    "exposure": "商品表示",
+    "englishUrl": "商品URL(EN)",
+    "japaneseUrl": "商品URL(JP)",
+    "chineseUrl": "商品URL(CN)"
   },
   "Customer": {
     "listTitle": "顧客一覧",
@@ -276,16 +278,6 @@
     "lastName": "苗字",
     "totalPoints": "合計"
   },
-  "Banner": {
-    "listTitle": "バナーリスト",
-    "regTitle": "バナー登録",
-    "updateTitle": "バナー更新",
-    "image": "イメージ",
-    "exposure": "オープン",
-    "createdDate": "作成日",
-    "updateDate": "更新日",
-    "action": "アクション"
-  },
   "Images": {
     "listTitle": "イメージリスト",
     "regTitle": "イメージ登録",
@@ -301,16 +293,23 @@
     "types": "イメージタイプ"
   },
   "Landing": {
-    "recommendTitle": "おすすめリスト",
-    "saleTitle": "セールリスト",
-    "itemTitle": "アイテムリスト",
+    "recommendTitle": "おすすめ一覧",
+    "saleTitle": "セール一覧",
+    "itemTitle": "アイテム一覧",
     "pharmaceuticalsTitle": "医薬品",
-    "pharmaceuticalsDesc": "Description",
     "cosmeticsTitle": "化粧品",
-    "cosmeticsDesc": "Description",
     "dailyNecessariesTitle": "日用品",
-    "dailyNecessariesDesc": "Description",
-    "foodTitle": "食品",
-    "foodDesc": "Description"
+    "foodTitle": "食品"
+  },
+  "AWS": {
+    "listTitle": "AWS list",
+    "regTitle": "AWS register",
+    "detailTitle": "AWS detail",
+    "type": "AWS Type",
+    "access": "Access code",
+    "secret": "Secret code",
+    "region": "Region",
+    "createdDate": "Created date",
+    "action": "Action"
   }
 }

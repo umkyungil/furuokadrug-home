@@ -1,53 +1,41 @@
 const express = require('express');
 const router = express.Router();
 const { Product } = require('../models/Product');
+const { AmazonWebService } = require('../models/AmazonWebService');
 const multer = require('multer');
 const multerS3 = require('multer-s3')
-const AWS = require('aws-sdk');
-const { S3_CONFIG } = require("../config/aws");
-const { MAIN_CATEGORY, BUCKET_NAME } = require('../config/const');
+const AWS_SDK = require('aws-sdk');
+const { MAIN_CATEGORY, AWS_S3, AWS_BUCKET_NAME } = require("../config/const");
 
 //=================================
 //             Product
 //=================================
 
-// AWS S3 접속 Key
-const s3 = new AWS.S3({
-  accessKeyId: S3_CONFIG.access,
-  secretAccessKey: S3_CONFIG.secret,
-  region: S3_CONFIG.region
-});
-
-// 이미지파일 등록 AWS 정의
-const uploadS3Object = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: BUCKET_NAME,
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname});
-    },
-    key: function (req, file, cb) {
-      cb(null, `${ Date.now()}_${file.originalname }`);
-    },
-  }),
-});
-
-const deleteS3Object = async (params) => {
-  s3.deleteObject(params, (err, data) => {
-    if (err) {
-      console.log('AWS S3 file delete error');
-      console.log(err, err.stack);
-      return false;
-    } else {
-      console.log('AWS S3 file delete success' + data);
-      return true;
-    }
-  })
-}
-
 // 파일 업로드에서 AWS에 이미지 등록하기
-router.post('/image', (req, res) => {
-  const uploadSingle = uploadS3Object.single("file");
+router.post('/image', async (req, res) => {
+  // AWS정보 가져오기
+  const s3Infos = await AmazonWebService.findOne({ type: AWS_S3 });
+  const s3Object = new AWS_SDK.S3({
+    accessKeyId: s3Infos.access,
+    secretAccessKey: s3Infos.secret,
+    region: s3Infos.region
+  });
+
+  // AWS 이미지 등록
+  const s3Upload = multer({
+    storage: multerS3({
+      s3: s3Object,
+      bucket: AWS_BUCKET_NAME,
+      metadata: function (req, file, cb) {
+        cb(null, { fieldName: file.fieldname});
+      },
+      key: function (req, file, cb) {
+        cb(null, `${ Date.now()}_${file.originalname }`);
+      },
+    }),
+  });
+  
+  const uploadSingle = s3Upload.single("file");
   uploadSingle(req, res, err => {
     if(err) return res.json({success: false, err});
     return res.json({ success: true, filePath: res.req.file.location});
@@ -68,15 +56,16 @@ router.post('/register', (req, res) => {
   }
 })
 
-// 상품 가져오기(LandingPage)
-router.post('/products', (req, res) => {
+// 상품 가져오기(카테고리 또는 키워드 검색)
+router.post('/list', async (req, res) => {
   try {
     // 화면 표시 갯수 정의
     let limit = req.body.limit ? parseInt(req.body.limit) : 20;
     let skip  = req.body.skip ? parseInt(req.body.skip)  : 0;
-
+    // 검색어
     let term = req.body.searchTerm;
-    // findArgs: find에 객체 형태로 만들어 Query의 조건식으로 사용
+
+    // findArgs: find로 검색할때 객체 형태로 만들어 Query의 조건식으로 사용
     let findArgs = {};
     
     for (let key in req.body.filters) {
@@ -95,26 +84,38 @@ router.post('/products', (req, res) => {
       }
     }
 
+    // 키워드 검색
     if (term) {
-      Product.find(findArgs)
-      //.find({ $text: { $search: term } })
-      .find({ "title": { '$regex': term }})
-      .populate("writer")
-      .skip(skip)
-      .limit(limit)
-      .exec((err, productInfo) =>{
-        if (err) return res.status(400).json({ success: false, err });
-        return res.status(200).json({ success: true, productInfo, postSize: productInfo.length })
-      })
+      // Product.find(findArgs)
+      // //.find({ $text: { $search: term } })
+      // .find({ 'title': { '$regex': term }})
+      // .populate('writer')
+      // .skip(skip)
+      // .limit(limit)
+      // .exec((err, productInfo) =>{
+      //   if (err) return res.status(400).json({ success: false, err });
+      //   return res.status(200).json({ success: true, productInfo, postSize: productInfo.length })
+      // })
+      
+      // 중국어 타이틀 검색
+      const chineseProductInfo = await Product.find(findArgs).find({ 'chineseTitle': { '$regex': term }}).populate('writer').skip(skip).limit(limit);
+      if (chineseProductInfo.length > 0) {
+        return res.status(200).json({ success: true, productInfo: chineseProductInfo, postSize: chineseProductInfo.length });
+      }
+      // 영어타이틀 검색
+      const englishProductInfo = await Product.find(findArgs).find({ 'englishTitle': { '$regex': term }}).populate('writer').skip(skip).limit(limit);
+      if (englishProductInfo.length > 0) {
+        return res.status(200).json({ success: true, productInfo: englishProductInfo, postSize: englishProductInfo.length });
+      }
+      // 일본어 타이틀 검색
+      const japaneseProductInfo = await Product.find(findArgs).find({ 'title': { '$regex': term }}).populate('writer').skip(skip).limit(limit);
+      if (japaneseProductInfo.length > 0) {
+        return res.status(200).json({ success: true, productInfo: japaneseProductInfo, postSize: japaneseProductInfo.length });
+      }
     } else {
-      Product.find(findArgs)
-      .populate("writer")
-      .skip(skip)
-      .limit(limit)
-      .exec((err, productInfo) =>{
-        if (err) return res.status(400).json({ success: false, err });
-        return res.status(200).json({ success: true, productInfo, postSize: productInfo.length })
-      })
+      // 카테고리 검색
+      const productInfo = await Product.find(findArgs).populate('writer').skip(skip).limit(limit);
+      return res.status(200).json({ success: true, productInfo, postSize: productInfo.length });
     }
   } catch (err) {
     console.log(err);
@@ -153,11 +154,16 @@ router.get('/products_by_id', (req, res) => {
   }
 })
 
-// 메인페이지에서 now on airt, recording, 추천상품, 세일상품 가져오기
+// Landing page, Product list page 에서 조건별 상품가져오기 
+// type:1 now on airt, type:2 recording, type:3 추천상품, type:4 세일상품
 router.post('/products_by_type', async (req, res) => {
   try {
+    // 화면 표시 갯수 정의
+    let limit = req.body.limit ? parseInt(req.body.limit) : 20;
+    let skip  = req.body.skip ? parseInt(req.body.skip)  : 0;
     let type = req.body.type;
-    const productInfos = await Product.find({exposureType: { $in: type }});
+
+    const productInfos = await Product.find({exposureType: { $in: type }}).skip(skip).limit(limit);
     return res.status(200).json({ success: true, productInfos });
   } catch (err) {
     console.log(err);
@@ -168,47 +174,63 @@ router.post('/products_by_type', async (req, res) => {
 // 상품삭제
 router.post('/delete', async (req, res) => {
   try {
-    if (req.body.images.length > 0) {
-      let images = req.body.images;
+    // AWS 정보가져오기
+    const s3Infos = await AmazonWebService.findOne({ type: AWS_S3 });
+    const s3Object = new AWS_SDK.S3({
+      accessKeyId: s3Infos.access,
+      secretAccessKey: s3Infos.secret,
+      region: s3Infos.region
+    });
 
-      // AWS S3 이미지 삭제
-      for (let i=0; i<images.length; i++) {
-        let str = images[i];
-        let words = str.split('/');
-        let fileName = words[words.length-1]
+    // AWS S3 이미지 삭제
+    let images = req.body.images;
+    for (let i=0; i<images.length; i++) {
+      let str = images[i];
+      let words = str.split('/');
+      let fileName = words[words.length-1];
+      const params = { Bucket: AWS_BUCKET_NAME, Key: fileName };
 
-        const params = {
-          Bucket: BUCKET_NAME,
-          Key: fileName
+      s3Object.deleteObject(params, (err, data) => {
+        if (err) {
+          console.log(err, err.stack);
+          return res.json({success: false, err});
         }
-
-        await deleteS3Object(params);
-      } 
+      })
     }
 
     // DataBase 삭제
     await Product.findOneAndDelete({_id: req.body.id});
-    return res.json({success: true});
+    return res.status(200).json({success: true});
   } catch (err) {
     console.log(err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
 
-// 상품 등록에서 이미지삭제
+// 상품 등록에서 이미지를 클릯했을때 이미지 삭제
 router.post('/delete_image', async (req, res) => {
   try {
+    // AWS 정보가져오기
+    const s3Infos = await AmazonWebService.findOne({ type: AWS_S3 });
+    const s3Object = new AWS_SDK.S3({
+      accessKeyId: s3Infos.access,
+      secretAccessKey: s3Infos.secret,
+      region: s3Infos.region
+    });
+    
     let str = req.body.image;
     let words = str.split('/');
-    let fileName = words[words.length-1]
+    let fileName = words[words.length-1];
+    const params = { Bucket: AWS_BUCKET_NAME, Key: fileName };
 
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: fileName
-    }
-
-    await deleteS3Object(params);
-    return res.json({ success: true});
+    s3Object.deleteObject(params, (err, data) => {
+      if (err) {
+        console.log(err, err.stack);
+        return res.json({success: false, err});
+      } else {
+        return res.status(200).json({success: true});
+      }
+    })
   } catch (err) {
     console.log(err);
     return res.status(500).json({ success: false, message: err.message });
@@ -218,21 +240,32 @@ router.post('/delete_image', async (req, res) => {
 // 상품수정(이미지 경로포함)
 router.post('/update', async (req, res) => {
   try {
-    // 기존 이미지 취득
+    // AWS 정보가져오기
+    const s3Infos = await AmazonWebService.findOne({ type: AWS_S3 });
+    const s3Object = new AWS_SDK.S3({
+      accessKeyId: s3Infos.access,
+      secretAccessKey: s3Infos.secret,
+      region: s3Infos.region
+    });
+
+    // 기존 이미지 삭제
     const oldImages = req.body.oldImages
     // AWS S3 이미지 삭제
-    for (let i=0; i<oldImages.length; i++) {
-      let str = oldImages[i];
-      let words = str.split('/');
-      let fileName = words[words.length-1]
+    // for (let i = 0; i < oldImages.length; i++) {
+    //   let str = oldImages[i];
+    //   let words = str.split('/');
+    //   let fileName = words[words.length-1];
+    //   const params = { Bucket: AWS_BUCKET_NAME, Key: fileName };
 
-      const params = {
-        Bucket: BUCKET_NAME,
-        Key: fileName
-      }
-      await deleteS3Object(params);
-    }
+    //   s3Object.deleteObject(params, (err, data) => {
+    //     if (err) {
+    //       console.log(err, err.stack);
+    //       return res.json({success: false, err});
+    //     }
+    //   })
+    // }
 
+    // 업데이트 처리
     let product = await Product.findById(req.body.id);
     product.writer = req.body.writer;
     product.title = req.body.title;
@@ -251,6 +284,9 @@ router.post('/update', async (req, res) => {
     product.oldImages = req.body.oldImages;
     product.continents = req.body.continents;
     product.exposureType = req.body.exposureType;
+    product.englishUrl = req.body.englishUrl;
+    product.chineseUrl = req.body.chineseUrl;
+    product.japaneseUrl = req.body.japaneseUrl;
 
     // 데이타 저장
     await product.save();

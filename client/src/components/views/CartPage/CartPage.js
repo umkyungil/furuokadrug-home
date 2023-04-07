@@ -8,7 +8,7 @@ import axios from 'axios';
 import { Empty, Button, Result, Icon, Input } from 'antd';
 import { getCartItems, removeCartItem, onSuccessBuy, onSuccessBuyTmp } from '../../../_actions/user_actions';
 import { ORDER_SERVER, COUPON_SERVER, POINT_SERVER, SALE_SERVER, SID } from '../../Config.js';
-import { NotSet, Unidentified, Deposited, ECSystem, MAIN_CATEGORY, UseWithSale, CouponType, SaleType } from '../../utils/Const';
+import { NOT_SET, Unidentified, Deposited, ECSystem, MAIN_CATEGORY, UseWithSale, CouponType, SaleType } from '../../utils/Const';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -40,20 +40,20 @@ function CartPage(props) {
   // 결제정보 설정
   const paymentData = {
     address: {
-      city: NotSet,
-      country_code: NotSet,
-      line1: NotSet,
-      postal_code: NotSet,
-      recipient_name: NotSet,
-      state: NotSet,
+      city: NOT_SET,
+      country_code: NOT_SET,
+      line1: NOT_SET,
+      postal_code: NOT_SET,
+      recipient_name: NOT_SET,
+      state: NOT_SET,
     },
-    cancelled: NotSet,
-    email: NotSet,
-    paid: NotSet,
-    payerID: NotSet,
-    paymentID: NotSet,
-    paymentToken: NotSet,
-    returnUrl: NotSet,
+    cancelled: NOT_SET,
+    email: NOT_SET,
+    paid: NOT_SET,
+    payerID: NOT_SET,
+    paymentID: NOT_SET,
+    paymentToken: NOT_SET,
+    returnUrl: NOT_SET,
   };
 
   useEffect(() => {

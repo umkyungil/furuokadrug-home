@@ -1,5 +1,6 @@
 import React, { useEffect, useContext, useState } from 'react';
 import { Button, Form, Radio, Divider, Input } from 'antd';
+import FileUpload from '../../utils/FileUpload';
 import { IMAGES_SERVER } from '../../Config.js';
 import { IMAGES_VISIBLE_ITEM, IMAGES_TYPE, IMAGES_LANGUAGE } from '../../utils/Const';
 import { useTranslation } from 'react-i18next';
@@ -24,34 +25,43 @@ const tailFormItemLayout = {
 function ImagesUpdatePage(props) {
   const [Visible, setVisible] = useState(0);
   const [Type, setType] = useState(1);
-  const [Language, setLanguage] = useState(0);
+  const [Language, setLanguage] = useState("");
   const [isShow, setIsShow] = useState(false);
   const [Description, setDescription] = useState("");
-  const [Image, setImage] = useState("");
+  const [Images, setImages] = useState([]);  
+  const [OldImages, setOldImages] = useState([]);
   const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
   // query string 가져오기
   const imageId = props.match.params.imageId;
 
   useEffect(() => {
+    // 다국적언어 설정
 		i18n.changeLanguage(isLanguage);
     // 이미지 가져오기
-    getImage();
+    process();
 	}, [])
 
-  // 이미지 가져오기
+  const process = async () => {
+    await getImage();
+  }
+  
 	const getImage = async () => {
 		try {
 			const image = await axios.get(`${IMAGES_SERVER}/images_by_id?id=${imageId}`);
 
 			if (image.data.imageInfo) {
-        setImage(image.data.imageInfo.image);
+        setOldImages([image.data.imageInfo.image]);
         setVisible(image.data.imageInfo.visible);
         setType(image.data.imageInfo.type);
         // 이미지 타입이 카테고리이면 설명입력란을 보여준다
-        if (image.data.imageInfo.type !== 0 && image.data.imageInfo.type !== 1) setIsShow(true);
+        if (image.data.imageInfo.type !== 0 && image.data.imageInfo.type !== 1) {
+          setIsShow(true);
+        }
+        if (image.data.imageInfo.description) {
+          setDescription(image.data.imageInfo.description);
+        }
         setLanguage(image.data.imageInfo.language);
-        if (image.data.imageInfo.description) setDescription(image.data.imageInfo.description);
 			}
 		} catch (err) {
 			console.log("err: ",err);
@@ -70,6 +80,10 @@ function ImagesUpdatePage(props) {
   const languageRadioBoxLists = () => IMAGES_LANGUAGE.map((item) => (
     <Radio key={item._id} value={item._id}> {item.name} </Radio>
   ))
+  // 이미지 설정
+  const updateImages = (newImages) => {
+    setImages(newImages);
+  }
   // 이미지 화면노출 여부
   const visibleHandler = (event) => {
     setVisible(event.target.value);
@@ -84,8 +98,12 @@ function ImagesUpdatePage(props) {
     event.preventDefault();
 
     // 유효성 체크
-    if (Image === "") {
+    if (Images.length < 1) {
       alert("Image is required");
+      return false; 
+    }
+    if (Images.length > 1) {
+      alert("Only one image can be registered\nClick on the image you want to delete to delete it");
       return false; 
     }
 
@@ -109,7 +127,7 @@ function ImagesUpdatePage(props) {
 
     const body = {
       id: imageId,
-      image: Image,
+      image: String(Images[0]),
       visible: Visible,
       language: Language,
       description: Description
@@ -134,12 +152,12 @@ function ImagesUpdatePage(props) {
       }
       const result = await axios.post(`${IMAGES_SERVER}/delete`, body);
       alert('Images deleted was successful');
-      // 배너리스트 화면에 이동
-      props.history.push('/images/list');
+      // 이미지 리스트 화면에 이동
+      listHandler();
     } catch (error) {
       alert('Image deletion failed');
-      // 배너리스트 화면에 이동
-      props.history.push('/images/list')
+      // 이미지 리스트 화면에 이동
+      listHandler();
     }
   }
 
@@ -150,17 +168,16 @@ function ImagesUpdatePage(props) {
 
   return (
     <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Images.updateTitle')}</h1>
       </div>
 
       <Form style={{height:'80%', margin:'1em'}} labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} onSubmit={submitHandler}>
-    
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <img src={Image} style={{border:"none", maxWidth:"100%", height:"auto", width:"100"}}/>
-        </div>
+        {/* DropZone*/}
+        <FileUpload refreshFunction={updateImages} oldImages={OldImages} />
         <br />
-    
+        <br />
+        
         <Divider orientation="left" plain="true">{t('Images.screenVisible')}</Divider>
         <Radio.Group onChange={visibleHandler} value={Visible}>
           {itemRadioBoxLists()}

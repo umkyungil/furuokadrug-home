@@ -88,12 +88,8 @@ function ContactUsPage() {
   return (
     <div className="app">
       <h1>{t('Contact.title')}</h1>
-      
-      <Form 
-        style={{ minWidth: '350px', margin:'1em' }} {...formItemLayout} onSubmit={sendEmail} 
-        autoComplete="off"
-        >
-        
+          
+      <Form style={{ minWidth: '350px', margin:'1em' }} {...formItemLayout} onSubmit={sendEmail} autoComplete="off" >        
         <Form.Item label={t('Contact.name')} required>
           <Input name="name" placeholder="Please enter your name" type="text" value={Name} onChange={nameHandler} required/>
         </Form.Item>
@@ -107,11 +103,10 @@ function ContactUsPage() {
         <Form.Item {...tailFormItemLayout}>
           <Button onClick={listHandler}>
             Landing Page
-          </Button>&nbsp;&nbsp;
+          </Button>
           <Button htmlType="submit" type="primary">
             Send
           </Button>
-
         </Form.Item>
         
       </Form>  
@@ -119,4 +114,4 @@ function ContactUsPage() {
   );
 } 
 
-export default ContactUsPage
+export default ContactUsPage;

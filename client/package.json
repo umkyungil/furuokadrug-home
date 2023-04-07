@@ -27,6 +27,7 @@
     "react-image-gallery": "^1.2.7",
     "react-modal": "^3.14.4",
     "react-paypal-express-checkout": "^1.0.5",
+    "react-player": "^2.12.0",
     "react-redux": "^7.1.0-rc.1",
     "react-router-dom": "^5.0.1",
     "react-script-hook": "^1.7.2",

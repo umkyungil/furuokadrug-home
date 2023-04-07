@@ -147,7 +147,7 @@ function UserListPage() {
 
 	return (
 		<div style={{ width:'80%', margin: '3rem auto'}}>
-			<div style={{ textAlign: 'center' }}>
+			<div style={{ textAlign: 'center', paddingTop: '38px' }}>
 				<h1>{t('User.listTitle')}</h1>
 			</div>
 
@@ -163,4 +163,4 @@ function UserListPage() {
 	)
 }
 
-export default UserListPage
+export default UserListPage;

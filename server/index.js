@@ -5,25 +5,26 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const config = require("./config/key");
 const mongoose = require("mongoose");
-const AWS = require('aws-sdk');
+const AWS_SDK = require('aws-sdk');
 const { Mail } = require("./models/Mail");
 const { ADMIN_EMAIL } = require("./config/url");
-const { SES_CONFIG } = require("./config/aws");
-const { MAIN_CATEGORY, CouponType, UseWithSale } = require('./config/const');
+const { MAIN_CATEGORY, CouponType, UseWithSale, AWS_SES, AWS_S3 } = require('./config/const');
 // 배치실행 관련 설정
 const { User } = require("./models/User");
 const { TmpOrder } = require("./models/TmpOrder");
 const { TmpPayment } = require("./models/TmpPayment");
 const { Point } = require('./models/Point');
 const { Coupon } = require('./models/Coupon');
+const { AmazonWebService } = require('./models/AmazonWebService');
 const schedule = require('node-schedule');
 const nodemailer = require("nodemailer");
 // CORS 설정
-const cors = require('cors')
+const cors = require('cors');
 
 const server = async() => {
   try {
     await mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
+    
     console.log('MongoDB Connected...');
     mongoose.set('debug', true);
 
@@ -44,6 +45,7 @@ const server = async() => {
     app.use('/api/sale', require('./routes/sale'));
     app.use('/api/point', require('./routes/point'));
     app.use('/api/images', require('./routes/images'));
+    app.use('/api/aws', require('./routes/awsRouter'));
     app.use('/uploads', express.static('uploads'));
 
     if (process.env.NODE_ENV === "production") {
@@ -55,7 +57,19 @@ const server = async() => {
     }
 
     const port = process.env.PORT || 5000
-    app.listen(port, () => console.log(`Server Listening on ${port}`));  
+    app.listen(port, () => console.log(`Server Listening on ${port}`));
+
+    // AWS 정보가져와서 환경변수에 저장
+    const awsInfos = await AmazonWebService.find({});
+    for (let i = 0; i < awsInfos.length; i++) {
+      if (awsInfos[i].type === AWS_SES) {
+        process.env.AWS_ACCESS_KEY_ID = awsInfos[i].access;
+        process.env.AWS_SECRET_ACCESS_KEY = awsInfos[i].secret;
+      } else if (awsInfos[i].type === AWS_S3) {
+        process.env.AWS_S3_ACCESS_KEY_ID = awsInfos[i].access;
+        process.env.AWS_S3_SECRET_ACCESS_KEY = awsInfos[i].secret;
+      }
+    }
   } catch (err) {
     console.log("error: ", err);
   }
@@ -204,7 +218,7 @@ const batchJob = async() => {
           message: message
         }
         // 메일송신
-        sendEmail(body, true);
+        sendMailProcess(body, true);
       }
     } catch (err) {
       console.log("Failed to search for users who have not logged in for 3 months ", err);
@@ -301,7 +315,7 @@ const batchJob = async() => {
             message: message
           }
           // 메일송신
-          sendEmail(body, true);
+          sendMailProcess(body, true);
         }
       }
     } catch (err) {
@@ -494,7 +508,7 @@ const batchJob = async() => {
               message: message
             }
             // 메일송신
-            sendEmail(body, false);
+            sendMailProcess(body, false);
           }
         }
       }
@@ -527,16 +541,16 @@ const getCoupons = () => {
   return couponInfos;
 }
 
-// 메일 송신
-function sendEmail(data, optional) {
-  // AWS SES 접근 보안키
-  process.env.AWS_ACCESS_KEY_ID = SES_CONFIG.access;
-  process.env.AWS_SECRET_ACCESS_KEY = SES_CONFIG.secret;
-  const ses = new AWS.SES({
-      apiVersion: "2010-12-01",
-      region: SES_CONFIG.region, 
+// AWS SES 접근 보안키 가져와서 메일전송
+const sendMailProcess = async (data, optional) => {
+  const sesInfos = await AmazonWebService.findOne({ type: AWS_SES });
+  const sesObject = new AWS_SDK.SES({
+    accessKeyId: sesInfos.access,
+    secretAccessKey: sesInfos.secret,
+    region: sesInfos.region
   });
-  const transporter = nodemailer.createTransport({ SES: ses, AWS })
+
+  const transporter = nodemailer.createTransport({ SES: sesObject, AWS_SDK });
 
   try {
     // 메일송신
@@ -546,7 +560,7 @@ function sendEmail(data, optional) {
       subject: data.subject,
       text: data.message
     };
-    transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
 
     // 메일등록
     if (optional) {
