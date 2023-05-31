@@ -30,6 +30,7 @@
   "Product": {
     "productName": "Product name",
     "listTitle": "Product list",
+    "listAdminTitle": "Product Admin list",
     "uploadTitle": "Product register",
     "updateTitle": "Product update",
     "detailTitle": "Product detail",
@@ -48,14 +49,16 @@
     "priceDisplay": "Price",
     "point": "Point",
     "contents": "Contents",
-    "itemSelection": "Item selection",
+    "itemSelection": "Category",
     "priceSelection": "Price selection",
     "category": "Category",
     "action": "Action",
     "exposure": "Exposure",
     "englishUrl": "Product URL(EN)",
     "japaneseUrl": "Product URL(JP)",
-    "chineseUrl": "Product URL(CN)"
+    "chineseUrl": "Product URL(CN)",
+    "member": "Member only",
+    "createdAt": "Created date"
   },
   "Customer": {
     "listTitle": "Customer list",
@@ -300,17 +303,21 @@
     "pharmaceuticalsTitle": "PHARMACEUTICALS",
     "cosmeticsTitle": "COSMETICS",
     "dailyNecessariesTitle": "DAILY NECESSARIES",
-    "foodTitle": "FOOD"
+    "foodTitle": "FOOD",
+    "babyTitle": "BABY",
+    "petTitle": "PET"
   },
-  "AWS": {
-    "listTitle": "AWS list",
-    "regTitle": "AWS register",
-    "deleteTitle": "AWS delete",
-    "type": "AWS Type",
-    "access": "Access code",
-    "secret": "Secret code",
-    "region": "Region",
-    "createdDate": "Created date",
+  "Code": {
+    "listTitle": "Code list",
+    "regTitle": "Code register",
+    "updateTitle": "Code update",
+    "detailTitle": "Code detail",
+    "name": "Description",
+    "code": "Code",
+    "value1": "value1",
+    "value2": "value2",
+    "value3": "value3",
+    "createdAt": "Created date",
     "action": "Action"
   }
 }

@@ -26,8 +26,6 @@ function ImagesUpdatePage(props) {
   const [Visible, setVisible] = useState(0);
   const [Type, setType] = useState(1);
   const [Language, setLanguage] = useState("");
-  const [isShow, setIsShow] = useState(false);
-  const [Description, setDescription] = useState("");
   const [Images, setImages] = useState([]);  
   const [OldImages, setOldImages] = useState([]);
   const {isLanguage} = useContext(LanguageContext);
@@ -51,16 +49,15 @@ function ImagesUpdatePage(props) {
 			const image = await axios.get(`${IMAGES_SERVER}/images_by_id?id=${imageId}`);
 
 			if (image.data.imageInfo) {
-        setOldImages([image.data.imageInfo.image]);
+        const arr = [image.data.imageInfo.image];
+
+        setOldImages(arr);
+        // 이미지는 수정안하고 다른 데이타만 업데이트할 경우는 
+        // AWS에 이미지를 저장할 필요없고, 저장할때 유효성체크를 회피하기 위해서 Old Image를 Image에 넣는다
+        // 이미지를 추가, 수정 또는 삭제할 경우는 fileUpload에서 추가된 이미지를 오버라이트 해 주기때문에 문제가 없다
+        setImages(arr);
         setVisible(image.data.imageInfo.visible);
         setType(image.data.imageInfo.type);
-        // 이미지 타입이 카테고리이면 설명입력란을 보여준다
-        if (image.data.imageInfo.type !== 0 && image.data.imageInfo.type !== 1) {
-          setIsShow(true);
-        }
-        if (image.data.imageInfo.description) {
-          setDescription(image.data.imageInfo.description);
-        }
         setLanguage(image.data.imageInfo.language);
 			}
 		} catch (err) {
@@ -88,58 +85,59 @@ function ImagesUpdatePage(props) {
   const visibleHandler = (event) => {
     setVisible(event.target.value);
   };
-  // 카테고리 설명
-  const descriptionHandler = (event) => {
-    setDescription(event.target.value);
-  }
 
   // Submit
   const submitHandler = async (event) => {
     event.preventDefault();
 
-    // 유효성 체크
-    if (Images.length < 1) {
-      alert("Image is required");
-      return false; 
-    }
-    if (Images.length > 1) {
-      alert("Only one image can be registered\nClick on the image you want to delete to delete it");
-      return false; 
-    }
+    try {
+      // 유효성 체크
+      if (Images.length < 1) {
+        alert("Image is required");
+        return false; 
+      }
+      if (Images.length > 1) {
+        alert("Only one image can be registered\nClick on the image you want to delete to delete it");
+        return false; 
+      }
 
-    // 노출하려는 이미지가 이미 등록되어 있는지
-    let isExists = false;
-    if (Visible === 1) {
-      const image = await axios.post(`${IMAGES_SERVER}/images_by_type`, {type: Type, visible: Visible, language: Language});
-      if (image.data.imageInfo.length > 0) {
-        if (imageId === image.data.imageInfo[0]._id) {
-          isExists = false;
-        } else {
-          isExists = true;
+      // 노출하려는 이미지가 이미 등록되어 있는지
+      let isExists = false;
+      if (Visible === 1) {
+        const image = await axios.post(`${IMAGES_SERVER}/images_by_type`, {type: Type, visible: Visible, language: Language});
+        if (image.data.imageInfo.length > 0) {
+          if (imageId === image.data.imageInfo[0]._id) {
+            isExists = false;
+          } else {
+            isExists = true;
+          }
         }
       }
-    }
-    // 노출 이미지가 이미 등록되어 있는경우
-    if (isExists) {
-      alert("Image is already registered");
-      return false;
-    }
-
-    const body = {
-      id: imageId,
-      image: String(Images[0]),
-      visible: Visible,
-      language: Language,
-      description: Description
-    }
-    
-    const result = await axios.post(`${IMAGES_SERVER}/update`, body);
-    if (result.data.success) {
-      alert('Image upload was successful');
-      // 배너리스트 화면에 이동
-      props.history.push('/images/list')
-    } else {
+      // 노출 이미지가 이미 등록되어 있는경우
+      if (isExists) {
+        alert("Image is already registered");
+        return false;
+      }
+      // 이미지 수정
+      const body = {
+        id: imageId,
+        image: String(Images[0]),
+        visible: Visible,
+        language: Language
+      }
+      
+      const result = await axios.post(`${IMAGES_SERVER}/update`, body);
+      if (result.data.success) {
+        alert('Image upload was successful');
+        // 배너리스트 화면에 이동
+        props.history.push('/images/list')
+      } else {
+        alert('Please contact the administrator');
+      }
+    } catch (err) {
       alert('Please contact the administrator');
+      // 이미지 리스트 화면에 이동
+      listHandler();
     }
   }
 
@@ -148,9 +146,10 @@ function ImagesUpdatePage(props) {
     try {
       const body = {
         id: imageId,
-        image: Image
+        image: String(Images[0])
       }
-      const result = await axios.post(`${IMAGES_SERVER}/delete`, body);
+
+      await axios.post(`${IMAGES_SERVER}/delete`, body);
       alert('Images deleted was successful');
       // 이미지 리스트 화면에 이동
       listHandler();
@@ -190,12 +189,6 @@ function ImagesUpdatePage(props) {
         <Radio.Group value={Type} readOnly>
           {typeRadioBoxLists()}
         </Radio.Group>
-        { isShow && 
-          <>
-            <Divider orientation="left" plain="true">Category description</Divider>
-            <Input type="text" style={{width: '100%'}} value={Description} onChange={descriptionHandler} />
-          </>
-        }
 
         <br />
         <br />

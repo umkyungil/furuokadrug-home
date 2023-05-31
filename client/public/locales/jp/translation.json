@@ -30,6 +30,7 @@
   "Product": {
     "productName": "商品名",
     "listTitle": "商品一覧",
+    "listAdminTitle": "商品一覧",
     "uploadTitle": "商品登録",
     "updateTitle": "商品更新",
     "detailTitle": "商品詳細",
@@ -48,14 +49,16 @@
     "priceDisplay": "価格",
     "point": "ポイント",
     "contents": "容量",
-    "itemSelection": "アイテム",
+    "itemSelection": "カテゴリー",
     "priceSelection": "価格範囲",
     "category": "カテゴリ",
-    "action": "アクション",
+    "action": "Action",
     "exposure": "商品表示",
     "englishUrl": "商品URL(EN)",
     "japaneseUrl": "商品URL(JP)",
-    "chineseUrl": "商品URL(CN)"
+    "chineseUrl": "商品URL(CN)",
+    "member": "会員専用",
+    "createdAt": "登録日"
   },
   "Customer": {
     "listTitle": "顧客一覧",
@@ -71,7 +74,7 @@
     "address3": "配達先3",
     "salesman": "スタッフ",
     "point": "ポイント",
-    "action": "アクション"
+    "action": "Action"
   },
   "Order": {
     "listTitle": "注文一覧",
@@ -154,7 +157,7 @@
     "receiver3": "受取人3",
     "tel3": "受取人連絡先3",
     "lastLogin": "ラストログイン",
-    "action": "アクション",
+    "action": "Action",
     "point": "ポイント",
     "lastName": "苗字",
     "role": "権限",
@@ -170,7 +173,7 @@
     "subject": "タイトル",
     "date": "送信日",
     "message": "メッセージ",
-    "action": "アクション",
+    "action": "Action",
     "mailId": "メールID"
   },  
   "Contact": {
@@ -187,7 +190,7 @@
     "controlNumber": "管理番号",
     "amount": "決済金額（合計）",
     "uniqueKey": "ユニークキー",
-    "action": "アクション",
+    "action": "Action",
     "date": "購入日",
     "type": "決済種類",
     "err": "エラーコード",
@@ -205,7 +208,7 @@
     "controlNumber": "管理番号",
     "amount": "決済金額（合計）",
     "uniqueKey": "ユニークキー",
-    "action": "アクション",
+    "action": "Action",
     "date": "購入日",
     "type": "決済種類",
     "err": "エラーコード",
@@ -228,7 +231,7 @@
     "validTo": "有効期限",
     "amount": "クーポン種類の値",
     "validFrom": "登録日",
-    "action": "アクション",
+    "action": "Action",
     "item": "カテゴリ",
     "product": "商品",
     "useWithSale": "セール併用",
@@ -249,7 +252,7 @@
     "validTo": "有効期限",
     "amount": "セール種類の値",
     "validFrom": "登録日",
-    "action": "アクション",
+    "action": "Action",
     "item": "カテゴリ",
     "product": "商品",
     "count": "使用回数",
@@ -264,8 +267,8 @@
   },
   "Point": {
     "listTitle": "ポイント一覧",
-    "seq": "順序",
-    "subSeq": "サブシーケンス",
+    "seq": "Sequence",
+    "subSeq": "Sub sequence",
     "point": "獲得ポイント",
     "remainingPoints": "残ポイント",
     "usePoint": "ポイント計算",
@@ -285,9 +288,9 @@
     "image": "イメージ",
     "visible": "オープン",
     "description": "説明",
-    "createdDate": "作成日",
+    "createdDate": "登録日",
     "updateDate": "更新日",
-    "action": "アクション",
+    "action": "Action",
     "screenVisible": "画面表示",
     "language": "言語属性",
     "types": "イメージタイプ"
@@ -299,17 +302,21 @@
     "pharmaceuticalsTitle": "医薬品",
     "cosmeticsTitle": "化粧品",
     "dailyNecessariesTitle": "日用品",
-    "foodTitle": "食品"
+    "foodTitle": "食品",
+    "babyTitle": "赤ちゃん",
+    "petTitle": "ペット"
   },
-  "AWS": {
-    "listTitle": "AWS list",
-    "regTitle": "AWS register",
-    "detailTitle": "AWS detail",
-    "type": "AWS Type",
-    "access": "Access code",
-    "secret": "Secret code",
-    "region": "Region",
-    "createdDate": "Created date",
+  "Code": {
+    "listTitle": "Code一覧",
+    "regTitle": "Code登録",
+    "updateTitle": "Code更新",
+    "detailTitle": "Code詳細",
+    "name": "Code説明",
+    "code": "Code",
+    "value1": "Code値1",
+    "value2": "Code値2",
+    "value3": "Code値3",
+    "createdAt": "登録日",
     "action": "Action"
   }
 }

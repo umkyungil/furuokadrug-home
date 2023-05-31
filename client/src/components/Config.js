@@ -33,7 +33,7 @@ export const COUPON_SERVER = `${MAIN_SERVER}/api/coupon`;
 export const POINT_SERVER = `${MAIN_SERVER}/api/point`;
 export const SALE_SERVER = `${MAIN_SERVER}/api/sale`;
 export const IMAGES_SERVER = `${MAIN_SERVER}/api/images`;
-export const AWS_SERVER = `${MAIN_SERVER}/api/aws`;
+export const CODE_SERVER = `${MAIN_SERVER}/api/code`;
 
 // UPC Payment URL
 export const UPC_PAYMENT = "https://gw.ccps.jp/payment.aspx";

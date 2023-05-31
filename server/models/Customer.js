@@ -45,17 +45,5 @@ const CustomerSchema = new Schema(
 	}
 })
 
-CustomerSchema.index({
-  name: 'text',
-  lastName: 'text',
-	salesman: 'text'
-}, {
-  weights: {
-    name: 5,
-    lastName: 1,
-		salesman: 1
-  }
-})
-
 const Customer = model('Customer', CustomerSchema);
-module.exports = { Customer }
+module.exports = { Customer };

@@ -32,15 +32,5 @@ const SaleHistorySchema = new Schema(
   }
 }, { timestamps: true })
 
-SaleHistorySchema.index({
-  validFrom: 'text',
-  code: 'text'
-}, {
-  weights: {
-    validFrom: 5,
-    code: 1
-  }
-})
-
 const SaleHistory = model('SaleHistory', SaleHistorySchema);
 module.exports = { SaleHistory };

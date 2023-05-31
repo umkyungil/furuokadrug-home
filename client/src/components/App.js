@@ -25,6 +25,7 @@ import ProductUpdatePage from "./views/ProductPage/ProductUpdatePage.js";
 import ProductRegisterPage from "./views/ProductPage/ProductRegisterPage.js";
 import ProductListPage from "./views/ProductPage/ProductListPage.js";
 import ProductUploadCsvPage from "./views/ProductPage/ProductUploadCsvPage.js";
+import ProductListAdminPage from "./views/ProductPage/ProductListAdminPage.js";
 // 고객관리
 import CustomerRegisterPage from "./views/CustomerPage/CustomerRegisterPage.js";
 import CustomerListPage from "./views/CustomerPage/CustomerListPage.js";
@@ -71,10 +72,11 @@ import ListPointPage from "./views/Point/ListPointPage.js";
 import ImagesRegisterPage from "./views/Images/ImagesRegisterPage.js";
 import ImagesListPage from "./views/Images/ImagesListPage.js";
 import ImagesUpdatePage from "./views/Images/ImagesUpdatePage.js";
-// AWS
-import AWSRegisterPage from "./views/AWS/AWSRegisterPage.js";
-import AWSListPage from "./views/AWS/AWSListPage.js";
-import AWSDeletePage from "./views/AWS/AWSDeletePage.js";
+// 코드관리
+import CodeRegisterPage from "./views/Code/CodeRegisterPage.js";
+import CodeListPage from "./views/Code/CodeListPage.js";
+import CodeUpdatePage from "./views/Code/CodeUpdatePage.js";
+import CodeDetailPage from "./views/Code/CodeDetailPage.js";
 // Context
 import { LanguageContext } from "./context/LanguageContext.js";
 // 404 페이지
@@ -116,6 +118,7 @@ function App() {
             <Route exact path="/product/:productId" component={Auth(ProductDetailPage, null)} />
             <Route exact path="/product/update/:productId/" component={Auth(ProductUpdatePage, null)} />
             <Route exact path="/product/csv/upload" component={Auth(ProductUploadCsvPage, null)} />
+            <Route exact path="/product/admin/list" component={Auth(ProductListAdminPage, true)} />
 
             {/* 고객관리 */}
             <Route exact path="/customer/register" component={Auth(CustomerRegisterPage, true)} />
@@ -165,10 +168,11 @@ function App() {
             <Route exact path="/images/register" component={Auth(ImagesRegisterPage, true)} />
             <Route exact path="/images/list" component={Auth(ImagesListPage, true)} />
             <Route exact path="/images/update/:imageId" component={Auth(ImagesUpdatePage, true)} />
-            {/* AWS관리 */}
-            <Route exact path="/aws/register" component={Auth(AWSRegisterPage, true)} />
-            <Route exact path="/aws/list" component={Auth(AWSListPage, true)} />
-            <Route exact path="/aws/delete/:awsId" component={Auth(AWSDeletePage, true)} />
+            {/* 코드관리 */}
+            <Route exact path="/code/register" component={Auth(CodeRegisterPage, true)} />
+            <Route exact path="/code/list" component={Auth(CodeListPage, true)} />
+            <Route exact path="/code/detail/:codeId" component={Auth(CodeDetailPage, true)} />
+            <Route exact path="/code/update/:codeId" component={Auth(CodeUpdatePage, true)} />
             {/* 404 Not Found */}
             <Route path={"*"} component={NotFoundPage} />
           </Switch>

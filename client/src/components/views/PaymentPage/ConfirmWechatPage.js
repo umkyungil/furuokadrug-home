@@ -1,12 +1,14 @@
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import { Form, Input, Button, Radio, Tooltip } from 'antd';
-import axios from 'axios';
 import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER, UPC_PAYMENT } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
 import { NOT_SET, ECSystem, Unidentified } from '../../utils/Const';
-import { useCookies } from "react-cookie";
+import { Cookies } from "react-cookie";
+import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
+
+const cookies = new Cookies();
 
 const formItemLayout = {
   labelCol: {
@@ -32,7 +34,7 @@ const tailFormItemLayout = {
 };
 
 function ConfirmWechatPage(props) {
-  const [Cookies, setCookie, removeCookie] = useCookies(["w_auth"]);
+  const [SelectedAddress, setSelectedAddress] = useState("");
 
   const idRef = useRef("");
   const nameRef = useRef("");  
@@ -97,10 +99,10 @@ function ConfirmWechatPage(props) {
       // 총 금액
       siam1Ref.current = siam1;
       uniqueFieldRef.current = uniqueField;
-      // 뷸특정 사용자인지 확인을 위해 권한을 대입
+      // 뷸특정 사용자인지 확인을 위해 사용자 정보의 권한을 대입
       roleRef.current = userInfo.data.user[0].role;
 
-      // 임시주문 정보에 결제일자를 라이브, 카트 동일하게 저장하기 위해 Sod에 날짜를 대입
+      // 임시주문 정보에 결제일자를 라이브, 카트 동일하게 저장하기 위해 sodRef에 날짜를 대입
       let arr = uniqueField.split('_');
       if (arr[0].trim() === "cart") {
         // uniqueKey의 날짜를 대입 
@@ -174,7 +176,7 @@ function ConfirmWechatPage(props) {
         if (staffName === ECSystem) {
           staffNameRef.current = ECSystem;
         } else {
-          getStaffInfo(staffName);
+          await getStaffInfo(staffName);
         }
       } else {
         staffNameRef.current = NOT_SET;
@@ -185,11 +187,11 @@ function ConfirmWechatPage(props) {
     }
   }
 
-  // step 정보취득
+  // step 정보가져오기
   const getStaffInfo = async (staffName) => {
     // 성으로 전체 검색해서 권한이 스텝인 사람을 추출
     // 동명이인인 경우는 첫번째 사람의 이름으로 설정한다
-    let body = {searchTerm: staffName};
+    let body = { searchTerm: staffName };
     const staffInfo = await axios.post(`${USER_SERVER}/list`, body);
 
     if (staffInfo.data.success) {
@@ -206,7 +208,7 @@ function ConfirmWechatPage(props) {
 
   // Radio 값 저장
   const handleRadioChange = e => {
-    selectedAddressRef.current = e.target.value;
+    setSelectedAddress(e.target.value);
   };
   // 배송지 주소
   const handleAddressChange = (e) => {
@@ -223,7 +225,7 @@ function ConfirmWechatPage(props) {
   // 불특정 사용자인 경우의 주소
   const handleAnyAddressChange = (e) => {
     changeAddressRef.current = e.target.value;
-    selectedAddressRef.current = e.target.value;
+    setSelectedAddress(e.target.value);
   }
   // 불특정 사용자인 경우의 수취자
   const handleAnyReceiverChange = (e) => {
@@ -245,8 +247,8 @@ function ConfirmWechatPage(props) {
       lastName: lastNameRef.current,
       tel: telRef.current,
       email: emailRef.current,
-      address: selectedAddressRef.current,
-      sod: sodRef.current, // 카트에서 온 경우 유니크필드의 결제일자를 Sod에 대입했고 라이브에서는 날짜가 원래 들어있음
+      address: SelectedAddress,
+      sod: sodRef.current, // 카트에서 온 경우 유니크필드의 결제일자를 sodRef에 대입했고 라이브에서 이동된 경우는 날짜가 들어있음
       uniqueField: uniqueFieldRef.current,
       amount: siam1Ref.current,
       staffName: staffNameRef.current,
@@ -255,24 +257,24 @@ function ConfirmWechatPage(props) {
     }
 
     // 주소 라디오 버튼
-    if (selectedAddressRef.current === "") {
+    if (SelectedAddress === "") {
       alert("Please select or enter an address")
       return;
     }
-    // 선택된 주소로 수취인 정보 설정
-    if (selectedAddressRef.current === address1Ref.current) {
+    // 선택된 주소의 수취인 정보를 설정하기
+    if (SelectedAddress === address1Ref.current) {
       body.receiver = receiver1Ref.current;
       body.receiverTel = tel1Ref.current;
     }
-    if (selectedAddressRef.current === address2Ref.current) {
+    if (SelectedAddress === address2Ref.current) {
       body.receiver = receiver2Ref.current;
       body.receiverTel = tel2Ref.current;
     }
-    if (selectedAddressRef.current === address3Ref.current) {
+    if (SelectedAddress === address3Ref.current) {
       body.receiver = receiver3Ref.current;
       body.receiverTel = tel3Ref.current;
     }
-    if (selectedAddressRef.current === changeAddressRef.current) {
+    if (SelectedAddress === changeAddressRef.current) {
       // 받는사람
       if (changeReceiverRef.current === "") {
         alert("Please enter the recipient's name");
@@ -292,22 +294,20 @@ function ConfirmWechatPage(props) {
       // 임시 주문정보 저장
       const tmpOrderResult = await axios.post(`${ORDER_SERVER}/tmpRegister`, body);
       if (tmpOrderResult.data.success) {
-
-        // 붙특정 사용자인 경우 논리삭제
+        // 붙특정 사용자인 경우 임시로 생성한 사용자를 논리삭제(논리삭제 이유는 불특정 사용자로 구매한 금액등을 나중에 계산할수 있기때문에..)
         if (nameRef.current.substring(0, 9) === "Anonymous") {
           await axios.post(`${USER_SERVER}/logicalDelete`, { userId: idRef.current });
+          
+          // 쿠키삭제
+          cookies.remove('w_auth');
+          cookies.remove('w_authExp');
+          // 세션삭제
+          sessionStorage.removeItem("userId");
+          sessionStorage.removeItem("userName");
         }
-
-        // 쿠키삭제
-        removeCookie("w_auth", { path: '/' });
-        removeCookie("w_authExp", { path: '/' });
-        // 세션삭제
-        sessionStorage.removeItem("userId");
-        sessionStorage.removeItem("userName");
-
-        console.log('Shipping information registration success');
       } else {
-        console.log('Failed to register shipping information. Please try again later');
+        alert("Please contact the administrator");
+        history.push("/");
       }
     } catch (error) {
       alert("Please contact the administrator");
@@ -317,6 +317,7 @@ function ConfirmWechatPage(props) {
     // 라이브에서 이동된 경우 구매상품의 포인트를 누적하기 위해 sod에 포인트를 추가
     // 라이브도 로그인한 사용자만이 사용할수 있기때문에 포인트 누적이 가능하다
     let arr = uniqueField.split('_');
+    // 카트페이지에서 오지 않은 경우
     if (arr[0].trim() !== "cart") {
       sod = acquisitionPointsRef.current + "_" + sod;
     }
@@ -328,7 +329,7 @@ function ConfirmWechatPage(props) {
       'ptype': '8',
       'job': 'REQUEST',
       'rt': '4', // wechat만 있는 항목
-      'sod': sod, // 카트인 경우 포인트, 라이브인 경우는 결제일및 포인트가 들어있음, Sod는 둘다 결제일을 넣어서 sod 와는 다르다.
+      'sod': sod, // 카트인 경우 포인트, 라이브인 경우는 결제일및 포인트가 들어있음, sodRef는 둘다 결제일을 넣어서 sod 와는 다르다.
       'tn': telRef.current,
       'em': emailRef.current,
       'lang': 'cn',
@@ -367,9 +368,12 @@ function ConfirmWechatPage(props) {
     };
 
     openDialog(url, settings, async function(win) {
-      // 라이브 스트리밍에서 페이지가 호출된 경우 결제팝업이 닫혀지면
-      // 이 창도 닫아서 라이브화면만 남긴다
+      // 라이브 스트리밍에서 페이지가 호출된 경우 이 화면은(확인) 팝업으로 뛰어진다 
+      // 기존 라이브 화면을 끊지 말아야 하기때문에 팝업으로 뛰운다
+      // 그래서 UPC의 결제팝업이 닫혀지면 이 창도 닫아서 라이브 화면만 남긴다
       if (staffName) {
+        // ECSystem에서 온 경우는 "_self"로 원래 화면이 이 화면(확인)으로 바뀐다.
+        // 그래서 아래와 같이 이동이 가능하다 
         if (staffName === ECSystem) {
           history.push("/");
         } else {
@@ -378,41 +382,37 @@ function ConfirmWechatPage(props) {
       }
     });
 
+    // 로컬에서 하면 localhost에서 보내는 거라서 UPC에서 거절당한다
+    // 테스트를 하려면 아래와 같이 DB에 직접 데이타를 보내서 해야 한다
     // ##########################TEST##########################
     // const paymentResult = axios.get(`${PAYMENT_SERVER}/wechat/register?rst=1&pid=1239&sod=${sodRef.current}&uniqueField=${uniqueField.current}`);
     // ##########################TEST##########################
   }
 
   return (
-    // <div className="app">
-    //   <h1>Wechat payment confirm</h1>
-    //   <br />
-    //   <Form style={{ minWidth: '500px' }} onSubmit={sendPaymentInfo} {...formItemLayout} >
-
     <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>Wechat payment confirm</h1>
       </div>
 
-      <Form style={{ height:'80%', margin:'1em' }} onSubmit={sendPaymentInfo} {...formItemLayout} >      
+      <Form style={{ height:'80%', margin:'1em' }} onSubmit={sendPaymentInfo} {...formItemLayout} >
+        {/* 불특정 사용자가 아닌경우 */}
         { roleRef.current !== 3 && 
-          <Form.Item label="Name">
-            <Input name="name" type="text" value={nameRef.current} readOnly />
-          </Form.Item>
-        }
-        { roleRef.current !== 3 &&         
-          <Form.Item label="LastName">
-            <Input name="lastName" type="text" value={lastNameRef.current} readOnly />
-          </Form.Item>
-        }
-        { roleRef.current !== 3 && 
-          <Form.Item label="Email">
-            <Input name="email" type="text" value={emailRef.current} readOnly />
-          </Form.Item>
+          <>
+            <Form.Item label="Name">
+              <Input name="name" type="text" value={nameRef.current} readOnly />
+            </Form.Item>
+            <Form.Item label="LastName">
+              <Input name="lastName" type="text" value={lastNameRef.current} readOnly />
+            </Form.Item>
+            <Form.Item label="Email">
+              <Input name="email" type="text" value={emailRef.current} readOnly />
+            </Form.Item>
+          </>
         }
         <Form.Item required label="Address">
           { roleRef.current !== 3 && 
-            <Radio.Group onChange={handleRadioChange} value={selectedAddressRef.current}>
+            <Radio.Group onChange={handleRadioChange} value={SelectedAddress}>
               <Tooltip title={address1Ref.current}>
                 <Radio value={address1Ref.current}>{shortAddress1Ref.current}
                   &nbsp;&nbsp;{receiver1Ref.current}

@@ -6,7 +6,7 @@ const ImagesSchema = new Schema(
     type: String,
     required: true
   },
-  // 0:logo, 1:Banner, 2:pharmaceuticals 3:cosmetics, 4:daily necessaries, 5:Food, 
+  // 0:logo, 1:Banner, 2:pharmaceuticals 3:cosmetics, 4:daily necessaries, 5:Food, 6: baby, 7: pet
   type: {
     type: Number,
     required: true
@@ -23,9 +23,10 @@ const ImagesSchema = new Schema(
   },
   // 카테고리 이미지인 경우 설명
   description: {
-    type:String
+    type:String,
+    default: ""
   }
 }, { timestamps: true })
 
 const Images = model('Images', ImagesSchema);
-module.exports = { Images }
+module.exports = { Images };

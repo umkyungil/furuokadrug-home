@@ -24,8 +24,8 @@ function ProductUpdatePage(props) {
   const [ChineseUsage, setChineseUsage] = useState("");
   const [Contents, setContents] = useState("");
   const [Price, setPrice] = useState(0);
-  const [Point, setPoint] = useState(0);
   const [Continent, setContinent] = useState(1);
+  const [Member, setMember] = useState(false);
   const [ExposureType, setExposureType] = useState([]);
   const [Images, setImages] = useState([]);  
   const [OldImages, setOldImages] = useState([]);
@@ -67,19 +67,26 @@ function ProductUpdatePage(props) {
 
       if (product.data.length > 0) {
         setOldImages(product.data[0].images);
+        // 이미지는 수정안하고 다른 데이타만 업데이트할 경우는 
+        // AWS에 이미지를 저장할 필요없고, 저장할때 유효성체크를 회피하기 위해서 Old Image를 Image에 넣는다
+        // 이미지를 추가, 수정 또는 삭제할 경우는 fileUpload에서 추가된 이미지를 오버라이트 해 주기때문에 문제가 없다
+        setImages(product.data[0].images);
+
         setJapaneseTitle(product.data[0].title);
         setEnglishTitle(product.data[0].englishTitle);
         setChineseTitle(product.data[0].chineseTitle);
         setJapaneseDescription(product.data[0].description);
         setEnglishDescription(product.data[0].englishDescription);
         setChineseDescription(product.data[0].chineseDescription);
-        setJapaneseUsage(product.data[0].usage);
-        setEnglishUsage(product.data[0].englishUsage);
-        setChineseUsage(product.data[0].chineseUsage);
+
+        if (product.data[0].usage) setJapaneseUsage(product.data[0].usage);
+        if (product.data[0].englishUsage) setEnglishUsage(product.data[0].englishUsage);
+        if (product.data[0].chineseUsage) setChineseUsage(product.data[0].chineseUsage);
+        
         setContents(product.data[0].contents);
         setPrice(product.data[0].price);
-        setPoint(product.data[0].point);
         setContinent(product.data[0].continents);
+        setMember(product.data[0].member);
         setExposureType(product.data[0].exposureType);
         // 상품의 동영상이 있는지 확인
         if (product.data[0].japaneseUrl !== "") {
@@ -130,11 +137,11 @@ function ProductUpdatePage(props) {
   const priceHandler = (event) => {
     setPrice(event.currentTarget.value);
   }
-  const pointHandler = (event) => {
-    setPoint(event.currentTarget.value);
-  }
   const continentHandler = (event) => {
     setContinent(event);
+  }
+  const memberHandler = (event) => {
+    setMember(event.target.checked);
   }
   const updateImages = (newImages) => {
     setImages(newImages);
@@ -199,39 +206,18 @@ function ProductUpdatePage(props) {
       alert("Please enter a Chinese product description");
       return false;
     }
-    if (JapaneseUsage === "") {
-      alert("Please enter how to use Japanese");
-      return false;
-    }
-    if (EnglishUsage === "") {
-      alert("Please enter how to use English");
-      return false;
-    }
-    if (ChineseUsage === "") {
-      alert("Please enter how to use Chinese");
-      return false;
-    }
     if (Contents === "") {
-      alert("Please enter the capacity");
+      alert("Please enter the contents");
       return false;
     }
     if (!Number(Price)) {
       alert("Please enter only numbers for the price");
       return false;
     }
-    if (!Number(Point)) {
-      alert("Please enter only numbers for the point");
-      return false;
-    }
     if (Number(Price) <= 0) {
       alert("Please check the price");
       return false;
     }
-    if (Number(Point) <= 0) {
-      alert("Please check the point");
-      return false;
-    }
-
     // Now on sale이 선택됐는지
     let isNowOnAir = false;
     ExposureType.map(item => {
@@ -267,7 +253,7 @@ function ProductUpdatePage(props) {
     // Now on sale 상품이 이미 등록되어 있는지 확인
     let isExists = false;
     if (isNowOnAir) {
-      const body = {type: [PRODUCT_VISIBLE_TYPE[1].key]}
+      const body = {type: PRODUCT_VISIBLE_TYPE[1].key, id: localStorage.getItem("userId")};
       await axios.post(`${PRODUCT_SERVER}/products_by_type`, body)
       .then((products) => {
         if (products.data.productInfos.length > 0) {
@@ -285,6 +271,7 @@ function ProductUpdatePage(props) {
       return false;
     }
     
+    console.log("Member: ", Member);
     const body = {
       id: productId,
       writer: props.user.userData._id,
@@ -298,8 +285,8 @@ function ProductUpdatePage(props) {
       englishUsage: EnglishUsage,
       chineseUsage: ChineseUsage,
       contents: Contents,
+      member: Member,
       price: Price,
-      point: Point,
       images: Images,
       continents: Continent,
       exposureType: ExposureType,
@@ -353,13 +340,13 @@ function ProductUpdatePage(props) {
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.chineseDescription')}</label>
         <TextArea onChange={chineseDescriptionHandler} value={ChineseDescription}/>
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.japaneseHowToUse')}</label>
+        <label>{t('Product.japaneseHowToUse')}</label>
         <TextArea onChange={japaneseUsageHandler} value={JapaneseUsage}/>
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.englishHowToUse')}</label>
+        <label>{t('Product.englishHowToUse')}</label>
         <TextArea onChange={englishUsageHandler} value={EnglishUsage}/>
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.chineseHowToUse')}</label>
+        <label>{t('Product.chineseHowToUse')}</label>
         <TextArea onChange={chineseUsageHandler} value={ChineseUsage}/>
         <br />
         <br />
@@ -368,9 +355,6 @@ function ProductUpdatePage(props) {
         </Form.Item>
         <Form.Item required label={t('Product.price')}>
           <Input type="text" value={Price} style={{width: '100%'}} onChange={priceHandler} />
-        </Form.Item>
-        <Form.Item required label={t('Product.point')}>
-          <Input type="text" value={Point} style={{width: '100%'}} onChange={pointHandler} />
         </Form.Item>
         <Form.Item required label={t('Product.itemSelection')}>
           <Select value={Continent} style={{ width: 120 }} onChange={continentHandler}>
@@ -381,6 +365,10 @@ function ProductUpdatePage(props) {
               }
             })}
             </Select>
+        </Form.Item>
+
+        <Form.Item label={t('Product.member')}>
+          <Checkbox onChange={memberHandler} checked={Member}/>
         </Form.Item>
 
         <Divider orientation="left" plain="true">Screen exposure</Divider>

@@ -64,17 +64,5 @@ const OrderSchema = new Schema(
     },
 }, { timestamps: true })
 
-OrderSchema.index({
-    deliveryStatus: 'text',
-    sod: 'text',
-    staffName: 'text'
-}, {
-    weights: {
-        deliveryStatus: 5,
-        sod: 1,
-        staffName: 1
-    }
-})
-
 const Order = model('Order', OrderSchema);
 module.exports = { Order };

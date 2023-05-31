@@ -100,11 +100,7 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({ 
-                "deliveryStatus":tmpDelivery, 
-                "name":{ '$regex':term[1], $options: 'i' }
-              })
+              Order.find({ "deliveryStatus":tmpDelivery, "name":{ '$regex':term[1], $options: 'i' }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -116,11 +112,7 @@ router.post("/list", (req, res) => {
           // Delivery status, User name, Staff name 값만 들어온 경우
           if (term[1] !== "" && term[2] !== "" && term[3] === "") {
             if (term[0] === '0') {
-              Order.find
-              ({ 
-                "name":{ '$regex':term[1], $options: 'i' }, 
-                "staffName":{ '$regex':term[2], $options: 'i' }
-              })
+              Order.find({ "name":{ '$regex':term[1], $options: 'i' }, "staffName":{ '$regex':term[2], $options: 'i' }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -128,12 +120,8 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({
-                "deliveryStatus":tmpDelivery, 
-                "name":{ '$regex':term[1], $options: 'i' }, 
-                "staffName":{ '$regex':term[2], $options: 'i' }
-              })
+              Order.find({ "deliveryStatus":tmpDelivery, "name":{ '$regex':term[1], $options: 'i' }, 
+                "staffName":{ '$regex':term[2], $options: 'i' }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -150,12 +138,8 @@ router.post("/list", (req, res) => {
 						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
             if (term[0] === '0') {
-              Order.find
-              ({
-                "name":{'$regex':term[1], $options: 'i'}, 
-                "staffName":{ '$regex':term[2], $options: 'i' }, 
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "name":{'$regex':term[1], $options: 'i'}, "staffName":{ '$regex':term[2], $options: 'i' }, 
+                "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -163,13 +147,8 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({
-                "deliveryStatus":tmpDelivery, 
-                "name":{'$regex':term[1], $options: 'i'}, 
-                "staffName":{ '$regex':term[2], $options: 'i' }, 
-                "sod":{ $gte: fromDate, $lte: fromDate }
-              })
+              Order.find({ "deliveryStatus":tmpDelivery, "name":{'$regex':term[1], $options: 'i'}, "staffName":{ '$regex':term[2], $options: 'i' }, 
+                "sod":{ $gte: fromDate, $lte: fromDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -189,11 +168,7 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({
-                "deliveryStatus":tmpDelivery,
-                "staffName":{ '$regex':term[2], $options: 'i' }
-              })
+              Order.find({ "deliveryStatus":tmpDelivery,"staffName":{ '$regex':term[2], $options: 'i' }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -210,11 +185,7 @@ router.post("/list", (req, res) => {
 						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
             if (term[0] === '0') {
-              Order.find
-              ({  
-                "staffName":{ '$regex':term[2], $options: 'i' },
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "staffName":{ '$regex':term[2], $options: 'i' }, "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -222,12 +193,8 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({
-                "deliveryStatus":tmpDelivery,
-                "staffName":{ '$regex':term[2], $options: 'i' },
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "deliveryStatus":tmpDelivery, "staffName":{ '$regex':term[2], $options: 'i' }, 
+                "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -244,11 +211,7 @@ router.post("/list", (req, res) => {
 						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
             if (term[0] === '0') {
-              Order.find
-              ({  
-                "name":{ '$regex':term[1], $options: 'i' },
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "name":{ '$regex':term[1], $options: 'i' }, "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -256,12 +219,7 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({
-                "deliveryStatus":tmpDelivery,
-                "name":{ '$regex':term[1], $options: 'i' },
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "deliveryStatus":tmpDelivery, "name":{ '$regex':term[1], $options: 'i' }, "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -286,11 +244,7 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({
-                "deliveryStatus":tmpDelivery,
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "deliveryStatus":tmpDelivery, "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -363,11 +317,7 @@ router.post("/list", (req, res) => {
                   return res.status(200).json({ success: true, orderInfo})
                 });
               } else {
-                Order.find
-                ({ 
-                  "deliveryStatus":tmpDelivery, 
-                  "name":{ '$regex':term[1], $options: 'i' }
-                })
+                Order.find({ "deliveryStatus":tmpDelivery, "name":{ '$regex':term[1], $options: 'i' }})
                 .sort({ "sod": -1 })
                 .skip(req.body.skip)
                 .exec((err, orderInfo) => {
@@ -379,11 +329,7 @@ router.post("/list", (req, res) => {
             // Delivery status, User name, Staff name 값만 들어온 경우
             if (term[1] !== "" && term[2] !== "" && term[3] === "") {
               if (term[0] === '0') {
-                Order.find
-                ({ 
-                  "name":{ '$regex':term[1], $options: 'i' }, 
-                  "staffName":{ '$regex':term[2], $options: 'i' }
-                })
+                Order.find({ "name":{ '$regex':term[1], $options: 'i' }, "staffName":{ '$regex':term[2], $options: 'i' }})
                 .sort({ "sod": -1 })
                 .skip(req.body.skip)
                 .exec((err, orderInfo) => {
@@ -391,12 +337,8 @@ router.post("/list", (req, res) => {
                   return res.status(200).json({ success: true, orderInfo})
                 });
               } else {
-                Order.find
-                ({
-                  "deliveryStatus":tmpDelivery, 
-                  "name":{ '$regex':term[1], $options: 'i' }, 
-                  "staffName":{ '$regex':term[2], $options: 'i' }
-                })
+                Order.find({ "deliveryStatus":tmpDelivery, "name":{ '$regex':term[1], $options: 'i' }, 
+                  "staffName":{ '$regex':term[2], $options: 'i' }})
                 .sort({ "sod": -1 })
                 .skip(req.body.skip)
                 .exec((err, orderInfo) => {
@@ -413,12 +355,8 @@ router.post("/list", (req, res) => {
               const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
               if (term[0] === '0') {
-                Order.find
-                ({
-                  "name":{'$regex':term[1], $options: 'i'}, 
-                  "staffName":{ '$regex':term[2], $options: 'i' }, 
-                  "sod":{ $gte: fromDate, $lte: toDate }
-                })
+                Order.find({ "name":{'$regex':term[1], $options: 'i'}, "staffName":{ '$regex':term[2], $options: 'i' }, 
+                  "sod":{ $gte: fromDate, $lte: toDate }})
                 .sort({ "sod": -1 })
                 .skip(req.body.skip)
                 .exec((err, orderInfo) => {
@@ -426,13 +364,8 @@ router.post("/list", (req, res) => {
                   return res.status(200).json({ success: true, orderInfo})
                 });
               } else {
-                Order.find
-                ({
-                  "deliveryStatus":tmpDelivery, 
-                  "name":{'$regex':term[1], $options: 'i'}, 
-                  "staffName":{ '$regex':term[2], $options: 'i' }, 
-                  "sod":{ $gte: fromDate, $lte: toDate }
-                })
+                Order.find({ "deliveryStatus":tmpDelivery, "name":{'$regex':term[1], $options: 'i'}, 
+                  "staffName":{ '$regex':term[2], $options: 'i' }, "sod":{ $gte: fromDate, $lte: toDate }})
                 .sort({ "sod": -1 })
                 .skip(req.body.skip)
                 .exec((err, orderInfo) => {
@@ -452,11 +385,7 @@ router.post("/list", (req, res) => {
                   return res.status(200).json({ success: true, orderInfo})
                 });
               } else {
-                Order.find
-                ({
-                  "deliveryStatus":tmpDelivery,
-                  "staffName":{ '$regex':term[2], $options: 'i' }
-                })
+                Order.find({ "deliveryStatus":tmpDelivery, "staffName":{ '$regex':term[2], $options: 'i' }})
                 .sort({ "sod": -1 })
                 .skip(req.body.skip)
                 .exec((err, orderInfo) => {
@@ -473,11 +402,7 @@ router.post("/list", (req, res) => {
               const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
               if (term[0] === '0') {
-                Order.find
-                ({  
-                  "staffName":{ '$regex':term[2], $options: 'i' },
-                  "sod":{ $gte: fromDate, $lte: toDate }
-                })
+                Order.find({ "staffName":{ '$regex':term[2], $options: 'i' }, "sod":{ $gte: fromDate, $lte: toDate }})
                 .sort({ "sod": -1 })
                 .skip(req.body.skip)
                 .exec((err, orderInfo) => {
@@ -485,12 +410,8 @@ router.post("/list", (req, res) => {
                   return res.status(200).json({ success: true, orderInfo})
                 });
               } else {
-                Order.find
-                ({
-                  "deliveryStatus":tmpDelivery,
-                  "staffName":{ '$regex':term[2], $options: 'i' },
-                  "sod":{ $gte: fromDate, $lte: toDate }
-                })
+                Order.find({ "deliveryStatus":tmpDelivery, "staffName":{ '$regex':term[2], $options: 'i' },
+                  "sod":{ $gte: fromDate, $lte: toDate }})
                 .sort({ "sod": -1 })
                 .skip(req.body.skip)
                 .exec((err, orderInfo) => {
@@ -507,11 +428,7 @@ router.post("/list", (req, res) => {
               const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
               if (term[0] === '0') {
-                Order.find
-                ({  
-                  "name":{ '$regex':term[1], $options: 'i' },
-                  "sod":{ $gte: fromDate, $lte: toDate }
-                })
+                Order.find({ "name":{ '$regex':term[1], $options: 'i' }, "sod":{ $gte: fromDate, $lte: toDate }})
                 .sort({ "sod": -1 })
                 .skip(req.body.skip)
                 .exec((err, orderInfo) => {
@@ -519,12 +436,8 @@ router.post("/list", (req, res) => {
                   return res.status(200).json({ success: true, orderInfo})
                 });
               } else {
-                Order.find
-                ({
-                  "deliveryStatus":tmpDelivery,
-                  "name":{ '$regex':term[1], $options: 'i' },
-                  "sod":{ $gte: fromDate, $lte: toDate }
-                })
+                Order.find({ "deliveryStatus":tmpDelivery, "name":{ '$regex':term[1], $options: 'i' },
+                  "sod":{ $gte: fromDate, $lte: toDate }})
                 .sort({ "sod": -1 })
                 .skip(req.body.skip)
                 .exec((err, orderInfo) => {
@@ -597,11 +510,7 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {              
-              Order.find
-              ({ 
-                "userId": userId, 
-                "deliveryStatus": tmpDelivery 
-              })
+              Order.find({ "userId": userId, "deliveryStatus": tmpDelivery })
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -613,11 +522,7 @@ router.post("/list", (req, res) => {
           // Delivery status, User name 값만 들어온 경우
           if (term[1] !== "" && term[2] === "" && term[3] === "") {
             if (term[0] === '0') {
-              Order.find
-              ({ 
-                "userId": userId, 
-                "name":{'$regex':term[1], $options: 'i' }
-              })
+              Order.find({ "userId": userId, "name":{'$regex':term[1], $options: 'i' }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -625,12 +530,7 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({ 
-                "userId": userId, 
-                "deliveryStatus":tmpDelivery, 
-                "name":{ '$regex':term[1], $options: 'i' }
-              })
+              Order.find({ "userId": userId, "deliveryStatus":tmpDelivery, "name":{ '$regex':term[1], $options: 'i' }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -642,12 +542,7 @@ router.post("/list", (req, res) => {
           // Delivery status, User name, Staff name 값만 들어온 경우
           if (term[1] !== "" && term[2] !== "" && term[3] === "") {
             if (term[0] === '0') {
-              Order.find
-              ({ 
-                "userId": userId, 
-                "name":{ '$regex':term[1], $options: 'i' }, 
-                "staffName":{ '$regex':term[2], $options: 'i' }
-              })
+              Order.find({ "userId": userId, "name":{ '$regex':term[1], $options: 'i' }, "staffName":{ '$regex':term[2], $options: 'i' }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -655,13 +550,8 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({ 
-                "userId": userId, 
-                "deliveryStatus":tmpDelivery, 
-                "name":{ '$regex':term[1], $options: 'i' }, 
-                "staffName":{ '$regex':term[2], $options: 'i' }
-              })
+              Order.find({ "userId": userId, "deliveryStatus":tmpDelivery, "name":{ '$regex':term[1], $options: 'i' }, 
+                "staffName":{ '$regex':term[2], $options: 'i' }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -678,13 +568,8 @@ router.post("/list", (req, res) => {
 						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
             if (term[0] === '0') {
-              Order.find
-              ({ 
-                "userId": userId,
-                "name":{'$regex':term[1], $options: 'i'}, 
-                "staffName":{ '$regex':term[2], $options: 'i' }, 
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "userId": userId, "name":{'$regex':term[1], $options: 'i'}, 
+                "staffName":{ '$regex':term[2], $options: 'i' }, "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -692,14 +577,8 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({ 
-                "userId": userId, 
-                "deliveryStatus":tmpDelivery, 
-                "name":{'$regex':term[1], $options: 'i'}, 
-                "staffName":{ '$regex':term[2], $options: 'i' }, 
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "userId": userId, "deliveryStatus":tmpDelivery, "name":{'$regex':term[1], $options: 'i'}, 
+                "staffName":{ '$regex':term[2], $options: 'i' }, "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -711,11 +590,7 @@ router.post("/list", (req, res) => {
           // Delivery status, staff name만 들어온 경우
           if (term[1] === "" && term[2] !== "" && term[3] === "") {
             if (term[0] === '0') {
-              Order.find
-              ({
-                "userId": userId, 
-                "staffName":{ '$regex':term[2], $options: 'i' }
-              })
+              Order.find({ "userId": userId, "staffName":{ '$regex':term[2], $options: 'i' }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -723,12 +598,7 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({
-                "userId": userId, 
-                "deliveryStatus":tmpDelivery,
-                "staffName":{ '$regex':term[2], $options: 'i' }
-              })
+              Order.find({ "userId": userId, "deliveryStatus":tmpDelivery, "staffName":{ '$regex':term[2], $options: 'i' }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -745,12 +615,7 @@ router.post("/list", (req, res) => {
 						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
             if (term[0] === '0') {
-              Order.find
-              ({
-                "userId": userId, 
-                "staffName":{ '$regex':term[2], $options: 'i' },
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "userId": userId, "staffName":{ '$regex':term[2], $options: 'i' }, "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -758,13 +623,8 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({
-                "userId": userId, 
-                "deliveryStatus":tmpDelivery,
-                "staffName":{ '$regex':term[2], $options: 'i' },
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "userId": userId, "deliveryStatus":tmpDelivery, "staffName":{ '$regex':term[2], $options: 'i' },
+                "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -781,12 +641,7 @@ router.post("/list", (req, res) => {
 						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
             
             if (term[0] === '0') {
-              Order.find
-              ({
-                "userId": userId, 
-                "name":{ '$regex':term[1], $options: 'i' },
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "userId": userId, "name":{ '$regex':term[1], $options: 'i' }, "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -794,13 +649,8 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({
-                "userId": userId, 
-                "deliveryStatus":tmpDelivery,
-                "name":{ '$regex':term[1], $options: 'i' },
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "userId": userId, "deliveryStatus":tmpDelivery,"name":{ '$regex':term[1], $options: 'i' },
+                "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -817,11 +667,7 @@ router.post("/list", (req, res) => {
 						const toDate = new Date(tmpTo.getTime() - (tmpTo.getTimezoneOffset() * 60000)).toISOString();
 
             if (term[0] === '0') {
-              Order.find
-              ({
-                "userId": userId, 
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "userId": userId, "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {
@@ -829,12 +675,7 @@ router.post("/list", (req, res) => {
                 return res.status(200).json({ success: true, orderInfo})
               });
             } else {
-              Order.find
-              ({
-                "userId": userId, 
-                "deliveryStatus":tmpDelivery,
-                "sod":{ $gte: fromDate, $lte: toDate }
-              })
+              Order.find({ "userId": userId, "deliveryStatus":tmpDelivery, "sod":{ $gte: fromDate, $lte: toDate }})
               .sort({ "sod": -1 })
               .skip(req.body.skip)
               .exec((err, orderInfo) => {

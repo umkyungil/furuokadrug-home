@@ -345,7 +345,7 @@ function SaleUpdatePage(props) {
       }}
     >
       {props => {
-        const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
+        const { isSubmitting, handleSubmit, } = props;
         return (
           <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>

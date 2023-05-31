@@ -2,6 +2,7 @@ const { Schema, model } = require('mongoose');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
+const { Code } = require('./Code');
 const moment = require("moment");
 
 const UserSchema = new Schema(
@@ -135,16 +136,29 @@ UserSchema.methods.comparePassword = function(plainPassword, cb) {
 }
 
 // jsonwebtoken을 이용해서 token생성하기
-UserSchema.methods.generateToken = function(cb) {
+UserSchema.methods.generateToken = async function(cb) {
     let user = this;
-    let token =  jwt.sign(user._id.toHexString(),'secret')
-    // valueOf(): moment 객체를 숫자(밀리세컨드)로 변환
-    let oneHour = moment().add(1, 'hour').valueOf();
-
-    // 토큰 유효시간 설정
-    user.tokenExp = oneHour;
+    let token =  jwt.sign(user._id.toHexString(),'secret');
     // User스키마의 token필드에 생성된 token을 넣어준다
     user.token = token;
+
+    // 토큰 유효기간 가져오기
+    const val = await getTokenExp();
+    // 기본 유효기간(DB에서 가져오는데 실패 한 경우)
+    let tmpExp = "";
+    if (val) {
+        tmpExp = parseInt(val);
+    } else {
+        tmpExp = 0;
+    }
+    // 서버시간(new Date)으로 로컬시간을 구해서 연장시간을 더해준다
+    // 그냥 new Date안하고 moment만 사용해도 로컬 날짜를 구하는데 혹시 몰라서 서버날짜(new Date)를 대입했다.
+    let expiration = moment(new Date()).add(tmpExp, 'm').valueOf(); // valueOf(): moment 객체를 숫자(밀리세컨드)로 변환
+
+    console.log("User expiration: ", expiration);
+
+    // User스키마의 tokenExp필드에 생성된 token유효기간을 넣어준다
+    user.tokenExp = expiration;
     user.save(function (err, user){
         if(err) return cb(err);
         // save가 정상적으로 종료되면 에러는 null, 그리고 user정보를 넘긴다
@@ -152,11 +166,11 @@ UserSchema.methods.generateToken = function(cb) {
     })
 }
 
-// UserSchema.methods
+// UserSchema.methods와는 틀리게 statics을 지정
 UserSchema.statics.findByToken = function (token, cb) {
     let user = this;
     // 토큰을 decode 한다
-    // 콜백함수는 비동기로 호출되며 에러와 디코딩된 결과(user id)를 받는다
+    // 콜백함수는 비동기로 호출되며 에러와 디코딩된 결과(user정보)를 받는다
     jwt.verify(token,'secret', function(err, decode){
         // user id를 이용해서 user를 찾은 다음에
         // 클라이언트에서 가져온 token과 DB에서 보관된 토큰이 일치하는지 확인
@@ -166,7 +180,21 @@ UserSchema.statics.findByToken = function (token, cb) {
             cb(null, user);
         })
     })
-    
+}
+
+// 토큰유효시간 가져오기
+const getTokenExp = async () => {
+    try {
+        const codeInfo = await Code.findOne({ code: "TOKEN" });
+        if (codeInfo.value1) {
+            return codeInfo.value1;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.log("err: ", err);
+        return null;
+    }
 }
 
 const User = model('User', UserSchema);

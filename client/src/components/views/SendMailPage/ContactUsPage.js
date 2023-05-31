@@ -86,10 +86,12 @@ function ContactUsPage() {
   }
 
   return (
-    <div className="app">
-      <h1>{t('Contact.title')}</h1>
-          
-      <Form style={{ minWidth: '350px', margin:'1em' }} {...formItemLayout} onSubmit={sendEmail} autoComplete="off" >        
+    <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
+        <h1>{t('Contact.title')}</h1>
+      </div>
+      
+      <Form style={{ minWidth: '350px', margin:'1em' }} {...formItemLayout} onSubmit={sendEmail} autoComplete="off" >
         <Form.Item label={t('Contact.name')} required>
           <Input name="name" placeholder="Please enter your name" type="text" value={Name} onChange={nameHandler} required/>
         </Form.Item>

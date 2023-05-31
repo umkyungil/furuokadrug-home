@@ -190,15 +190,5 @@ const CSVUnivaPayCastSchema = new Schema(
 	}
 })
 
-CSVUnivaPayCastSchema.index({
-  nameJapanese: 'text',
-	email: 'text'
-}, {
-  weights: {
-    nameJapanese: 5,
-    email: 1
-  }
-})
-
 const CSVUnivaPayCast = model('CSVUnivaPayCast', CSVUnivaPayCastSchema);
 module.exports = { CSVUnivaPayCast };

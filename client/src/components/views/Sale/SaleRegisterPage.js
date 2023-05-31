@@ -472,7 +472,7 @@ function SaleRegisterPage() {
     }}
     >
       {props => {
-        const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
+        const { isSubmitting, handleBlur, handleSubmit, } = props;
         return (
           <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
@@ -520,8 +520,12 @@ function SaleRegisterPage() {
               {/* 세일적용 상품 아이디 */}
               <Form.Item label={t('Sale.product')} >
                 <Input id="userId" placeholder="Product" type="text" value={ProductName} style={{ width: '7em' }} readOnly/>&nbsp;
-                <Button onClick={productPopupHandler} style={{width: '5em'}}>Search</Button>&nbsp;
-                <Button onClick={productClearHandler} style={{width: '5em'}}>Clear</Button>
+                <Button onClick={productPopupHandler} >
+                  Search
+                </Button>
+                <Button onClick={productClearHandler} >
+                  Clear
+                </Button>
                 <br />
               </Form.Item>
               {/* 메일전송 유무 */}

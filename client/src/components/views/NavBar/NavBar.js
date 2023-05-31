@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 // import LeftMenu from './Sections/LeftMenu';
 import RightMenu from './Sections/RightMenu';
 import { IMAGES_SERVER } from '../../Config';
-import { MAIN_CATEGORY, IMAGES_TYPE, IMAGES_VISIBLE_ITEM, I18N_JAPANESE } from '../../utils/Const';
+import { PRODUCT_LIST_CATEGORY, IMAGES_TYPE, IMAGES_VISIBLE_ITEM, I18N_JAPANESE } from '../../utils/Const';
 import SearchFeature from './Sections/SearchFeature';
 import { Drawer, Button, Icon, Select } from 'antd';
 import './Sections/Navbar.css';
@@ -103,7 +103,7 @@ function NavBar() {
         <div className="listblock">
           <Select defaultValue="" style={{ width:"48%", float:"right", position:"relative", textAlign:"lest" }} onChange={handleCategory} >
             <Option key={0} value={""} > {""} </Option>
-            {MAIN_CATEGORY.map(item => {
+            {PRODUCT_LIST_CATEGORY.map(item => {
               // 카테고리에서 All제외
               if (item.key !== 0) {
                 return (<Option key={item.key} value={item.key} > {item.value} </Option>);

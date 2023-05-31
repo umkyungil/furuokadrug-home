@@ -4,8 +4,8 @@ export const MAIN_CATEGORY = [
   {key:2, value: "Pharmaceuticals"},
   {key:3, value: "Food/Supplement"},
   {key:4, value: "Daily Necessaries"},
-  {key:5, value: "Goods"},
-  {key:6, value: "Etc"}
+  {key:5, value: "Baby"},
+  {key:6, value: "Pet"}
 ]
 
 export const CouponType = [
@@ -52,7 +52,9 @@ export const IMAGES_TYPE = [
   {"_id": 2, "name": "Pharmaceuticals"},
   {"_id": 3, "name": "Cosmetics"},
   {"_id": 4, "name": "Daily necessaries"},
-  {"_id": 5, "name": "Food"}
+  {"_id": 5, "name": "Food"},
+  {"_id": 6, "name": "baby"},
+  {"_id": 7, "name": "pet"}
 ]
 // 이미지 등록 또는 수정시 선택항목
 export const IMAGES_VISIBLE_ITEM = [
@@ -72,13 +74,27 @@ export const AWS_TYPE = [
 ]
 
 // 상품 리스트화면의 검색조건
+// export const PRODUCT_LIST_CATEGORY = [
+//   { "_id": 1, "name": "Cosmetic" },
+//   { "_id": 2, "name": "Pharmaceuticals"  },
+//   { "_id": 3, "name": "Food/Supplement" },
+//   { "_id": 4, "name": "Daily Necessaries" },
+//   { "_id": 5, "name": "Baby" },
+//   { "_id": 6, "name": "Pet" },
+//   { "_id": 7, "name": "Recommended" },
+//   { "_id": 8, "name": "Sale" }
+// ]
+
 export const PRODUCT_LIST_CATEGORY = [
-  { "_id": 1, "name": "Cosmetic" },
-  { "_id": 2, "name": "Pharmaceuticals"  },
-  { "_id": 3, "name": "Food/Supplement" },
-  { "_id": 4, "name": "Daily Necessaries" },
-  { "_id": 5, "name": "Goods" },
-  { "_id": 6, "name": "Etc" }
+  {key:0, value: "All"},
+  {key:1, value: "Cosmetic"},
+  {key:2, value: "Pharmaceuticals"},
+  {key:3, value: "Food/Supplement"},
+  {key:4, value: "Daily Necessaries"},
+  {key:5, value: "Baby"},
+  {key:6, value: "Pet"},
+  {key:7, value: "Recommended"},
+  {key:8, value: "Sale"}
 ]
 
 export const COSMETIC_CATEGORY = [
@@ -91,48 +107,18 @@ export const COSMETIC_CATEGORY = [
 ]
 
 export const PHARMACEUTICALS_CATEGORY = [
-  {key:1, value: "Skin Care"},
-  {key:2, value: "Eye Care"},
-  {key:3, value: "Hair Care"},
-  {key:4, value: "Others"},
-  {key:5, value: "Supplement"},
-  {key:6, value: "Men's"}
 ]
 
 export const FOOD_CATEGORY = [
-  {key:1, value: "Skin Care"},
-  {key:2, value: "Eye Care"},
-  {key:3, value: "Hair Care"},
-  {key:4, value: "Others"},
-  {key:5, value: "Supplement"},
-  {key:6, value: "Men's"}
 ]
 
 export const DAILY_NECESSARIES_CATEGORY = [
-  {key:1, value: "Skin Care"},
-  {key:2, value: "Eye Care"},
-  {key:3, value: "Hair Care"},
-  {key:4, value: "Others"},
-  {key:5, value: "Supplement"},
-  {key:6, value: "Men's"}
 ]
 
-export const GOODS_CATEGORY = [
-  {key:1, value: "Skin Care"},
-  {key:2, value: "Eye Care"},
-  {key:3, value: "Hair Care"},
-  {key:4, value: "Others"},
-  {key:5, value: "Supplement"},
-  {key:6, value: "Men's"}
+export const BABY_CATEGORY = [
 ]
 
-export const ETC_CATEGORY = [
-  {key:1, value: "Skin Care"},
-  {key:2, value: "Eye Care"},
-  {key:3, value: "Hair Care"},
-  {key:4, value: "Others"},
-  {key:5, value: "Supplement"},
-  {key:6, value: "Men's"}
+export const PET_CATEGORY = [
 ]
 
 
@@ -218,7 +204,6 @@ export const CHINESE = "中文（簡体）";
 export const I18N_ENGLISH = "en";
 export const I18N_CHINESE = "cn";
 export const I18N_JAPANESE = "jp";
-
 
 // LANDING PAGE SESSION에 저장할때 사용하는 Key
 export const VIDEO_JP = "video_jp";

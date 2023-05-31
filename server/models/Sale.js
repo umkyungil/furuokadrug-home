@@ -72,15 +72,5 @@ const SaleSchema = new Schema(
   }
 }, { timestamps: true })
 
-SaleSchema.index({
-  code: 'text',
-  type: 'text'
-}, {
-  weights: {
-    code: 5,
-    type: 1
-  }
-})
-
 const Sale = model('Sale', SaleSchema);
 module.exports = { Sale };

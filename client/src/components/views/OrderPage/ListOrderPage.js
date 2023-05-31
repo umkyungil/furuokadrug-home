@@ -255,7 +255,7 @@ function ListOrderPage(props) {
 	
 	return (
 		<div style={{ width:'80%', margin: '3rem auto'}}>
-			<div style={{ textAlign: 'center' }}>
+			<div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
 				<h1>{t('Order.listTitle')}</h1>
 			</div>
 
@@ -275,4 +275,4 @@ function ListOrderPage(props) {
 	)
 }
 
-export default ListOrderPage
+export default ListOrderPage;

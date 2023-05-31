@@ -64,15 +64,5 @@ const CouponSchema = new Schema(
   }
 }, { timestamps: true })
 
-CouponSchema.index({
-  code: 'text',
-  type: 'text'
-}, {
-  weights: {
-    code: 5,
-    type: 1
-  }
-})
-
 const Coupon = model('Coupon', CouponSchema);
 module.exports = { Coupon };

@@ -18,13 +18,9 @@ const {Option} = Select;
 const formItemLayout = {
   labelCol: {
     span: 6
-    // xs: { span: 4 },
-    // sm: { span: 8 },
   },
   wrapperCol: {
     span: 14
-    // xs: { span: 24 },
-    // sm: { span: 16 },
   },
 };
 const tailFormItemLayout = {

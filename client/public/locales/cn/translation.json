@@ -30,6 +30,7 @@
   "Product": {
     "productName": "商品名称",
     "listTitle": "商品信息列表",
+    "listAdminTitle": "商品信息列表",
     "uploadTitle": "上传商品",
     "updateTitle": "商品信息更新",
     "detailTitle": "商品详情",
@@ -48,14 +49,16 @@
     "priceDisplay": "价格",
     "point": "积分",
     "contents": "容量",
-    "itemSelection": "商品筛选",
+    "itemSelection": "类别",
     "priceSelection": "价格筛选",
     "category": "类别",
     "action": "行动",
     "exposure": "接触",
     "englishUrl": "产品网址(EN)",
     "japaneseUrl": "产品网址(JP)",
-    "chineseUrl": "产品网址(CN)"
+    "chineseUrl": "产品网址(CN)",
+    "member": "仅限会员",
+    "createdAt": "注册日期"
   },
   "Customer": {
     "listTitle": "客户信息列表",
@@ -285,12 +288,12 @@
     "image": "图像",
     "visible": "可见的",
     "description": "说明",
-    "createdDate": "创建日期",
+    "createdDate": "注册日期",
     "updateDate": "更新日期",
     "action": "Action",
     "screenVisible": "屏幕可见",
     "language": "语言属性",
-    "types": "图像属性"
+    "types": "图像类型"
   },
   "Landing": {
     "recommendTitle": "推荐清单",
@@ -299,17 +302,21 @@
     "pharmaceuticalsTitle": "医药品",
     "cosmeticsTitle": "化妆品",
     "dailyNecessariesTitle": "生活用品",
-    "foodTitle": "食物"
+    "foodTitle": "食物",
+    "babyTitle": "婴儿",
+    "petTitle": "宠物"
   },
-  "AWS": {
-    "listTitle": "AWS list",
-    "regTitle": "AWS register",
-    "detailTitle": "AWS detail",
-    "type": "AWS Type",
-    "access": "Access code",
-    "secret": "Secret code",
-    "region": "Region",
-    "createdDate": "Created date",
+  "Code": {
+    "listTitle": "代码一览",
+    "regTitle": "代码登记",
+    "updateTitle": "代码更新",
+    "detailTitle": "代码详情",
+    "name": "代码名称",
+    "code": "描述",
+    "value1": "代码价值1",
+    "value2": "代码价值2",
+    "value3": "代码价值3",
+    "createdAt": "注册日期",
     "action": "Action"
   }
 }

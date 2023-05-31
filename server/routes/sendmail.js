@@ -8,7 +8,7 @@ const { ADMIN_EMAIL, PRE_REGISTER_URL, CHANGE_PASSWORD_URL, HIROSOPHY_URL, FURUO
 const { MAIN_CATEGORY, CouponType, SaleType, UseWithSale, AWS_SES } = require('../config/const');
 const { User } = require('../models/User');
 const { Product } = require('../models/Product');
-const { AmazonWebService }  = require('../models/AmazonWebService');
+const { Code }  = require('../models/Code');
 
 //=================================
 //          Sendmail
@@ -16,15 +16,15 @@ const { AmazonWebService }  = require('../models/AmazonWebService');
 
 // AWS SES 접근 보안키 가져와서 메일전송
 const sendMailProcess = async (mailOptions) => {
-    const sesInfos = await AmazonWebService.findOne({ type: AWS_SES });
+    const sesInfo = await Code.findOne({ code: AWS_SES });
     const sesObject = new AWS_SDK.SES({
-        accessKeyId: sesInfos.access,
-        secretAccessKey: sesInfos.secret,
-        region: sesInfos.region
+        accessKeyId: sesInfo.value1,
+        secretAccessKey: sesInfo.value2,
+        region: sesInfo.value3
     });
 
     const transporter = nodemailer.createTransport({ SES: sesObject, AWS_SDK });
-    await transporter.sendMail(mailOptions);
+    return await transporter.sendMail(mailOptions);
 }
 
 // 메일정보 등록
@@ -311,8 +311,8 @@ router.post("/passwordChange", async (req, res) => {
             subject: 'パスワードリセットのお知らせ',
             text: userMessage
         };
-        const userMailResult = await sendMailProcess(userOptions);
 
+        const userMailResult = await sendMailProcess(userOptions);
         // 메일전송 실패
         if (!userMailResult.envelope) {
             //임시사용자 삭제 
@@ -345,8 +345,8 @@ router.post("/passwordConfirm", async (req, res) => {
             subject: 'パスワード変更完了のお知らせ',
             text: userMessage
         };
-        const userMailResult = await sendMailProcess(userOptions);
 
+        await sendMailProcess(userOptions);
         // 관리자 메일정보 등록
         const userBody = {
             type: 'Password',
@@ -419,10 +419,12 @@ router.post("/preregister", async (req, res) => {
             subject: '仮登録完了メール',
             text: userMessage
         };
-        const userMailResult = await sendMailProcess(userOptions);
 
+        const userMailResult = await sendMailProcess(userOptions);
         // 메일전송 실패
         if (!userMailResult.envelope) {
+
+            console.log("userMailResult.envelope: ", userMailResult.envelope);
             //임시사용자 삭제
             await User.deleteOne({ _id: req.body._id });
             return res.status(400).json({ success: false, message: userMailResult.code });
@@ -453,8 +455,8 @@ router.post("/register", async (req, res) => {
             subject: '会員登録完了のお知らせ',
             text: userMessage
         };
-        const userMailResult = await sendMailProcess(userOptions);
 
+        await sendMailProcess(userOptions);
         // 관리자 메일정보 등록
         const userBody = {
             type: 'Register',

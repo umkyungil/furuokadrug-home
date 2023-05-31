@@ -491,8 +491,12 @@ function CouponRegisterPage() {
               {/* 쿠폰적용 상품 아이디 */}
               <Form.Item label={t('Coupon.product')} >
                 <Input id="userId" type="text" value={ProductName} style={{width: '7em'}} readOnly/>&nbsp;
-                <Button onClick={productPopupHandler} style={{width: '5em'}}>Search</Button>&nbsp;
-                <Button onClick={productClearHandler} style={{width: '5em'}}>Clear</Button>
+                <Button onClick={productPopupHandler} >
+                  Search
+                </Button>
+                <Button onClick={productClearHandler} >
+                  Clear
+                </Button>
                 <br />
               </Form.Item>
               {/* 쿠폰과 세일 병행사용 여부 */}
@@ -513,8 +517,12 @@ function CouponRegisterPage() {
               {/* 쿠폰적용 사용자 아이디 */}
               <Form.Item label={t('Coupon.user')} >
                 <Input id="userId" type="text" value={UserName} style={{ width: '7em' }} readOnly/>&nbsp;
-                <Button onClick={popupHandler} style={{width: '5em'}}>Search</Button>&nbsp;
-                <Button onClick={clearHandler} style={{width: '5em'}}>Clear</Button>
+                <Button onClick={popupHandler} >
+                  Search
+                </Button>
+                <Button onClick={clearHandler} >
+                  Clear
+                </Button>
                 <br />
               </Form.Item>
               {/* 메일전송 유무 */}

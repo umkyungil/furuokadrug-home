@@ -284,8 +284,12 @@ function CouponBirthRegisterPage() {
               {/* 쿠폰적용 상품 아이디 */}
               <Form.Item label={t('Coupon.product')} >
                 <Input id="userId" type="text" value={ProductName} style={{width: '7em'}} readOnly/>&nbsp;
-                <Button onClick={productPopupHandler} style={{width: '6em'}}>Search</Button>&nbsp;
-                <Button onClick={productClearHandler} style={{width: '6em'}}>Clear</Button>
+                <Button onClick={productPopupHandler} >
+                  Search
+                </Button>
+                <Button onClick={productClearHandler} >
+                  Clear
+                </Button>
                 <br />
               </Form.Item>
               {/* 쿠폰과 세일 병행사용 여부 */}

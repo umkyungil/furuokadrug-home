@@ -25,15 +25,5 @@ const MailSchema = new Schema(
 	
 }, { timestamps: true })
 
-MailSchema.index({
-  to: 'text',
-	from: 'text'
-}, {
-  weights: {
-    to: 5,
-    from: 1
-  }
-})
-
 const Mail = model('Mail', MailSchema);
-module.exports = { Mail }
+module.exports = { Mail };

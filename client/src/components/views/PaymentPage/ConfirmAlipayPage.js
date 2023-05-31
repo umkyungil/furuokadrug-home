@@ -1,12 +1,14 @@
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import { Form, Input, Button, Radio, Tooltip } from 'antd';
-import axios from 'axios';
 import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER, UPC_PAYMENT } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
 import { NOT_SET, ECSystem, Unidentified } from '../../utils/Const';
-import { useCookies } from "react-cookie";
+import { Cookies } from "react-cookie";
+import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
+
+const cookies = new Cookies();
 
 const formItemLayout = {
   labelCol: {
@@ -32,7 +34,7 @@ const tailFormItemLayout = {
 };
 
 function ConfirmAlipayPage(props) {
-  const [Cookies, setCookie, removeCookie] = useCookies(["w_auth"]);
+  const [SelectedAddress, setSelectedAddress] = useState("");
 
   const idRef = useRef("");
   const nameRef = useRef("");  
@@ -56,8 +58,7 @@ function ConfirmAlipayPage(props) {
   const tel3Ref = useRef("");
   const changeAddressRef = useRef("");
   const changeReceiverRef = useRef("");
-  const changeTelRef = useRef("");
-  const selectedAddressRef = useRef(""); // Radio 선택된 값
+  const changeTelRef = useRef("");  
   const staffNameRef = useRef("");
   const acquisitionPointsRef = useRef(0);
   const roleRef = useRef(0);
@@ -174,7 +175,7 @@ function ConfirmAlipayPage(props) {
         if (staffName === ECSystem) {
           staffNameRef.current = ECSystem;
         } else {
-          getStaffInfo(staffName);
+          await getStaffInfo(staffName);
         }
       } else {
         staffNameRef.current = NOT_SET;
@@ -185,11 +186,11 @@ function ConfirmAlipayPage(props) {
     }
   }
 
-  // step 정보취득
+  // step 정보가져오기
   const getStaffInfo = async (staffName) => {
     // 성으로 전체 검색해서 권한이 스텝인 사람을 추출
     // 동명이인인 경우는 첫번째 사람의 이름으로 설정한다
-    let body = {searchTerm: staffName}
+    let body = { searchTerm: staffName }
     const staffInfo = await axios.post(`${USER_SERVER}/list`, body);
 
     if (staffInfo.data.success) {
@@ -206,7 +207,7 @@ function ConfirmAlipayPage(props) {
 
   // Radio 값 저장
   const handleRadioChange = (e) => {
-    selectedAddressRef.current = e.target.value;
+    setSelectedAddress(e.target.value);
   };
   // 배송지 주소
   const handleAddressChange = (e) => {
@@ -223,7 +224,7 @@ function ConfirmAlipayPage(props) {
   // 불특정 사용자인 경우의 주소
   const handleAnyAddressChange = (e) => {
     changeAddressRef.current = e.target.value;
-    selectedAddressRef.current = e.target.value;
+    setSelectedAddress(e.target.value);
   }
   // 불특정 사용자인 경우의 수취자
   const handleAnyReceiverChange = (e) => {
@@ -245,7 +246,7 @@ function ConfirmAlipayPage(props) {
       lastName: lastNameRef.current,
       tel: telRef.current,
       email: emailRef.current,
-      address: selectedAddressRef.current,
+      address: SelectedAddress,
       sod: sodRef.current, // 카트에서 온 경우 유니크필드의 결제일자를 Sod에 대입했고 라이브에서는 날짜가 원래 들어있음
       uniqueField: uniqueFieldRef.current,
       amount: siam1Ref.current,
@@ -255,25 +256,25 @@ function ConfirmAlipayPage(props) {
     }
 
     // 주소 라디오 버튼
-    if (selectedAddressRef.current === "") {
+    if (SelectedAddress === "") {
       alert("Please select or enter an address")
       return;
     }
-    // 선택된 주소로 수취인 정보 설정
-    if (selectedAddressRef.current === address1Ref.current) {
+    // 선택된 주소의 수취인 정보를 설정하기
+    if (SelectedAddress === address1Ref.current) {
       body.receiver = receiver1Ref.current;
       body.receiverTel = tel1Ref.current;
     }
-    if (selectedAddressRef.current === address2Ref.current) {
+    if (SelectedAddress === address2Ref.current) {
       body.receiver = receiver2Ref.current;
       body.receiverTel = tel2Ref.current;
     }
-    if (selectedAddressRef.current === address3Ref.current) {
+    if (SelectedAddress === address3Ref.current) {
       body.receiver = receiver3Ref.current;
       body.receiverTel = tel3Ref.current;
     }
     // 입력한 주소
-    if (selectedAddressRef.current === changeAddressRef.current) {
+    if (SelectedAddress === changeAddressRef.current) {
       // 받는사람
       if (changeReceiverRef.current === "") {
         alert("Please enter the recipient's name");
@@ -297,18 +298,17 @@ function ConfirmAlipayPage(props) {
         // 붙특정 사용자인 경우 논리삭제
         if (nameRef.current.substring(0, 9) === "Anonymous") {
           await axios.post(`${USER_SERVER}/logicalDelete`, { userId: idRef.current });
-
-          // 쿠키삭제
-          removeCookie("w_auth", { path: '/' });
-          removeCookie("w_authExp", { path: '/' });
           // 세션삭제
           sessionStorage.removeItem("userId");
           sessionStorage.removeItem("userName");
+          
+          // 쿠키삭제
+          cookies.remove('w_auth');
+          cookies.remove('w_authExp');
         }
-
-        console.log('Shipping information registration success');
       } else {
-        console.log('Failed to register shipping information. Please try again later');
+        alert("Please contact the administrator");
+        history.push("/");
       }
     } catch (error) {
       alert("Please contact the administrator");
@@ -366,9 +366,12 @@ function ConfirmAlipayPage(props) {
     };
 
     openDialog(url, settings, async function(win) {
-      // 라이브 스트리밍에서 페이지가 호출된 경우 결제팝업이 닫혀지면
-      // 이 창도 닫아서 라이브화면만 남긴다
+      // 라이브 스트리밍에서 페이지가 호출된 경우 이 화면은(확인) 팝업으로 뛰어진다 
+      // 기존 라이브 화면을 끊지 말아야 하기때문에 팝업으로 뛰운다
+      // 그래서 UPC의 결제팝업이 닫혀지면 이 창도 닫아서 라이브 화면만 남긴다
       if (staffName) {
+        // ECSystem에서 온 경우는 "_self"로 원래 화면이 이 화면(확인)으로 바뀐다.
+        // 그래서 아래와 같이 이동이 가능하다 
         if (staffName === ECSystem) {
           history.push("/");
         } else {
@@ -377,6 +380,8 @@ function ConfirmAlipayPage(props) {
       }
     });
 
+    // 로컬에서 하면 localhost에서 보내는 거라서 UPC에서 거절당한다
+    // 테스트를 하려면 아래와 같이 DB에 직접 데이타를 보내서 해야 한다
     // ##########################TEST##########################
     // const paymentResult = await axios.get(`${PAYMENT_SERVER}/alipay/register?rst=1&pid=1239&sod=${sodRef.current}&uniqueField=${uniqueFieldRef.current}`);
     // ##########################TEST##########################
@@ -384,35 +389,29 @@ function ConfirmAlipayPage(props) {
   }
 
   return (
-    // <div className="app">
-    //   <h1>Alipay payment confirm</h1>
-    //   <br />
-    //   <Form style={{ minWidth: '500px' }} onSubmit={sendPaymentInfo} {...formItemLayout} >
-
     <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>Alipay payment confirm</h1>
       </div>
 
-      <Form style={{ height:'80%', margin:'1em' }} {...formItemLayout} onSubmit={sendPaymentInfo}  >
+      <Form style={{ height:'80%', margin:'1em' }} {...formItemLayout} onSubmit={sendPaymentInfo} >
+        {/* 불특정 사용자가 아닌경우 */}
         { roleRef.current !== 3 && 
-          <Form.Item label="Name">
-            <Input name="name" type="text" value={nameRef.current} readOnly />
-          </Form.Item>
-        }
-        { roleRef.current !== 3 && 
-          <Form.Item label="LastName">
-            <Input name="lastName" type="text" value={lastNameRef.current} readOnly />
-          </Form.Item>
-        }
-        { roleRef.current !== 3 && 
-          <Form.Item label="Email">
-            <Input name="email" type="text" value={emailRef.current} readOnly />
-          </Form.Item>
+          <>
+            <Form.Item label="Name">
+              <Input name="name" type="text" value={nameRef.current} readOnly />
+            </Form.Item>
+            <Form.Item label="LastName">
+              <Input name="lastName" type="text" value={lastNameRef.current} readOnly />
+            </Form.Item>
+            <Form.Item label="Email">
+              <Input name="email" type="text" value={emailRef.current} readOnly />
+            </Form.Item>
+          </>
         }
         <Form.Item required label="Address" >
           { roleRef.current !== 3 && 
-            <Radio.Group onChange={handleRadioChange} value={selectedAddressRef.current}>
+            <Radio.Group onChange={handleRadioChange} value={SelectedAddress}>
               <Tooltip title={address1Ref.current}>
                 <Radio value={address1Ref.current}>{shortAddress1Ref.current}
                   &nbsp;&nbsp;{receiver1Ref.current}

@@ -64,17 +64,5 @@ const TmpOrderSchema = new Schema(
     }
 }, { timestamps: true })
 
-TmpOrderSchema.index({
-    deliveryStatus: 'text',
-    sod: 'text',
-    staffName: 'text'
-}, {
-    weights: {
-        deliveryStatus: 5,
-        sod: 1,
-        staffName: 1
-    }
-})
-
 const TmpOrder = model('TmpOrder', TmpOrderSchema);
 module.exports = { TmpOrder };

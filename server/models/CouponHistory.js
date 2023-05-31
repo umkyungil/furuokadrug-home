@@ -44,15 +44,5 @@ const CouponHistorySchema = new Schema(
   }
 }, { timestamps: true })
 
-CouponHistorySchema.index({
-  targetUserId: 'text',
-  code: 'text'
-}, {
-  weights: {
-    targetUserId: 5,
-    code: 1
-  }
-})
-
 const CouponHistory = model('CouponHistory', CouponHistorySchema);
 module.exports = { CouponHistory };

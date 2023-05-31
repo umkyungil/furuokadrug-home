@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styles from './LandingPage.module.css';
 import Slider from "react-slick";
 import 'slick-carousel/slick/slick.css';
@@ -10,17 +10,14 @@ import { Button, Tag } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
-import axios from 'axios';
-import moment from 'moment';
-
 import ReactPlayer from 'react-player'
+import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-
 function LandingPage() {
   const [videoSrc, setVideoSrc] = useState("");
-  const [nowOnAirAndRec, setNowOnAir] = useState([]);
+  const [nowOnAirAndRec, setNowOnAirAndRec] = useState([]);
   const [recommended, setRecommended] = useState([]);
   const [sale, setSale] = useState([]);
   const [Banner, setBanner] = useState({});
@@ -28,6 +25,8 @@ function LandingPage() {
   const [Cosmetics, setCosmetics] = useState({});
   const [DailyNecessaries, setDailyNecessaries] = useState({});
   const [Food, setFood] = useState({});
+  const [Baby, setBaby] = useState({});
+  const [Pet, setPet] = useState({});
   const [url, setUrl] = useState("");
 
   const _history = useHistory();
@@ -35,14 +34,45 @@ function LandingPage() {
   const {setIsLanguage, isLanguage} = useContext(LanguageContext);
     
   useEffect(() => {
-    if (isLanguage === "") {
-      setIsLanguage(localStorage.getItem("i18nextLng"))
+    if (!isLanguage || isLanguage === "") {
+      const i18 = localStorage.getItem("i18nextLng");
+      
+      if (i18) {
+        if (i18 !== 'ja-JP') {
+          setIsLanguage(i18);
+          i18n.changeLanguage(i18);
+        } else {
+          setIsLanguage('en');
+          localStorage.setItem('i18nextLng', 'en');
+          i18n.changeLanguage('en');
+        }
+      } else {
+        setIsLanguage('en');
+        localStorage.setItem('i18nextLng', 'en');
+        i18n.changeLanguage('en');
+      }
     }
-    i18n.changeLanguage(isLanguage);
 
     // 화면구성하기
     process();
   },[url]);
+
+  // 빈 객체인 경우 true, 속성이 있는경우 false
+  function isEmptyObj(obj)  {
+    // 객체 타입체크
+    if(obj.constructor !== Object)  {
+      return false;
+    }
+    
+    // property 체크
+    for(let prop in obj)  {
+      if(obj.hasOwnProperty(prop))  {
+        return false;
+      }
+    }
+    
+    return true;
+  }
 
   const process = async () => {
     // 노출상풍을 가져오기
@@ -54,60 +84,65 @@ function LandingPage() {
   // 노출상풍을 가져오기
   const getProducts = async () => {
     try {
-      const body = { 
-        skip: 0, 
-        limit: 20, 
-        type: [ PRODUCT_VISIBLE_TYPE[1].key, 
-                PRODUCT_VISIBLE_TYPE[2].key, 
-                PRODUCT_VISIBLE_TYPE[3].key, 
-                PRODUCT_VISIBLE_TYPE[4].key 
-              ]
-      }
-      const products =  await axios.post(`${PRODUCT_SERVER}/products_by_type`, body);
+      // Landing page 상품 가져오기(회원및 비회원을 구분하기 위해 사용자ID를 파라메터로 넘김)
+      const userId  = localStorage.getItem("userId");
+      const allProducts = await axios.get(`${PRODUCT_SERVER}/all_products_by_type?id=${userId}`);
+      const recdTypeProducts = allProducts.data.productInfos[0]; // now on sale과 recording상품 가져오기
+      const recTypeProducts = allProducts.data.productInfos[1]; // 추천상품 가져오기
+      const saleTypeProducts = allProducts.data.productInfos[2]; // 세일상품 가져오기
       
-      if (products.data.productInfos.length > 0) {
-        let arrNowOnAir = [], realNowOnAir = [], arrRecommended = [], arrSale = [];
-  
-        products.data.productInfos.map((product) => {
+      let arrRecd = [], arrNowOnAir = [];
+      if (recdTypeProducts.length > 0) {
+        recdTypeProducts.map((product) => {
           for (let i = 0; i < product.exposureType.length; i++) {
-            // 일반상품: 0, 방송상품: 1, 동영상 존재 상품: 2, 추천상품: 3, 세일상품: 4
-            // 1: 방송상품(now on sale)과 2: recording가 같이 등록된 상품은 없기에 같은 배열에 넣어도 상품이 중복안된다
+            // 일반상품: 0, 방송상품: 1, 동영상 존재 상품: 2, 
+            // 1: 방송상품(now on sale)과 2: recording은 같이 등록된 상품이 없기에 같은 배열에 넣어도 상품이 중복안된다
             if (product.exposureType[i] === PRODUCT_VISIBLE_TYPE[1].key) {
               arrNowOnAir.push(product);
-              realNowOnAir.push(product);
             } else if (product.exposureType[i] === PRODUCT_VISIBLE_TYPE[2].key) {
-              arrNowOnAir.push(product);
-            } else if (product.exposureType[i] === PRODUCT_VISIBLE_TYPE[3].key) {
-              arrRecommended.push(product);
-            } else if (product.exposureType[i] === PRODUCT_VISIBLE_TYPE[4].key) {
-              arrSale.push(product);
+              arrRecd.push(product);
             }
           }
         });
+        // now on air상품을 먼저 보여주기위해 정렬
+        setNowOnAirAndRec([...arrNowOnAir, ...arrRecd]);
+      }
+
+      // 추천상품
+      if (recTypeProducts.length > 0) {
+        setRecommended(recTypeProducts);
+      }
+      // 세일상품
+      if (saleTypeProducts.length > 0) {
+        setSale(saleTypeProducts);
+      }
         
-        // 초기화면 또는 비디오 정보가 없는 상품인 경우는 now on air 원래 상품의 비디오를 설정
-        if (!sessionStorage.getItem(VIDEO_JP) || !sessionStorage.getItem(VIDEO_CN) || !sessionStorage.getItem(VIDEO_EN)) {
-          if (isLanguage === I18N_JAPANESE) {
-            setVideoSrc(realNowOnAir[0].japaneseUrl);
-          } else if (isLanguage === I18N_CHINESE) {
-            setVideoSrc(realNowOnAir[0].chineseUrl);
+      // 언어별 비디오 정보가 세션에 하나라도 없으면 로컬스토리지에 설정된 언어의 비디오 정보를 세팅하던가 없으면 영어 비디오 정보를 셋팅한다
+      if (!sessionStorage.getItem(VIDEO_JP) || !sessionStorage.getItem(VIDEO_CN) || !sessionStorage.getItem(VIDEO_EN)) {
+        if (isLanguage === I18N_JAPANESE) {
+          if (arrNowOnAir[0].japaneseUrl) {
+            setVideoSrc(arrNowOnAir[0].japaneseUrl);
           } else {
-            setVideoSrc(realNowOnAir[0].englishUrl);
+            setVideoSrc(arrNowOnAir[0].englishUrl);
+          }
+        } else if (isLanguage === I18N_CHINESE) {
+          if (arrNowOnAir[0].chineseUrl) {
+            setVideoSrc(arrNowOnAir[0].chineseUrl);
+          } else {
+            setVideoSrc(arrNowOnAir[0].englishUrl);
           }
         } else {
-          // 세션에 비디오 값이 있으면 (이미지를 클릭했을 경우) 언어에 따라 세션에서 이미지를 가져와서 설정
-          if (isLanguage === I18N_JAPANESE) {
-            setVideoSrc(sessionStorage.getItem(VIDEO_JP));
-          } else if (isLanguage === I18N_CHINESE) {
-            setVideoSrc(sessionStorage.getItem(VIDEO_CN));
-          } else {
-            setVideoSrc(sessionStorage.getItem(VIDEO_EN));
-          }
+          setVideoSrc(arrNowOnAir[0].englishUrl);
         }
-  
-        setNowOnAir(arrNowOnAir);
-        setRecommended(arrRecommended);
-        setSale(arrSale);
+      } else {
+        // 세션에 비디오 값이 있으면 (이미지를 클릭했을 경우) 언어에 따라 세션에서 이미지를 가져와서 설정
+        if (isLanguage === I18N_JAPANESE) {
+          setVideoSrc(sessionStorage.getItem(VIDEO_JP));
+        } else if (isLanguage === I18N_CHINESE) {
+          setVideoSrc(sessionStorage.getItem(VIDEO_CN));
+        } else {
+          setVideoSrc(sessionStorage.getItem(VIDEO_EN));
+        }
       }
     } catch (err) {
       console.log("err: ", err);
@@ -128,7 +163,7 @@ function LandingPage() {
           tmpLanguage = isLanguage;
         }
 
-        let tmpBanner = {}, tmpPharmaceutical = {}, tmpCosmetics = {}, tmpDailyNecessaries = {}, tmpFood = {};
+        let tmpBanner={}, tmpPharmaceutical={}, tmpCosmetics={}, tmpDailyNecessaries={}, tmpFood={}, tmpBaby={}, tmpPet={};
         // 이미지 주소 대입
         images.data.imageInfos.map((item) => {
           // 화면에 노출 가능하고 해당언어의 이미지만 추출
@@ -151,14 +186,22 @@ function LandingPage() {
               tmpDailyNecessaries = item;
             } else if (item.type === IMAGES_TYPE[5]._id) {
               // 식품
-              tmpFood = item;
               setFood(item);
+              tmpFood = item;
+            } else if (item.type === IMAGES_TYPE[6]._id) {
+              // 아기용품
+              tmpBaby = item;
+              setBaby(item);
+            } else if (item.type === IMAGES_TYPE[7]._id) {
+              // 애완동물
+              tmpPet = item;
+              setPet(item);
             }
           }
         })
 
         // 해당언어의 배너 이미지가 없는경우 일단 있는걸 보여준다
-        if (Object.keys(tmpBanner).length === 0) {
+        if (isEmptyObj(tmpBanner)) {
           images.data.imageInfos.map((item) => {
             if (item.type === IMAGES_TYPE[1]._id) {
               if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
@@ -168,7 +211,7 @@ function LandingPage() {
           })
         }
         // 해당언어의 의약품 이미지가 없는경우 일단 있는걸 보여준다
-        if (Object.keys(tmpPharmaceutical).length === 0) {
+        if (isEmptyObj(tmpPharmaceutical)) {
           images.data.imageInfos.map((item) => {
             if (item.type === IMAGES_TYPE[2]._id) {
               if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
@@ -178,7 +221,7 @@ function LandingPage() {
           })
         }
         // 해당언어의 화장품 이미지가 없는경우 일단 있는걸 보여준다
-        if (Object.keys(tmpCosmetics).length === 0) {
+        if (isEmptyObj(tmpCosmetics)) {
           images.data.imageInfos.map((item) => {
             if (item.type === IMAGES_TYPE[3]._id) {
               if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
@@ -188,7 +231,7 @@ function LandingPage() {
           })
         }
         // 해당언어의 생활용품 이미지가 없는경우 일단 있는걸 보여준다
-        if (Object.keys(tmpDailyNecessaries).length === 0) {
+        if (isEmptyObj(tmpDailyNecessaries)) {
           images.data.imageInfos.map((item) => {
             if (item.type === IMAGES_TYPE[4]._id) {
               if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
@@ -198,11 +241,31 @@ function LandingPage() {
           })
         }
         // 해당언어의 식품 이미지가 없는경우 일단 있는걸 보여준다
-        if (Object.keys(tmpFood).length === 0) {
+        if (isEmptyObj(tmpFood)) {
           images.data.imageInfos.map((item) => {
             if (item.type === IMAGES_TYPE[5]._id) {
               if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
                 setFood(item);
+              }
+            }
+          })
+        }
+        // 해당언어의 아기용품 이미지가 없는경우 일단 있는걸 보여준다
+        if (isEmptyObj(tmpBaby)) {
+          images.data.imageInfos.map((item) => {
+            if (item.type === IMAGES_TYPE[6]._id) {
+              if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
+                setBaby(item);
+              }
+            }
+          })
+        }
+        // 해당언어의 애완동물 이미지가 없는경우 일단 있는걸 보여준다
+        if (isEmptyObj(tmpPet)) {
+          images.data.imageInfos.map((item) => {
+            if (item.type === IMAGES_TYPE[7]._id) {
+              if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
+                setPet(item);
               }
             }
           })
@@ -260,23 +323,6 @@ function LandingPage() {
         {/* スライドショー（slick） */}
         <div className={styles.bg1}>
           <section>
-            {/* {videoSrc &&
-              <video loop controls style={{width:"100%", height:"28em", backgroundColor:"black"}} >
-                <source src={videoSrc} type="video/mp4" />
-              </video>
-            }
-
-            {videoSrc &&
-              <iframe 
-                className="video" 
-                src={videoSrc} 
-                width="100%" 
-                height="360" 
-                frameBorder="0"
-                allow='autoplay; fullscreen' 
-              />
-            } */}
-
             {videoSrc &&
               <ReactPlayer 
                 className="video" 
@@ -309,7 +355,7 @@ function LandingPage() {
                       {/* 플레이 버튼 이미지 */}
                       <div className={styles.playButton} onClick={(e) => {handleChangeVideo(product)}}></div>
                       {/* 이미지 */}
-                      <img src={product.images[0]} alt={product.englishTitle} onClick={(e) => {handleChangeVideo(product)}} />
+                      <img src={product.images[0]} onClick={(e) => {handleChangeVideo(product)}} alt='product'/>
                       {/* 현재 방송중인 태그 */}
                       {isNowOnAirTag && 
                         <p className={styles.nowOnAirTxt}>Now On Air</p> }
@@ -330,12 +376,11 @@ function LandingPage() {
                           <div className={styles.onAirPicName} style={{textDecoration: 'blue underline'}}>{product.title}</div>
                         </a>
                       }
-                      {/* 세일, 추천상품 태그 */}
+                      {/* 상품가격 */}
                       <p className={styles.onAirPicCap}>{Number(product.price).toLocaleString()} (JPY)</p>
-                      {isSaleTag && 
-                        <Tag className={styles.onAirSale} color="#ff0404">{SALE_TAG}</Tag> }
-                      {isRecommendedTag && 
-                        <Tag className={styles.onAirNotice} color="#ff8800">{NOTICE_TAG}</Tag> }
+                      {/* 세일, 추천상품 태그 */}
+                      {isSaleTag && <Tag className={styles.onAirSaleTag} color="#ff0404">{SALE_TAG}</Tag> }
+                      {isRecommendedTag && <Tag className={styles.onAirNoticeTag} color="#ff8800">{NOTICE_TAG}</Tag> }
                     </div>
                   </li>
                 )
@@ -344,7 +389,7 @@ function LandingPage() {
             {/* 배너 */}
             {Banner && 
               <div>
-                <img src={Banner.image} style={{ maxWidth:"100%", height:"auto" }} />
+                <img src={Banner.image} style={{ maxWidth:"100%", height:"auto" }} alt='banner' />
               </div>
             }   
             {/* 추천상품 */}
@@ -354,11 +399,19 @@ function LandingPage() {
               <Slider {...settings}>
                 {recommended.map((recProduct, idx) => {
 
+                  let isRecommendedTag = false, isSaleTag = false;
+                  recProduct.exposureType.map((item) => {
+                    // 추천상품인지 
+                    if (item === PRODUCT_VISIBLE_TYPE[3].key) isRecommendedTag = true;
+                    // 세일상품인지
+                    if (item === PRODUCT_VISIBLE_TYPE[4].key) isSaleTag = true;
+                  })
+
                   return (
                     <div key={idx} >
                       <div className={styles.recomProductBox} >
                         {/* 상품이미지 */}
-                        <a href={`/product/${recProduct._id}`}><img src={recProduct.images[0]} /></a>
+                        <a href={`/product/${recProduct._id}`}><img src={recProduct.images[0]} alt='product'/></a>
                         {/* 상품명 */}
                         {(isLanguage === I18N_ENGLISH || isLanguage === "") && 
                           <p className={styles.proNameS}>{recProduct.englishTitle}</p>
@@ -371,6 +424,9 @@ function LandingPage() {
                         }
                         {/* 상품가격 */}
                         <p className={styles.capS}>{Number(recProduct.price).toLocaleString()} (JPY)</p>
+                        {/* 세일, 추천상품 태그 */}
+                        {isSaleTag && <Tag className={styles.saleTag} color="#ff0404">{SALE_TAG}</Tag> }
+                        {isRecommendedTag && <Tag className={styles.noticeTag} color="#ff8800">{NOTICE_TAG}</Tag> }
                       
                       </div>
                     </div>
@@ -395,12 +451,19 @@ function LandingPage() {
               <h2>{t('Landing.saleTitle')}</h2>
               <Slider {...settings}>
                 {sale.map((salProduct, idx) => {
+                  let isRecommendedTag = false, isSaleTag = false;
+                  salProduct.exposureType.map((item) => {
+                    // 추천상품인지 
+                    if (item === PRODUCT_VISIBLE_TYPE[3].key) isRecommendedTag = true;
+                    // 세일상품인지
+                    if (item === PRODUCT_VISIBLE_TYPE[4].key) isSaleTag = true;
+                  })
 
                   return (
                     <div key={idx} >
                       <div className={styles.saleProductBox} >
                         {/* 상품 이미지 */}
-                        <a href={`/product/${salProduct._id}`}><img src={salProduct.images[0]} /></a>
+                        <a href={`/product/${salProduct._id}`}><img src={salProduct.images[0]} alt='product' /></a>
                         {/* 상품명 */}
                         {(isLanguage === I18N_ENGLISH || isLanguage === "") && 
                           <p className={styles.saleNameS}>{salProduct.englishTitle}</p>
@@ -412,7 +475,10 @@ function LandingPage() {
                           <p className={styles.saleNameS}>{salProduct.title}</p>
                         }
                         {/* 상품가격 */}
-                        <p className={styles.salecapS}>{Number(salProduct.price).toLocaleString()} (JPY)</p>
+                        <p className={styles.saleCapS}>{parseInt(salProduct.price).toLocaleString()} (JPY)</p>
+                        {/* 세일, 추천상품 태그 */}
+                        {isSaleTag && <Tag className={styles.saleTag} color="#ff0404">{SALE_TAG}</Tag> }
+                        {isRecommendedTag && <Tag className={styles.noticeTag} color="#ff8800">{NOTICE_TAG}</Tag> }
                       </div>
                     </div>
                   )
@@ -434,43 +500,69 @@ function LandingPage() {
             <h2>{t('Landing.itemTitle')}</h2>
             
             <div className={styles.itemlistContent}>
-              {Pharmaceutical && 
+              {!isEmptyObj(Pharmaceutical) && 
                 <div className={styles.itemlistBox}>
                   <div className={styles.itemlistImage}>
-                    <img src={Pharmaceutical.image} style={{ maxWidth: "100%", height: "auto" }} onClick={(e) => {handleSearchCategory(MAIN_CATEGORY[2].key)}} />
+                    <img src={Pharmaceutical.image} style={{ maxWidth: "100%", height: "auto" }} 
+                      onClick={() => {handleSearchCategory(MAIN_CATEGORY[2].key)}} alt='product' />
                   </div>
-                  <div className={styles.itemlistProduct}>{t('Landing.pharmaceuticalsTitle')}
-                    <p className={styles.itemlistText} >{Pharmaceutical.description}</p>
+                  <div className={styles.itemlistProduct}>
+                    {t('Landing.pharmaceuticalsTitle')}
                   </div>
                 </div>
               }
-              {Cosmetics &&
+              {!isEmptyObj(Cosmetics) &&
                 <div className={styles.itemlistBox}>
                   <div className={styles.itemlistImage}>
-                    <img src={Cosmetics.image} style={{ maxWidth: "100%", height: "auto" }} onClick={(e) => {handleSearchCategory(MAIN_CATEGORY[1].key)}}/>
+                    <img src={Cosmetics.image} style={{ maxWidth: "100%", height: "auto" }} 
+                      onClick={() => {handleSearchCategory(MAIN_CATEGORY[1].key)}} alt='product' />
                   </div>
-                  <div className={styles.itemlistProduct}>{t('Landing.cosmeticsTitle')}
-                    <p className={styles.itemlistText} >{Cosmetics.description}</p>
+                  <div className={styles.itemlistProduct}>
+                    {t('Landing.cosmeticsTitle')}
                   </div>
                 </div>
               }
-              {DailyNecessaries &&
+              {!isEmptyObj(DailyNecessaries) &&
                 <div className={styles.itemlistBox}>
                   <div className={styles.itemlistImage}>
-                    <img src={DailyNecessaries.image} style={{ maxWidth: "100%", height: "auto" }} onClick={(e) => {handleSearchCategory(MAIN_CATEGORY[4].key)}} />
+                    <img src={DailyNecessaries.image} style={{ maxWidth: "100%", height: "auto" }} 
+                      onClick={() => {handleSearchCategory(MAIN_CATEGORY[4].key)}} alt='product' />
                   </div>
-                  <div className={styles.itemlistProduct}>{t('Landing.dailyNecessariesTitle')}
-                    <p className={styles.itemlistText} >{DailyNecessaries.description}</p>
+                  <div className={styles.itemlistProduct}>
+                    {t('Landing.dailyNecessariesTitle')}
                   </div>
                 </div>
               }
-              {Food && 
+              {!isEmptyObj(Food) && 
                 <div className={styles.itemlistBox}>
                   <div className={styles.itemlistImage}>
-                    <img src={Food.image} style={{ maxWidth: "100%", height: "auto" }} onClick={(e) => {handleSearchCategory(MAIN_CATEGORY[3].key)}} />
+                    <img src={Food.image} style={{ maxWidth: "100%", height: "auto" }} 
+                      onClick={() => {handleSearchCategory(MAIN_CATEGORY[3].key)}} alt='product' />
                   </div>
-                  <div className={styles.itemlistProduct}>{t('Landing.foodTitle')}
-                    <p className={styles.itemlistText} >{Food.description}</p>
+                  <div className={styles.itemlistProduct}>
+                    {t('Landing.foodTitle')}
+                  </div>
+                </div> 
+              }
+              {!isEmptyObj(Baby) && 
+                <div className={styles.itemlistBox}>
+                  <div className={styles.itemlistImage}>
+                    <img src={Baby.image} style={{ maxWidth: "100%", height: "auto" }} 
+                      onClick={() => {handleSearchCategory(MAIN_CATEGORY[5].key)}} alt='product' />
+                  </div>
+                  <div className={styles.itemlistProduct}>
+                    {t('Landing.babyTitle')}
+                  </div>
+                </div> 
+              }
+              {!isEmptyObj(Pet) && 
+                <div className={styles.itemlistBox}>
+                  <div className={styles.itemlistImage}>
+                    <img src={Pet.image} style={{ maxWidth: "100%", height: "auto" }} 
+                      onClick={() => {handleSearchCategory(MAIN_CATEGORY[6].key)}} alt='product' />
+                  </div>
+                  <div className={styles.itemlistProduct}>
+                    {t('Landing.petTitle')}                  
                   </div>
                 </div> 
               }

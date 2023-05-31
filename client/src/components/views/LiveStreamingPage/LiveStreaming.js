@@ -29,7 +29,7 @@ function LiveStreaming(props) {
       history.push("/login");
     }
     
-    // 자식화면에서 보낸 데이타를 수신 (결제금액등) 
+    // 자식화면에서(비디오 채팅) 보낸 데이타를 수신 (결제금액등) 
     window.addEventListener('message', function(e) {
       // 비디오 채팅에서 결제버튼 클릭 했을때
       if(e.data.type != "exitRoom") {
@@ -43,13 +43,14 @@ function LiveStreaming(props) {
         
         // 결제 페이지 호출
         if (e.data.loginUserId && e.data.siam1) {
+          let url = "";
           if (type === "alipay") {
-            let url = `/payment/alipay/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${staffName}`
-            window.open(url);
+            url = `/payment/alipay/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${staffName}`;
           } else if (type === "wechat") {
-            let url = `/payment/wechat/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${staffName}`
-            window.open(url);
+            url = `/payment/wechat/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${staffName}`;
           }
+          // 새로운 탭으로 페이지를 오픈
+          window.open(url);
         }
       } else {
         // 비디오 채팅화면에서 종료버튼을 눌렀을때 랜딩페이지로 이동
@@ -166,4 +167,4 @@ function LiveStreaming(props) {
   )
 }
 
-export default LiveStreaming
+export default LiveStreaming;

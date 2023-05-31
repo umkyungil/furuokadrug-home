@@ -66,10 +66,15 @@ const ProductSchema = new Schema(
     type: Number,
     default: 0
   },
+  // 회원 : true, 회원, 비회원 모두: false
+  member: {
+    type: Boolean,
+    default: false
+  },
   // 노출상품 구분: 일반상품: 0, 방송상품: 1, 동영상 존재 상품: 2, 추천상품: 3, 세일상품: 4
-  exposureType: {
-    type: Array,
-    default: []
+  exposureType: { 
+    type: Array, 
+    default: [] 
   },
   japaneseUrl: {
     type: String,
@@ -84,17 +89,6 @@ const ProductSchema = new Schema(
     default: ""
   }
 }, { timestamps: true })
-
-// 어떠한 것을 더 강조하며 검색기능을 실행할지 더 자세하게 설정 하는 부분
-ProductSchema.index({
-  title: 'text',
-  description: 'text'
-}, {
-  weights: {
-    title: 5,
-    description: 1
-  }
-})
 
 const Product = model('Product', ProductSchema);
 module.exports = { Product };

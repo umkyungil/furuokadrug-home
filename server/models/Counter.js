@@ -11,13 +11,5 @@ const CounterSchema = new Schema(
   }
 }, { timestamps: true })
 
-CounterSchema.index({
-  name: 'text'
-}, {
-  weights: {
-    name: 6
-  }
-})
-
 const Counter = model('Counter', CounterSchema);
 module.exports = { Counter };

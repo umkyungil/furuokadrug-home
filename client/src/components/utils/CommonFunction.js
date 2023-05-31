@@ -1,15 +1,11 @@
-import axios from 'axios';
 import { USER_SERVER } from '../Config';
 import moment from 'moment';
+import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-// 일본 표준시간을 날짜 객체로 반환 
-export function toDateJST() {
-  return new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
-}
 
-// 일본 표준시간을 YYYY/MM/DD 문자열로 반환
+// 일본 표준시간을 YYYY-MM-DD 문자열로 반환
 export function dateFormatYMD() {
   const date = new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
   let month = date.getMonth() + 1;
@@ -21,23 +17,33 @@ export function dateFormatYMD() {
   return date.getFullYear() + '-' + month + '-' + day;
 }
 
-// UTC 날짜를 날짜 객체로 반환
-export function getUTC() {
-  var now = new Date();
-  return  new Date(now.getTime() + now.getTimezoneOffset() * 60000);
-}
-
-// 현재 날짜시간을 ISO Data 형식의 문자열로 반환 
-export function getCurrentDateInUTCFormat() {
-  var now = new Date();
-  return  new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString();
-}
-
 // utc시간을 현지 local date로 변환
 export const getLocalTime = (utcTime) => {
   let localTime = moment.utc(utcTime).toDate();
   localTime = moment(localTime).format('YYYY-MM-DD HH:mm');
   return localTime;
+}
+
+// 문자열 자르기  
+export const truncate = (str, n) => {
+  return str?.length > n ? str.substr(0, n-1) + "..." : str;
+}
+
+// 서버 시간 가져오기
+export const getServerDate = () => {
+  let xmlHttpRequest;
+  if(window.XMLHttpRequest){// code for Firefox, Mozilla, IE7, etc.
+      xmlHttpRequest = new XMLHttpRequest();
+  }else{
+      return false;
+  }
+
+  xmlHttpRequest.open('HEAD', window.location.href.toString(), false);
+  xmlHttpRequest.setRequestHeader("ContentType", "text/html");
+  xmlHttpRequest.send('');
+
+  var serverDate = xmlHttpRequest.getResponseHeader("Date");
+  return serverDate;
 }
 
 // 사용자 정보 가져오기
@@ -48,9 +54,4 @@ export const getUser = async (userId) => {
   } catch (err) {
     console.log("err: ",err);
   }
-}
-
-// 문자열 자르기  
-const truncate = (str, n) => {
-  return str?.length > n ? str.substr(0, n-1) + "..." : str;
 }

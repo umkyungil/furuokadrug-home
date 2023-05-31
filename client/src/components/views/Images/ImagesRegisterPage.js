@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useState } from 'react';
-import { Button, Form, Radio, Divider, Input } from 'antd';
+import { Button, Form, Radio, Divider } from 'antd';
 import FileUpload from '../../utils/FileUpload';
 import { IMAGES_SERVER } from '../../Config.js';
 import { IMAGES_VISIBLE_ITEM, IMAGES_TYPE, IMAGES_LANGUAGE, I18N_JAPANESE } from '../../utils/Const';
@@ -23,13 +23,11 @@ const tailFormItemLayout = {
 };
 
 function ImagesRegisterPage(props) {
-  const [Visible, setVisible] = useState(0);
+  const [Visible, setVisible] = useState(1);
   const [Type, setType] = useState(1);
   const [Language, setLanguage] = useState(I18N_JAPANESE);
   const [Images, setImages] = useState([]);
   const [OldImages, setOldImages] = useState([]); // 실제 사용하지는 않지만 빈 배열을 props로 넘기는 용도로 사용
-  const [IsShow, setIsShow] = useState(false);
-  const [Description, setDescription] = useState("");
   const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
@@ -60,21 +58,11 @@ function ImagesRegisterPage(props) {
   // 이미지 타입
   const typeHandler = (event) => {
     setType(event.target.value);
-    // logo, banner가 아니면 설명을 보여준다
-    if (event.target.value !== 0 && event.target.value !== 1) {
-        setIsShow(true);
-    } else if ( event.target.value == 0 || event.target.value == 1 ) {
-      setIsShow(false);
-    }
   };
   // 이미지 언어 속성
   const languageHandler = (event) => {
     setLanguage(event.target.value);
   };
-  // 카테고리 설명
-  const descriptionHandler = (event) => {
-    setDescription(event.target.value);
-  }
 
   // Submit
   const submitHandler = async (event) => {
@@ -107,8 +95,7 @@ function ImagesRegisterPage(props) {
       image: String(Images[0]), // 문자열로 변형하지 않으면 배열로 넘어가서 타입에러가 발생한다
       type: Type,
       visible: Visible,
-      language: Language,
-      description: Description
+      language: Language
     }
     
     const result = await axios.post(`${IMAGES_SERVER}/register`, body);
@@ -150,12 +137,6 @@ function ImagesRegisterPage(props) {
         <Radio.Group onChange={typeHandler} value={Type}>
           {typeRadioBoxLists()}
         </Radio.Group>
-        { IsShow && 
-          <>
-            <Divider orientation="left" plain="true">Category description</Divider>
-            <Input type="text" placeholder="Category description" style={{width: '100%'}} onChange={descriptionHandler} />
-          </>
-        }
 
         <br />
         <br />

@@ -5,19 +5,21 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const config = require("./config/key");
 const mongoose = require("mongoose");
-const AWS_SDK = require('aws-sdk');
-const { Mail } = require("./models/Mail");
-const { ADMIN_EMAIL } = require("./config/url");
-const { MAIN_CATEGORY, CouponType, UseWithSale, AWS_SES, AWS_S3 } = require('./config/const');
-// 배치실행 관련 설정
+
 const { User } = require("./models/User");
 const { TmpOrder } = require("./models/TmpOrder");
 const { TmpPayment } = require("./models/TmpPayment");
 const { Point } = require('./models/Point');
 const { Coupon } = require('./models/Coupon');
-const { AmazonWebService } = require('./models/AmazonWebService');
+const { Code } = require('./models/Code');
+const { Mail } = require("./models/Mail");
+
+const AWS_SDK = require('aws-sdk');
 const schedule = require('node-schedule');
 const nodemailer = require("nodemailer");
+
+const { ADMIN_EMAIL } = require("./config/url");
+const { MAIN_CATEGORY, CouponType, UseWithSale, AWS_SES } = require('./config/const');
 // CORS 설정
 const cors = require('cors');
 
@@ -45,7 +47,7 @@ const server = async() => {
     app.use('/api/sale', require('./routes/sale'));
     app.use('/api/point', require('./routes/point'));
     app.use('/api/images', require('./routes/images'));
-    app.use('/api/aws', require('./routes/awsRouter'));
+    app.use('/api/code', require('./routes/code'));
     app.use('/uploads', express.static('uploads'));
 
     if (process.env.NODE_ENV === "production") {
@@ -58,25 +60,14 @@ const server = async() => {
 
     const port = process.env.PORT || 5000
     app.listen(port, () => console.log(`Server Listening on ${port}`));
-
-    // AWS 정보가져와서 환경변수에 저장
-    const awsInfos = await AmazonWebService.find({});
-    for (let i = 0; i < awsInfos.length; i++) {
-      if (awsInfos[i].type === AWS_SES) {
-        process.env.AWS_ACCESS_KEY_ID = awsInfos[i].access;
-        process.env.AWS_SECRET_ACCESS_KEY = awsInfos[i].secret;
-      } else if (awsInfos[i].type === AWS_S3) {
-        process.env.AWS_S3_ACCESS_KEY_ID = awsInfos[i].access;
-        process.env.AWS_S3_SECRET_ACCESS_KEY = awsInfos[i].secret;
-      }
-    }
   } catch (err) {
     console.log("error: ", err);
   }
 }
 
-// 서버실행
+// 서버실행 ///////////////////////////////////////////////////////////////////////
 server();
+// 서버실행 ///////////////////////////////////////////////////////////////////////
 
   // 노드 스케줄러 크론 설정
   /* *    *    *    *    *    * */
@@ -122,7 +113,7 @@ const batchJob = async() => {
       const userInfos = await User.find({ "password": {$exists: false} });
       for (let i=0; i < userInfos.length; i++) {
         let orgDate = userInfos[i].createdAt; // 임시 사용자 생성일자(UTC)
-        let chgDate = new Date(Date.parse(orgDate) + 1000 * 60 * 60); // 임시 사용자 생성일자에서 한시간 후의 시간
+        let chgDate = new Date(Date.parse(orgDate) + 1000 * 60 * 60); // 임시 사용자 생성일자에서 1시간 후의 시간
         // 임시사용자 생성후 1시간 이상 지난 경우
         if (today > chgDate) {
           // 임시사용자 삭제
@@ -169,7 +160,7 @@ const batchJob = async() => {
       const tmpPaymentInfos = await TmpPayment.find();
       for (let i=0; i < tmpPaymentInfos.length; i++) {
         let createDate = tmpPaymentInfos[i].createdAt;
-        // DB저장시간에서 24시간후의 시간을 구한다
+        // DB저장시간(UTC)에서 24시간후의 시간을 구한다
         let after24Hour = new Date(Date.parse(createDate) + 1 + 1000 * 60 * 60 * 24);
         if (today > after24Hour) {
           // 임시결제정보 삭제
@@ -319,7 +310,7 @@ const batchJob = async() => {
         }
       }
     } catch (err) {
-      console.log("User point confirmation batch Failed: ", err);
+      console.log("Delete User Points Batch Job Failed: ", err);
     }
   });
 
@@ -513,7 +504,39 @@ const batchJob = async() => {
         }
       }
     } catch (err) {
-      console.log("Birthday coupons batch: ", err);
+      console.log("Birthday Coupon Batch Job Failed: ", err);
+    }
+  });
+
+  // 불특정 사용자로 논리삭제가된 사용자 삭제 
+  // 매월 1일 아침 7시
+  let rule6 = new schedule.RecurrenceRule();
+  rule6.date = 1;
+  rule6.hour = 7;
+  rule6.minute = 0;
+  rule6.second = 0;
+  rule6.tz = 'Asia/Tokyo';
+
+  schedule.scheduleJob(rule6, async function() {
+    let startToday = new Date();
+    let startTime = startToday.toLocaleString('ja-JP');
+    console.log("-------------------------------------------");
+    console.log("Delete anonymous users start :", startTime);
+    console.log("-------------------------------------------");
+
+    try {
+      // 삭제일자가 있는 사용자 가져오기
+      const userInfos = await User.find({ "deletedAt": { $exists: true }});
+      for (let i=0; i < userInfos.length; i++) {
+        let userName = userInfos[i].name;
+        // 사용자 이름이 Anonymous 사용자이면 해당 사용자를 삭제한다
+        if (userName.substring(0, 9) === "Anonymous") {
+          // 임시사용자 삭제
+          await User.deleteOne({ "_id": userInfos[i]._id });
+        }
+      }
+    } catch (err) {
+      console.log("Anonymous Delete Batch Job Failed: ", err);
     }
   });
 }
@@ -543,11 +566,11 @@ const getCoupons = () => {
 
 // AWS SES 접근 보안키 가져와서 메일전송
 const sendMailProcess = async (data, optional) => {
-  const sesInfos = await AmazonWebService.findOne({ type: AWS_SES });
+  const sesInfo = await Code.findOne({ code: AWS_SES });
   const sesObject = new AWS_SDK.SES({
-    accessKeyId: sesInfos.access,
-    secretAccessKey: sesInfos.secret,
-    region: sesInfos.region
+    accessKeyId: sesInfo.value1,
+    secretAccessKey: sesInfo.value2,
+    region: sesInfo.value3
   });
 
   const transporter = nodemailer.createTransport({ SES: sesObject, AWS_SDK });

@@ -1,22 +1,23 @@
 import React, { useState, useEffect, useContext } from "react";
 import { withRouter } from "react-router-dom";
 import { loginUser } from "../../../_actions/user_actions";
-import { USER_SERVER } from '../../Config';
+import { USER_SERVER, CODE_SERVER } from '../../Config';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Form, Icon, Input, Button } from 'antd';
 import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
-import { useCookies } from "react-cookie";
+import { Cookies } from "react-cookie";
 import axios from 'axios';
 import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
+const cookies = new Cookies();
+
 function LoginPage(props) {
   const dispatch = useDispatch();
   const rememberMeChecked = localStorage.getItem("rememberMe") ? true : false;
-  const [Cookies, setCookie, removeCookie] = useCookies(["w_auth"]);
   const [formErrorMessage, setFormErrorMessage] = useState('');
   const [rememberMe, setRememberMe] = useState(rememberMeChecked);
   const { isLanguage, setIsLanguage } = useContext(LanguageContext);
@@ -49,23 +50,17 @@ function LoginPage(props) {
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
           // 로그인 하기전에 쿠키정보가 있으면 
-          if (Cookies.w_auth) {
+          if (cookies.get('w_auth')) {
             // 사용자 정보 가져오기
-            const objToken = {"w_auth": Cookies.w_auth}
-            axios.post(`${USER_SERVER}/w_auth`, objToken)
+            axios.post(`${USER_SERVER}/w_auth`, {"w_auth": cookies.get('w_auth')})
             .then( userInfo => {
               if (userInfo.data.user[0]) {
-                // 불특정 사용자인 경우 삭제
+                // 불특정 사용자인 경우
                 let userName = userInfo.data.user[0].name;
                 if (userName.substring(0, 9) === "Anonymous") {
-                  const objUserId = {"userId": userInfo.data.user[0]._id}
-                  axios.post(`${USER_SERVER}/delete`, objUserId)
-                  .then( userInfo => {
-                    // 쿠키 삭제
-                    removeCookie("w_auth");
-                    removeCookie("w_authExp");
-                    console.log("user delete success: ", userInfo);
-                  })
+                  // 쿠키 삭제
+                  cookies.remove('w_auth');
+                  cookies.remove('w_authExp');
                 }
               }
             });
@@ -83,7 +78,8 @@ function LoginPage(props) {
                 // local storage에 등록
                 localStorage.setItem('userId', userInfo.payload.userInfo._id);
                 localStorage.setItem('userName', userInfo.payload.userInfo.name);
-                // session storage delete
+
+                // 불특정사용자의 정보가 남아 있을수 있기 때문에 삭제+
                 sessionStorage.removeItem('userId');
                 sessionStorage.removeItem('userName');
                 // 사용자 정보의 언어 속송값을 다국어에서 사용하기 위해 로컬스토리지에 셋팅
@@ -91,13 +87,22 @@ function LoginPage(props) {
                   setIsLanguage(userInfo.payload.userInfo.language);
                 }
 
-                if (rememberMe === true) {
-                  localStorage.setItem('rememberMe', values.id);
-                } else {
-                  localStorage.removeItem('rememberMe');
-                }
-                // 랜딩페이지 이동
-                props.history.push("/");
+                // 유효시간 가져오기
+                axios.get(`${CODE_SERVER}/code_by_code?code=TOKEN`)
+                .then( result => {
+                    // 세션에 저장
+                    sessionStorage.setItem("tokenAddedTime", result.data.codeInfo.value1);
+
+                    // 유효시간을 세션에 저장후 처리할 로직
+                    if (rememberMe === true) {
+                      localStorage.setItem('rememberMe', values.id);
+                    } else {
+                      localStorage.removeItem('rememberMe');
+                    }
+                    // 랜딩페이지 이동
+                    props.history.push("/");
+                  
+                });
               } else {
                 setFormErrorMessage('Check out your Account or Password again')
               }
@@ -113,15 +118,7 @@ function LoginPage(props) {
       }}
     >
       {props => {
-        const {
-          values,
-          touched,
-          errors,
-          isSubmitting,
-          handleChange,
-          handleBlur,
-          handleSubmit,
-        } = props;
+        const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
           <div className="app">
             <h1>{t('Login.title')}</h1>

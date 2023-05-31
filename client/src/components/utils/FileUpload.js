@@ -81,7 +81,7 @@ function FileUpload(props) {
       <div style={{ display:'flex', width:'350px', height:'240px' }}>
         {Images.map((image, index) => (
           <div onClick={() => deleteHandler(image)} key={index}>
-            <img style={{ minWidth:'300px', width:'300px', height:'240px' }} src={image}/>
+            <img style={{ minWidth:'300px', width:'300px', height:'240px' }} src={image} alt='product'/>
           </div>
         ))}
       </div>

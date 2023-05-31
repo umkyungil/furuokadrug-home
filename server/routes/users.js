@@ -1,56 +1,63 @@
 const express = require('express');
 const router = express.Router();
+
 const { User } = require("../models/User");
 const { Product } = require('../models/Product');
 const { Payment } = require('../models/Payment');
 const { TmpPayment } = require('../models/TmpPayment');
 const { Point } = require('../models/Point');
 const { Counter } = require('../models/Counter');
-
+const { Code } = require('../models/Code');
 const { auth } = require("../middleware/auth");
 const async = require('async');
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
+const moment = require("moment");
 
 //=================================
 //             User
 //=================================
 
 router.get("/auth", auth, (req, res) => {
-    // 여기까지 미들웨어를 통과해 왔다는 거는 Authentication이 True라는 말
-    // role:2 면 관리자
-    res.status(200).json({
-        _id: req.user._id,
-        isAdmin: req.user.role === 2 ? true : false,
-        isAuth: true, // 여기까지 통과했기 때문에 true를 대입
-        email: req.user.email,
-        name: req.user.name,
-        lastName: req.user.lastName,
-        birthday: req.user.birthday,
-        tel: req.user.tel,
-        address1: req.user.address1,
-        address2: req.user.address2,
-        address3: req.user.address3,
-        receiver1: req.user.receiver1,
-        receiver2: req.user.receiver2,
-        receiver3: req.user.receiver3,
-        tel1: req.user.tel1,
-        tel2: req.user.tel2,
-        tel3: req.user.tel3,
-        role: req.user.role,
-        language: req.user.language,
-        image: req.user.image,
-        cart: req.user.cart,
-        history: req.user.history,        
-        room: req.user.room,
-        deletedAt: req.user.deletedAt,
-        myPoint: req.user.myPoint,
-        tokenExp: req.user.tokenExp,
-    });
+    try {
+        // 여기까지 미들웨어를 통과해 왔다는 거는 Authentication이 True라는 말
+        // role=2: 관리자
+        res.status(200).json({
+            _id: req.user._id,
+            isAdmin: req.user.role === 2 ? true : false,
+            isAuth: true, // 여기까지 통과했기 때문에 true를 대입
+            email: req.user.email,
+            name: req.user.name,
+            lastName: req.user.lastName,
+            birthday: req.user.birthday,
+            tel: req.user.tel,
+            address1: req.user.address1,
+            address2: req.user.address2,
+            address3: req.user.address3,
+            receiver1: req.user.receiver1,
+            receiver2: req.user.receiver2,
+            receiver3: req.user.receiver3,
+            tel1: req.user.tel1,
+            tel2: req.user.tel2,
+            tel3: req.user.tel3,
+            role: req.user.role,
+            language: req.user.language,
+            image: req.user.image,
+            cart: req.user.cart,
+            history: req.user.history,
+            room: req.user.room,
+            deletedAt: req.user.deletedAt,
+            myPoint: req.user.myPoint,
+            tokenExp: req.user.tokenExp,
+        });
+    } catch (err) {
+        console.log("err: ", err);
+        return res.status(500).json({ success: false, message: err.message });
+    }
 });
 
 // Login
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
     try {
         // 요청된 이메일을 데이터베이스에서 있는지 찾는다
         User.findOne({ email: req.body.email }, (err, user) => {
@@ -60,46 +67,75 @@ router.post("/login", (req, res) => {
             }
             
             // 요청된 이메일이 DB에 있다면 비밀번호가 맞는 비밀번호 인지 확인(comparePassword메소드는 User모델에 정의)
-            user.comparePassword(req.body.password, (err, isMatch) => {
+            user.comparePassword(req.body.password, async (err, isMatch) => {
                 if (!isMatch) {
                     return res.json({ loginSuccess: false, message: "Wrong password" });
                 }
                 
-                // 비밀번호까지 맞다면 토큰을 생성하기
-                user.generateToken((err, user) => {
+                // 비밀번호까지 맞다면 토큰및 토큰 유효기간을 생성하기
+                user.generateToken(async (err, user) => {
                     if (err) return res.status(400).send(err);
-                    // 토큰을 클라이언트의 쿠키에 저장한다
+                    let expiration = moment(user.tokenExp).format('YYYY-MM-DD HH:mm');
+
+                    // 토큰및 토큰 유효기간을 클라이언트의 쿠키에 저장한다
                     res.cookie("w_authExp", user.tokenExp);
                     res.cookie("w_auth", user.token).status(200).json({
                         //loginSuccess: true, userId: user._id
                         loginSuccess: true, userInfo: user
                     });
                 });
-
-                // 로그인한 시간을 업데이트
-                User.findOneAndUpdate({ email: req.body.email }, { lastLogin: new Date() }, (err, doc) => {
-                    if (err) return res.json({ success: false, err });
-                });
             });
         });
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 토큰 유효시간 연장
+router.post("/update/token", async (req, res) => {
+    try {
+        let tokenAddedTime = parseInt(req.body.tokenAddedTime);
+        // 현재시간에 추가시간을 더해서 토큰 유효시간을 연장
+        let expTime = moment().add(tokenAddedTime, 'm').valueOf(); // valueOf(): moment 객체를 숫자(밀리세컨드)로 변환
+        const user = await User.findOneAndUpdate({ _id: req.body.id }, { $set: { tokenExp: expTime }}, {new: true});
+
+        // 토큰및 토큰 유효시간을 클라이언트의 쿠키에 저장한다
+        res.cookie("w_auth", user.token)
+        res.cookie("w_authExp", user.tokenExp).status(200).json({
+            success: true, userInfo: user
+        });
+    } catch (err) {
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
 
 // Logout
-router.get("/logout", auth, (req, res) => {
+// router.get("/logout", (req, res) => {
+//     try {
+//         // 토큰 정보를 삭제한다
+//         User.updateOne({ _id: req.user.id }, { token: "", tokenExp: 0 }, (err, doc) => {
+//             if (err) return res.json({ success: false, err });
+//             return res.status(200).send({ success: true });
+//         });
+//     } catch (err) {
+//         return res.status(500).json({ success: false, message: err.message });
+//     }
+// });
+
+// Logout
+router.get("/logout", (req, res) => {
     try {
-        // 토큰 정보를 삭제한다
-        User.findOneAndUpdate({ _id: req.user._id }, { token: "", tokenExp: "" }, (err, doc) => {
+        User.updateOne({ _id: req.query.id }, { token: "", tokenExp: 0 }, (err, doc) => {
             if (err) return res.json({ success: false, err });
             return res.status(200).send({ success: true });
         });
     } catch (err) {
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
-});
+})
 
 // 사용자 등록
 router.post("/register", (req, res) => {
@@ -114,7 +150,7 @@ router.post("/register", (req, res) => {
             return res.status(200).json({ success: true });
         });
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }   
 });
@@ -132,7 +168,7 @@ router.post("/anyRegister", (req, res) => {
             return res.status(200).json({ success: true });
         });
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }   
 });
@@ -191,7 +227,7 @@ router.post("/passwordConfirm", async (req, res) => {
             })
         })
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -239,7 +275,7 @@ router.post("/preregisterConfirm", async (req, res) => {
             return res.status(200).json({ success: true });
         });
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }   
 });
@@ -253,7 +289,7 @@ router.post("/preregister", (req, res) => {
             return res.status(200).json({ success: true, doc });
         });
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }   
 });
@@ -280,7 +316,7 @@ router.post("/list", (req, res) => {
             });
         }    
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message })
     }
 });
@@ -294,7 +330,7 @@ router.get("/list", (req, res) => {
             return res.status(200).json({ success: true, userInfo})
         });  
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message })
     }
 });
@@ -311,7 +347,7 @@ router.post("/anonymous/list", (req, res) => {
             return res.status(200).json({ success: true, userInfo});
         });  
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message })
     }
 });
@@ -338,7 +374,7 @@ router.post("/coupon/list", (req, res) => {
             });
         }    
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message })
     }
 });
@@ -375,7 +411,7 @@ router.post("/update", async (req, res) => {
         await user.save();
         return res.status(200).send({ success: true });
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -392,7 +428,7 @@ router.post("/logicalDelete", (req, res) => {
                 return res.status(200).send({ success: true });
             })
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -409,7 +445,7 @@ router.post('/delete', (req, res) => {
             if (err) return res.status(400).send(err);
         })
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -426,7 +462,7 @@ router.get('/users_by_id', (req, res) => {
             return res.status(200).send({success: true, user});
         })
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -442,7 +478,7 @@ router.post('/w_auth', (req, res) => {
             return res.status(200).send({success: true, user});
         })
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -461,7 +497,7 @@ router.get('/users_by_email', async (req, res) => {
             }
         );
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -514,7 +550,7 @@ router.post("/addToCart", auth, (req, res) => {
                 }
             })
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -553,7 +589,7 @@ router.get('/removeFromCart', auth, (req, res) => {
             }
         )
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 })
@@ -710,7 +746,7 @@ router.post('/successBuy', auth, (req, res) => {
                                     { new: true },
                                     (err, pointInfo) => {
                                         if(err) {
-                                            console.log(err);
+                                            console.log("err: ", err);
                                             return res.status(400).json({ success: false, err });
                                         }
                                     }
@@ -745,7 +781,7 @@ router.post('/successBuy', auth, (req, res) => {
                                     const point = new Point(dataToSubmit);
                                     point.save((err, doc) => {
                                         if (err) {
-                                            console.log(err);
+                                            console.log("err: ", err);
                                             return res.status(400).json({ success: false, err });
                                         }
                                     });
@@ -759,7 +795,7 @@ router.post('/successBuy', auth, (req, res) => {
                                     const point = new Point(dataToSubmit);
                                     point.save((err, doc) => {
                                         if (err) {
-                                            console.log(err);
+                                            console.log("err: ", err);
                                             return res.status(400).json({ success: false, err });
                                         }
                                     });
@@ -813,39 +849,49 @@ router.post('/successBuy', auth, (req, res) => {
             savePoint(dataToSubmit)
         }
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 })
 
 const savePoint  = (dataToSubmit)  => {
-    // 카운트를 증가시키고 포인트 저장
-    Counter.findOneAndUpdate(
-        { name: "point" },
-        { $inc: { "seq": 1 }},
-        { new: true },
-        (err, countInfo) => {
-            if (err) return res.status(400).json({ success: false, err });
-            
-            // 포인트의 seq에 카운트에서 가져온 일련번호를 대입해서 포인트를 생성 
-            dataToSubmit.seq = countInfo.seq; 
-            const point = new Point(dataToSubmit);
-            point.save((err, doc) => {
+    try {
+        // 카운트를 증가시키고 포인트 저장
+        Counter.findOneAndUpdate(
+            { name: "point" },
+            { $inc: { "seq": 1 }},
+            { new: true },
+            (err, countInfo) => {
                 if (err) return res.status(400).json({ success: false, err });
-            });
-        }
-    )
+                
+                // 포인트의 seq에 카운트에서 가져온 일련번호를 대입해서 포인트를 생성 
+                dataToSubmit.seq = countInfo.seq; 
+                const point = new Point(dataToSubmit);
+                point.save((err, doc) => {
+                    if (err) return res.status(400).json({ success: false, err });
+                });
+            }
+        )
+    } catch (err) {
+        console.log("err: ", err);
+        return res.status(500).json({ success: false, message: err.message });
+    }
 }
 
 const updatePoint = (tmp1, tmp2, tmp3, tmp4, tmp5) => {
-    Point.findOneAndUpdate(
-        { _id: tmp1 },
-        { $set: { dspUsePoint: tmp2, usePoint: tmp3, remainingPoints: tmp4, dateUsed: tmp5 }},
-        { new: true },
-        (err, pointInfo) => {
-            if(err) return res.status(400).json({ success: false, err });
-        }
-    )
+    try {
+        Point.findOneAndUpdate(
+            { _id: tmp1 },
+            { $set: { dspUsePoint: tmp2, usePoint: tmp3, remainingPoints: tmp4, dateUsed: tmp5 }},
+            { new: true },
+            (err, pointInfo) => {
+                if(err) return res.status(400).json({ success: false, err });
+            }
+        )
+    } catch (err) {
+        console.log("err: ", err);
+        return res.status(500).json({ success: false, message: err.message });
+    }
 }
 
 router.post('/successBuyTmp', auth, (req, res) => {
@@ -855,6 +901,7 @@ router.post('/successBuyTmp', auth, (req, res) => {
 
         let date = new Date();
         const dateInfo = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString();
+
         // 결제한 카트에 담겼던 상품정보를 TmpPayment의 product정보에 넣기위해 history 배열에 셋팅
         req.body.cartDetail.forEach((item) => {
             history.push({
@@ -902,7 +949,7 @@ router.post('/successBuyTmp', auth, (req, res) => {
             }
         )
     } catch (err) {
-        console.log(err);
+        console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 })

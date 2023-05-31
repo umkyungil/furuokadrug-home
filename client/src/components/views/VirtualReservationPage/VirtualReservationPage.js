@@ -113,14 +113,11 @@ function VirtualReservationPage(props) {
   }
 
   return (
-    
-    // <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
-    //   <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
-    //     <h1>{t('Reservation.title')}</h1>
-    //   </div>
 
-    <div className="app">
-      <h1>{t('Reservation.title')}</h1>
+    <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
+        <h1>{t('Reservation.title')}</h1>
+      </div>
       
       <Form style={{ minWidth: '350px', margin:'1em' }} {...formItemLayout} onSubmit={sendEmail} autoComplete="off" >        
         <Form.Item label={t('Reservation.name')} name="username" rules={[{ required: true }]}>

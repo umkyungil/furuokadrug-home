@@ -248,7 +248,7 @@ main {
   right: 30px
 }
 
-.onAirSale {
+.onAirSaleTag {
   /* NowOnAir商品 セールタグ */
   font-size: 12px;
   font-weight: bold;
@@ -262,13 +262,41 @@ main {
   text-align: center;
 }
 
-.onAirNotice {
+.onAirNoticeTag {
   /* NowOnAir商品 注目タグ */
   font-size: 12px;
   font-weight: bold;
   position: absolute;
   top: 150px;
   left: 230px;
+  width: 60px;
+  height: 25px;
+  color: #ffffff;
+  background: #ff8800;
+  text-align: center;
+}
+
+.saleTag {
+  /* NowOnAir商品 セールタグ */
+  font-size: 12px;
+  font-weight: bold;
+  position: absolute;
+  top: 295px;
+  left: 140px;
+  width: 60px;
+  height: 25px;
+  color: #ffffff;
+  background: #ff0404;
+  text-align: center;
+}
+
+.noticeTag {
+  /* NowOnAir商品 注目タグ */
+  font-size: 12px;
+  font-weight: bold;
+  position: absolute;
+  top: 295px;
+  left: 205px;
   width: 60px;
   height: 25px;
   color: #ffffff;
@@ -494,7 +522,7 @@ main h2.linestyle .uline::before {
   /* line-height: 1.5; */
   color: #000000;
   margin: 1.5em 0px 0em 0;
-  text-align: center;
+  text-align: left;
   font-weight: bold;
   position: relative;
   /* top: 120px; */
@@ -550,11 +578,11 @@ main h2.linestyle .uline::before {
   line-height: 1.5
 }
 
-.salecapS {
+.saleCapS {
   line-height: 1.5;
   color: #000000;
   margin: 1.5em 0px 0em 0;
-  text-align: center;
+  text-align: left;
   font-weight: bold;
   position: relative;
   /* top: 120px; */

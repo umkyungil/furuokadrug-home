@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useRef, useState } from 'react';
-import { Button, Form, Input, Checkbox, Select, Divider } from 'antd';
+import { Button, Form, Input, Checkbox, Select, Divider, Radio } from 'antd';
 import FileUpload from '../../utils/FileUpload';
 import { PRODUCT_SERVER } from '../../Config.js';
 import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE } from '../../utils/Const';
@@ -47,11 +47,11 @@ function ProductRegisterPage(props) {
   const chineseUsageRef = useRef("");
   const contentsRef = useRef("");
   const priceRef = useRef(0);
-  const pointRef = useRef(0);
   const continentRef = useRef(1);
   const exposureTypeRef = useRef([]);
   const imagesRef = useRef([]);
   const oldImagesRef = useRef([]); // 실제 사용하지는 않지만 빈 배열을 props로 넘기는 용도로 사용
+  const memberRef = useRef(false);
 
   const [UrlShow, setUrlShow] = useState(false);
   const japaneseUrlRef = useRef("");
@@ -111,15 +111,16 @@ function ProductRegisterPage(props) {
   const priceHandler = (event) => {
     priceRef.current = event.currentTarget.value;
   }
-  const pointHandler = (event) => {
-    pointRef.current = event.currentTarget.value;
-  }
   const continentHandler = (event) => {
     continentRef.current = event;
   }
   const updateImages = (newImages) => {
     imagesRef.current = newImages
   }
+  const memberHandler = (event) => {
+    // Checkbox
+    memberRef.current = event.target.checked;
+  };
   const japaneseUrlHandler = (event) => {
     japaneseUrlRef.current = event.currentTarget.value;
   }
@@ -178,39 +179,18 @@ function ProductRegisterPage(props) {
       alert("Please enter a Chinese product description");
       return false;
     }
-    if (japaneseUsageRef.current === "") {
-      alert("Please enter how to use Japanese");
-      return false;
-    }
-    if (englishUsageRef.current === "") {
-      alert("Please enter how to use English");
-      return false;
-    }
-    if (chineseUsageRef.current === "") {
-      alert("Please enter how to use Chinese");
-      return false;
-    }
     if (contentsRef.current === "") {
-      alert("Please enter the capacity");
+      alert("Please enter the contents");
       return false;
     }
     if (!Number(priceRef.current)) {
       alert("Please enter only numbers for the price");
       return false;
     }
-    if (!Number(pointRef.current)) {
-      alert("Please enter only numbers for the point");
-      return false;
-    }
     if (Number(priceRef.current) <= 0) {
       alert("Please check the price");
       return false;
     }
-    if (Number(pointRef.current) <= 0) {
-      alert("Please check the point");
-      return false;
-    }
-    
     // Now on sale이 선택됐는지
     let isNowOnAir = false;
     exposureTypeRef.current.map(item => {
@@ -238,15 +218,15 @@ function ProductRegisterPage(props) {
       }
     } else {
       // 주소를 전부 삭제함
-      japaneseUrlRef.current = ""
-      englishUrlRef.current = ""
-      chineseUrlRef.current = ""
+      japaneseUrlRef.current = "";
+      englishUrlRef.current = "";
+      chineseUrlRef.current = "";
     }
 
     // Now on sale 상품이 이미 등록되어 있는지 확인
     let isExists = false;
     if (isNowOnAir) {
-      const body = {type: [PRODUCT_VISIBLE_TYPE[1].key]}
+      const body = {type: PRODUCT_VISIBLE_TYPE[1].key, id: localStorage.getItem("userId")};
       await axios.post(`${PRODUCT_SERVER}/products_by_type`, body)
       .then((products) => {
         if (products.data.productInfos.length > 0) {
@@ -271,11 +251,11 @@ function ProductRegisterPage(props) {
       usage: japaneseUsageRef.current,
       englishUsage: englishUsageRef.current,
       chineseUsage: chineseUsageRef.current,
-      contents: contentsRef.current, // capacity
+      contents: contentsRef.current,
       price: priceRef.current,
-      point: pointRef.current,
       images: imagesRef.current,
       continents: continentRef.current,
+      member: memberRef.current,
       exposureType: exposureTypeRef.current,
       japaneseUrl: japaneseUrlRef.current,
       englishUrl: englishUrlRef.current,
@@ -329,13 +309,13 @@ function ProductRegisterPage(props) {
         <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.chineseDescription')}</label>
         <TextArea onChange={chineseDescriptionHandler} />
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.japaneseHowToUse')}</label>
+        <label>{t('Product.japaneseHowToUse')}</label>
         <TextArea onChange={japaneseUsageHandler} />
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.englishHowToUse')}</label>
+        <label>{t('Product.englishHowToUse')}</label>
         <TextArea onChange={englishUsageHandler} />
         <br />
-        <label><span style={{color: 'red'}}>*&nbsp;</span>{t('Product.chineseHowToUse')}</label>
+        <label>{t('Product.chineseHowToUse')}</label>
         <TextArea onChange={chineseUsageHandler} />
         <br />
         <br />
@@ -344,9 +324,6 @@ function ProductRegisterPage(props) {
         </Form.Item>
         <Form.Item required label={t('Product.price')}>
           <Input type="text" defaultValue="0" onChange={priceHandler} />
-        </Form.Item>
-        <Form.Item required label={t('Product.point')}>
-          <Input type="text" defaultValue="0" onChange={pointHandler} />
         </Form.Item>
         <Form.Item required label={t('Product.itemSelection')}>
           <Select defaultValue="Cosmetic" style={{ width: 150 }} onChange={continentHandler} >
@@ -357,6 +334,10 @@ function ProductRegisterPage(props) {
               }
             })}
           </Select>
+        </Form.Item>
+
+        <Form.Item label={t('Product.member')}>
+          <Checkbox onChange={memberHandler} />
         </Form.Item>
 
         <Divider orientation="left" plain="true">Screen exposure</Divider>
