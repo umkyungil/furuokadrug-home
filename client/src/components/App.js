@@ -54,6 +54,7 @@ import DetailOrderPage from "./views/OrderPage/DetailOrderPage.js"; // 주문상
 import CartPage from "./views/CartPage/CartPage.js";
 // 라이브 방송관리
 import LiveStreamingPage from "./views/LiveStreamingPage/LiveStreaming.js";
+import JitSiMeetPage from "./views/JitSiMeetPage/JitSiMeet.js";
 // 쿠폰관리
 import CouponRegisterPage from "./views/Coupon/CouponRegisterPage.js";
 import CouponBirthRegisterPage from "./views/Coupon/CouponBirthRegisterPage.js";
@@ -148,6 +149,7 @@ function App() {
             <Route exact path="/csv/upload/univaPayCast" component={Auth(UploadCSVUnivaPayCastPage, true)} />
             {/* 라이브 방송 */}
             <Route exact path="/live" component={Auth(LiveStreamingPage, true)} />
+            <Route exact path="/jitSi" component={Auth(JitSiMeetPage, true)} />
             {/* 쿠폰관리 */}
             <Route exact path="/coupon/register" component={Auth(CouponRegisterPage, true)} />
             <Route exact path="/coupon/birth/register" component={Auth(CouponBirthRegisterPage, true)} />

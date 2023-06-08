@@ -12,11 +12,16 @@ axios.defaults.withCredentials = true;
 
 const cookies = new Cookies();
 
-export default function (SpecificComponent, option, adminRoute = null, isConfirm) {
+export default function (SpecificComponent, option, adminRoute = null) {
     // 【option】
     // null 아무나 출입이 가능한 페이지
     // true 로그인 한 유저만 출입이 가능한 페이지
     // false 로그인한 유저는 출입이 불가능한 페이지
+
+    // 【isTokenException】
+    // true: 토큰 유효기간의 대상이 아님
+    // undefined: 토큰 유효기간의 대상
+
     function AuthenticationCheck(props) {
         let user = useSelector(state => state.user);
         const dispatch = useDispatch();
@@ -43,7 +48,6 @@ export default function (SpecificComponent, option, adminRoute = null, isConfirm
                         if (response.payload.role !== 3 && option === false) {
                             props.history.push('/');
                         }
-
                         // 불특정 사용자인 경우 토큰 체크를 하지 않는다
                         if (response.payload.role !== 3) {
                             // 토큰유효기간 체크(파라메터: 사용자 아이디, 사용자 토큰 유효시간)
@@ -72,7 +76,7 @@ export default function (SpecificComponent, option, adminRoute = null, isConfirm
                     props.history.push('/login');
                 } else {
                     // 로그인 할때 저장한 세션스토리지에서 연장시간 가져오기
-                    let sesTokenAddedTime  = sessionStorage.getItem("tokenAddedTime");
+                    const sesTokenAddedTime  = sessionStorage.getItem("tokenAddedTime");
                     // 토큰 최대 연장시간을 구한다(서버 시간 + sesTokenAddedTime의 2배)
                     const numTokenAddedTime = parseInt(sesTokenAddedTime) * 2
                     const maxTokenExp = moment(chgServerToLocalTime).add(numTokenAddedTime, 'm').format('YYYY-MM-DD HH:mm');

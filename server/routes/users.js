@@ -416,17 +416,14 @@ router.post("/update", async (req, res) => {
     }
 });
 
-// 사용자 논리삭제
+// 사용자 논리삭제(현재 사용되고 있지 않음)
 router.post("/logicalDelete", (req, res) => {
     let deletedAt = new Date();
     try {
-        User.updateMany(
-            { _id: req.body.userId }, 
-            { deletedAt: deletedAt}
-            , (err, doc) => {
-                if (err) return res.json({ success: false, err });
-                return res.status(200).send({ success: true });
-            })
+        User.updateOne({ _id: req.body.userId }, { deletedAt: deletedAt }, (err, doc) => {
+            if (err) return res.json({ success: false, err });
+            return res.status(200).send({ success: true });
+        })
     } catch (err) {
         console.log("err: ", err);
         return res.status(500).json({ success: false, message: err.message });

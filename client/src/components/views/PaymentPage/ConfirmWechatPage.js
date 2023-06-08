@@ -35,6 +35,7 @@ const tailFormItemLayout = {
 
 function ConfirmWechatPage(props) {
   const [SelectedAddress, setSelectedAddress] = useState("");
+  const [ShowButton, setShowButton] = useState(true);
 
   const idRef = useRef("");
   const nameRef = useRef("");  
@@ -88,121 +89,139 @@ function ConfirmWechatPage(props) {
 
   // 로그인 사용자정보 가져오기
   const getUserInfo = async () => {
-    const userInfo = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}`);
+    try {
+      const userInfo = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}`);
 
-    if (userInfo.data.success) {
-      nameRef.current = userInfo.data.user[0].name;
-      lastNameRef.current = userInfo.data.user[0].lastName;
-      emailRef.current = userInfo.data.user[0].email;
-      telRef.current = userInfo.data.user[0].tel;
-      idRef.current = userId;
-      // 총 금액
-      siam1Ref.current = siam1;
-      uniqueFieldRef.current = uniqueField;
-      // 뷸특정 사용자인지 확인을 위해 사용자 정보의 권한을 대입
-      roleRef.current = userInfo.data.user[0].role;
+      if (userInfo.data.success) {
+        nameRef.current = userInfo.data.user[0].name;
+        lastNameRef.current = userInfo.data.user[0].lastName;
+        emailRef.current = userInfo.data.user[0].email;
+        telRef.current = userInfo.data.user[0].tel;
+        idRef.current = userId;
+        // 총 금액
+        siam1Ref.current = siam1;
+        uniqueFieldRef.current = uniqueField;
+        // 뷸특정 사용자인지 확인을 위해 사용자 정보의 권한을 대입
+        roleRef.current = userInfo.data.user[0].role;
 
-      // 임시주문 정보에 결제일자를 라이브, 카트 동일하게 저장하기 위해 sodRef에 날짜를 대입
-      let arr = uniqueField.split('_');
-      if (arr[0].trim() === "cart") {
-        // uniqueKey의 날짜를 대입 
-        sodRef.current = arr[2].trim();
-      } else {
-        // Live에서 이동된 경우는 날짜만 들어있음
-        sodRef.current = sod;
-        // Live에서 이동된 경우 금액에 해당하는 포인트를 대입한다 
-        acquisitionPointsRef.current = parseInt(Number(siam1) / 100);
-      }
-
-      // 주소1
-      if (userInfo.data.user[0].address1) {
-        address1Ref.current = userInfo.data.user[0].address1;
-        let address1 = userInfo.data.user[0].address1;
-        if (address1.length > 10) {
-          address1 = address1.slice(0, 10)
-          address1 = address1 + "...";
-          shortAddress1Ref.current = address1;
-        }
-      }
-      // 수신자1
-      if (userInfo.data.user[0].receiver1) {
-        receiver1Ref.current = userInfo.data.user[0].receiver1;
-      }
-      // 수신자 전화번호1
-      if (userInfo.data.user[0].tel1) {
-        tel1Ref.current = userInfo.data.user[0].tel1;
-      }
-      // 주소2
-      if (userInfo.data.user[0].address2) {
-        address2Ref.current = userInfo.data.user[0].address2;
-        let address2 = userInfo.data.user[0].address2;
-        if (address2.length > 10) {
-          address2 = address2.slice(0, 10)
-          address2 = address2 + "...";
-          shortAddress2Ref.current = address2;
-        }
-      }
-      // 수신자2
-      if (userInfo.data.user[0].receiver2) {
-        receiver2Ref.current = userInfo.data.user[0].receiver2;
-      }
-      // 수신자 전화번호2
-      if (userInfo.data.user[0].tel2) {
-        tel2Ref.current = userInfo.data.user[0].tel2;
-      }
-      // 주소3
-      if (userInfo.data.user[0].address3) {
-        address3Ref.current = userInfo.data.user[0].address3;
-        let address3 = userInfo.data.user[0].address3;
-        if (address3.length > 10) {
-          address3 = address3.slice(0, 10);
-          address3 = address3 + "...";
-          shortAddress3Ref.current = address3;
-        }
-      }
-      // 수신자3
-      if (userInfo.data.user[0].receiver3) {
-        receiver3Ref.current = userInfo.data.user[0].receiver3;
-      }
-      //수신자 전화번호3
-      if (userInfo.data.user[0].tel3) {
-        tel3Ref.current = userInfo.data.user[0].tel3;
-      }
-
-      // 스텝이름 가져오기
-      // live streaming에서 이동된 경우 전달받은 step이름으로 step정보 가져오기
-      // cart 에서 이동된 경우 전달된 스텝이름은 'ECSystem'이라서 검색할 필요가 없다
-      if (staffName) {
-        if (staffName === ECSystem) {
-          staffNameRef.current = ECSystem;
+        // 임시주문 정보에 결제일자를 라이브, 카트 동일하게 저장하기 위해 sodRef에 날짜를 대입
+        let arr = uniqueField.split('_');
+        if (arr[0].trim() === "cart") {
+          // uniqueKey의 날짜를 대입 
+          sodRef.current = arr[2].trim();
         } else {
-          await getStaffInfo(staffName);
+          // Live에서 이동된 경우는 날짜만 들어있음
+          sodRef.current = sod;
+          // Live에서 이동된 경우 금액에 해당하는 포인트를 대입한다 
+          acquisitionPointsRef.current = parseInt(Number(siam1) / 100);
+        }
+        // 주소1
+        if (userInfo.data.user[0].address1) {
+          address1Ref.current = userInfo.data.user[0].address1;
+          let address1 = userInfo.data.user[0].address1;
+          if (address1.length > 10) {
+            address1 = address1.slice(0, 10)
+            address1 = address1 + "...";
+            shortAddress1Ref.current = address1;
+          }
+        }
+        // 수신자1
+        if (userInfo.data.user[0].receiver1) {
+          receiver1Ref.current = userInfo.data.user[0].receiver1;
+        }
+        // 수신자 전화번호1
+        if (userInfo.data.user[0].tel1) {
+          tel1Ref.current = userInfo.data.user[0].tel1;
+        }
+        // 주소2
+        if (userInfo.data.user[0].address2) {
+          address2Ref.current = userInfo.data.user[0].address2;
+          let address2 = userInfo.data.user[0].address2;
+          if (address2.length > 10) {
+            address2 = address2.slice(0, 10)
+            address2 = address2 + "...";
+            shortAddress2Ref.current = address2;
+          }
+        }
+        // 수신자2
+        if (userInfo.data.user[0].receiver2) {
+          receiver2Ref.current = userInfo.data.user[0].receiver2;
+        }
+        // 수신자 전화번호2
+        if (userInfo.data.user[0].tel2) {
+          tel2Ref.current = userInfo.data.user[0].tel2;
+        }
+        // 주소3
+        if (userInfo.data.user[0].address3) {
+          address3Ref.current = userInfo.data.user[0].address3;
+          let address3 = userInfo.data.user[0].address3;
+          if (address3.length > 10) {
+            address3 = address3.slice(0, 10);
+            address3 = address3 + "...";
+            shortAddress3Ref.current = address3;
+          }
+        }
+        // 수신자3
+        if (userInfo.data.user[0].receiver3) {
+          receiver3Ref.current = userInfo.data.user[0].receiver3;
+        }
+        //수신자 전화번호3
+        if (userInfo.data.user[0].tel3) {
+          tel3Ref.current = userInfo.data.user[0].tel3;
+        }
+        // 스텝이름 가져오기
+        // live streaming에서 이동된 경우 전달받은 step이름으로 step정보 가져오기
+        // cart 에서 이동된 경우 전달된 스텝이름은 'ECSystem'이라서 검색할 필요가 없다
+        if (staffName) {
+          if (staffName === ECSystem) {
+            staffNameRef.current = ECSystem;
+          } else {
+            await getStaffInfo(staffName);
+          }
+        } else {
+          staffNameRef.current = NOT_SET;
         }
       } else {
-        staffNameRef.current = NOT_SET;
+        alert("Please contact the administrator");
       }
-    } else {
+    } catch (err) {
+      console.log("err: ", err);
       alert("Please contact the administrator");
-      history.push("/");
     }
   }
 
   // step 정보가져오기
   const getStaffInfo = async (staffName) => {
-    // 성으로 전체 검색해서 권한이 스텝인 사람을 추출
-    // 동명이인인 경우는 첫번째 사람의 이름으로 설정한다
-    let body = { searchTerm: staffName };
-    const staffInfo = await axios.post(`${USER_SERVER}/list`, body);
+    try {
+      // 성으로 전체 검색해서 권한이 스텝인 사람을 추출
+      // 동명이인인 경우는 첫번째 사람의 이름으로 설정한다
+      let body = { searchTerm: staffName };
+      const staffInfo = await axios.post(`${USER_SERVER}/list`, body);
 
-    if (staffInfo.data.success) {
-      if (staffInfo.data.userInfo.length > 0 && staffInfo.data.userInfo[0].role !== "0") {
-        staffNameRef.current = staffInfo.data.userInfo[0].name + " " + staffInfo.data.userInfo[0].lastName;
+      if (staffInfo.data.success) {
+        if (staffInfo.data.userInfo.length > 0 && staffInfo.data.userInfo[0].role !== "0") {
+          staffNameRef.current = staffInfo.data.userInfo[0].name + " " + staffInfo.data.userInfo[0].lastName;
+        } else {
+          staffNameRef.current = Unidentified;
+        }
       } else {
-        staffNameRef.current = Unidentified;
+        alert("Please contact the administrator");
       }
-    } else {
+    } catch (err) {
+      console.log("err: ", err);
       alert("Please contact the administrator");
-      history.push("/");
+    }
+  }
+  // 토큰유효기간 연장
+  const updateTokenExp = async () => {
+    try {
+      const sesTokenAddedTime  = sessionStorage.getItem("tokenAddedTime");
+      const userId = localStorage.getItem("userId");
+      // 토큰 유효시간 연장
+      await axios.post(`${USER_SERVER}/update/token`, { id: userId, tokenAddedTime:sesTokenAddedTime });  
+    } catch (err) {
+      console.log("err: ", err);
+      alert("Please contact the administrator");
     }
   }
 
@@ -235,158 +254,159 @@ function ConfirmWechatPage(props) {
   const handleAnyTelChange = (e) => {
     changeTelRef.current = e.target.value;
   }
-
+  // Landing pageへ戻る
+  const listHandler = async () => {
+    // 토큰 유효기간 연장
+    await updateTokenExp();
+    history.push("/");
+  }
   // 임시 주문정보 저장, UPC 데이타 전송, 팝업창 표시
   const sendPaymentInfo = async (e) => {
     e.preventDefault();
+    // send버튼 보이지 않게 함
+    setShowButton(false);
 
-    let body = {
-      type: "Wechat",
-      userId: idRef.current,
-      name: nameRef.current,
-      lastName: lastNameRef.current,
-      tel: telRef.current,
-      email: emailRef.current,
-      address: SelectedAddress,
-      sod: sodRef.current, // 카트에서 온 경우 유니크필드의 결제일자를 sodRef에 대입했고 라이브에서 이동된 경우는 날짜가 들어있음
-      uniqueField: uniqueFieldRef.current,
-      amount: siam1Ref.current,
-      staffName: staffNameRef.current,
-      paymentStatus: Unidentified,
-      deliveryStatus: Unidentified
-    }
-
-    // 주소 라디오 버튼
-    if (SelectedAddress === "") {
-      alert("Please select or enter an address")
-      return;
-    }
-    // 선택된 주소의 수취인 정보를 설정하기
-    if (SelectedAddress === address1Ref.current) {
-      body.receiver = receiver1Ref.current;
-      body.receiverTel = tel1Ref.current;
-    }
-    if (SelectedAddress === address2Ref.current) {
-      body.receiver = receiver2Ref.current;
-      body.receiverTel = tel2Ref.current;
-    }
-    if (SelectedAddress === address3Ref.current) {
-      body.receiver = receiver3Ref.current;
-      body.receiverTel = tel3Ref.current;
-    }
-    if (SelectedAddress === changeAddressRef.current) {
-      // 받는사람
-      if (changeReceiverRef.current === "") {
-        alert("Please enter the recipient's name");
-        return false
-      }
-      // 받는사람의 전화번호
-      if (changeTelRef.current === "") {
-        alert("Please enter the recipient's phone number");
-        return false
-      }
-
-      body.receiver = changeReceiverRef.current;
-      body.receiverTel = changeTelRef.current;
-    }
-    
     try {
-      // 임시 주문정보 저장
-      const tmpOrderResult = await axios.post(`${ORDER_SERVER}/tmpRegister`, body);
-      if (tmpOrderResult.data.success) {
-        // 붙특정 사용자인 경우 임시로 생성한 사용자를 논리삭제(논리삭제 이유는 불특정 사용자로 구매한 금액등을 나중에 계산할수 있기때문에..)
-        if (nameRef.current.substring(0, 9) === "Anonymous") {
-          await axios.post(`${USER_SERVER}/logicalDelete`, { userId: idRef.current });
-          
-          // 쿠키삭제
-          cookies.remove('w_auth');
-          cookies.remove('w_authExp');
-          // 세션삭제
-          sessionStorage.removeItem("userId");
-          sessionStorage.removeItem("userName");
-        }
-      } else {
-        alert("Please contact the administrator");
-        history.push("/");
+      let body = {
+        type: "Wechat",
+        userId: idRef.current,
+        name: nameRef.current,
+        lastName: lastNameRef.current,
+        tel: telRef.current,
+        email: emailRef.current,
+        address: SelectedAddress,
+        sod: sodRef.current, // 카트에서 온 경우 유니크필드의 결제일자를 sodRef에 대입했고 라이브에서 이동된 경우는 날짜가 들어있음
+        uniqueField: uniqueFieldRef.current,
+        amount: siam1Ref.current,
+        staffName: staffNameRef.current,
+        paymentStatus: Unidentified,
+        deliveryStatus: Unidentified
       }
-    } catch (error) {
-      alert("Please contact the administrator");
-      history.push("/");
-    }
-
-    // 라이브에서 이동된 경우 구매상품의 포인트를 누적하기 위해 sod에 포인트를 추가
-    // 라이브도 로그인한 사용자만이 사용할수 있기때문에 포인트 누적이 가능하다
-    let arr = uniqueField.split('_');
-    // 카트페이지에서 오지 않은 경우
-    if (arr[0].trim() !== "cart") {
-      sod = acquisitionPointsRef.current + "_" + sod;
-    }
-
-    // UPC 데이타 전송(위쳇 결제 처리)
-    let wechat_variable = {
-      'sid': sid,
-      'svid': '23',
-      'ptype': '8',
-      'job': 'REQUEST',
-      'rt': '4', // wechat만 있는 항목
-      'sod': sod, // 카트인 경우 포인트, 라이브인 경우는 결제일및 포인트가 들어있음, sodRef는 둘다 결제일을 넣어서 sod 와는 다르다.
-      'tn': telRef.current,
-      'em': emailRef.current,
-      'lang': 'cn',
-      'sinm1': 'Furuokadrug Product',
-      'siam1': siam1Ref.current, // 상품금액
-      'sisf1': '0',
-      'method': 'QR', // wechat만 있는 항목
-      'uniqueField': uniqueFieldRef.current
-    }
-
-    // 화면 중앙정렬
-    var popupWidth = 550;
-    var popupHeight = 915;
-    var popupX = (window.screen.width / 2) - (popupWidth / 2);
-    var popupY= (window.screen.height / 2) - (popupHeight / 2);
-    const settings = 'resizable=no, status=no, height=' + popupHeight  + ', width=' + popupWidth  + ', left='+ popupX + ', top='+ popupY;
-
-    // let url = "https://gw.ccps.jp/payment.aspx";
-    let url = UPC_PAYMENT;
-    Object.keys(wechat_variable).forEach(function(key, index) {
-      url = url + (index === 0 ? "?" : "&") + key + "=" + wechat_variable[key];
-    });
-
-    // UPC 결제 팝업창을 닫는지 1초마다 확인, 닫았을때 화면을 이동 또는 조건에 따라 탭을 종료한다.
-    const openDialog = (url, settings, closeCallback) => {
-      let win = window.open(url, "_blank", settings);
-      interval = window.setInterval(() => {
-        try {
-          if (win == null || win.closed) {
-            window.clearInterval(interval);
-            closeCallback(win);
+  
+      // 주소 라디오 버튼
+      if (SelectedAddress === "") {
+        alert("Please select or enter an address")
+        return;
+      }
+      // 선택된 주소의 수취인 정보를 설정하기
+      if (SelectedAddress === address1Ref.current) {
+        body.receiver = receiver1Ref.current;
+        body.receiverTel = tel1Ref.current;
+      }
+      if (SelectedAddress === address2Ref.current) {
+        body.receiver = receiver2Ref.current;
+        body.receiverTel = tel2Ref.current;
+      }
+      if (SelectedAddress === address3Ref.current) {
+        body.receiver = receiver3Ref.current;
+        body.receiverTel = tel3Ref.current;
+      }
+      if (SelectedAddress === changeAddressRef.current) {
+        // 받는사람
+        if (changeReceiverRef.current === "") {
+          alert("Please enter the recipient's name");
+          return false
+        }
+        // 받는사람의 전화번호
+        if (changeTelRef.current === "") {
+          alert("Please enter the recipient's phone number");
+          return false
+        }
+  
+        body.receiver = changeReceiverRef.current;
+        body.receiverTel = changeTelRef.current;
+      }
+      
+      try {
+        // 임시 주문정보 저장
+        const tmpOrderResult = await axios.post(`${ORDER_SERVER}/tmpRegister`, body);
+        if (tmpOrderResult.data.success) {
+          // 붙특정 사용자인 경우
+          if (nameRef.current.substring(0, 9) === "Anonymous") {
+            // 사용자 삭제
+            await axios.post(`${USER_SERVER}/delete`, {userId : idRef.current});
+            // 쿠키삭제
+            cookies.remove('w_auth');
+            cookies.remove('w_authExp');
+            // 세션삭제
+            sessionStorage.removeItem("userId");
+            sessionStorage.removeItem("userName");
           }
-        } catch (e) {}
-      }, 1000);
-      return win;
-    };
-
-    openDialog(url, settings, async function(win) {
-      // 라이브 스트리밍에서 페이지가 호출된 경우 이 화면은(확인) 팝업으로 뛰어진다 
-      // 기존 라이브 화면을 끊지 말아야 하기때문에 팝업으로 뛰운다
-      // 그래서 UPC의 결제팝업이 닫혀지면 이 창도 닫아서 라이브 화면만 남긴다
-      if (staffName) {
-        // ECSystem에서 온 경우는 "_self"로 원래 화면이 이 화면(확인)으로 바뀐다.
-        // 그래서 아래와 같이 이동이 가능하다 
-        if (staffName === ECSystem) {
-          history.push("/");
         } else {
-          window.close();
+          alert("Please contact the administrator");
         }
+      } catch (err) {
+        alert("Please contact the administrator");
       }
-    });
+  
+      // 라이브에서 이동된 경우 구매상품의 포인트를 누적하기 위해 sod에 포인트를 추가
+      // 라이브도 로그인한 사용자만이 사용할수 있기때문에 포인트 누적이 가능하다
+      let arr = uniqueField.split('_');
+      // 카트페이지에서 오지 않은 경우
+      if (arr[0].trim() !== "cart") {
+        sod = acquisitionPointsRef.current + "_" + sod;
+      }
+  
+      // UPC 데이타 전송(위쳇 결제 처리)
+      let wechat_variable = {
+        'sid': sid,
+        'svid': '23',
+        'ptype': '8',
+        'job': 'REQUEST',
+        'rt': '4', // wechat만 있는 항목
+        'sod': sod, // 카트인 경우 포인트, 라이브인 경우는 결제일및 포인트가 들어있음, sodRef는 둘다 결제일을 넣어서 sod 와는 다르다.
+        'tn': telRef.current,
+        'em': emailRef.current,
+        'lang': 'cn',
+        'sinm1': 'Furuokadrug Product',
+        'siam1': siam1Ref.current, // 상품금액
+        'sisf1': '0',
+        'method': 'QR', // wechat만 있는 항목
+        'uniqueField': uniqueFieldRef.current
+      }
 
-    // 로컬에서 하면 localhost에서 보내는 거라서 UPC에서 거절당한다
-    // 테스트를 하려면 아래와 같이 DB에 직접 데이타를 보내서 해야 한다
-    // ##########################TEST##########################
-    // const paymentResult = axios.get(`${PAYMENT_SERVER}/wechat/register?rst=1&pid=1239&sod=${sodRef.current}&uniqueField=${uniqueField.current}`);
-    // ##########################TEST##########################
+      // 팝업을 전체화면으로 열기
+      const settings = 'resizable=no, status=no, height=' + window.screen.height  + ', width=' + window.screen.width  + ', fullscreen=yes';
+      
+      let url = UPC_PAYMENT;
+      Object.keys(wechat_variable).forEach(function(key, index) {
+        url = url + (index === 0 ? "?" : "&") + key + "=" + wechat_variable[key];
+      });
+  
+      // UPC 결제 팝업창을 닫는지 1초마다 확인, 닫았을때 화면을 이동
+      const openDialog = (url, settings, closeCallback) => {
+        let win = window.open(url, "_blank", settings);
+        interval = window.setInterval(() => {
+          try {
+            if (win == null || win.closed) {
+              window.clearInterval(interval);
+              closeCallback(win);
+            }
+          } catch (e) {}
+        }, 1000);
+        return win;
+      };
+  
+      openDialog(url, settings, async function(win) {
+        // 불특정 사용자가 아닌경우 (붙특정 사용자인 경우 위에서 삭제처리 됨)
+        if (nameRef.current.substring(0, 9) !== "Anonymous") {
+          // 토큰 유효기간 연장
+          await updateTokenExp();
+        }
+        // 초기화면 이동
+        // history.push("/");
+      });
+  
+      // 로컬에서 하면 localhost에서 보내는 거라서 UPC에서 거절당한다
+      // 테스트를 하려면 아래와 같이 DB에 직접 데이타를 보내서 해야 한다
+      // ##########################TEST##########################
+      // const paymentResult = axios.get(`${PAYMENT_SERVER}/wechat/register?rst=1&pid=1239&sod=${sodRef.current}&uniqueField=${uniqueField.current}`);
+      // ##########################TEST##########################  
+
+    } catch (err) {
+      console.log("err: ", err);
+      alert("Please contact the administrator");
+    }
   }
 
   return (
@@ -463,9 +483,14 @@ function ConfirmWechatPage(props) {
         </Form.Item>
         
         <Form.Item {...tailFormItemLayout}>
-          <Button htmlType="submit" type="primary">
-            Send
+          <Button onClick={listHandler}>
+            Landing page
           </Button>
+          {ShowButton &&
+            <Button htmlType="submit" type="primary">
+              Send
+            </Button>
+          }
         </Form.Item>
       </Form>
     </div>

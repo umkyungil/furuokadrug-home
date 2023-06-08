@@ -702,68 +702,78 @@ router.post("/list", (req, res) => {
 
 // 주문정보 상세조회
 router.get('/orders_by_id', (req, res) => {
-  let orderId = req.query.id;
+  try {
+    let orderId = req.query.id;
   
-  Order.find({ _id: orderId })
-    .exec((err, orders) => {
-      if (err) return res.status(400).send(err);
-      return res.status(200).send({success: true, orders});
-    })
+    Order.find({ _id: orderId })
+      .exec((err, orders) => {
+        if (err) return res.status(400).send(err);
+        return res.status(200).send({success: true, orders});
+      })
+  } catch (err) {
+    console.log("err: ", err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
 })
 
 // 주문정보 수정
 router.get("/deliveryStatus", (req, res) => {
-  let orderId = req.query.id;
-  const state = DeliveryCompleted;
+  try {
+    let orderId = req.query.id;
+    const state = DeliveryCompleted;
 
-  Order.updateMany(
-    { _id: orderId }, 
-    { deliveryStatus: state }, 
-    (err, doc) => {
-    if (err) return res.json({ success: false, err });
-    return res.status(200).send({
-        success: true
-    });
-  });
+    Order.updateOne({ _id: orderId }, { deliveryStatus: state }, (err, doc) => {
+      if (err) return res.json({ success: false, err });
+      return res.status(200).send({ success: true });
+    });  
+  } catch (err) {
+    console.log("err: ", err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 // 주문정보 삭제
 router.post('/delete', (req, res) => {
-  let orderId = req.body.orderId;
-  let uniqueField = req.body.uniqueField;
-  let type = req.body.type;
+  try {
+    let orderId = req.body.orderId;
+    let uniqueField = req.body.uniqueField;
+    let type = req.body.type;
 
-  Sale.deleteOne({_id: saleId})
-        .then((deletedCount)=>{
-            return res.status(200).send({success: true, deletedCount});
-        }, (err)=>{
-            if (err) return res.status(400).send(err);
-        })
+    Sale.deleteOne({_id: saleId})
+      .then((deletedCount)=>{
+          return res.status(200).send({success: true, deletedCount});
+      }, (err)=>{
+          if (err) return res.status(400).send(err);
+      })
   
-  Order.deleteOne({ _id: orderId })
-    .then((orderDeletedCount)=>{
-      // 결제정보 삭제
-      if (type === "Alipay") {
-        Alipay.deleteOne({ uniqueField: uniqueField }
-          .then((deletedCount)=>{
-            console.log("AliPay remove success");
-          }, (err)=>{
-            if (err) return res.status(400).json({success: false, err});
-          })
-        )         
-      } else if (type === "Wechat") {
-        Wechat.deleteOne({ uniqueField: uniqueField }
-          .then((deletedCount)=>{
-            console.log("WeChat remove success");
-          }, (err)=>{
-            if (err) return res.status(400).json({success: false, err});
-          })
-        )         
-      }
-      return res.status(200).send({success: true, orderDeletedCount});
-    }, (err)=>{
-      if (err) return res.status(400).send(err);
-    })
+    Order.deleteOne({ _id: orderId })
+      .then((orderDeletedCount)=>{
+        // 결제정보 삭제
+        if (type === "Alipay") {
+          Alipay.deleteOne({ uniqueField: uniqueField }
+            .then((deletedCount)=>{
+              console.log("AliPay remove success");
+            }, (err)=>{
+              if (err) return res.status(400).json({success: false, err});
+            })
+          )         
+        } else if (type === "Wechat") {
+          Wechat.deleteOne({ uniqueField: uniqueField }
+            .then((deletedCount)=>{
+              console.log("WeChat remove success");
+            }, (err)=>{
+              if (err) return res.status(400).json({success: false, err});
+            })
+          )         
+        }
+        return res.status(200).send({success: true, orderDeletedCount});
+      }, (err)=>{
+        if (err) return res.status(400).send(err);
+      })
+  } catch (err) {
+    console.log("err: ", err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
 })
 
 module.exports = router;

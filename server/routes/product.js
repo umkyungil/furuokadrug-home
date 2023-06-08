@@ -13,33 +13,38 @@ const { MAIN_CATEGORY, AWS_S3, AWS_BUCKET_NAME } = require("../config/const");
 
 // 파일 업로드에서 AWS에 이미지 등록하기
 router.post('/image', async (req, res) => {
-  // AWS정보 가져오기
-  const s3Info = await Code.findOne({ code: AWS_S3 });
-  const s3Object = new AWS_SDK.S3({
-    accessKeyId: s3Info.value1,
-    secretAccessKey: s3Info.value2,
-    region: s3Info.value3
-  });
+  try {
+    // AWS정보 가져오기
+    const s3Info = await Code.findOne({ code: AWS_S3 });
+    const s3Object = new AWS_SDK.S3({
+      accessKeyId: s3Info.value1,
+      secretAccessKey: s3Info.value2,
+      region: s3Info.value3
+    });
 
-  // AWS 이미지 등록
-  const s3Upload = multer({
-    storage: multerS3({
-      s3: s3Object,
-      bucket: AWS_BUCKET_NAME,
-      metadata: function (req, file, cb) {
-        cb(null, { fieldName: file.fieldname});
-      },
-      key: function (req, file, cb) {
-        cb(null, `${ Date.now()}_${file.originalname }`);
-      },
-    }),
-  });
-  
-  const uploadSingle = s3Upload.single("file");
-  uploadSingle(req, res, err => {
-    if(err) return res.json({success: false, err});
-    return res.json({ success: true, filePath: res.req.file.location});
-  })
+    // AWS 이미지 등록
+    const s3Upload = multer({
+      storage: multerS3({
+        s3: s3Object,
+        bucket: AWS_BUCKET_NAME,
+        metadata: function (req, file, cb) {
+          cb(null, { fieldName: file.fieldname});
+        },
+        key: function (req, file, cb) {
+          cb(null, `${ Date.now()}_${file.originalname }`);
+        },
+      }),
+    });
+    
+    const uploadSingle = s3Upload.single("file");
+    uploadSingle(req, res, err => {
+      if(err) return res.json({success: false, err});
+      return res.json({ success: true, filePath: res.req.file.location});
+    })  
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
 })
 
 // 상품 등록(이미지 경로포함)

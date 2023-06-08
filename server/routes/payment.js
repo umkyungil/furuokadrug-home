@@ -454,198 +454,210 @@ router.get('/wechat/register', async (req, res) => {
 
 // 포인트 계산 및 이력관리
 const calcPoint = (userId, name, lastName, currentDate, oneYearDate, productPoint, pointToUse) => {
-  // 포인트 누적할 항목 설정
-  let dataToSubmit = {
-    "userId": userId,
-    "userName": name,
-    "userLastName": lastName,
-    "point": productPoint, // 취득한 포인트
-    "remainingPoints": productPoint, // 취득한 포인트
-    "usePoint": 0,
-    "dspUsePoint": 0,
-    "validFrom": currentDate,
-    "validTo": oneYearDate,
-    "dateUsed":''
-  }
+  try {
+    // 포인트 누적할 항목 설정
+    let dataToSubmit = {
+      "userId": userId,
+      "userName": name,
+      "userLastName": lastName,
+      "point": productPoint, // 취득한 포인트
+      "remainingPoints": productPoint, // 취득한 포인트
+      "usePoint": 0,
+      "dspUsePoint": 0,
+      "validFrom": currentDate,
+      "validTo": oneYearDate,
+      "dateUsed":''
+    }
 
-  // 포인트 등록
-  savePoint(dataToSubmit)
+    // 포인트 등록
+    savePoint(dataToSubmit)
 
-  // 사용자가 보유하는 포인트 가져오기 (남은포인트가 0보다 큰 데이타)
-  Point.find({ "userId": userId, "remainingPoints": { $gt: 0 }})
-  .sort({ "validTo": 1 }) // 유효기간To가 가까운것부터 정렬(내림차순)
-  .exec((err, points) => {
-    if (err) {
-      console.log("Point calculation failed: ", err);
-      return false;
-    } else {
+    // 사용자가 보유하는 포인트 가져오기 (남은포인트가 0보다 큰 데이타)
+    Point.find({ "userId": userId, "remainingPoints": { $gt: 0 }})
+    .sort({ "validTo": 1 }) // 유효기간To가 가까운것부터 정렬(내림차순)
+    .exec((err, points) => {
+      if (err) {
+        console.log("Point calculation failed: ", err);
+        return false;
+      } else {
 
-      // 유효기간 내의 사용할수 있는 포인트만 추출
-      let pointInfos = [];
-      let current = new Date(currentDate.substring(0, 10));
+        // 유효기간 내의 사용할수 있는 포인트만 추출
+        let pointInfos = [];
+        let current = new Date(currentDate.substring(0, 10));
 
-      for (let i=0; i<points.length; i++) {
-        let from = points[i].validFrom;
-        let to = points[i].validTo;
-        let validFrom = new Date(from.toISOString().substring(0, 10))
-        let validTo = new Date(to.toISOString().substring(0, 10))
+        for (let i=0; i<points.length; i++) {
+          let from = points[i].validFrom;
+          let to = points[i].validTo;
+          let validFrom = new Date(from.toISOString().substring(0, 10))
+          let validTo = new Date(to.toISOString().substring(0, 10))
 
-        if ((validFrom <= current) && (current <=  validTo)) {
-          pointInfos.push(points[i]);
+          if ((validFrom <= current) && (current <=  validTo)) {
+            pointInfos.push(points[i]);
+          }
         }
-      }
 
-      for (let i=0; i<pointInfos.length; i++) {
-        // 첫번째 레코드는 사용자가 입력한 포인트로 계산을 한다
-        if (i===0) {
-          // 한번도 사용하지 않은 포인트인 경우
-          if (pointInfos[i].dateUsed) {
-            const remainingPoints = pointInfos[i].remainingPoints;
+        for (let i=0; i<pointInfos.length; i++) {
+          // 첫번째 레코드는 사용자가 입력한 포인트로 계산을 한다
+          if (i===0) {
+            // 한번도 사용하지 않은 포인트인 경우
+            if (pointInfos[i].dateUsed) {
+              const remainingPoints = pointInfos[i].remainingPoints;
 
-            // 기존 포인트 - 사용자가 입력한 포인트(항상 [양수 - 양수] 이기에 그대로 계산 가능)
-            let tmp = remainingPoints - pointToUse;
+              // 기존 포인트 - 사용자가 입력한 포인트(항상 [양수 - 양수] 이기에 그대로 계산 가능)
+              let tmp = remainingPoints - pointToUse;
 
+              if(tmp < 0) {
+                // ****다음 레코드에서 포인트를 계산을 하기 위해 pointInfos[i] 배열에 값을 대입한다. **** //
+                // 포인트를 계산한 값
+                pointInfos[i].usePoint = tmp;
+                // 포인트를 전부 사용했기에 원래 가지고 있던 포인트 대입(화면 노출)
+                pointInfos[i].dspUsePoint = remainingPoints;
+                // 포인트 업데이트
+                updatePoint(pointInfos[i]._id, remainingPoints, tmp, 0, currentDate);
+                
+              } else {
+                // 포인트 업데이트
+                updatePoint(pointInfos[i]._id, pointToUse, tmp, tmp, currentDate);
+                // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
+                break;
+              }
+            // 한번이상 사용해서 남은 잔 포인트가 있는 경우
+            } else {
+              // 기존 레코드의 나머지 금액을 0으로 업데이트
+              Point.findOneAndUpdate(
+                { _id: pointInfos[i]._id },
+                { $set: { remainingPoints: 0 }},
+                { new: true },
+                (err, pointInfo) => {
+                  if(err) {
+                    console.log(err);
+                    return false;
+                  }
+                }
+              )
+
+              // 기존 레코드를 복사
+              let dataToSubmit = {
+                seq: pointInfos[i].seq,
+                subSeq: pointInfos[i].subSeq + 1,
+                userId: pointInfos[i].userId,
+                userName: pointInfos[i].userName,
+                userLastName: pointInfos[i].userLastName,
+                point: pointInfos[i].point,
+                validFrom: pointInfos[i].validFrom,
+                validTo: pointInfos[i].validTo
+              }
+              
+              const remainingPoints = pointInfos[i].remainingPoints;
+              // 기존 포인트 - 사용자가 입력한 포인트
+              let tmp = remainingPoints - pointToUse; 
+
+              if(tmp < 0) {
+                // 가지고 온 포인트 정보의 사용자 포인트를 계산된 값으로 수정
+                pointInfos[i].usePoint = tmp;
+
+                dataToSubmit.usePoint = tmp;
+                dataToSubmit.dspUsePoint = remainingPoints;
+                dataToSubmit.remainingPoints = 0;
+                dataToSubmit.dateUsed = currentDate;
+
+                // 포인트 등록
+                const point = new Point(dataToSubmit);
+                point.save((err, doc) => {
+                  if(err) {
+                    console.log(err);
+                    return false;
+                  }
+                });
+              } else {
+                dataToSubmit.usePoint = tmp;
+                dataToSubmit.dspUsePoint = pointToUse;
+                dataToSubmit.remainingPoints = tmp;
+                dataToSubmit.dateUsed = currentDate;
+
+                // 포인트 등록
+                const point = new Point(dataToSubmit);
+                point.save((err, doc) => {
+                  if(err) {
+                    console.log(err);
+                    return false;
+                  }
+                });
+
+                // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
+                break;
+              }    
+            }
+          } else {
+            let usePoint = Math.abs(pointInfos[i-1].usePoint);
+            let remainingPoints = pointInfos[i].remainingPoints;
+
+            let tmp = 0;
+            // 전 레코드의 usePoint: 음수, 현재 레코드의 point: 양수 <- 이 조건만 있을수 있다  
+            if (usePoint <= remainingPoints) {
+              tmp = remainingPoints - usePoint; // 포인트가 남거나 0이 되기때문에 현재 레코드에서 계산이 종료되는 경우
+            } else {
+              tmp = (usePoint - remainingPoints) * -1; // 포인트가 부족해서 다음 레코드에서 계산을 해야 하는경우
+            }
+              
             if(tmp < 0) {
-              // ****다음 레코드에서 포인트를 계산을 하기 위해 pointInfos[i] 배열에 값을 대입한다. **** //
-              // 포인트를 계산한 값
+              // 전 레코드의 계산된 포인트로 가지고 온 포인트 정보의 사용자 포인트를 계산된 값으로 수정
               pointInfos[i].usePoint = tmp;
-              // 포인트를 전부 사용했기에 원래 가지고 있던 포인트 대입(화면 노출)
-              pointInfos[i].dspUsePoint = remainingPoints;
               // 포인트 업데이트
               updatePoint(pointInfos[i]._id, remainingPoints, tmp, 0, currentDate);
-              
             } else {
               // 포인트 업데이트
-              updatePoint(pointInfos[i]._id, pointToUse, tmp, tmp, currentDate);
+              updatePoint(pointInfos[i]._id, usePoint, tmp, tmp, currentDate)
               // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
               break;
             }
-          // 한번이상 사용해서 남은 잔 포인트가 있는 경우
-          } else {
-            // 기존 레코드의 나머지 금액을 0으로 업데이트
-            Point.findOneAndUpdate(
-              { _id: pointInfos[i]._id },
-              { $set: { remainingPoints: 0 }},
-              { new: true },
-              (err, pointInfo) => {
-                if(err) {
-                  console.log(err);
-                  return false;
-                }
-              }
-            )
-
-            // 기존 레코드를 복사
-            let dataToSubmit = {
-              seq: pointInfos[i].seq,
-              subSeq: pointInfos[i].subSeq + 1,
-              userId: pointInfos[i].userId,
-              userName: pointInfos[i].userName,
-              userLastName: pointInfos[i].userLastName,
-              point: pointInfos[i].point,
-              validFrom: pointInfos[i].validFrom,
-              validTo: pointInfos[i].validTo
-            }
-            
-            const remainingPoints = pointInfos[i].remainingPoints;
-            // 기존 포인트 - 사용자가 입력한 포인트
-            let tmp = remainingPoints - pointToUse; 
-
-            if(tmp < 0) {
-              // 가지고 온 포인트 정보의 사용자 포인트를 계산된 값으로 수정
-              pointInfos[i].usePoint = tmp;
-
-              dataToSubmit.usePoint = tmp;
-              dataToSubmit.dspUsePoint = remainingPoints;
-              dataToSubmit.remainingPoints = 0;
-              dataToSubmit.dateUsed = currentDate;
-
-              // 포인트 등록
-              const point = new Point(dataToSubmit);
-              point.save((err, doc) => {
-                if(err) {
-                  console.log(err);
-                  return false;
-                }
-              });
-            } else {
-              dataToSubmit.usePoint = tmp;
-              dataToSubmit.dspUsePoint = pointToUse;
-              dataToSubmit.remainingPoints = tmp;
-              dataToSubmit.dateUsed = currentDate;
-
-              // 포인트 등록
-              const point = new Point(dataToSubmit);
-              point.save((err, doc) => {
-                if(err) {
-                  console.log(err);
-                  return false;
-                }
-              });
-
-              // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
-              break;
-            }    
-          }
-        } else {
-          let usePoint = Math.abs(pointInfos[i-1].usePoint);
-          let remainingPoints = pointInfos[i].remainingPoints;
-
-          let tmp = 0;
-          // 전 레코드의 usePoint: 음수, 현재 레코드의 point: 양수 <- 이 조건만 있을수 있다  
-          if (usePoint <= remainingPoints) {
-            tmp = remainingPoints - usePoint; // 포인트가 남거나 0이 되기때문에 현재 레코드에서 계산이 종료되는 경우
-          } else {
-            tmp = (usePoint - remainingPoints) * -1; // 포인트가 부족해서 다음 레코드에서 계산을 해야 하는경우
-          }
-            
-          if(tmp < 0) {
-            // 전 레코드의 계산된 포인트로 가지고 온 포인트 정보의 사용자 포인트를 계산된 값으로 수정
-            pointInfos[i].usePoint = tmp;
-            // 포인트 업데이트
-            updatePoint(pointInfos[i]._id, remainingPoints, tmp, 0, currentDate);
-          } else {
-            // 포인트 업데이트
-            updatePoint(pointInfos[i]._id, usePoint, tmp, tmp, currentDate)
-            // [기존 포인트 > 사용자가 입력한 포인트] 인 경우 포인트계산 종료
-            break;
           }
         }
       }
-    }
-  });
+    });  
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 const savePoint  = (dataToSubmit)  => {
-  // 카운트를 중가시키고 포인트 저장
-  Counter.findOneAndUpdate(
-    { "name": "point" },
-    { $inc: { "seq": 1 }},
-    { new: true },
-    (err, countInfo) => {
-      if(err) {
-        console.log(err);
-      } else {
-        // 포인트의 seq에 카운트에서 가져온 일련번호를 대입해서 포인트를 생성 
-        dataToSubmit.seq = countInfo.seq; 
-        const point = new Point(dataToSubmit);
-        point.save((err, doc) => {
-          if (err) console.log(err);
-        });
+  try {
+    // 카운트를 중가시키고 포인트 저장
+    Counter.findOneAndUpdate(
+      { "name": "point" },
+      { $inc: { "seq": 1 }},
+      { new: true },
+      (err, countInfo) => {
+        if(err) {
+          console.log(err);
+        } else {
+          // 포인트의 seq에 카운트에서 가져온 일련번호를 대입해서 포인트를 생성 
+          dataToSubmit.seq = countInfo.seq; 
+          const point = new Point(dataToSubmit);
+          point.save((err, doc) => {
+            if (err) console.log(err);
+          });
+        }
       }
-    }
-  )
+    )
+  } catch (err) {
+    console.log("err: ", err);
+  }
 }
 
 const updatePoint = (tmp1, tmp2, tmp3, tmp4, tmp5) => {
-  Point.findOneAndUpdate(
-    { _id: tmp1 },
-    { $set: { dspUsePoint: tmp2, usePoint: tmp3, remainingPoints: tmp4, dateUsed: tmp5 }},
-    { new: true },
-    (err, pointInfo) => {
-      if(err) console.log(err);
-    }
-  )
+  try {
+    Point.findOneAndUpdate(
+      { _id: tmp1 },
+      { $set: { dspUsePoint: tmp2, usePoint: tmp3, remainingPoints: tmp4, dateUsed: tmp5 }},
+      { new: true },
+      (err, pointInfo) => {
+        if(err) console.log(err);
+      }
+    )  
+  } catch (err) {
+    console.log("err: ", err); 
+  }
 }
 
 // Alipay 결제결과 조회

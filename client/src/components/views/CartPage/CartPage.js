@@ -28,7 +28,6 @@ function CartPage(props) {
   const [CouponAmount, setCouponAmount] = useState(0); // 쿠폰타입에 의해 계산된 할인금액
   const [ShowTotal, setShowTotal] = useState(false);
   const [ShowSuccess, setShowSuccess] = useState(false);
-  const [ShowPoint, setShowPoint] = useState(true);
   
   const showSaleTotalRef = useRef(false); // 세일금액 표시(화면이 리로드되도 저장됨)
   const saleTotalDiscountAmount = useRef(0);
@@ -73,31 +72,17 @@ function CartPage(props) {
     // 리덕스 User state안에 cart 안에 상품이 들어있는지 확인
     if (props.user.userData && props.user.userData.cart) {
       if (props.user.userData.cart.length > 0) {
-
-        // 불특정 사용자인지 확인
-        // if (props.user.userData.role === 3) {
-          // 불특정 사용자인 경우 포인트입력 항목을 보여주지 않을 예정이었으나 현재는 입력못하게 하고 사용하지 않고 있음)
-          // setShowPoint(false); 
-        // }
-        
-        // 사용자의 사용가능 포인트 재 계산
-        // const myPoint = getCalcPoint(props.user.userData._id);
-        // myPoint.then(totalPoint => {
-        //   // 현재 보유포인트
-        //   setMyPoint(totalPoint);
-        //   setAvailablePoints(totalPoint);
-        // });
-
         // 사용자의 유효기간 내의 사용가능한 포인트 가져오기
         const myPoint = await getCalcPoint(props.user.userData._id);
         setMyPoint(myPoint);
         setAvailablePoints(myPoint);
 
-        // 상품의 ID를 가지고온다
+        // 카트의 상품의 ID를 가지고온다
         props.user.userData.cart.forEach(item => {
           cartItems.push(item.id);
         });
 
+        // 하나 이상의 상품정보에 수량을 포함해서 가져오기
         // 1번째 파라메터는 사용자의 카트정보의 상품의 ID
         // 2번째 파라메터는 사용자의 카트정보
         dispatch(getCartItems(cartItems, props.user.userData.cart))
@@ -439,11 +424,12 @@ function CartPage(props) {
   async function getCalcPoint(userId) {
     try {
       let totalPoint = 0;
+      // 사용자 아이디로 포인트 테이블에서 포인트 가져오기
       const result = await axios.get(`${POINT_SERVER}/users_by_id?id=${userId}`);
         
       if (result.data.success) {
         let pointInfos = result.data.pointInfos;
-
+        // 유효기간 내의 사용가능한 포인트 합산
         for (let i=0; i<pointInfos.length; i++) {
           totalPoint += pointInfos[i].remainingPoints;
         }
@@ -542,8 +528,7 @@ function CartPage(props) {
 
         // AliPay 결제 확인페이지 이동
         const tmpPaymentId = response.payload.payment._id;
-        let url = '/payment/alipay/confirm/';
-        goPaymentConfirm(tmpPaymentId, grantPoint, url);
+        goPaymentConfirm(tmpPaymentId, grantPoint, 'alipay');
       }
     })
   } 
@@ -567,15 +552,13 @@ function CartPage(props) {
 
         // WeChat 결제 확인페이지 이동
         const tmpPaymentId = response.payload.payment._id;
-        let url = '/payment/wechat/confirm/'
-
-        goPaymentConfirm(tmpPaymentId, grantPoint, url);
+        goPaymentConfirm(tmpPaymentId, grantPoint, 'wechat');
       }
     })
   }
 
   // ECSystem 확인페이지에 이동(UPC 확인페이지에 넘길 정보 설정)
-  const goPaymentConfirm = (tmpPaymentId, grantPoint, upcUrl) => {
+  const goPaymentConfirm = (tmpPaymentId, grantPoint, paymentType) => {
     let dateInfo = new Date();
     const sod = 'cart_' + UsePoint + '_' + AcquisitionPoints + '_' + grantPoint; // Cart페이지 에서 결제할때는 sod에 포인트를 대입한다
     let uniqueDate = dateInfo.getFullYear() + "-" + (dateInfo.getMonth() + 1) + "-" + dateInfo.getDate() + " " + dateInfo.getHours() + ":" + dateInfo.getMinutes();
@@ -585,18 +568,14 @@ function CartPage(props) {
     const sid = SID;
     const siam1 = FinalTotal;
 
-    const url = upcUrl + loginUserId + '/' + sid + '/' + sod + '/' + siam1 + '/' + uniqueField + '/' + staffName;
-    window.open(url, '_self');
-
-    // 자신의 페이지는 닫는다
-    // close();
+    if (paymentType === 'alipay') {
+      history.push(`/payment/alipay/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${staffName}/`);
+    } else if (paymentType === 'wechat') {
+      history.push(`/payment/wechat/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${staffName}/`);
+    } else {
+      alert("Please contact the administrator");
+    }
   }
-
-  // const close = () => {
-  //   window.open('', '_self', '');
-  //   window.close();
-  //   return false;
-  // }
 
   // 포인트 입력창
   const pointInputHandler = (e) => {

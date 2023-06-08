@@ -133,9 +133,9 @@ export function addToCart(id){
     }
 }
 
-// 카트에 표시할 상품정보 취득
+// 카트에 표시할 상품정보를 가져오기
 export function getCartItems(cartItems, userCart) {
-    // 상품을 한개이상 가지고 와야 하기때문에 type=array
+    // 하나 이상의 상품정보를 가지고 와야 하기때문에 type=array를 지정
     const request = axios.get(`${PRODUCT_SERVER}/products_by_id?id=${cartItems}&type=array`)
         .then(response => {
             // CartItem들에 해당하는 상품정보들을 가져온후에

@@ -200,19 +200,21 @@ function ProductListPage(props) {
 			body.id = localStorage.getItem('userId');
 			const response =  await axios.post(`${PRODUCT_SERVER}/list`, body);
 			const products = response.data;
+
+			console.log("products: ", products);
 			
 			if (products.success) {
 				if (isLanguage === I18N_JAPANESE) {
-					for (let i=0; i<products.productInfos.length; i++) {
-						products.productInfos[i].title = products.productInfos[i].japaneseTitle;
+					for (let i=0; i<products.productInfo.length; i++) {
+						products.productInfo[i].title = products.productInfo[i].japaneseTitle;
 					}
 				} else if (isLanguage === I18N_CHINESE) {
-					for (let i=0; i<products.productInfos.length; i++) {
-						products.productInfos[i].title = products.productInfos[i].chineseTitle;
+					for (let i=0; i<products.productInfo.length; i++) {
+						products.productInfo[i].title = products.productInfo[i].chineseTitle;
 					}
 				} else {
-					for (let i=0; i<products.productInfos.length; i++) {
-						products.productInfos[i].title = products.productInfos[i].englishTitle;
+					for (let i=0; i<products.productInfo.length; i++) {
+						products.productInfo[i].title = products.productInfo[i].englishTitle;
 					}
 				}	
 				

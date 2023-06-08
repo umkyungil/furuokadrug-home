@@ -253,6 +253,9 @@ function RightMenu(props) {
             <Menu.Item key="live">
               <a href="/live" style={{color: 'white'}}>Live Streaming</a>
             </Menu.Item>
+            <Menu.Item key="jitSi">
+              <a href="/jitSi" style={{color: 'white'}}>JitSi meet</a>
+            </Menu.Item> 
             <SubMenu title={<span style={{color: 'white'}}>User</span>}>
               <Menu.Item key="userRegister">
                 <a href="/register">User Reg</a>

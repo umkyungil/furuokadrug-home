@@ -85,8 +85,7 @@ router.post('/delete', (req, res) => {
 
 // 고객정보 수정
 router.post("/update", (req, res) => {
-    Customer.updateMany(
-        { _id: req.body.id }, 
+    Customer.updateOne({ _id: req.body.id }, 
         { 
             smaregiId: req.body.smaregiId, 
             name: req.body.name,
@@ -99,9 +98,7 @@ router.post("/update", (req, res) => {
             point:req.body.point
         }, (err, doc) => {
         if (err) return res.json({ success: false, err });
-        return res.status(200).send({
-            success: true
-        });
+        return res.status(200).send({ success: true });
     });
 });
 
