@@ -50,6 +50,9 @@ function UserUpdatePage(props) {
   const [Address1, setAddress1] = useState("");
   const [Address2, setAddress2] = useState("");
   const [Address3, setAddress3] = useState("");
+  const [Zip1, setZip1] = useState("");
+  const [Zip2, setZip2] = useState("");
+  const [Zip3, setZip3] = useState("");
   const [Receiver1, setReceiver1] = useState("");
   const [Receiver2, setReceiver2] = useState("");
   const [Receiver3, setReceiver3] = useState("");
@@ -83,6 +86,9 @@ function UserUpdatePage(props) {
         setAddress1(userInfo.address1);
         setAddress2(userInfo.address2);
         setAddress3(userInfo.address3);
+        setZip1(userInfo.zip1);
+        setZip2(userInfo.zip2);
+        setZip3(userInfo.zip3);
         setReceiver1(userInfo.receiver1);
         setReceiver2(userInfo.receiver2);
         setReceiver3(userInfo.receiver3);
@@ -104,45 +110,54 @@ function UserUpdatePage(props) {
       alert("Please contact the administrator");
     }
   }
-  // 핸들러
-  const nameHandler = (event) => {
-    setName(event.target.value);
+
+  const nameHandler = (e) => {
+    setName(e.target.value);
   }
-  const lastNameHandler = (event) => {
-    setLastName(event.target.value);
+  const lastNameHandler = (e) => {
+    setLastName(e.target.value);
   }
-  const birthdayHandler = (event) => {
-    setBirthday(event.target.value);
+  const birthdayHandler = (e) => {
+    setBirthday(e.target.value);
   }
-  const telHandler = (event) => {
-    setTel(event.target.value);
+  const telHandler = (e) => {
+    setTel(e.target.value);
   }  
-  const address1Handler = (event) => {
-    setAddress1(event.target.value);
+  const address1Handler = (e) => {
+    setAddress1(e.target.value);
   }
-  const address2Handler = (event) => {
-    setAddress2(event.target.value);
+  const address2Handler = (e) => {
+    setAddress2(e.target.value);
   }
-  const address3Handler = (event) => {
-    setAddress3(event.target.value);
+  const address3Handler = (e) => {
+    setAddress3(e.target.value);
   }
-  const receiver1Handler = (event) => {
-    setReceiver1(event.target.value);
+  const zip1Handler = (e) => {
+    setZip1(e.target.value);
   }
-  const receiver2Handler = (event) => {
-    setReceiver2(event.target.value);
+  const zip2Handler = (e) => {
+    setZip2(e.target.value);
   }
-  const receiver3Handler = (event) => {
-    setReceiver3(event.target.value);
+  const zip3Handler = (e) => {
+    setZip3(e.target.value);
   }
-  const tel1Handler = (event) => {
-    setTel1(event.target.value);
+  const receiver1Handler = (e) => {
+    setReceiver1(e.target.value);
   }
-  const tel2Handler = (event) => {
-    setTel2(event.target.value);
+  const receiver2Handler = (e) => {
+    setReceiver2(e.target.value);
   }
-  const tel3Handler = (event) => {
-    setTel3(event.target.value);
+  const receiver3Handler = (e) => {
+    setReceiver3(e.target.value);
+  }
+  const tel1Handler = (e) => {
+    setTel1(e.target.value);
+  }
+  const tel2Handler = (e) => {
+    setTel2(e.target.value);
+  }
+  const tel3Handler = (e) => {
+    setTel3(e.target.value);
   }
   const roleHandler = (value) => {
     setRole(value);
@@ -183,6 +198,11 @@ function UserUpdatePage(props) {
       alert("Address is required");
       return false;
     }
+    console.log("Zip code: ", Zip1);
+    if (Zip1 === "") {
+      alert("Zip code is required");
+      return false;
+    }
     if (Receiver1 === "") {
       alert("Receiver is required");
       return false;
@@ -193,17 +213,14 @@ function UserUpdatePage(props) {
     }
     if (Birthday.length !== 8) {
       alert("Must be exactly 8 characters");
-      // setSubmitting(false);
       return false;
     }
-    if (Number(Birthday)) {
+    if (!Number(Birthday)) {
       alert("Only numbers can be entered for the birthday");
-      // setSubmitting(false);
       return false;
     }
     if (Number(Birthday) < 1) {
       alert("Only positive numbers can be entered for the birthday");
-      // setSubmitting(false);
       return false;
     }
 
@@ -214,12 +231,15 @@ function UserUpdatePage(props) {
       birthday: Birthday,
       tel: Tel,
       address1: Address1,
+      zip1: Zip1,
       receiver1: Receiver1,
       tel1: Tel1,
       address2: Address2,
+      zip2: Zip2,
       receiver2: Receiver2,
       tel2: Tel2,
       address3: Address3,
+      zip3: Zip3,
       receiver3: Receiver3,
       tel3: Tel3,
       role: Role,
@@ -238,8 +258,7 @@ function UserUpdatePage(props) {
   };
 
   return (
-    <Formik
-    >
+    <Formik>
       {props => {
         const { isSubmitting, handleBlur, handleSubmit, } = props;
         return (
@@ -251,11 +270,11 @@ function UserUpdatePage(props) {
             <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 성명 */}
               <Form.Item required label={t('User.name')} style={{ marginBottom: 0, }} >
-                {/* 성 */}
+                {/* 이름 */}
                 <Form.Item name="name" required style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
                   <Input id="name" placeholder="Enter the user's name" type="text" value={Name} onChange={nameHandler} onBlur={handleBlur} />
                 </Form.Item>
-                {/* 이름 */}
+                {/* 성 */}
                 <Form.Item name="lastName" required style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
                   <Input id="lastName" placeholder="Enter your Last Name" type="text" value={LastName} onChange={lastNameHandler} onBlur={handleBlur} />
                 </Form.Item>
@@ -264,7 +283,8 @@ function UserUpdatePage(props) {
               <Form.Item required label={t('User.birth')}>
                 <Input id="birthday" placeholder="ex) 19700911" type="text" value={Birthday} onChange={birthdayHandler} onBlur={handleBlur} />
               </Form.Item>
-              {/* 전화 */}
+              {/* 메일주소는 변경을 못하게 하기 위해 화면에 표시 안한다 */}
+              {/* 전화번호 */}
               <Form.Item required label={t('User.tel')}>
                 <Input id="tel" placeholder="Enter the user's phone number" type="text" value={Tel} onChange={telHandler} onBlur={handleBlur} />
               </Form.Item>
@@ -274,12 +294,16 @@ function UserUpdatePage(props) {
               </Form.Item>
               {/* 배송지 주소1 상세*/}
               <Form.Item required label={t('SignUp.addressDetail1')} style={{ marginBottom: 0, }} >
+                {/* 우편번호1 */}
+                <Form.Item name="zip1" required style={{ display: 'inline-block', width: '32%'}} >
+                  <Input id="zip1" placeholder="Zip code" type="text" value={Zip1} onChange={zip1Handler} onBlur={handleBlur} />
+                </Form.Item>
                 {/* 받는사람 이름1 */}
-                <Form.Item name="receiver1" required style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
+                <Form.Item name="receiver1" required style={{ display: 'inline-block', width: '32%', margin: '0 4px' }} >
                   <Input id="receiver1" placeholder="Receiver" type="text" value={Receiver1} onChange={receiver1Handler} onBlur={handleBlur} />
                 </Form.Item>
                 {/* 받는사람 전화번호1 */}
-                <Form.Item name="tel1" required style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
+                <Form.Item name="tel1" required style={{ display: 'inline-block', width: '32%', margin: '0 1px', }} >
                   <Input id="tel1" placeholder="Phone number" type="text" value={Tel1} onChange={tel1Handler} onBlur={handleBlur} />
                 </Form.Item>
               </Form.Item>
@@ -289,12 +313,16 @@ function UserUpdatePage(props) {
               </Form.Item>
               {/* 배송지 주소2 상세*/}
               <Form.Item label={t('SignUp.addressDetail2')} style={{ marginBottom: 0, }} >
+                {/* 우편번호2 */}
+                <Form.Item name="zip2" required style={{ display: 'inline-block', width: '32%'}} >
+                  <Input id="zip2" placeholder="Zip code" type="text" value={Zip2} onChange={zip2Handler} onBlur={handleBlur} />
+                </Form.Item>
                 {/* 받는사람 이름2 */}
-                <Form.Item name="receiver2" style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
+                <Form.Item name="receiver2" style={{ display: 'inline-block', width: '32%', margin: '0 4px' }} >
                   <Input id="receiver2" placeholder="Receiver" type="text" value={Receiver2} onChange={receiver2Handler} onBlur={handleBlur} />
                 </Form.Item>
                 {/* 받는사람 전화번호2 */}
-                <Form.Item name="tel2" style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
+                <Form.Item name="tel2" style={{ display: 'inline-block', width: '32%', margin: '0 1px', }} >
                   <Input id="tel2" placeholder="Phone number" type="text" value={Tel2} onChange={tel2Handler} onBlur={handleBlur} />
                 </Form.Item>
               </Form.Item>
@@ -304,12 +332,16 @@ function UserUpdatePage(props) {
               </Form.Item>
               {/* 배송지 주소3 상세 */}
               <Form.Item label={t('SignUp.addressDetail3')} style={{ marginBottom: 0, }} >
+                {/* 우편번호3 */}
+                <Form.Item name="zip3" required style={{ display: 'inline-block', width: '32%'}} >
+                  <Input id="zip3" placeholder="Zip code" type="text" value={Zip3} onChange={zip3Handler} onBlur={handleBlur} />
+                </Form.Item>
                 {/* 받는사람 이름3 */}
-                <Form.Item name="receiver3" style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
+                <Form.Item name="receiver3" style={{ display: 'inline-block', width: '32%', margin: '0 4px' }} >
                   <Input id="receiver3" placeholder="Receiver" type="text" value={Receiver3} onChange={receiver3Handler} onBlur={handleBlur} />
                 </Form.Item>
                 {/* 받는사람 전화번호3 */}
-                <Form.Item name="tel3" style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px'}} >
+                <Form.Item name="tel3" style={{ display: 'inline-block', width: '32%', margin: '0 1px'}} >
                   <Input id="tel3" placeholder="Phone number" type="text" value={Tel3} onChange={tel3Handler} onBlur={handleBlur} />
                 </Form.Item>
               </Form.Item>

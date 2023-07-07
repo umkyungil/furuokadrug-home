@@ -64,6 +64,10 @@ function CodeDetailPage(props) {
           <Descriptions.Item label={t('Code.value1')}>{Code.value1}</Descriptions.Item>
           <Descriptions.Item label={t('Code.value2')}>{Code.value2}</Descriptions.Item>
           <Descriptions.Item label={t('Code.value3')}>{Code.value3}</Descriptions.Item>
+          <Descriptions.Item label={t('Code.value4')}>{Code.value4}</Descriptions.Item>
+          <Descriptions.Item label={t('Code.value5')}>{Code.value5}</Descriptions.Item>
+          <Descriptions.Item label={t('Code.value6')}>{Code.value6}</Descriptions.Item>
+          <Descriptions.Item label={t('Code.value7')}>{Code.value7}</Descriptions.Item>
           <Descriptions.Item label={t('Code.createdAt')}>{Code.createdAt}</Descriptions.Item>
         </Descriptions>
 

@@ -32,15 +32,15 @@ const ProductSchema = new Schema(
   },
   usage: {
     type: String,
-    required: true
+    default: ""
   },
   chineseUsage: {
     type: String,
-    required: true
+    default: ""
   },
   englishUsage: {
     type: String,
-    required: true
+    default: ""
   },
   price: {
     type: Number,

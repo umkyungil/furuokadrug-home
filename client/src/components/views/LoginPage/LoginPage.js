@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { Cookies } from "react-cookie";
 import axios from 'axios';
 import { LanguageContext } from '../../context/LanguageContext';
+import { ANONYMOUS } from '../../utils/Const';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -57,7 +58,7 @@ function LoginPage(props) {
               if (userInfo.data.user[0]) {
                 // 불특정 사용자인 경우
                 let userName = userInfo.data.user[0].name;
-                if (userName.substring(0, 9) === "Anonymous") {
+                if (userName.substring(0, 9) === ANONYMOUS) {
                   // 쿠키 삭제
                   cookies.remove('w_auth');
                   cookies.remove('w_authExp');
@@ -90,10 +91,15 @@ function LoginPage(props) {
                 // 유효시간 가져오기
                 axios.get(`${CODE_SERVER}/code_by_code?code=TOKEN`)
                 .then( result => {
+                  // 세션에 저장
+                  sessionStorage.setItem("tokenAddedTime", result.data.codeInfo.value1);
+                  // 포인트 적용률 가져오기
+                  axios.get(`${CODE_SERVER}/code_by_code?code=POINT`)
+                  .then( result => {
                     // 세션에 저장
-                    sessionStorage.setItem("tokenAddedTime", result.data.codeInfo.value1);
-
-                    // 유효시간을 세션에 저장후 처리할 로직
+                    // sessionStorage.setItem("pointRate", result.data.codeInfo.value1);
+                    
+                    // remember
                     if (rememberMe === true) {
                       localStorage.setItem('rememberMe', values.id);
                     } else {
@@ -101,7 +107,7 @@ function LoginPage(props) {
                     }
                     // 랜딩페이지 이동
                     props.history.push("/");
-                  
+                  })
                 });
               } else {
                 setFormErrorMessage('Check out your Account or Password again')

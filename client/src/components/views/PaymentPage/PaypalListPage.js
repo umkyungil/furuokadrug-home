@@ -3,13 +3,13 @@ import { Table } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { USER_SERVER } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
-import SearchFeature from './Sections/PaypalSearchFeature';
+import SearchFeature from './Sections/PaypalSearchFeature.js';
 import { LanguageContext } from '../../context/LanguageContext.js';
 import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-function ListPaypalPage() {
+function PaypalListPage() {
   const [PaypalInfo, setPaypalInfo] = useState([]);
   const history = useHistory();
   const {isLanguage} = useContext(LanguageContext);
@@ -74,7 +74,7 @@ function ListPaypalPage() {
         }
       }
     } catch (err) {
-      console.log("ListPaypalPage err: ",err);
+      console.log("PaypalListPage err: ",err);
     }
   }
 
@@ -135,4 +135,4 @@ function ListPaypalPage() {
   )
 }
 
-export default ListPaypalPage;
+export default PaypalListPage;

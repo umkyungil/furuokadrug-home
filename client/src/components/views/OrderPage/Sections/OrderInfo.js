@@ -50,7 +50,7 @@ function OrderInfo(props) {
   }
 
   if (user.userData) {
-		if (user.userData.role === 1) {
+		if (user.userData.role === 2) {
       return (
         <div>
           <Descriptions>
@@ -66,39 +66,10 @@ function OrderInfo(props) {
             <Descriptions.Item label={t('Order.amount')}>{Number(props.detail.amount).toLocaleString()}</Descriptions.Item>
             <Descriptions.Item label={t('Order.paymentStatus')}>{props.detail.paymentStatus}</Descriptions.Item>
             <Descriptions.Item label={t('Order.deliveryStatus')}>{props.detail.deliveryStatus}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.country')}>{props.detail.country}</Descriptions.Item>
             <Descriptions.Item label={t('Order.receiver')}>{props.detail.receiver}</Descriptions.Item>
             <Descriptions.Item label={t('Order.receiverTel')}>{props.detail.receiverTel}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.shippingAddress')}>{props.detail.address}</Descriptions.Item>
-          </Descriptions>
-
-          <br />
-          <br />
-          <br />
-          <div style={{ display: 'flex', justifyContent: 'center' }} >
-            <Button size="large" onClick={listHandler}>
-              Order List
-            </Button>
-          </div>
-        </div>
-      )
-    } else {
-      return (
-        <div>
-          <Descriptions>
-            <Descriptions.Item label={t('Order.type')}>{props.detail.type}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.userId')}>{props.detail.userId}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.name')}>{props.detail.name}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.lastName')}>{props.detail.lastName}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.tel')}>{props.detail.tel}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.email')}>{props.detail.email}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.staffName')}>{staffName}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.paymentTime')}>{paymentTime}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.uniqueField')}>{props.detail.uniqueField}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.amount')}>{Number(props.detail.amount).toLocaleString()}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.paymentStatus')}>{props.detail.paymentStatus}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.deliveryStatus')}>{props.detail.deliveryStatus}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.receiver')}>{props.detail.receiver}</Descriptions.Item>
-            <Descriptions.Item label={t('Order.receiverTel')}>{props.detail.receiverTel}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.zip')}>{props.detail.zip}</Descriptions.Item>
             <Descriptions.Item label={t('Order.shippingAddress')}>{props.detail.address}</Descriptions.Item>
           </Descriptions>
 
@@ -112,6 +83,38 @@ function OrderInfo(props) {
             &nbsp;&nbsp;&nbsp;
             <Button size="large" type="danger" onClick={deleteHandler}>
               Delete
+            </Button>
+          </div>
+        </div>
+      )
+    } else {
+      // 관리자가 아닌 경우
+      return (
+        <div>
+          <Descriptions>
+            <Descriptions.Item label={t('Order.type')}>{props.detail.type}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.userId')}>{props.detail.userId}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.name')}>{props.detail.name}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.lastName')}>{props.detail.lastName}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.tel')}>{props.detail.tel}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.email')}>{props.detail.email}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.staffName')}>{staffName}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.paymentTime')}>{paymentTime}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.uniqueField')}>{props.detail.uniqueField}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.amount')}>{Number(props.detail.amount).toLocaleString()}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.paymentStatus')}>{props.detail.paymentStatus}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.deliveryStatus')}>{props.detail.deliveryStatus}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.receiver')}>{props.detail.receiver}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.receiverTel')}>{props.detail.receiverTel}</Descriptions.Item>
+            <Descriptions.Item label={t('Order.shippingAddress')}>{props.detail.address}</Descriptions.Item>
+          </Descriptions>
+
+          <br />
+          <br />
+          <br />
+          <div style={{ display: 'flex', justifyContent: 'center' }} >
+            <Button size="large" onClick={listHandler}>
+              Order List
             </Button>
           </div>
         </div>

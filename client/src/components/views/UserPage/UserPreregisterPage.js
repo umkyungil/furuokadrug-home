@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { preregisterUser } from "../../../_actions/user_actions";
+import { loginUser, preregisterUser } from "../../../_actions/user_actions";
 import { useDispatch } from "react-redux";
 import { useHistory } from 'react-router-dom';
 import { Select, Form, Input, Button } from 'antd';
@@ -66,12 +66,12 @@ function UserPreregisterPage(props) {
       const result = await axios.post(`${MAIL_SERVER}/preregister`, dataToSubmit);
 
       if (!result.data.success) {
-        console.log("UserRegisterPage: Failed to send mail");
+        console.log("UserPreregisterPage: Failed to send mail");
         return false;
       } 
       return true;
     } catch(err) {
-      console.log("UserRegisterPage err: ", err);
+      console.log("UserPreregisterPage err: ", err);
       return false;
     }
   }
@@ -110,15 +110,15 @@ function UserPreregisterPage(props) {
               const mailResult = sendEmail(dataToSubmit);
               mailResult.then((res) => {
                 if (res) {
-                  alert("Please continue with the user registration process");
+                  alert("Sent mail\nPlease continue with the user registration process");
                   props.history.push("/login");
                 } else {
-                  alert("Please contact the administrator");
+                  alert("Failed to send mail\nPlease contact the administrator");
                   history.push("/");
                 }
               });
             } else {
-              alert("Please contact the administrator");
+              alert("This e-mail address is already registered");
               history.push("/");
             }
           })

@@ -94,7 +94,9 @@
     "paymentTime": "決済時刻",
     "uniqueField": "決済識別情報",
     "receiver": "受取人",
-    "receiverTel": "受取人電話"
+    "receiverTel": "受取人電話",
+    "country": "国",
+    "zip": "郵便番号"
   },
   "Modal": {
     "title": "古岡ドラック",
@@ -150,6 +152,9 @@
     "address1": "配達先1",
     "address2": "配達先2",
     "address3": "配達先3",
+    "zip1": "郵便番号1",
+    "zip2": "郵便番号2",
+    "zip3": "郵便番号3",
     "receiver1": "受取人1",
     "tel1": "受取人連絡先1",
     "receiver2": "受取人2",
@@ -313,9 +318,13 @@
     "detailTitle": "Code詳細",
     "name": "Code説明",
     "code": "Code",
-    "value1": "Code値1",
-    "value2": "Code値2",
-    "value3": "Code値3",
+    "value1": "Code1",
+    "value2": "Code2",
+    "value3": "Code3",
+    "value4": "Code4",
+    "value5": "Code5",
+    "value6": "Code6",
+    "value7": "Code7",
     "createdAt": "登録日",
     "action": "Action"
   }

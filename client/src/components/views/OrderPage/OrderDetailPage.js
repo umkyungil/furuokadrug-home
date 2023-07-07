@@ -8,7 +8,7 @@ import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-function DetailOrderPage(props) {
+function OrderDetailPage(props) {
   const [Order, setOrder] = useState({});
   const orderId = props.match.params.orderId;
   const {isLanguage} = useContext(LanguageContext);
@@ -28,10 +28,10 @@ function DetailOrderPage(props) {
   }, [])
 
   return (
-    <div style={{ width:'100%', padding:'3rem 4rem' }}>
-      <div style={{ display:'flex', justifyContent:'center' }}>
-        <h1>{t('Order.detailTitle')}</h1>
-      </div>
+    <div style={{ width:'80%', margin: '3rem auto'}}>
+			<div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
+				<h1>{t('Order.detailTitle')}</h1>
+			</div>
       <br />
       
       {/* 여백설정 */}
@@ -45,4 +45,4 @@ function DetailOrderPage(props) {
   )
 }
 
-export default DetailOrderPage;
+export default OrderDetailPage;

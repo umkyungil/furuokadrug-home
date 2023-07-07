@@ -88,7 +88,32 @@ router.post("/login", async (req, res) => {
         });
     } catch (err) {
         console.log("err: ", err);
-        return res.status(500).json({ success: false, message: err.message });
+        return res.status(500).json({ loginSuccess: false, message: err.message });
+    }
+});
+
+// Redirect Login(Alipay 결제만)
+router.get("/redirect/login", async (req, res) => {
+    try {
+        // 요청된 이메일을 데이터베이스에서 있는지 찾는다
+        const user = await User.findOne({ _id: req.query.id });
+        // 한명도 없다면
+        if (!user) return res.json({ loginSuccess: false, message: "Auth failed, email not found" });
+
+        // 토큰및 토큰 유효기간을 생성하기
+        user.generateToken(async (err, user) => {
+            if (err) return res.status(400).send(err);
+
+            // 토큰및 토큰 유효기간을 클라이언트의 쿠키에 저장한다
+            res.cookie("w_authExp", user.tokenExp);
+            res.cookie("w_auth", user.token).status(200).json({
+                //loginSuccess: true, userId: user._id
+                loginSuccess: true, userInfo: user
+            });
+        });
+    } catch (err) {
+        console.log("err: ", err);
+        return res.status(500).json({ loginSuccess: false, message: err.message });
     }
 });
 
@@ -256,12 +281,15 @@ router.post("/preregisterConfirm", async (req, res) => {
             email: req.body.email,
             tel: req.body.tel,
             address1: req.body.address1,
+            zip1: req.body.zip1,
             receiver1: req.body.receiver1,
             tel1: req.body.tel1,
             address2: req.body.address2,
+            zip2: req.body.zip2,
             receiver2: req.body.receiver2,
             tel2: req.body.tel2,
             address3: req.body.address3,
+            zip3: req.body.zip3,
             receiver3: req.body.receiver3,
             tel3: req.body.tel3,
             role: req.body.role,
@@ -383,10 +411,11 @@ router.post("/coupon/list", (req, res) => {
 router.post("/update", async (req, res) => {
     // 삭제여부 확인
     let deletedAt;
+
     if (req.body.deletedAt) {
         deletedAt = new Date();
     } else {
-        deletedAt = '';
+        deletedAt = null;
     }
 
     try {
@@ -396,17 +425,20 @@ router.post("/update", async (req, res) => {
         user.birthday = req.body.birthday;
         user.tel = req.body.tel;
         user.address1 = req.body.address1;
+        user.zip1 = req.body.zip1;
         user.receiver1 = req.body.receiver1;
         user.tel1 = req.body.tel1;
         user.address2 = req.body.address2;
+        user.zip2 = req.body.zip2;
         user.receiver2 = req.body.receiver2;
         user.tel2 = req.body.tel2;
         user.address3 = req.body.address3;
+        user.zip3 = req.body.zip3;
         user.receiver3 = req.body.receiver3;
         user.tel3 = req.body.tel3;
         user.role = req.body.role;
         user.language = req.body.language;
-        user.deletedAt = req.body.deletedAt;
+        user.deletedAt = deletedAt; // 날짜 또는 null을 대입
 
         await user.save();
         return res.status(200).send({ success: true });
@@ -923,7 +955,7 @@ router.post('/successBuyTmp', auth, (req, res) => {
         // product정보(cart정보)
         transactionData.product = history;
 
-        // 사용자의 Cart정보 삭제
+        // 사용자의 Cart정보 삭제 및 임시결제에 데이타 저장
         User.findOneAndUpdate(
             { _id: req.user._id },
             { $set: { cart: [] }},

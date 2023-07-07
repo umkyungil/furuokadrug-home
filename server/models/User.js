@@ -36,6 +36,11 @@ const UserSchema = new Schema(
 		type: String,
         trim: true
 	},
+    zip1: {
+		type: String,
+        trim: true,
+        default: ""
+	},
     receiver1: {
 		type: String,
         trim: true
@@ -43,10 +48,15 @@ const UserSchema = new Schema(
     tel1: {
         type: String,
         trim: true
-    },
+    },    
     address2: {
 		type: String,
 		trim: true
+	},
+    zip2: {
+		type: String,
+        trim: true,
+        default: ""
 	},
     receiver2: {
 		type: String
@@ -54,10 +64,15 @@ const UserSchema = new Schema(
     tel2: {
         type: String,
         trim: true
-    },
+    },    
     address3: {
 		type: String,
 		trim: true
+	},
+    zip3: {
+		type: String,
+        trim: true,
+        default: ""
 	},
     receiver3: {
 		type: String
@@ -154,8 +169,6 @@ UserSchema.methods.generateToken = async function(cb) {
     // 서버시간(new Date)으로 로컬시간을 구해서 연장시간을 더해준다
     // 그냥 new Date안하고 moment만 사용해도 로컬 날짜를 구하는데 혹시 몰라서 서버날짜(new Date)를 대입했다.
     let expiration = moment(new Date()).add(tmpExp, 'm').valueOf(); // valueOf(): moment 객체를 숫자(밀리세컨드)로 변환
-
-    console.log("User expiration: ", expiration);
 
     // User스키마의 tokenExp필드에 생성된 token유효기간을 넣어준다
     user.tokenExp = expiration;

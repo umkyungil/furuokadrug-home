@@ -14,12 +14,30 @@ axios.defaults.withCredentials = true;
 function ProductDetailPage(props) {
   const productId = props.match.params.productId;
   const [Product, setProduct] = useState({});
-  const { isLanguage } = useContext(LanguageContext);
+  const {setIsLanguage, isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
     // 다국어 설정
-    i18n.changeLanguage(isLanguage);
+    if (!isLanguage || isLanguage === "") {
+      const i18 = localStorage.getItem("i18nextLng");
+      
+      if (i18) {
+        if (i18 === 'ja-JP') {
+          setIsLanguage('en');
+          localStorage.setItem('i18nextLng', 'en');
+          i18n.changeLanguage('en');
+        } else {
+          setIsLanguage(i18);
+          i18n.changeLanguage(i18);
+        }
+      } else {
+        setIsLanguage('en');
+        localStorage.setItem('i18nextLng', 'en');
+        i18n.changeLanguage('en');
+      }
+    }
+
     // 상품정보 가져오기
     getProduct();
   }, [])
@@ -29,13 +47,13 @@ function ProductDetailPage(props) {
       // 상품정보 가져오기
       const product = await axios.get(`${PRODUCT_SERVER}/products_by_id?id=${productId}&type=single`);
 
-      // 다국적 언어에 맞게 셋팅
+      // 해당 언어에 맞게 문자열 변형(개행등의 문자를 그대로 보여주기 위한 처리)
       if (isLanguage === I18N_ENGLISH) {
         product.data[0].title = product.data[0].englishTitle;
         let tmpEnDesc = product.data[0].englishDescription;
         if (tmpEnDesc) {              
           product.data[0].description = convert(tmpEnDesc);
-        }
+        } 
         let tmpEnUsage = product.data[0].englishUsage;
         if (tmpEnUsage) {
           product.data[0].usage = convert(tmpEnUsage);
@@ -60,13 +78,14 @@ function ProductDetailPage(props) {
           product.data[0].usage = convert(tmpJpUsage);
         }
       }
-      // DB에서 가져온 상품정보를 State에 설정
+      
       setProduct(product.data[0]);
     } catch (err) {
       console.log("err: ", err);
     }
   }
 
+  // 개행등의 문자열을 그대로 표시하기 위한 처리
   function convert(value) {
     let tmpResult = value.split('\n').map((txt1, index1) => (
       <React.Fragment key={index1}>{txt1}<br /></React.Fragment>
@@ -89,7 +108,7 @@ function ProductDetailPage(props) {
         </Col>
         <Col lg={12} sm={24}  >
           {/* ProductInfo */}
-          <ProductInfo productId={productId} userInfo={props.user}/>
+          <ProductInfo detail={Product} />
         </Col>
       </Row>
     </div>

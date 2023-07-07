@@ -9,8 +9,8 @@ import { Select, Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER, USER_SERVER } from '../../Config';
 import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
-import axios from 'axios';
 import { LanguageContext } from '../../context/LanguageContext';
+import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -18,13 +18,9 @@ const {Option} = Select;
 const formItemLayout = {
   labelCol: {
     span: 6
-    // xs: { span: 24 },
-    // sm: { span: 8 },
   },
   wrapperCol: {
     span: 14
-    // xs: { span: 24 },
-    // sm: { span: 16 },
   },
 };
 const tailFormItemLayout = {
@@ -36,7 +32,6 @@ const tailFormItemLayout = {
     sm: {
       span: 16,
       offset: 6,
-      // offset: 8,
     },
   },
 };
@@ -124,29 +119,28 @@ function UserPreregisterConfirmPage(props) {
         birthday: '',
         tel: '',
         password: '',
-        confirmPassword: '',
+        confirmPassword: '',        
         address1: '',
+        zip1: '',
         receiver1: '',
-        tel1: '',
+        tel1: '',        
         address2: '',
+        zip2: '',
         receiver2: '',
         tel2: '',
         address3: '',
+        zip3: '',
         receiver3: '',
         tel3: '',
         language: ''
       }}
       validationSchema={Yup.object().shape({
-        tel: Yup.string()
-          .required('Telephone number is required'),
-        birthday: Yup.string()
-          .required('Date of birth is required'),
-        address1: Yup.string()          
-          .required('Address is required'),
-        receiver1: Yup.string()          
-          .required('Receiver is required'),
-        tel1: Yup.string()          
-          .required('Telephone is required'),
+        tel: Yup.string().required('Telephone number is required'),
+        birthday: Yup.string().required('Date of birth is required'),
+        address1: Yup.string().required('Address is required'),
+        zip1: Yup.string().required('Required'),
+        receiver1: Yup.string().required('Required'),
+        tel1: Yup.string().required('Required'),
         password: Yup.string()
           .min(6, 'Password must be at least 6 characters')
           .required('Password is required'),
@@ -159,7 +153,7 @@ function UserPreregisterConfirmPage(props) {
           const birthday = values.birthday;
           
           if (birthday.length !== 8) {
-            alert("Must be exactly 8 characters");
+            alert("Date of birth must be exactly 8 characters long");
             setSubmitting(false);
             return false;
           }
@@ -181,14 +175,17 @@ function UserPreregisterConfirmPage(props) {
             birthday: values.birthday,
             email: Email,
             tel: values.tel,
-            password: values.password,
+            password: values.password,            
             address1: values.address1,
+            zip1: values.zip1,
             receiver1: values.receiver1,
-            tel1: values.tel1,
+            tel1: values.tel1,            
             address2: values.address2,
+            zip2: values.zip2,
             receiver2: values.receiver2,
-            tel2: values.tel2,
+            tel2: values.tel2,            
             address3: values.address3,
+            zip3: values.zip3,
             receiver3: values.receiver3,
             tel3: values.tel3,
             role: '0',
@@ -205,7 +202,7 @@ function UserPreregisterConfirmPage(props) {
               mailResult.then((res) => {
                 if (res) {
                   alert("Membership registration has been completed");
-                  props.history.push("/login");
+                  history.push("/login");
                 } else {
                   alert("Request user registration again.\nPlease try again later.");
                   history.push("/");
@@ -217,6 +214,7 @@ function UserPreregisterConfirmPage(props) {
             }
           })
           .catch( function(err) {
+            console.log("err: ", err);
             alert("Request user registration again.\nPlease try again later.");
             history.push("/");
           })
@@ -234,15 +232,15 @@ function UserPreregisterConfirmPage(props) {
             </div>
             
             <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} autoComplete="off" >
-              {/* 이름 */}  
+              {/* 성명 */}
               <Form.Item label={t('SignUp.name')} style={{ marginBottom: 0, }} >
-                {/* 성 */}
-                <Form.Item name="name" style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
-                  <Input id="name" placeholder="Enter your name" type="text" value={Name} readOnly />
-                </Form.Item>
                 {/* 이름 */}
-                <Form.Item name="lastName" style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
-                  <Input id="lastName" placeholder="Enter your last Name" type="text" value={LastName} readOnly />
+                <Form.Item name="name" style={{ display: 'inline-block', width: 'calc(50% - 8px)' }} >
+                  <Input id="name" placeholder="Enter your name" type="text" value={Name} style={{ backgroundColor: '#f2f2f2' }} readOnly />
+                </Form.Item>
+                {/* 성 */}
+                <Form.Item name="lastName" style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px' }} >
+                  <Input id="lastName" placeholder="Enter your last Name" type="text" value={LastName} style={{ backgroundColor: '#f2f2f2' }} readOnly />
                 </Form.Item>
               </Form.Item>
               {/* 생년월일 */}
@@ -255,7 +253,7 @@ function UserPreregisterConfirmPage(props) {
               </Form.Item>
               {/* 메일주소 */}
               <Form.Item label={t('SignUp.email')}  >
-                <Input id="email" placeholder="Enter your Email" type="email" value={Email} readOnly/>
+                <Input id="email" placeholder="Enter your Email" type="email" value={Email} style={{ backgroundColor: '#f2f2f2' }} readOnly/>
               </Form.Item>
               {/* 전화번호 */}
               <Form.Item required label={t('SignUp.tel')} >
@@ -275,9 +273,17 @@ function UserPreregisterConfirmPage(props) {
                 )}
               </Form.Item>
               {/* 배송지 주소1 상세*/}
-              <Form.Item required label={t('SignUp.addressDetail1')} style={{ marginBottom: 0, }} >
+              <Form.Item required label={t('SignUp.addressDetail1')} style={{ marginBottom: 0 }} >
+                {/* 우편번호1 */}
+                <Form.Item name="zip1" required style={{ display: 'inline-block', width: '32%' }} >
+                  <Input id="zip1" placeholder="Zip code" type="text" value={values.zip1} onChange={handleChange} onBlur={handleBlur} 
+                    className={ errors.zip1 && touched.zip1 ? 'text-input error' : 'text-input' } />
+                  {errors.zip1 && touched.zip1 && (
+                    <div className="input-feedback">{errors.zip1}</div>
+                  )}
+                </Form.Item>
                 {/* 받는사람 이름1 */}
-                <Form.Item name="receiver1" required style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
+                <Form.Item name="receiver1" required style={{ display: 'inline-block', width: '32%', margin: '0 4px' }} >
                   <Input id="receiver1" placeholder="Receiver" type="text" value={values.receiver1} onChange={handleChange} onBlur={handleBlur} 
                     className={ errors.receiver1 && touched.receiver1 ? 'text-input error' : 'text-input' } />
                   {errors.receiver1 && touched.address1 && (
@@ -285,7 +291,7 @@ function UserPreregisterConfirmPage(props) {
                   )}
                 </Form.Item>
                 {/* 받는사람 전화번호1 */}
-                <Form.Item name="tel1" required style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
+                <Form.Item name="tel1" required style={{ display: 'inline-block', width: '32%', margin: '0 1px' }} >
                   <Input id="tel1" placeholder="Phone number" type="text" value={values.tel1} onChange={handleChange} onBlur={handleBlur}
                     className={ errors.tel1 && touched.tel1 ? 'text-input error' : 'text-input' } />
                   {errors.tel1 && touched.tel1 && (
@@ -298,13 +304,17 @@ function UserPreregisterConfirmPage(props) {
                 <Input id="address2" placeholder="Enter your address2" type="text" value={values.address2} onChange={handleChange} onBlur={handleBlur} />
               </Form.Item>
               {/* 배송지 주소2 상세*/}
-              <Form.Item label={t('SignUp.addressDetail2')} style={{ marginBottom: 0, }} >
+              <Form.Item label={t('SignUp.addressDetail2')} style={{ marginBottom: 0 }} >
+                {/* 우편번호2 */}
+                <Form.Item name="zip2" required style={{ display: 'inline-block', width: '32%'}} >
+                  <Input id="zip2" placeholder="Zip code" type="text" value={values.zip2} onChange={handleChange} onBlur={handleBlur} />
+                </Form.Item>
                 {/* 받는사람 이름2 */}
-                <Form.Item name="receiver2" style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
+                <Form.Item name="receiver2" style={{ display: 'inline-block', width: '32%', margin: '0 4px' }} >
                   <Input id="receiver2" placeholder="Receiver" type="text" value={values.receiver2} onChange={handleChange} onBlur={handleBlur} />
                 </Form.Item>
                 {/* 받는사람 전화번호2 */}
-                <Form.Item name="tel2" style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
+                <Form.Item name="tel2" style={{ display: 'inline-block', width: '32%', margin: '0 1px' }} >
                   <Input id="tel2" placeholder="Phone number" type="text" value={values.tel2} onChange={handleChange} onBlur={handleBlur} />
                 </Form.Item>
               </Form.Item>
@@ -313,13 +323,17 @@ function UserPreregisterConfirmPage(props) {
                 <Input id="address3" placeholder="Enter your address3" type="text" value={values.address3} onChange={handleChange} onBlur={handleBlur} />
               </Form.Item>
               {/* 배송지 주소3 상세 */}
-              <Form.Item label={t('SignUp.addressDetail3')} style={{ marginBottom: 0, }} >
+              <Form.Item label={t('SignUp.addressDetail3')} style={{ marginBottom: 0 }} >
+                {/* 우편번호3 */}
+                <Form.Item name="zip3" required style={{ display: 'inline-block', width: '32%' }} >
+                  <Input id="zip3" placeholder="Zip code" type="text" value={values.zip3} onChange={handleChange} onBlur={handleBlur} />
+                </Form.Item>
                 {/* 받는사람 이름3 */}
-                <Form.Item name="receiver3" style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
+                <Form.Item name="receiver3" style={{ display: 'inline-block', width: '32%', margin: '0 4px' }} >
                   <Input id="receiver3" placeholder="Receiver" type="text" value={values.receiver3} onChange={handleChange} onBlur={handleBlur} />
                 </Form.Item>
                 {/* 받는사람 전화번호3 */}
-                <Form.Item name="tel3" style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px'}} >
+                <Form.Item name="tel3" style={{ display: 'inline-block', width: '32%', margin: '0 1px' }} >
                   <Input id="tel3" placeholder="Phone number" type="text" value={values.tel3} onChange={handleChange} onBlur={handleBlur} />
                 </Form.Item>
               </Form.Item>

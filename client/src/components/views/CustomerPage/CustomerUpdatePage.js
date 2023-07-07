@@ -48,12 +48,12 @@ function CustomerUpdatePage(props) {
   const [Point, setPoint] = useState("");
   const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
+  // query string 취득
+  const customerId = props.match.params.customerId;
   
   useEffect(() => {
     // 다국적언어
     i18n.changeLanguage(isLanguage);
-    // query string 취득
-    const customerId = props.match.params.customerId;
     // 고객정보 취득
     getCustomer(customerId);
   }, [])
@@ -187,7 +187,7 @@ function CustomerUpdatePage(props) {
       }}
     >
       {props => {
-        const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
+        const { isSubmitting, handleBlur, handleSubmit, } = props;
         return (
           <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
@@ -248,4 +248,4 @@ function CustomerUpdatePage(props) {
   );
 };
 
-export default CustomerUpdatePage
+export default CustomerUpdatePage;

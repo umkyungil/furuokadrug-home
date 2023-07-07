@@ -94,7 +94,9 @@
     "paymentTime": "Payment time",
     "uniqueField": "Unique field",
     "receiver": "Receiver",
-    "receiverTel": "Recipient phone"
+    "receiverTel": "Recipient phone",
+    "country": "country",
+    "zip": "zip code"
   },
   "Modal": {
     "title": "Furuokadrug",
@@ -150,6 +152,9 @@
     "address1": "Shipping address1",
     "address2": "Shipping address2",
     "address3": "Shipping address3",
+    "zip1": "Zip code1",
+    "zip2": "Zip code2",
+    "zip3": "Zip code3",
     "receiver1": "Receiver name1",
     "tel1": "Receiver phone1",
     "receiver2": "Receiver name2",
@@ -317,6 +322,10 @@
     "value1": "value1",
     "value2": "value2",
     "value3": "value3",
+    "value4": "value4",
+    "value5": "value5",
+    "value6": "value6",
+    "value7": "value7",
     "createdAt": "Created date",
     "action": "Action"
   }

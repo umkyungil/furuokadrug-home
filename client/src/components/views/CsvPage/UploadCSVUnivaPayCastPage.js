@@ -45,7 +45,7 @@ function UploadCSVUnivaPayCastPage() {
     
       if (sptLine[i] === "") continue;
       // 파일 내용을 배열로 정리(1번째는 타이틀)	
-      if (i == 0 ) {
+      if (i === 0 ) {
         continue;
       }
 

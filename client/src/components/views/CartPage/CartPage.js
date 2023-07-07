@@ -7,7 +7,7 @@ import Paypal from '../../utils/Paypal'
 import { Empty, Button, Result, Icon, Input } from 'antd';
 import { getCartItems, removeCartItem, onSuccessBuy, onSuccessBuyTmp } from '../../../_actions/user_actions';
 import { ORDER_SERVER, COUPON_SERVER, POINT_SERVER, SALE_SERVER, SID } from '../../Config.js';
-import { NOT_SET, Unidentified, Deposited, ECSystem, MAIN_CATEGORY, UseWithSale, CouponType, SaleType } from '../../utils/Const';
+import { NOT_SET, UNIDENTIFIED, DEPOSITED, EC_SYSTEM, MAIN_CATEGORY, UseWithSale, CouponType, SaleType } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
 import axios from 'axios';
 // CORS 대책
@@ -485,17 +485,20 @@ function CartPage(props) {
           tel: props.user.userData.tel,
           email: data.email,
           address: address,
+          country: data.address.country_code,
+          zip: data.address.postal_code,
           sod: sod,
           // Paypal 결제인 경우 userId를 대입해서 결제 성공시 사용자의 카트정보를 삭제할수 있게 한다
           uniqueField: 'paypal_' + props.user.userData._id + '_' + uniqueDate,
           amount: FinalTotal,
-          staffName: Unidentified,
-          paymentStatus: Deposited,
-          deliveryStatus: Unidentified,
+          staffName: UNIDENTIFIED,
+          paymentStatus: DEPOSITED,
+          deliveryStatus: UNIDENTIFIED,
           receiver: props.user.userData.name + ' ' + props.user.userData.lastName,
           receiverTel: props.user.userData.tel
         }
         
+        // Paypal은 tmpOrder에 등록하지 않고 직접 Order에 등록한다
         axios.post(`${ORDER_SERVER}/register`, body)
         .then(response => {
           if (response.data.success) {
@@ -560,11 +563,15 @@ function CartPage(props) {
   // ECSystem 확인페이지에 이동(UPC 확인페이지에 넘길 정보 설정)
   const goPaymentConfirm = (tmpPaymentId, grantPoint, paymentType) => {
     let dateInfo = new Date();
-    const sod = 'cart_' + UsePoint + '_' + AcquisitionPoints + '_' + grantPoint; // Cart페이지 에서 결제할때는 sod에 포인트를 대입한다
+    // Cart페이지 에서 결제할때는 sod에 포인트를 대입한다
+    // Paypal, LiveStream은 날짜가 대입된다
+    const sod = UsePoint + '_' + AcquisitionPoints + '_' + grantPoint;
     let uniqueDate = dateInfo.getFullYear() + "-" + (dateInfo.getMonth() + 1) + "-" + dateInfo.getDate() + " " + dateInfo.getHours() + ":" + dateInfo.getMinutes();
     const loginUserId = props.user.userData._id;
+    // 알리페이의 리다이렉트 페이지에 로그인 아이디를 전송하기 위해서
+    // 확인 페이지에서 uniqueField에 로그인 아이디를 추가한다 
     const uniqueField = 'cart_' + tmpPaymentId + '_' + uniqueDate;
-    const staffName = ECSystem;
+    const staffName = EC_SYSTEM;
     const sid = SID;
     const siam1 = FinalTotal;
 

@@ -15,7 +15,6 @@ import { createStore, applyMiddleware } from 'redux';
 import promiseMiddleware from 'redux-promise'; // redux는 원래 객체만 받을수 있는데 promise도 받게 해주는 미들웨어
 import ReduxThunk from 'redux-thunk'; // redux에서 function도 받게 해주는 미들웨어
 import './i18next'; // multi language
-import { CookiesProvider } from "react-cookie";
 
 // 원래는 createStore로 store를 생성하는데 store가 객체만이 아닌 function과 promise를 받을수 있게 아래와 같이 설정
 const createStoreWithMiddleware = applyMiddleware(promiseMiddleware, ReduxThunk)(createStore);
@@ -30,12 +29,10 @@ ReactDOM.render(
             window.__REDUX_DEVTOOLS_EXTENSION__ &&
             window.__REDUX_DEVTOOLS_EXTENSION__()
         )}
-    >
-        <CookiesProvider>
-            <BrowserRouter>
-                <App />
-            </BrowserRouter>
-        </CookiesProvider>
+    >   
+        <BrowserRouter>
+            <App />
+        </BrowserRouter>
     </Provider>
     , document.getElementById('root'));
     

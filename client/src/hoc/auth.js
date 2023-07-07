@@ -33,9 +33,9 @@ export default function (SpecificComponent, option, adminRoute = null) {
                 if (!response.payload.isAuth) {
                     // 로그인 하지 않은 사람이 로그인 한 사람만 들어갈수 있는 
                     // 페이지에 들어가려 하면 로그인 페이지로 보낸다(option이 true인 경우는 로그인 한 사람만 들어갈수 있는 페이지)
-                    if (option) {
-                        props.history.push('/login');
-                    }
+                    // if (option) {
+                    //     props.history.push('/login');
+                    // }
                 //로그인 한 상태 
                 } else {
                     // 관리자가 아닌데 관리자만 들어갈수 있는 페이지에 들어가려 하면
@@ -113,6 +113,8 @@ export default function (SpecificComponent, option, adminRoute = null) {
                 sessionStorage.removeItem("video_jp");
                 //  토큰 연장시간 삭제
                 sessionStorage.removeItem("tokenAddedTime");
+                // 포인트 적용률 삭제
+                sessionStorage.removeItem("pointRate");
                 // 쿠키 삭제
                 cookies.remove('w_auth');
                 cookies.remove('w_authExp');

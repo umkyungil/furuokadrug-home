@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useState } from 'react';
-import { Button, Form, Radio, Divider, Input } from 'antd';
+import { Button, Form, Radio, Divider } from 'antd';
 import FileUpload from '../../utils/FileUpload';
 import { IMAGES_SERVER } from '../../Config.js';
 import { IMAGES_VISIBLE_ITEM, IMAGES_TYPE, IMAGES_LANGUAGE } from '../../utils/Const';

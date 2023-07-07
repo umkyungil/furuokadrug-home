@@ -8,7 +8,7 @@ import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-function ListAlipayPage() {
+function AlipayListPage() {
 	const [AlipayInfo, setAlipayInfo] = useState([]);
 	const {isLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
@@ -58,7 +58,7 @@ function ListAlipayPage() {
 				setAlipayInfo([...data]);
 			}
 		} catch (err) {
-			console.log("ListAlipayPage err: ",err);
+			console.log("AlipayListPage err: ",err);
 		}
 	}
 
@@ -128,4 +128,4 @@ function ListAlipayPage() {
 	)
 }
 
-export default ListAlipayPage
+export default AlipayListPage;

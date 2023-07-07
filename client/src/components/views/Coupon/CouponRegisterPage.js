@@ -61,7 +61,7 @@ function CouponRegisterPage() {
   const [Count, setCount] = useState("1");
   const history = useHistory();
 
-  const { isLanguage, setIsLanguage } = useContext(LanguageContext);
+  const { isLanguage } = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

@@ -61,6 +61,7 @@ function UserInfo(props) {
   if (props.detail.language === I18N_JAPANESE) language = JAPANESE;
   // 포인트 변경
   if (!props.detail.point || props.detail.point === "") point = "0";
+
   // 최근 로그인날짜 변형(date 추가)
   if (props.detail.lastLogin) {
     let tmpDate = new Date(props.detail.lastLogin);
@@ -106,12 +107,15 @@ function UserInfo(props) {
         <Descriptions.Item label={t('User.role')}>{role}</Descriptions.Item>
         <Descriptions.Item label={t('User.point')}>{point}</Descriptions.Item>
         <Descriptions.Item label={t('User.address1')}><Tooltip title={props.detail.address1}>{address1}</Tooltip></Descriptions.Item>
+        <Descriptions.Item label={t('User.zip1')}>{props.detail.zip1}</Descriptions.Item>
         <Descriptions.Item label={t('User.receiver1')}>{props.detail.receiver1}</Descriptions.Item>
         <Descriptions.Item label={t('User.tel1')}>{props.detail.tel1}</Descriptions.Item>
         <Descriptions.Item label={t('User.address2')}><Tooltip title={props.detail.address2}>{address2}</Tooltip></Descriptions.Item> 
+        <Descriptions.Item label={t('User.zip2')}>{props.detail.zip2}</Descriptions.Item>
         <Descriptions.Item label={t('User.receiver2')}>{props.detail.receiver2}</Descriptions.Item>
         <Descriptions.Item label={t('User.tel2')}>{props.detail.tel2}</Descriptions.Item>
         <Descriptions.Item label={t('User.address3')}><Tooltip title={props.detail.address3}>{address3}</Tooltip></Descriptions.Item>
+        <Descriptions.Item label={t('User.zip3')}>{props.detail.zip3}</Descriptions.Item>
         <Descriptions.Item label={t('User.receiver3')}>{props.detail.receiver3}</Descriptions.Item>
         <Descriptions.Item label={t('User.tel3')}>{props.detail.tel3}</Descriptions.Item>
         <Descriptions.Item label={t('User.language')}>{language}</Descriptions.Item>
@@ -135,4 +139,4 @@ function UserInfo(props) {
   )
 }
 
-export default UserInfo
+export default UserInfo;

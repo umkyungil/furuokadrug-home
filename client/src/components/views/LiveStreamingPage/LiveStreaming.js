@@ -35,13 +35,13 @@ function LiveStreaming() {
       updateTokenExp();
 
       // 비디오 채팅에서 결제버튼 클릭 했을때
-      if(e.data.type != "exitRoom") {
+      if(e.data.type !== "exitRoom") {
         const type = e.data.type;
         const loginUserId = e.data.loginUserId; // ECSystem 로그인 유저ID
         const sid = e.data.sid;
         const sod = e.data.sod;
         const siam1 = e.data.siam1; // amount
-        const uniqueField = encodeURIComponent(e.data.uniqueField);
+        const uniqueField = encodeURIComponent(e.data.uniqueField); // uniqueField = 'alipay' + '_' + loginUserId + '_' + uniqueDate;
         let staffName = encodeURIComponent(e.data.guestName);
         
         // 결제 페이지 호출

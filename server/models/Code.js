@@ -26,6 +26,26 @@ const CodeSchema = new Schema(
         type: String,
         trim: true,
         default: ""
+    },
+    value4: {
+        type: String,
+        trim: true,
+        default: ""
+    },
+    value5: {
+        type: String,
+        trim: true,
+        default: ""
+    },
+    value6: {
+        type: String,
+        trim: true,
+        default: ""
+    },
+    value7: {
+        type: String,
+        trim: true,
+        default: ""
     }
 }, { timestamps: true })
 

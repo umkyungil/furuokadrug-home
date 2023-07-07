@@ -3,21 +3,20 @@ import axios from 'axios';
 import { Table } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { ORDER_SERVER, USER_SERVER } from '../../Config.js';
-import { Unidentified, DeliveryCompleted } from '../../utils/Const.js';
+import { UNIDENTIFIED, DeliveryCompleted } from '../../utils/Const.js';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { LanguageContext } from '../../context/LanguageContext';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-function ListOrderPage(props) {
+function OrderListPage(props) {
 	const history = useHistory();
 	const [OrderInfo, setOrderInfo] = useState([]);
 	const [UserRole, setUserRole] = useState(0);
 	const [DeliveryStatusChange, setDeliveryStatusChange] = useState("");	
 	const [Mode, setMode] = useState(true); // 스텝 초기페이지 모드
-	// delivery 링크를 눌렀을때 다시 이 화면을 호출하면서 주문id를 보낸다
-	const paramOrderId = props.match.params.orderId;	
+	const paramOrderId = props.match.params.orderId; // delivery 링크를 눌렀을때 다시 이 화면을 호출하면서 주문id를 보낸다
 	const {isLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 	
@@ -48,8 +47,7 @@ function ListOrderPage(props) {
 			skip: 0,
 			limit: 8,
 			id: userId,
-			// 스텝권한의 사용자가 처음 검색시 스텝이 담당한 사용자만 검색하기 위한 구분자(초기페이지만 자신이 담당한 사용자정보 표시)
-			mode: Mode,
+			mode: Mode, // 스텝권한의 사용자가 처음 검색시 스텝이 담당한 사용자만 검색하기 위한 구분자(초기페이지만 자신이 담당한 사용자정보를 표시)
 		}
 		
 		// Order정보 취득
@@ -63,7 +61,7 @@ function ListOrderPage(props) {
 			const result = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}`);
 			if (result.data.success) {
 				setUserRole(result.data.user[0].role);
-				localStorage.setItem("userRole", result.data.user[0].role) // 사용자인 경우 이름검색조건을 삭제
+				localStorage.setItem("userRole", result.data.user[0].role) // 권한이 사용자인 경우 이름검색조건을 삭제하기 위해 권한을 취득
 				localStorage.setItem("userName", result.data.user[0].name)
 			} else {
 				alert("Failed to get user information.");
@@ -194,7 +192,7 @@ function ListOrderPage(props) {
 					}
 					// 일본어의 경우(스텝이름 이외에는 기존 서버에서 셋팅한 값이 일본어 이기에 변경할 필요없다)
 					if (!tmpOrderInfo.staffName) {
-						tmpOrderInfo.staffName = Unidentified;
+						tmpOrderInfo.staffName = UNIDENTIFIED;
 					}
 					// key 추가
 					tmpOrderInfo.key = count;
@@ -215,7 +213,7 @@ function ListOrderPage(props) {
 
 		if (result.data.success) {
 			// 결제상태가 미확인이 아니면 배송상태 변경
-			if (result.data.orders[0].paymentStatus !== Unidentified) {
+			if (result.data.orders[0].paymentStatus !== UNIDENTIFIED) {
 				updateDeliveryStatus(orderId);
 			} else {
 				alert("Please confirm payment status")
@@ -275,4 +273,4 @@ function ListOrderPage(props) {
 	)
 }
 
-export default ListOrderPage;
+export default OrderListPage;

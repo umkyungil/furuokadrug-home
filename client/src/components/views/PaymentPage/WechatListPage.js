@@ -8,7 +8,7 @@ import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-function ListWechatPage() {
+function WechatListPage() {
 	const [WechatInfo, setWechatInfo] = useState([]);
 	const {isLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
@@ -58,7 +58,7 @@ function ListWechatPage() {
 				setWechatInfo([...data]);
 			}
 		} catch (err) {
-			console.log("ListAlipayPage err: ",err);
+			console.log("WechatListPage err: ",err);
 		}	
 	}
 
@@ -128,4 +128,4 @@ function ListWechatPage() {
 	)
 }
 
-export default ListWechatPage
+export default WechatListPage

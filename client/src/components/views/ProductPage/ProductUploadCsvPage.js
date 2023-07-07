@@ -31,61 +31,56 @@ function ProductUploadCsvPage() {
   const parsingCsv = (file) => {    
     // 개행으로 레코드를 나누어서 배열에 저장(타이틀 포함)
     let sptLine = file.split(/\r\n|\n/);
-
-    console.log("sptLine: ", sptLine);
-
     if (sptLine.length < 1) {
       alert("There is a problem with the selected file.")
-    } 
-
+    }
     // 참고: 상품디비의 sold는 등록안하고 기본값이 0으로 상품을 구매할때 카운트 증가시킨다
     // writer도 이 메소드 내에서 직접 추가한다 
-    let header = ['title','chineseTitle','englishTitle','description','chineseDescription',
-                  'englishDescription','usage','chineseUsage','englishUsage','price',
-                  'images','contents','continents','point', 'exposureType',
-                  'chineseUrl','englishUrl','japaneseUrl'];
+    let header = ['writer','title','chineseTitle','englishTitle','description','chineseDescription', 'englishDescription',
+                  'usage','chineseUsage','englishUsage','price', 'images','contents','sold','continents','point', 'member', 
+                  'exposureType', 'japaneseUrl', 'englishUrl', 'chineseUrl'];
 
     let body = [];
     for(let i = 0; i < sptLine.length; i++) {
-    
-      if (sptLine[i] === "") continue;
-      // 파일 내용을 배열로 정리(1번째는 타이틀)	
-      if (i == 0) {
+      // 파일 내용을 배열로 정리(1번째는 타이틀 Skip)	
+      if (i === 0) {
         continue;
       }
+      // 행에 데이타가 없는경우
+      if (sptLine[i] === "") continue;
+      
       
       // 1행의 레코드를 콤마 구분자로 나누어서 배열에 저장
       let spt = mySplit(sptLine[i], DELIMITER, APOSTROPHE);
 
       // 헤더와 컬럼의 수가 맞는지 체크(컬럼의 값이 없더라도 콤마로 구분했는지 확인,)
-      if (spt.length != header.length) {
+      if (spt.length !== header.length) {
         alert(`Please check the data of line ${i}`);
         return false;
       }
 
+      // DB의 데이타 형으로 변환
       let obj_data = new Object();
       for (let j = 0; j < spt.length; j++ ) {
-        if (j === 9) {
-          // price
-          obj_data[header[j]] = Number(spt[j]);
-        } else if (j === 10) {
-          // 이미지 배열에 저장
+        // price: integer변형
+        if (j === 10) {
+          obj_data[header[j]] = parseInt(spt[j]);
+        // images: 이미지 배열을 저장
+        } else if (j === 11) {
           let arrImages = spt[j].split(',');
           obj_data[header[j]] = arrImages;
-        } else if (j === 12) {
-          // continents
-          obj_data[header[j]] = Number(spt[j]);
+        // sold: integer변형
         } else if (j === 13) {
-          // point
-          obj_data[header[j]] = Number(spt[j]);
+          obj_data[header[j]] = parseInt(spt[j]);
+        // continents(카테고리): integer변형
         } else if (j === 14) {
-          // 노출타입 배열에 저장
-          let arrExposureType = spt[j].split(',');
-          obj_data[header[j]] = arrExposureType;
-        } else if (j === 17) {
-          obj_data[header[j]] = spt[j]
-          // 마지막 데이타 처리후 관리자 아이디 추가
-          obj_data["writer"] = "63a2881e68e0d4c0bfee1601"
+          obj_data[header[j]] = parseInt(spt[j]);
+        // point: 0 고정
+        } else if (j === 15) {
+          obj_data[header[j]] = 0;
+        // member ㄹ민ㄷ 고정
+        } else if (j === 16) {
+          obj_data[header[j]] = false;
         } else {
           obj_data[header[j]] = spt[j]
         }
@@ -94,6 +89,7 @@ function ProductUploadCsvPage() {
       body.push(obj_data);
     }
     
+    console.log("body>>>>>>>>>>>>>>>>: ", body);
     setCsvData(body);
   }
 
@@ -102,15 +98,11 @@ function ProductUploadCsvPage() {
     // 필수 항목 검사
     for (let i = 0; i < CsvData.length; i++) {
       if (CsvData[i].title && CsvData[i].englishTitle && CsvData[i].chineseTitle) {
-        alert(`Please enter the product name in line ${i}`)
+        alert(`Please enter the product title in line ${i}`)
         return false;
       }
       if (CsvData[i].description && CsvData[i].englishDescription && CsvData[i].chineseDescription) {
         alert(`Please enter the product description in line ${i}`)
-        return false;
-      }
-      if (CsvData[i].usage && CsvData[i].englishUsage && CsvData[i].chineseUsage) {
-        alert(`Please enter the product usage in line ${i}`)
         return false;
       }
       if (CsvData[i].contents) {
@@ -140,21 +132,23 @@ function ProductUploadCsvPage() {
       }
     }
 
+    console.log("CsvData: ", CsvData);
+
     try {
       // 상품등록
-      const result = await axios.post(`${PRODUCT_SERVER}/register`, CsvData);
-      if (result.data.success) {
-        alert('CSV registration was successful');
-        // Landing page 이동
-        history.push("/");
-      } else {
-        alert('CSV registration failed \n Please contact the administrator');
-        // 원래대로 복귀처리(등록한 데이터 삭제)
+      // const result = await axios.post(`${PRODUCT_SERVER}/register`, CsvData);
+      // if (result.data.success) {
+      //   alert('CSV registration was successful');
+      //   // Landing page 이동
+      //   history.push("/");
+      // } else {
+      //   alert('CSV registration failed \n Please contact the administrator');
+      //   // 원래대로 복귀처리(등록한 데이터 삭제)
 
-        // Landing page 이동
-        history.push("/");
+      //   // Landing page 이동
+      //   history.push("/");
 
-      }
+      // }
         
     } catch (err) {
       console.log("err: ", err);
@@ -221,4 +215,4 @@ function ProductUploadCsvPage() {
   );
 }
 
-export default ProductUploadCsvPage
+export default ProductUploadCsvPage;

@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useRef, useState } from 'react';
-import { Button, Form, Input, Checkbox, Select, Divider, Radio } from 'antd';
+import { Button, Form, Input, Checkbox, Select, Divider} from 'antd';
 import FileUpload from '../../utils/FileUpload';
 import { PRODUCT_SERVER } from '../../Config.js';
 import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE } from '../../utils/Const';
@@ -262,6 +262,9 @@ function ProductRegisterPage(props) {
       chineseUrl: chineseUrlRef.current
     }
     
+    console.log("memberRef.current: ", memberRef.current);
+    console.log("body: ". body);
+
     const result = await axios.post(`${PRODUCT_SERVER}/register`, body);
     if (result.data.success) {
       alert('Product upload was successful');

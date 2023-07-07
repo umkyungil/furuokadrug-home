@@ -53,8 +53,11 @@ function LandingPage() {
       }
     }
 
-    // 화면구성하기
-    process();
+    // 노출상풍을 가져오기
+    getProducts(); // type 1:now on air, type 2:recording, type 3: recommended, type 4: sale
+    // 이미지 가져오기
+    getImages(); // visible 0:private, visible:public
+
   },[url]);
 
   // 빈 객체인 경우 true, 속성이 있는경우 false
@@ -72,13 +75,6 @@ function LandingPage() {
     }
     
     return true;
-  }
-
-  const process = async () => {
-    // 노출상풍을 가져오기
-    await getProducts(); // type 1:now on air, type 2:recording, type 3: recommended, type 4: sale
-    // 이미지 가져오기
-    await getImages(); // visible 0:private, visible:public
   }
 
   // 노출상풍을 가져오기

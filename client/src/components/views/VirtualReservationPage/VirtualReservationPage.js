@@ -36,7 +36,7 @@ const tailFormItemLayout = {
 };
 
 function VirtualReservationPage(props) {
-  const history = useHistory();
+  const _history = useHistory();
   // 다국적언어 설정
   const { isLanguage } = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
@@ -81,11 +81,11 @@ function VirtualReservationPage(props) {
       } else {
         alert("Please try again after a while");
       }
-      history.push("/");
+      _history.push("/");
     } catch(err) {
       console.log("VirtualReservationPage err: ", err);
       alert("Please try again after a while");
-      history.push("/");
+      _history.push("/");
     }
   }
   
@@ -109,7 +109,7 @@ function VirtualReservationPage(props) {
   }
   // Landing pageへ戻る
   const listHandler = () => {
-    history.push('/')
+    _history.push('/')
   }
 
   return (

@@ -28,6 +28,69 @@ function CodeListPage() {
 			const code = await axios.get(`${CODE_SERVER}/list`);
 
 			for(let i=0; i < code.data.codeInfos.length; i++) {
+				let value1 = code.data.codeInfos[i].value1;
+				if (value1.length > 10) {
+					value1 = value1.slice(0, 10)
+					value1 += "...";
+					code.data.codeInfos[i].value1 = value1;
+				} else {
+					code.data.codeInfos[i].value1 = value1;
+				}
+
+				let value2 = code.data.codeInfos[i].value2;
+				if (value2.length > 10) {
+					value2 = value2.slice(0, 10)
+					value2 += "...";
+					code.data.codeInfos[i].value2 = value2;
+				} else {
+					code.data.codeInfos[i].value2 = value2;
+				}
+
+				let value3 = code.data.codeInfos[i].value3;
+				if (value3.length > 10) {
+					value3 = value3.slice(0, 10)
+					value3 += "...";
+					code.data.codeInfos[i].value3 = value3;
+				} else {
+					code.data.codeInfos[i].value3 = value3;
+				}
+
+				let value4 = code.data.codeInfos[i].value4;
+				if (value4.length > 10) {
+					value4 = value4.slice(0, 10)
+					value4 += "...";
+					code.data.codeInfos[i].value4 = value4;
+				} else {
+					code.data.codeInfos[i].value4 = value4;
+				}
+
+				let value5 = code.data.codeInfos[i].value5;
+				if (value5.length > 10) {
+					value5 = value5.slice(0, 10)
+					value5 += "...";
+					code.data.codeInfos[i].value5 = value5;
+				} else {
+					code.data.codeInfos[i].value5 = value5;
+				}
+
+				let value6 = code.data.codeInfos[i].value6;
+				if (value6.length > 10) {
+					value6 = value6.slice(0, 10)
+					value6 += "...";
+					code.data.codeInfos[i].value6 = value6;
+				} else {
+					code.data.codeInfos[i].value6 = value6;
+				}
+
+				let value7 = code.data.codeInfos[i].value7;
+				if (value7.length > 10) {
+					value7 = value7.slice(0, 10)
+					value7 += "...";
+					code.data.codeInfos[i].value7 = value7;
+				} else {
+					code.data.codeInfos[i].value7 = value7;
+				}
+
 				code.data.codeInfos[i].createdAt = getLocalTime(code.data.codeInfos[i].createdAt);
 				// key 추가
 				code.data.codeInfos[i].key = i;
@@ -65,6 +128,26 @@ function CodeListPage() {
       title: t('Code.value3'),
       dataIndex: 'value3',
       key: 'value3'
+    },
+		{
+      title: t('Code.value4'),
+      dataIndex: 'value4',
+      key: 'value4'
+    },
+		{
+      title: t('Code.value5'),
+      dataIndex: 'value5',
+      key: 'value5'
+    },
+		{
+      title: t('Code.value6'),
+      dataIndex: 'value6',
+      key: 'value6'
+    },
+		{
+      title: t('Code.value7'),
+      dataIndex: 'value7',
+      key: 'value7'
     },
 		{
       title: t('Code.createdAt'),

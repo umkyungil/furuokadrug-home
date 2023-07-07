@@ -1,7 +1,5 @@
 import React, {useEffect, useState, useContext} from "react";
-import { updateUser } from "../../../_actions/user_actions";
-import { useDispatch } from "react-redux";
-import { Select, Form, Input, Button, Checkbox } from 'antd';
+import { Form, Input, Button } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
@@ -9,31 +7,6 @@ import axios from 'axios';
 import { CODE_SERVER } from '../../Config';
 // CORS 대책
 axios.defaults.withCredentials = true;
-
-const { Option } = Select;
-
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 8 },
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 16 },
-  },
-};
-const tailFormItemLayout = {
-  wrapperCol: {
-    xs: {
-      span: 24,
-      offset: 0,
-    },
-    sm: {
-      span: 16,
-      offset: 8,
-    },
-  },
-};
 
 function CodeUpdatePage(props) {
   const {isLanguage} = useContext(LanguageContext);
@@ -45,6 +18,10 @@ function CodeUpdatePage(props) {
   const [Value1, setValue1] = useState("");
   const [Value2, setValue2] = useState("");
   const [Value3, setValue3] = useState("");
+  const [Value4, setValue4] = useState("");
+  const [Value5, setValue5] = useState("");
+  const [Value6, setValue6] = useState("");
+  const [Value7, setValue7] = useState("");
 
   const history = useHistory();
 
@@ -67,6 +44,10 @@ function CodeUpdatePage(props) {
       setValue1(codeInfo.data.codeInfo.value1);
       setValue2(codeInfo.data.codeInfo.value2);
       setValue3(codeInfo.data.codeInfo.value3);
+      setValue4(codeInfo.data.codeInfo.value4);
+      setValue5(codeInfo.data.codeInfo.value5);
+      setValue6(codeInfo.data.codeInfo.value6);
+      setValue7(codeInfo.data.codeInfo.value7);
     } catch (err) {
       alert('Please contact the administrator');
       console.log("err: ",err);
@@ -74,17 +55,29 @@ function CodeUpdatePage(props) {
     }
   }
   // 핸들러
-  const handleName = (event) => {
-    setName(event.target.value);
+  const handleName = (e) => {
+    setName(e.target.value);
   }
-  const handleValue1 = (event) => {
-    setValue1(event.target.value);
+  const handleValue1 = (e) => {
+    setValue1(e.target.value);
   }
-  const handleValue2 = (event) => {
-    setValue2(event.target.value);
+  const handleValue2 = (e) => {
+    setValue2(e.target.value);
   }
-  const handleValue3 = (event) => {
-    setValue3(event.target.value);
+  const handleValue3 = (e) => {
+    setValue3(e.target.value);
+  }
+  const handleValue4 = (e) => {
+    setValue4(e.target.value);
+  }
+  const handleValue5 = (e) => {
+    setValue5(e.target.value);
+  }
+  const handleValue6 = (e) => {
+    setValue6(e.target.value);
+  }
+  const handleValue7 = (e) => {
+    setValue7(e.target.value);
   }
   
   // 코드일람 페이지 이동
@@ -110,7 +103,11 @@ function CodeUpdatePage(props) {
       name: Name,
       value1: Value1,
       value2: Value2,
-      value3: Value3
+      value3: Value3,
+      value4: Value4,
+      value5: Value5,
+      value6: Value6,
+      value7: Value7
     };
 
     try {
@@ -152,6 +149,18 @@ function CodeUpdatePage(props) {
         </Form.Item>
         <Form.Item label="Value3" name="value3" >
           <Input value={Value3} onChange={handleValue3} />
+        </Form.Item>
+        <Form.Item label="Value4" name="value4" >
+          <Input value={Value4} onChange={handleValue4} />
+        </Form.Item>
+        <Form.Item label="Value5" name="value5" >
+          <Input value={Value5} onChange={handleValue5} />
+        </Form.Item>
+        <Form.Item label="Value6" name="value6" >
+          <Input value={Value6} onChange={handleValue6} />
+        </Form.Item>
+        <Form.Item label="Value7" name="value7" >
+          <Input value={Value7} onChange={handleValue7} />
         </Form.Item>
 
         <Form.Item

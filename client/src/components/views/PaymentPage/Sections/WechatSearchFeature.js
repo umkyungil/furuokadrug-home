@@ -5,7 +5,7 @@ const {RangePicker} = DatePicker;
 const {Search} = Input;
 const {Option} = Select;
 
-function SearchFeatureOfWeChat(props) {
+function WechatSearchFeature(props) {
   const [SearchUnique, setSearchUnique] = useState("");
   const [SearchResult, setSearchResult] = useState("0");
   const [SearchFromDate, setSearchFromDate] = useState("");
@@ -60,4 +60,4 @@ function SearchFeatureOfWeChat(props) {
   )
 }
 
-export default SearchFeatureOfWeChat
+export default WechatSearchFeature;

@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import {DatePicker, Input, Select} from 'antd';
+import {DatePicker, Select} from 'antd';
 
 const {RangePicker} = DatePicker;
 const {Option} = Select;
 
-function WeChatSearchFeature(props) {
+function AlipaySearchFeature(props) {
   const [SearchUnique, setSearchUnique] = useState("");
   const [SearchResult, setSearchResult] = useState("0");
   const [SearchFromDate, setSearchFromDate] = useState("");
@@ -46,4 +46,4 @@ function WeChatSearchFeature(props) {
   )
 }
 
-export default WeChatSearchFeature
+export default AlipaySearchFeature;

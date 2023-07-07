@@ -1,42 +1,42 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
-import AlipayInfo from './Sections/AlipayInfo'
+import WechatInfo from './Sections/WechatInfo'
 import { Row, Col } from 'antd';
 import { PAYMENT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
+import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-function DetailAlipayPage(props) {
-  const [Alipay, setAlipay] = useState({});
+function WechatDetailPage(props) {
+  const [Wechat, setWechat] = useState({});
   const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
+    const wechatId = props.match.params.wechatId;
+    // 알리페이 정보 취득
+    getWechat(wechatId);
     // 다국적언어
     i18n.changeLanguage(isLanguage);
-    // 알리페이 정보 취득
-    const alipayId = props.match.params.alipayId;
-    getAlipay(alipayId);
   }, [])
 
-  // 알리페이 정보 취득
-  const getAlipay = async (alipayId) => {
+  // 위쳇 정보 취득
+  const getWechat = async (wechatId) => {
     try {
-      const result = await axios.get(`${PAYMENT_SERVER}/alipay_by_id?id=${alipayId}&type=single`);
+      const result = await axios.get(`${PAYMENT_SERVER}/wechat_by_id?id=${wechatId}&type=single`);
       if (result.data.success) {
-        setAlipay(result.data.alipay[0]);
+        setWechat(result.data.wechat[0]);
       }
     } catch (err) {
-      console.log("DetailAlipayPage err: ",err);
+      console.log("WechatDetailPage err: ",err);
     }
   }
 
   return (
     <div style={{ width:'100%', padding:'3rem 4rem' }}>
       <div style={{ display:'flex', justifyContent:'center' }}>
-        <h1>{t('Alipay.detailTitle')}</h1>
+        <h1>{t('Wechat.detailTitle')}</h1>
       </div>
       <br />
       
@@ -44,11 +44,11 @@ function DetailAlipayPage(props) {
       <Row gutter={[16, 16]} >
         <Col lg={32} sm={24}>
           {/* ProductInfo */}
-          <AlipayInfo detail={Alipay} />
+          <WechatInfo detail={Wechat} />
         </Col>
       </Row>
     </div>
   )
 }
 
-export default DetailAlipayPage;
+export default WechatDetailPage

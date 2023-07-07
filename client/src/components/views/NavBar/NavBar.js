@@ -66,7 +66,7 @@ function NavBar() {
 
       <nav className="menu" >
         <div className="menu__logo">
-          <a href="/" ><img style={{ width:"270px" }} src={image} /></a>
+          <a href="/" ><img style={{ width:"270px" }} src={image} alt='logo'/></a>
           {/* <a href="/" ><img style={{ width: "270px" }} src={image} /></a> */}
         </div>
         

@@ -8,7 +8,7 @@ import { PRODUCT_SERVER, USER_SERVER } from '../../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { Cookies } from "react-cookie";
 import { LanguageContext } from '../../../context/LanguageContext';
-import { SALE_TAG, NOTICE_TAG, PRODUCT_VISIBLE_TYPE } from '../../../utils/Const';
+import { SALE_TAG, NOTICE_TAG, PRODUCT_VISIBLE_TYPE, ANONYMOUS } from '../../../utils/Const';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
@@ -45,7 +45,6 @@ function ProductInfo(props) {
   const {Panel} = Collapse;
     
   const [User, setUser] = useState({});
-  const [Product, setProduct] = useState({});
   const [IsRecTag, setIsRecTag] = useState(false);
   const [IsSaleTag, setIsSaleTag] = useState(false);
   
@@ -55,21 +54,22 @@ function ProductInfo(props) {
   useEffect(() => {
     // 다국적언어 설정
     i18n.changeLanguage(isLanguage);
-    // 사용자 정보 로컬스토리지에서 가져오기
-    const userId = localStorage.getItem("userId");
+    if (props.detail) {
+      process();
+    }
+	}, [props.detail])
 
-    process(userId, props.productId);
-	}, [])
-
-  // 사용자 정보및 태그를 표시하기 위해상품의 노출정보를 가져오기
-  const process = async(userId, productId) => {
+  const process = async() => {
     try {
+      // 사용자 정보 로컬스토리지에서 가져오기
+      const userId = localStorage.getItem("userId");
+      // 불특정 사용자인경우 처리예외
       if (userId) {
         // 사용자정보 가져오기
         await getUser(userId);
       }
-      // 상품정보 가져오기
-      await getProduct(productId)
+      // 상품 노출정보로 상품태그 확인
+      handleTag()
     } catch (err) {
       console.log("err: ",err);
     }
@@ -86,23 +86,24 @@ function ProductInfo(props) {
     }
   }
 
-  // 상품정보 가져오기
-  const getProduct = async (productId) => {
+  // 상품 노출정보로 상품태그 확인
+  const handleTag = async () => {
     try {
-      const product = await axios.get(`${PRODUCT_SERVER}/products_by_id?id=${productId}&type=single`);
       // 상품 노출정보 가져오기
-      product.data[0].exposureType.map((type) => {
-        // 추천상품인지 
-        if (type === PRODUCT_VISIBLE_TYPE[3].key) {
-          setIsRecTag((IsRecTag) => !IsRecTag);
+      if (props.detail.hasOwnProperty("_id")) {
+        if (props.detail.exposureType.length > 0) {
+          for (let i=0; i<props.detail.exposureType.length; i++) {
+            // 추천상품인지 
+            if (props.detail.exposureType[i] === PRODUCT_VISIBLE_TYPE[3].key) {
+              setIsRecTag((IsRecTag) => !IsRecTag);
+            }
+            // 세일상품인지
+            if (props.detail.exposureType[i] === PRODUCT_VISIBLE_TYPE[4].key) {
+              setIsSaleTag((IsSaleTag) => !IsSaleTag);
+            }
+          }
         }
-        // 세일상품인지
-        if (type === PRODUCT_VISIBLE_TYPE[4].key) {
-          setIsSaleTag((IsSaleTag) => !IsSaleTag);
-        }
-      })
-
-      setProduct(product.data[0]);
+      }
     } catch (err) {
       console.log("err: ",err);
     }
@@ -112,16 +113,15 @@ function ProductInfo(props) {
   const cartHandler = async () => {
     try {
       // 로그인 한 경우
-      if (!props.userInfo.userData.error) {
+      if (localStorage.getItem("userId")) {
         // 필요한 정보를 Cart필드에 넣어준다
-        dispatch(addToCart(Product._id));
-
+        dispatch(addToCart(props.detail._id));
       } else {
         // 로그인하지 않은 경우
-        // 세션스토리지에 사용자아이디가 없는경우 불특정 사용자 아이디를 생성하고 카트 정보를 넣는다
+        // 세션스토리지에 사용자 아이디가 없는경우 불특정 사용자 아이디를 생성하고 카트 정보를 넣는다
         if (!sessionStorage.getItem("userId")) {
           // 불특정 사용자 이름등의 정보를 만들기 위해 불특정 사용자 갯수를 확인
-          const users = await axios.post(`${USER_SERVER}/anonymous/list`, { searchTerm: "Anonymous" });
+          const users = await axios.post(`${USER_SERVER}/anonymous/list`, { searchTerm: ANONYMOUS });
           if (users.data.success) {
             let count = 0;
             if (users.data.userInfo.length > 0) {
@@ -131,16 +131,16 @@ function ProductInfo(props) {
 
             // 불특정 사용자수(카운트)에 따라 이메일등을 변경해서 사용자를 생성
             let regUserToSubmit = {
-              name: "Anonymous" + count,
-              lastName: "Anonymous" + count,
+              name: ANONYMOUS + count,
+              lastName: ANONYMOUS + count,
               birthday: "19700911",
               email: "anonymous"+count+"@hirosophy.co.jp",
-              tel: "03-6701-7003",
-              password: "Anonymous",
+              tel: "0367017003",
+              password: ANONYMOUS,
               confirmPassword: '',
               address1: "東京都港区芝4-6-4 ヒロソフィー三田ビル",
               receiver1: "株式会社ヒロソフィー",
-              tel1: "03-6701-7003",
+              tel1: "0367017003",
               address2: "",
               receiver2: "",
               tel2: "",
@@ -157,24 +157,24 @@ function ProductInfo(props) {
             dispatch(anyRegisterUser(regUserToSubmit)).then(async (anyRegUserInfo) => {
               if (anyRegUserInfo.payload.success) {
                 // 위에서 등록한 불특정 사용자 정보 가져오기
-                let value = "Anonymous" + count;
+                let value = ANONYMOUS + count;
                 let body = { searchTerm: value }
                 const users = await axios.post(`${USER_SERVER}/anonymous/list`, body);
 
                 // 불특정 사용자 로그인 
                 let dataToSubmit = {
                   email: users.data.userInfo[0].email,
-                  password: "Anonymous"
+                  password: ANONYMOUS
                 };
                 dispatch(loginUser(dataToSubmit))
                 .then(anyLogin => {
                   if (anyLogin.payload.loginSuccess) {
                     // sessionStorage에 등록
                     sessionStorage.setItem('userId', anyLogin.payload.userInfo._id);
-                    sessionStorage.setItem('userName', "Anonymous");
+                    sessionStorage.setItem('userName', ANONYMOUS);
 
                     // 필요한 정보를 Cart필드에 넣어준다
-                    dispatch(addToCart(Product._id));
+                    dispatch(addToCart(props.detail._id));
                   }
                 })
               }
@@ -190,13 +190,13 @@ function ProductInfo(props) {
           // 쿠키에 토큰정보가 없는경우
           if (!cookies.get('w_auth')) {
             // 로컬스토리지에 붙특정 사용자의 정보가 있는경우 로그인 처리
-            if (userName === "Anonymous") {
+            if (userName === ANONYMOUS) {
               // 로그인해서 토큰정보를 쿠키에 저장
               const userInfo = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}`);
               if (userInfo.data.success) {
                 let dataToSubmit = {
                   email: userInfo.data.user[0].email,
-                  password: "Anonymous"
+                  password: ANONYMOUS
                 };
 
                 dispatch(loginUser(dataToSubmit))
@@ -204,17 +204,17 @@ function ProductInfo(props) {
                   if (anyLogin.payload.loginSuccess) {
                     // localStorage에 등록
                     sessionStorage.setItem('userId', anyLogin.payload.userInfo._id);
-                    sessionStorage.setItem('userName', "Anonymous");
+                    sessionStorage.setItem('userName', ANONYMOUS);
 
                     // 필요한 정보를 Cart필드에 넣어준다
-                    dispatch(addToCart(Product._id));
+                    dispatch(addToCart(props.detail._id));
                   }
                 })
               }
             }
           } else {
-            if (userName === "Anonymous") {
-              dispatch(addToCart(Product._id));
+            if (userName === ANONYMOUS) {
+              dispatch(addToCart(props.detail._id));
             }
           }
         }
@@ -227,16 +227,16 @@ function ProductInfo(props) {
 
   // 상품 수정
   const modifyHandler = () => {
-    history.push(`/product/update/${Product._id}`);
+    history.push(`/product/update/${props.detail._id}`);
   }
   // 상품 삭제
-  const deleteHandler = () => {
+  const deleteHandler = async () => {
     const body = {
-      id: Product._id,
-      images: Product.images
+      id: props.detail._id,
+      images: props.detail.images
     }
 
-    axios.post(`${PRODUCT_SERVER}/delete`, body)
+    await axios.post(`${PRODUCT_SERVER}/delete`, body)
       .then(response => {
         if (response.data.success) {
           alert('Product delete was successful.');
@@ -258,8 +258,8 @@ function ProductInfo(props) {
       return (
         <div>
           <Descriptions>
-            <Descriptions.Item label={t('Product.price')}>{Number(Product.price).toLocaleString()}</Descriptions.Item>
-            <Descriptions.Item label={t('Product.contents')}>{Product.contents}</Descriptions.Item>
+            <Descriptions.Item label={t('Product.price')}>{Number(props.detail.price).toLocaleString()}</Descriptions.Item>
+            <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
             <Descriptions.Item >
               {IsSaleTag && <Tag style={saleTag}>{SALE_TAG}</Tag>}
               {IsRecTag && <Tag style={noticeTag}>{NOTICE_TAG}</Tag>}
@@ -269,7 +269,7 @@ function ProductInfo(props) {
           <Collapse defaultActiveKey={['0']}>
             <Panel header={t('Product.description')}>
               <Descriptions>
-                <Descriptions.Item>{Product.description}</Descriptions.Item>
+                <Descriptions.Item>{props.detail.description}</Descriptions.Item>
               </Descriptions>
             </Panel>
           </Collapse>
@@ -277,7 +277,7 @@ function ProductInfo(props) {
           <Collapse defaultActiveKey={['1']}>
             <Panel header={t('Product.howToUse')}>
               <Descriptions>
-                <Descriptions.Item>{Product.usage}</Descriptions.Item>
+                <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
               </Descriptions>
             </Panel>
           </Collapse>
@@ -294,8 +294,8 @@ function ProductInfo(props) {
       return (
         <div>
           <Descriptions>
-            <Descriptions.Item label={t('Product.price')}>{Number(Product.price).toLocaleString()}</Descriptions.Item>
-            <Descriptions.Item label={t('Product.contents')}>{Product.contents}</Descriptions.Item>
+            <Descriptions.Item label={t('Product.price')}>{Number(props.detail.price).toLocaleString()}</Descriptions.Item>
+            <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
             <Descriptions.Item >
               {IsSaleTag && <Tag style={saleTag}>{SALE_TAG}</Tag>}
               {IsRecTag && <Tag style={noticeTag}>{NOTICE_TAG}</Tag>}
@@ -305,7 +305,7 @@ function ProductInfo(props) {
           <Collapse defaultActiveKey={['0']}>
             <Panel header={t('Product.description')}>
               <Descriptions>
-                <Descriptions.Item>{Product.description}</Descriptions.Item>
+                <Descriptions.Item>{props.detail.description}</Descriptions.Item>
               </Descriptions>
             </Panel>
           </Collapse>
@@ -313,7 +313,7 @@ function ProductInfo(props) {
           <Collapse defaultActiveKey={['1']}>
             <Panel header={t('Product.howToUse')}>
               <Descriptions>
-                <Descriptions.Item>{Product.usage}</Descriptions.Item>
+                <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
               </Descriptions>
             </Panel>
           </Collapse>
@@ -336,8 +336,8 @@ function ProductInfo(props) {
       return (
         <div>
           <Descriptions>
-            <Descriptions.Item label={t('Product.price')}>{Number(Product.price).toLocaleString()}</Descriptions.Item>
-            <Descriptions.Item label={t('Product.contents')}>{Product.contents}</Descriptions.Item>
+            <Descriptions.Item label={t('Product.price')}>{Number(props.detail.price).toLocaleString()}</Descriptions.Item>
+            <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
             <Descriptions.Item >
               {IsSaleTag && <Tag style={saleTag}>{SALE_TAG}</Tag>}
               {IsRecTag && <Tag style={noticeTag}>{NOTICE_TAG}</Tag>}
@@ -347,7 +347,7 @@ function ProductInfo(props) {
           <Collapse defaultActiveKey={['0']}>
             <Panel header={t('Product.description')}>
               <Descriptions>
-                <Descriptions.Item>{Product.description}</Descriptions.Item>
+                <Descriptions.Item>{props.detail.description}</Descriptions.Item>
               </Descriptions>
             </Panel>
           </Collapse>
@@ -355,7 +355,7 @@ function ProductInfo(props) {
           <Collapse defaultActiveKey={['1']}>
             <Panel header={t('Product.howToUse')}>
               <Descriptions>
-                <Descriptions.Item>{Product.usage}</Descriptions.Item>
+                <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
               </Descriptions>
             </Panel>
           </Collapse>
@@ -376,8 +376,8 @@ function ProductInfo(props) {
     return (
       <div>
         <Descriptions>
-          <Descriptions.Item label={t('Product.price')}>{Number(Product.price).toLocaleString()}</Descriptions.Item>
-          <Descriptions.Item label={t('Product.contents')}>{Product.contents}</Descriptions.Item>
+          <Descriptions.Item label={t('Product.price')}>{Number(props.detail.price).toLocaleString()}</Descriptions.Item>
+          <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
           <Descriptions.Item >
             {IsSaleTag && <Tag style={saleTag}>{SALE_TAG}</Tag>}
             {IsRecTag && <Tag style={noticeTag}>{NOTICE_TAG}</Tag>}
@@ -387,7 +387,7 @@ function ProductInfo(props) {
         <Collapse defaultActiveKey={['0']}>
           <Panel header={t('Product.description')}>
             <Descriptions>
-              <Descriptions.Item>{Product.description}</Descriptions.Item>
+              <Descriptions.Item>{props.detail.description}</Descriptions.Item>
             </Descriptions>
           </Panel>
         </Collapse>
@@ -395,7 +395,7 @@ function ProductInfo(props) {
         <Collapse defaultActiveKey={['1']}>
           <Panel header={t('Product.howToUse')}>
             <Descriptions>
-              <Descriptions.Item>{Product.usage}</Descriptions.Item>
+              <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
             </Descriptions>
           </Panel>
         </Collapse>

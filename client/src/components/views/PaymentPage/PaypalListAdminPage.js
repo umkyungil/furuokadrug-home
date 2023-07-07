@@ -8,7 +8,7 @@ import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-function ListPaypalPage(props) {
+function PaypalListAdminPage(props) {
   const [PaypalInfo, setPaypalInfo] = useState([]);
   const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
@@ -126,4 +126,4 @@ function ListPaypalPage(props) {
   )
 }
 
-export default ListPaypalPage;
+export default PaypalListAdminPage;

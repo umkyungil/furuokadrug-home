@@ -183,12 +183,11 @@ export const PRICE = [
   },
 ]
 
-
 export const NOT_SET = "未設定";
-export const Unidentified = "未確認";
+export const UNIDENTIFIED = "未確認";
 export const DeliveryCompleted = "配送手続き完了";
-export const Deposited = "入金済み";
-export const ECSystem = "ECSystem";
+export const DEPOSITED = "入金済み";
+export const EC_SYSTEM = "ECSystem";
 export const NOTHING = "無し";
 export const EXPIRED_JP = "失効";
 export const EXPIRED_EN = "Expired";
@@ -209,3 +208,5 @@ export const I18N_JAPANESE = "jp";
 export const VIDEO_JP = "video_jp";
 export const VIDEO_CN = "video_cn";
 export const VIDEO_EN = "video_en";
+
+export const ANONYMOUS = "Anonymous";

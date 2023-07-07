@@ -13,6 +13,10 @@ function CodeRegisterPage(props) {
   const [Value1, setValue1] = useState("");
   const [Value2, setValue2] = useState("");
   const [Value3, setValue3] = useState("");
+  const [Value4, setValue4] = useState("");
+  const [Value5, setValue5] = useState("");
+  const [Value6, setValue6] = useState("");
+  const [Value7, setValue7] = useState("");
 
   const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
@@ -21,20 +25,32 @@ function CodeRegisterPage(props) {
 		i18n.changeLanguage(isLanguage);
 	}, [])
   
-  const handleCode = (event) => {
-    setCode(event.target.value);
+  const handleCode = (e) => {
+    setCode(e.target.value);
   };
-  const handleName = (event) => {
-    setName(event.target.value);
+  const handleName = (e) => {
+    setName(e.target.value);
   };
-  const handleValue1 = (event) => {
-    setValue1(event.target.value);
+  const handleValue1 = (e) => {
+    setValue1(e.target.value);
   };
-  const handleValue2 = (event) => {
-    setValue2(event.target.value);
+  const handleValue2 = (e) => {
+    setValue2(e.target.value);
   };
-  const handleValue3 = (event) => {
-    setValue3(event.target.value);
+  const handleValue3 = (e) => {
+    setValue3(e.target.value);
+  };
+  const handleValue4 = (e) => {
+    setValue4(e.target.value);
+  };
+  const handleValue5 = (e) => {
+    setValue5(e.target.value);
+  };
+  const handleValue6 = (e) => {
+    setValue6(e.target.value);
+  };
+  const handleValue7 = (e) => {
+    setValue7(e.target.value);
   };
 
   // Submit
@@ -68,6 +84,10 @@ function CodeRegisterPage(props) {
       value1: Value1,
       value2: Value2,
       value3: Value3,
+      value4: Value4,
+      value5: Value5,
+      value6: Value6,
+      value7: Value7,
     }
 
     const result = await axios.post(`${CODE_SERVER}/register`, body);
@@ -101,12 +121,23 @@ function CodeRegisterPage(props) {
         <Form.Item label="Value1" name="value1" required >
           <Input onChange={handleValue1} required />
         </Form.Item>
-
         <Form.Item label="Value2" name="value2" >
           <Input onChange={handleValue2} />
         </Form.Item>
         <Form.Item label="Value3" name="value3" >
           <Input onChange={handleValue3} />
+        </Form.Item>
+        <Form.Item label="Value4" name="value4" >
+          <Input onChange={handleValue4} />
+        </Form.Item>
+        <Form.Item label="Value5" name="value5" >
+          <Input onChange={handleValue5} />
+        </Form.Item>
+        <Form.Item label="Value6" name="value6" >
+          <Input onChange={handleValue6} />
+        </Form.Item>
+        <Form.Item label="Value7" name="value7" >
+          <Input onChange={handleValue7} />
         </Form.Item>
 
         <Form.Item

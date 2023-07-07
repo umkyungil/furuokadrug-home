@@ -27,13 +27,13 @@ const UseWithSale = [
 ]
 
 const NOT_SET = "未設定"
-const Unidentified = "未確認"
+const UNIDENTIFIED = "未確認"
 const DeliveryCompleted = "配送手続き完了"
-const Deposited = "入金済み"
+const DEPOSITED = "入金済み"
 
 const AWS_S3 = "S3";
 const AWS_SES = "SES";
 const AWS_BUCKET_NAME = "furuokadrug-bucket";
 const AWS_REGION = "ap-northeast-1"
 
-module.exports = { NOT_SET, Unidentified, DeliveryCompleted, Deposited, MAIN_CATEGORY, CouponType, UseWithSale, SaleType, AWS_S3, AWS_SES, AWS_BUCKET_NAME, AWS_REGION };
+module.exports = { NOT_SET, UNIDENTIFIED, DeliveryCompleted, DEPOSITED, MAIN_CATEGORY, CouponType, UseWithSale, SaleType, AWS_S3, AWS_SES, AWS_BUCKET_NAME, AWS_REGION };

@@ -5,18 +5,18 @@ import { USER_SERVER } from '../../../Config';
 import { ENGLISH, JAPANESE, CHINESE, I18N_ENGLISH, I18N_CHINESE, I18N_JAPANESE } from '../../../utils/Const';
 import { withRouter } from 'react-router-dom';
 import { useSelector } from "react-redux";
-import { Cookies } from "react-cookie";
+import { useCookies } from 'react-cookie';
 import { LanguageContext } from '../../../context/LanguageContext';
 import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
 const SubMenu = Menu.SubMenu;
-const cookies = new Cookies();
 
 function RightMenu(props) {
   const user = useSelector(state => state.user)
   const { setIsLanguage } = useContext(LanguageContext)
+  const [cookies, setCookie, removeCookie] = useCookies(['w_auth', 'w_authExp']);
 
   useEffect(() => {
     
@@ -48,10 +48,11 @@ function RightMenu(props) {
       sessionStorage.removeItem("video_jp");
       // 토큰 연장시간 삭제
       sessionStorage.removeItem("tokenAddedTime");
+      // 포인트 적용률 삭제
+      sessionStorage.removeItem("pointRate");
       // 쿠키 삭제
-      cookies.remove('w_auth');
-      cookies.remove('w_authExp');
-      
+      removeCookie('w_auth');
+      removeCookie('w_authExp');
       props.history.push("/login");
     } catch (err) {
       console.log("err: ", err);
@@ -277,6 +278,11 @@ function RightMenu(props) {
             </SubMenu>
 
             <SubMenu title={<span style={{color: 'white'}}>Other Mgt</span>}>
+              <SubMenu title={<span>Order</span>}>
+                <Menu.Item key="list">
+                  <a href="/order/list" >Order list</a>
+                </Menu.Item>
+              </SubMenu>
               <SubMenu title={<span>Sale</span>}>
                 <Menu.Item key="saleList">
                   <a href="/sale/list">Sale List</a>
@@ -376,11 +382,11 @@ function RightMenu(props) {
         )
       }
     } else {
-      if (!locUserName && !sesUserName && Cookies) {
+      if (!locUserName && !sesUserName && cookies.w_auth) {
         // 붙특정 사용자가 브라우저를 강제 종료후 재 접속했을때 세션에 사용자 정보가 없다
         // 쿠키 삭제
-        cookies.remove('w_auth');
-        cookies.remove('w_authExp');
+        removeCookie('w_auth');
+        removeCookie('w_authExp');
       }
 
       // 로그인 했지만 user.userData를 아직 가져오지 못했을 경우
