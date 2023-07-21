@@ -12,13 +12,9 @@ const { TextArea } = Input;
 const formItemLayout = {
   labelCol: {
     span: 6
-    // xs: { span: 24 },
-    // sm: { span: 8 },
   },
   wrapperCol: {
     span: 14
-    // xs: { span: 24 },
-    // sm: { span: 16 },
   },
 };
 
@@ -38,7 +34,7 @@ const tailFormItemLayout = {
 function VirtualReservationPage(props) {
   const _history = useHistory();
   // 다국적언어 설정
-  const { isLanguage } = useContext(LanguageContext);
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   // query string 취득  
@@ -114,7 +110,7 @@ function VirtualReservationPage(props) {
 
   return (
 
-    <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+    <div style={{ maxWidth: '700px', margin: '3rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Reservation.title')}</h1>
       </div>
@@ -123,7 +119,7 @@ function VirtualReservationPage(props) {
         <Form.Item label={t('Reservation.name')} name="username" rules={[{ required: true }]}>
           <Input placeholder="Please enter name" type="text" value={Name} onChange={nameHandler} />
         </Form.Item>
-        <Form.Item label={t('Reservation.weChatId')} required>
+        <Form.Item label={t('Reservation.wechatId')} required>
           <Input name="weChatID" placeholder="Please enter WeChat ID" type="text" value={WeChatID} onChange={weChatIDHandler} required />
         </Form.Item>
         <Form.Item label={t('Reservation.tel')} required>

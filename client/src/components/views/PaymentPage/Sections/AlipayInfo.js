@@ -87,7 +87,7 @@ function AlipayInfo(props) {
       <br />
       <br />
       <div style={{ display: 'flex', justifyContent: 'center' }} >
-        <Button size="large" onClick={listHandler}>
+        <Button onClick={listHandler}>
           Alipay List
         </Button>
       </div>
@@ -95,4 +95,4 @@ function AlipayInfo(props) {
   )
 }
 
-export default AlipayInfo
+export default AlipayInfo;

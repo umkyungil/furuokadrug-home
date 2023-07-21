@@ -14,7 +14,7 @@ axios.defaults.withCredentials = true;
 function ProductDetailPage(props) {
   const productId = props.match.params.productId;
   const [Product, setProduct] = useState({});
-  const {setIsLanguage, isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

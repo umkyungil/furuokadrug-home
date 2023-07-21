@@ -210,14 +210,13 @@ function ListPointPage(props) {
 				</Form>
 			</div>
 
-
 			{/* <span style={{textDecoration: "line-through"}}><Table columns={columns} dataSource={Points} /></span> */}
 			<Table columns={columns} dataSource={Points} />
 			<br/>
 			<br/>
 			{ShowButton && 
 				<div style={{ display: 'flex', justifyContent: 'center' }} >
-					<Button size="large" onClick={listHandler}>
+					<Button onClick={listHandler}>
 						Landing Page
 					</Button>
 				</div>

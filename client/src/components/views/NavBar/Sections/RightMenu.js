@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useContext } from 'react';
+import React, { useContext } from 'react';
 import { Menu, Icon, Badge } from 'antd';
 import { USER_SERVER } from '../../../Config';
 import { ENGLISH, JAPANESE, CHINESE, I18N_ENGLISH, I18N_CHINESE, I18N_JAPANESE } from '../../../utils/Const';
@@ -7,6 +7,7 @@ import { withRouter } from 'react-router-dom';
 import { useSelector } from "react-redux";
 import { useCookies } from 'react-cookie';
 import { LanguageContext } from '../../../context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
@@ -14,18 +15,15 @@ axios.defaults.withCredentials = true;
 const SubMenu = Menu.SubMenu;
 
 function RightMenu(props) {
-  const user = useSelector(state => state.user)
-  const { setIsLanguage } = useContext(LanguageContext)
+  const user = useSelector(state => state.user);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const [cookies, setCookie, removeCookie] = useCookies(['w_auth', 'w_authExp']);
-
-  useEffect(() => {
-    
-
-  }, []);
+  const {t, i18n} = useTranslation();
 
   // 다국적언어
-  const setMultiLanguage = (lang) => {
+  const setMultiLanguage = (lang) => {    
     setIsLanguage(lang);
+    i18n.changeLanguage(lang);
   }
   
   // Logout
@@ -161,7 +159,7 @@ function RightMenu(props) {
               <a onClick={chatHandler}>Chat</a>
             </Menu.Item> */}
             <SubMenu title={<span style={{color: 'white'}}>My Information</span>}>
-              <Menu.Item key="pointList">
+              {/* <Menu.Item key="pointList">
                 <a href="/point/list">Point List</a>
               </Menu.Item>
               <Menu.Item key="paypalList">
@@ -169,6 +167,9 @@ function RightMenu(props) {
               </Menu.Item>
               <Menu.Item key="list">
                 <a href="/order/list" >Order list</a>
+              </Menu.Item> */}
+              <Menu.Item key="myInfoDetail">
+                <a href="/myInfo/detail">MyInfo detail</a>
               </Menu.Item>
             </SubMenu>
             <Menu.Item key="live">
@@ -254,9 +255,9 @@ function RightMenu(props) {
             <Menu.Item key="live">
               <a href="/live" style={{color: 'white'}}>Live Streaming</a>
             </Menu.Item>
-            <Menu.Item key="jitSi">
+            {/* <Menu.Item key="jitSi">
               <a href="/jitSi" style={{color: 'white'}}>JitSi meet</a>
-            </Menu.Item> 
+            </Menu.Item>  */}
             <SubMenu title={<span style={{color: 'white'}}>User</span>}>
               <Menu.Item key="userRegister">
                 <a href="/register">User Reg</a>

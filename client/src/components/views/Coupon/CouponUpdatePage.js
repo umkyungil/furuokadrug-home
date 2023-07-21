@@ -61,7 +61,7 @@ function CouponUpdatePage(props) {
   const [MailBatch, setMailBatch] = useState("");
   const [BirthdayCoupon, setBirthdayCoupon] = useState(false);
 
-  const { isLanguage, setIsLanguage } = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
   
   useEffect(() => {
@@ -425,4 +425,4 @@ function CouponUpdatePage(props) {
   );
 };
 
-export default CouponUpdatePage
+export default CouponUpdatePage;

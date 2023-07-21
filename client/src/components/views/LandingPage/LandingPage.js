@@ -3,7 +3,7 @@ import styles from './LandingPage.module.css';
 import Slider from "react-slick";
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { PRODUCT_SERVER, IMAGES_SERVER } from '../../Config.js';
+import { PRODUCT_SERVER, IMAGES_SERVER, CODE_SERVER } from '../../Config.js';
 import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE, IMAGES_TYPE, I18N_ENGLISH, I18N_JAPANESE, I18N_CHINESE, IMAGES_VISIBLE_ITEM, 
         SALE_TAG, NOTICE_TAG, VIDEO_JP, VIDEO_CN, VIDEO_EN } from '../../utils/Const';
 import { Button, Tag } from 'antd';
@@ -31,20 +31,20 @@ function LandingPage() {
 
   const _history = useHistory();
   const {t, i18n} = useTranslation();
-  const {setIsLanguage, isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
     
   useEffect(() => {
     if (!isLanguage || isLanguage === "") {
       const i18 = localStorage.getItem("i18nextLng");
       
       if (i18) {
-        if (i18 !== 'ja-JP') {
-          setIsLanguage(i18);
-          i18n.changeLanguage(i18);
-        } else {
+        if (i18 === 'ja-JP') {
           setIsLanguage('en');
           localStorage.setItem('i18nextLng', 'en');
           i18n.changeLanguage('en');
+        } else {
+          setIsLanguage(i18);
+          i18n.changeLanguage(i18);
         }
       } else {
         setIsLanguage('en');
@@ -57,8 +57,14 @@ function LandingPage() {
     getProducts(); // type 1:now on air, type 2:recording, type 3: recommended, type 4: sale
     // 이미지 가져오기
     getImages(); // visible 0:private, visible:public
-
+    // 포인트 적용율 가져오기
+    getPointRate();
   },[url]);
+
+  // 포인트비율은 한번만 가져오게 한다
+  useEffect(() => {
+    getPointRate();
+  },[]);
 
   // 빈 객체인 경우 true, 속성이 있는경우 false
   function isEmptyObj(obj)  {
@@ -75,6 +81,20 @@ function LandingPage() {
     }
     
     return true;
+  }
+
+  // 포인트 적용률정보 가져오기
+  const getPointRate = async () => {
+    try {
+      const pointRate = await axios.get(`${CODE_SERVER}/code_by_code?code=POINT`);
+      // 세션에 저장
+      if (pointRate.data.success) {
+        sessionStorage.setItem("pointRate", pointRate.data.codeInfo.value1);
+      }
+    } catch (err) {
+      alert('Please contact the administrator');
+      console.log("err: ",err);
+    }
   }
 
   // 노출상풍을 가져오기

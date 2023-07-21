@@ -36,7 +36,7 @@ function ProductUpdatePage(props) {
   const [ChineseUrl, setChineseUrl] = useState("");
   // QueryString에서 상품아이디 취득
   const productId = props.match.params.productId;
-  const { isLanguage } = useContext(LanguageContext);
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   let options = [];
@@ -271,7 +271,6 @@ function ProductUpdatePage(props) {
       return false;
     }
     
-    console.log("Member: ", Member);
     const body = {
       id: productId,
       writer: props.user.userData._id,

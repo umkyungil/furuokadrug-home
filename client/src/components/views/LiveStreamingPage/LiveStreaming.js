@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import moment from 'moment';
 import { LIVE_SERVER, MAIL_SERVER, USER_SERVER } from '../../Config';
 import { useHistory } from 'react-router-dom';
@@ -17,7 +17,7 @@ function LiveStreaming() {
   const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
   
-  React.useEffect(() => {
+  useEffect(() => {
     // 다국어 설정
     i18n.changeLanguage(isLanguage);
     

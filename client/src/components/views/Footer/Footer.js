@@ -1,64 +1,60 @@
-// import React from 'react';
-
-// function Footer() {
-//     return (
-//         <div className="footer" style={{
-//             height: '80px', display: 'flex',
-//             flexDirection: 'column', alignItems: 'center',
-//             justifyContent: 'center', fontSize:'1rem',
-//         }}>
-//             <p> Copyright © HIROSOPHY All Right Reserved.</p>
-//         </div>
-//     )
-// }
-
-// export default Footer;
 import React from 'react';
-// import './Footer.css';
+import { MAIN_CATEGORY } from '../../utils/Const';
+import { useHistory } from 'react-router-dom';
+import './Footer.css';
+
+const footerMain = {
+    color: '#fff',
+    width: '100%',
+    height: 'auto',
+    padding: '10px',
+    flexDirection: 'column',
+    textAlign: 'center',
+    backgroundColor: '#1a1e65',
+    // Adding media query..
+    // '@media (max-width: 768px)': {
+    //     color: 'red',
+    // },
+}
+
+const footerMenu = {
+    margin: '0 auto',
+    display: 'inline',
+    listStyle: 'none',
+    textDecoration: 'none',
+}
 
 function Footer() {
-    return (
-        <div className="footer" style={{
-            color: '#fff',
-            display: 'block',
-            width: '100%',
-            height: 'auto',
-            margin: '0 auto',
-            display: 'inline-block',
-            padding: '10px',
-            flexDirection: 'column',
-            textAlign: 'center',
-            // justifyContent: 'center',
-            fontSize: '1rem',
-            backgroundColor: '#1a1e65',
-        }}>
-            <ul className="footermenu" style={{
-                color: '#fff',
-                width: '100%',
-                margin: '0 auto',
-                color: '#fff',
-                display: 'inline',
-                listStyle: 'none',
-                // fontcolor: '#fff',
-                fontweight: 'bold',
-            }}>
+    const _history = useHistory();
 
+    // 상품리스트로 이동(카테고리 검색)
+    const handleSearchCategory = (category) => {
+        _history.push(`/product/list/category/${category}`);
+    }
+
+    return (
+        <div style={footerMain}>
+            <ul style={footerMenu}>
                 <hr width="70%" color="#666" border-width="1px"></hr>
-                <li><a href="#">PHARMACEUTICALS</a></li>
-                <li><a href="#">COSMETICS</a></li>
-                <li><a href="#">DAILY NECESSARIES</a></li>
-                <li><a href="#">FOOD</a></li>
-                <li><a href="#">SALE</a></li>
+                
+                <li onClick={() => {handleSearchCategory(MAIN_CATEGORY[2].key)}} >PHARMACEUTICALS</li>
+                <li onClick={() => {handleSearchCategory(MAIN_CATEGORY[1].key)}} >COSMETICS</li>
+                <li onClick={() => {handleSearchCategory(MAIN_CATEGORY[4].key)}} >DAILY NECESSARIES</li>
+                <li onClick={() => {handleSearchCategory(MAIN_CATEGORY[3].key)}} >FOOD</li>
+                <li onClick={() => {handleSearchCategory(MAIN_CATEGORY[5].key)}} >BABY</li>
+                <li onClick={() => {handleSearchCategory(MAIN_CATEGORY[6].key)}} >PET</li>
+
                 <hr width="70%" color="#fff"></hr>
-                <li><a href="#">ABOUTSTORE</a></li>
-                <li><a href="#">Q&A</a></li>
-                <li><a href="#">PRIVACY POLICY</a></li>
-                <li><a href="#">TERMS</a></li>
-                <li><a href="#">COMPANY</a></li>
+
+                <li>ABOUTSTORE</li>
+                <li>Q&A</li>
+                <li>PRIVACY POLICY</li>
+                <li>TERMS</li>
+                <li>COMPANY</li>
+                
                 <hr width="70%" align="center" color="#666"></hr>
             </ul>
             <p> Copyright © HIROSOPHY All Right Reserved.</p>
-
         </div>
     )
 }

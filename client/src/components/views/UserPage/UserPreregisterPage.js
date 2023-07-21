@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { loginUser, preregisterUser } from "../../../_actions/user_actions";
+import { preregisterUser } from "../../../_actions/user_actions";
 import { useDispatch } from "react-redux";
 import { useHistory } from 'react-router-dom';
 import { Select, Form, Input, Button } from 'antd';
@@ -17,13 +17,9 @@ const {Option} = Select;
 const formItemLayout = {
   labelCol: {
     span: 6
-    // xs: { span: 24 },
-    // sm: { span: 8 },
   },
   wrapperCol: {
     span: 14
-    // xs: { span: 24 },
-    // sm: { span: 16 },
   },
 };
 const tailFormItemLayout = {
@@ -43,7 +39,7 @@ function UserPreregisterPage(props) {
   const [SelectItem, setSelectItem] = useState("jp");
   const dispatch = useDispatch();
   const history = useHistory();
-  const { isLanguage } = useContext(LanguageContext);
+  const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
@@ -51,10 +47,6 @@ function UserPreregisterPage(props) {
 		i18n.changeLanguage(isLanguage);
   }, [])
 
-  // Landing pageへ戻る
-  const listHandler = () => {
-    history.push("/");
-  }  
   // 언어 설정
   const selectHandler = (value) => {
     setSelectItem(value);
@@ -101,7 +93,7 @@ function UserPreregisterPage(props) {
             email: values.email,
             language: SelectItem,
           };
-
+          // 임시사용자 저장
           dispatch(preregisterUser(dataToSubmit)).then(response => {
             if (response.payload.success) {
               // 임시사용자 ID설정
@@ -111,7 +103,7 @@ function UserPreregisterPage(props) {
               mailResult.then((res) => {
                 if (res) {
                   alert("Sent mail\nPlease continue with the user registration process");
-                  props.history.push("/login");
+                  history.push("/login");
                 } else {
                   alert("Failed to send mail\nPlease contact the administrator");
                   history.push("/");
@@ -119,7 +111,6 @@ function UserPreregisterPage(props) {
               });
             } else {
               alert("This e-mail address is already registered");
-              history.push("/");
             }
           })
           .catch( function(err) {
@@ -134,7 +125,7 @@ function UserPreregisterPage(props) {
       {props => {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
-          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+          <div style={{ maxWidth: '700px', margin: '3rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>{t('SignUp.title')}</h1>
             </div>
@@ -144,7 +135,8 @@ function UserPreregisterPage(props) {
               <Form.Item required label={t('SignUp.name')} style={{ marginBottom: 0, }} >
                 {/* 이름 */}
                 <Form.Item name="name" required style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
-                  <Input id="name" placeholder="Enter your name" type="text" value={values.name} onChange={handleChange} onBlur={handleBlur} 
+                  <Input id="name" placeholder="Enter your name" type="text" value={values.name} 
+                    onChange={handleChange} onBlur={handleBlur} 
                     className={ errors.name && touched.name ? 'text-input error' : 'text-input' } />
                   {errors.name && touched.name && (
                     <div className="input-feedback">{errors.name}</div>
@@ -152,7 +144,8 @@ function UserPreregisterPage(props) {
                 </Form.Item>
                 {/* 성 */}
                 <Form.Item name="lastName" required style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
-                  <Input id="lastName" placeholder="Enter your last Name" type="text" value={values.lastName} onChange={handleChange} onBlur={handleBlur}
+                  <Input id="lastName" placeholder="Enter your last Name" type="text" value={values.lastName} 
+                    onChange={handleChange} onBlur={handleBlur} 
                     className={ errors.lastName && touched.lastName ? 'text-input error' : 'text-input' } />
                   {errors.lastName && touched.lastName && (
                     <div className="input-feedback">{errors.lastName}</div>
@@ -161,7 +154,8 @@ function UserPreregisterPage(props) {
               </Form.Item>
               {/* 메일주소 */}
               <Form.Item required label={t('SignUp.email')} hasFeedback validateStatus={errors.email && touched.email ? "error" : 'success'}>
-                <Input id="email" placeholder="Enter your Email" type="email" value={values.email} onChange={handleChange} onBlur={handleBlur}
+                <Input id="email" placeholder="Enter your Email" type="email" value={values.email} 
+                  onChange={handleChange} onBlur={handleBlur}
                   className={ errors.email && touched.email ? 'text-input error' : 'text-input' } />
                 {errors.email && touched.email && (
                   <div className="input-feedback">{errors.email}</div>
@@ -177,11 +171,8 @@ function UserPreregisterPage(props) {
               </Form.Item>
 
               <Form.Item {...tailFormItemLayout}>
-                <Button onClick={listHandler}>
-                  Landing Page
-                </Button>
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
-                  Submit
+                  本登録用URLメール送信する
                 </Button>
               </Form.Item>
             </Form>

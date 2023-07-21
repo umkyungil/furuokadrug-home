@@ -68,6 +68,7 @@ function ProductInfo(props) {
         // 사용자정보 가져오기
         await getUser(userId);
       }
+      
       // 상품 노출정보로 상품태그 확인
       handleTag()
     } catch (err) {
@@ -252,7 +253,7 @@ function ProductInfo(props) {
   }
 
   // 로그인 후
-  if (User) {
+  if (User.hasOwnProperty("_id") && cookies.get('w_auth')) {
     // 스텝인 경우
     if (User.role === 1) {
       return (

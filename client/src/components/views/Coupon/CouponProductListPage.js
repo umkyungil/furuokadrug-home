@@ -14,7 +14,7 @@ const items = MAIN_CATEGORY;
 function CouponProductListPage(props) {
 	const [Products, setProducts] = useState([]);
 	const [Item, setItem] = useState(0);
-	const { isLanguage, setIsLanguage } = useContext(LanguageContext);
+	const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
 	useEffect(() => {
@@ -120,4 +120,4 @@ function CouponProductListPage(props) {
 	)
 }
 
-export default CouponProductListPage
+export default CouponProductListPage;

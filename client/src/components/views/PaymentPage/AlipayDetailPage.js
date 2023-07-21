@@ -34,8 +34,8 @@ function AlipayDetailPage(props) {
   }
 
   return (
-    <div style={{ width:'100%', padding:'3rem 4rem' }}>
-      <div style={{ display:'flex', justifyContent:'center' }}>
+    <div style={{ width:'80%', margin: '3rem auto'}}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Alipay.detailTitle')}</h1>
       </div>
       <br />

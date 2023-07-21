@@ -4,10 +4,10 @@ import { updateUser } from "../../../_actions/user_actions";
 import { useDispatch } from "react-redux";
 import { Select, Form, Input, Button, Checkbox } from 'antd';
 import { useHistory } from 'react-router-dom';
-import { getUser } from '../../utils/CommonFunction';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
 import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
+import { USER_SERVER } from '../../Config';
 import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
@@ -37,7 +37,7 @@ const tailFormItemLayout = {
   },
 };
 
-function UserUpdatePage(props) {
+function MyInfoUpdatePage(props) {
   const dispatch = useDispatch();
   const {isLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
@@ -66,38 +66,37 @@ function UserUpdatePage(props) {
   useEffect(() => {
     // 다국적언어
     i18n.changeLanguage(isLanguage);
-    // query string 가져오기
-    const userId = props.match.params.userId;
     // 사용자 정보 가져오기
-    getUserInfo(userId);
+    getUserInfo();
   }, [])
 
   // 사용자 정보 취득
   const getUserInfo = async (userId) => {
     try {
-      const userInfo = await getUser(userId);
+      const userId = props.match.params.userId
+      const userInfo = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}&type=single`);
       
-      if (userInfo) {
-        setId(userInfo._id);          
-        setName(userInfo.name);
-        setLastName(userInfo.lastName);
-        setBirthday(userInfo.birthday);
-        setTel(userInfo.tel);
-        setAddress1(userInfo.address1);
-        setAddress2(userInfo.address2);
-        setAddress3(userInfo.address3);
-        setZip1(userInfo.zip1);
-        setZip2(userInfo.zip2);
-        setZip3(userInfo.zip3);
-        setReceiver1(userInfo.receiver1);
-        setReceiver2(userInfo.receiver2);
-        setReceiver3(userInfo.receiver3);
-        setTel1(userInfo.tel1);
-        setTel2(userInfo.tel2);
-        setTel3(userInfo.tel3);
-        setRole(userInfo.role);
-        setLanguage(userInfo.language);
-        if (userInfo.deletedAt) {
+      if (userInfo.data.success) {
+        setId(userInfo.data.user[0]._id);          
+        setName(userInfo.data.user[0].name);
+        setLastName(userInfo.data.user[0].lastName);
+        setBirthday(userInfo.data.user[0].birthday);
+        setTel(userInfo.data.user[0].tel);
+        setAddress1(userInfo.data.user[0].address1);
+        setAddress2(userInfo.data.user[0].address2);
+        setAddress3(userInfo.data.user[0].address3);
+        setZip1(userInfo.data.user[0].zip1);
+        setZip2(userInfo.data.user[0].zip2);
+        setZip3(userInfo.data.user[0].zip3);
+        setReceiver1(userInfo.data.user[0].receiver1);
+        setReceiver2(userInfo.data.user[0].receiver2);
+        setReceiver3(userInfo.data.user[0].receiver3);
+        setTel1(userInfo.data.user[0].tel1);
+        setTel2(userInfo.data.user[0].tel2);
+        setTel3(userInfo.data.user[0].tel3);
+        setRole(userInfo.data.user[0].role);
+        setLanguage(userInfo.data.user[0].language);
+        if (userInfo.data.user[0].deletedAt) {
           setChecked(true);
         } else {
           setChecked(false);
@@ -111,12 +110,6 @@ function UserUpdatePage(props) {
     }
   }
 
-  const nameHandler = (e) => {
-    setName(e.target.value);
-  }
-  const lastNameHandler = (e) => {
-    setLastName(e.target.value);
-  }
   const birthdayHandler = (e) => {
     setBirthday(e.target.value);
   }
@@ -159,33 +152,19 @@ function UserUpdatePage(props) {
   const tel3Handler = (e) => {
     setTel3(e.target.value);
   }
-  const roleHandler = (value) => {
-    setRole(value);
-  }
   const languageHandler = (value) => {
     setLanguage(value);
   }
-  const deletedHandler = (e) => {
-    setChecked(e.target.checked);
-  };
   
   // 사용자일람 페이지 이동
   const history = useHistory();
   const listHandler = () => {
-    history.push("/user/list");
+    history.push("/");
   }
   
   const submitHandler = (e) => {
     e.preventDefault();
 
-    if (LastName === "") {
-      alert("Last name is required");
-      return false;
-    }
-    if (Name === "") {
-      alert("Name is required");
-      return false;
-    }
     if (Birthday === "") {
       alert("Date of birth is required");
       return false;
@@ -249,7 +228,7 @@ function UserUpdatePage(props) {
     dispatch(updateUser(dataToSubmit)).then(response => {
       if (response.payload.success) {
         alert('User update was successful');
-        props.history.push("/user/list");
+        props.history.push("/");
       } else {
         alert('Please contact the administrator');
       }
@@ -263,7 +242,7 @@ function UserUpdatePage(props) {
         return (
           <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
-              <h1>{t('User.updateTitle')}</h1>
+              <h1>MyInfo update</h1>
             </div>
             
             <Form style={{height:'80%', margin:'1em'}} {...formItemLayout} onSubmit={handleSubmit} >
@@ -271,11 +250,11 @@ function UserUpdatePage(props) {
               <Form.Item required label={t('User.name')} style={{ marginBottom: 0, }} >
                 {/* 이름 */}
                 <Form.Item name="name" required style={{ display: 'inline-block', width: 'calc(50% - 8px)'}} >
-                  <Input id="name" placeholder="Enter the user's name" type="text" value={Name} onChange={nameHandler} onBlur={handleBlur} />
+                  <Input id="name" type="text" value={Name} style={{backgroundColor: '#f2f2f2'}} readOnly />
                 </Form.Item>
                 {/* 성 */}
                 <Form.Item name="lastName" required style={{ display: 'inline-block', width: 'calc(50% - 8px)', margin: '0 8px', }} >
-                  <Input id="lastName" placeholder="Enter your Last Name" type="text" value={LastName} onChange={lastNameHandler} onBlur={handleBlur} />
+                  <Input id="lastName" type="text" value={LastName} style={{backgroundColor: '#f2f2f2'}} readOnly />
                 </Form.Item>
               </Form.Item>
               {/* 생년월일 */}
@@ -285,11 +264,11 @@ function UserUpdatePage(props) {
               {/* 메일주소는 변경을 못하게 하기 위해 화면에 표시 안한다 */}
               {/* 전화번호 */}
               <Form.Item required label={t('User.tel')}>
-                <Input id="tel" placeholder="Enter the user's phone number" type="text" value={Tel} onChange={telHandler} onBlur={handleBlur} />
+                <Input id="tel" placeholder="Phone number" type="text" value={Tel} onChange={telHandler} onBlur={handleBlur} />
               </Form.Item>
               {/* 배송지 주소1 */}
               <Form.Item required label={t('SignUp.address1')}>
-                <Input id="address1" placeholder="Enter your shipping address" type="text" value={Address1} onChange={address1Handler} onBlur={handleBlur} />
+                <Input id="address1" placeholder="Shipping address" type="text" value={Address1} onChange={address1Handler} onBlur={handleBlur} />
               </Form.Item>
               {/* 배송지 주소1 상세*/}
               <Form.Item required label={t('SignUp.addressDetail1')} style={{ marginBottom: 0, }} >
@@ -308,7 +287,7 @@ function UserUpdatePage(props) {
               </Form.Item>
               {/* 배송지 주소2 */}
               <Form.Item label={t('SignUp.address2')}>
-                <Input id="address2" placeholder="Enter your address2" type="text" value={Address2} onChange={address2Handler} onBlur={handleBlur} />
+                <Input id="address2" placeholder="Shipping address" type="text" value={Address2} onChange={address2Handler} onBlur={handleBlur} />
               </Form.Item>
               {/* 배송지 주소2 상세*/}
               <Form.Item label={t('SignUp.addressDetail2')} style={{ marginBottom: 0, }} >
@@ -327,7 +306,7 @@ function UserUpdatePage(props) {
               </Form.Item>
               {/* 주소3 */}
               <Form.Item label={t('SignUp.address3')}>
-                <Input id="address3" placeholder="Enter your address3" type="text" value={Address3} onChange={address3Handler} onBlur={handleBlur} />
+                <Input id="address3" placeholder="Shipping address" type="text" value={Address3} onChange={address3Handler} onBlur={handleBlur} />
               </Form.Item>
               {/* 배송지 주소3 상세 */}
               <Form.Item label={t('SignUp.addressDetail3')} style={{ marginBottom: 0, }} >
@@ -344,14 +323,6 @@ function UserUpdatePage(props) {
                   <Input id="tel3" placeholder="Phone number" type="text" value={Tel3} onChange={tel3Handler} onBlur={handleBlur} />
                 </Form.Item>
               </Form.Item>
-              {/* 권한 */}
-              <Form.Item required label={t('User.role')}>
-                <Select value={Role.toString()} style={{ width: 120 }} onChange={roleHandler}>
-                  <Option value="0">user</Option>
-                  <Option value="1">staff</Option>
-                  <Option value="2">admin</Option>
-                </Select>
-              </Form.Item>
               {/* 언어 */}
               <Form.Item required label={t('User.language')}>
                 <Select value={Language} style={{ width: 120 }} onChange={languageHandler}>
@@ -360,14 +331,10 @@ function UserUpdatePage(props) {
                   <Option value="cn">{CHINESE}</Option>
                 </Select>
               </Form.Item>
-              {/* 삭제일 */}
-              <Form.Item label={t('User.deletedAt')} >
-                <Checkbox checked={Checked} onChange={deletedHandler}>※Please check if you want to delete</Checkbox>
-              </Form.Item>
 
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={listHandler}>
-                  User List
+                  Landing Page
                 </Button>
                 <Button onClick={submitHandler} type="primary" disabled={isSubmitting}>
                   Submit
@@ -383,4 +350,4 @@ function UserUpdatePage(props) {
   );
 };
 
-export default UserUpdatePage;
+export default MyInfoUpdatePage;

@@ -177,6 +177,7 @@ function SaleRegisterPage() {
           if (window.confirm("Do you want to send mail to all users?")) {
             // 메일 전송시간이 설정된 경우
             if (MailBatch !== "") {
+              // 정해진 시간에 메일을 보낸다
               await mailBatch(body)
             } else {
               // 모든 사용자와 관리자에게 메일을 보낸다
@@ -188,7 +189,7 @@ function SaleRegisterPage() {
             setSendMail(false);
           }
         } else {
-          // 세일정보를 등록하니깐 관리자에게는 메일을 보낸다
+          // 메일을 안 보내더라도 세일정보를 등록하니깐 관리자에게는 메일을 보낸다
           await axios.post(`${MAIL_SERVER}/sale/admin`, body);
           setSendMail(false);
         }
@@ -297,7 +298,7 @@ function SaleRegisterPage() {
             return false;
           }
           if (SaleCode.length > 4) {
-            alert("Must be exactly 4 characters");
+            alert("The sales code must be exactly 4 characters long");
             setSubmitting(false);
             return false;
           }

@@ -21,7 +21,7 @@ function LoginPage(props) {
   const rememberMeChecked = localStorage.getItem("rememberMe") ? true : false;
   const [formErrorMessage, setFormErrorMessage] = useState('');
   const [rememberMe, setRememberMe] = useState(rememberMeChecked);
-  const { isLanguage, setIsLanguage } = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
@@ -52,19 +52,27 @@ function LoginPage(props) {
         setTimeout(() => {
           // 로그인 하기전에 쿠키정보가 있으면 
           if (cookies.get('w_auth')) {
-            // 사용자 정보 가져오기
-            axios.post(`${USER_SERVER}/w_auth`, {"w_auth": cookies.get('w_auth')})
-            .then( userInfo => {
-              if (userInfo.data.user[0]) {
-                // 불특정 사용자인 경우
-                let userName = userInfo.data.user[0].name;
-                if (userName.substring(0, 9) === ANONYMOUS) {
-                  // 쿠키 삭제
-                  cookies.remove('w_auth');
-                  cookies.remove('w_authExp');
-                }
-              }
-            });
+            // 쿠키정보로 사용자 정보 가져와서 불특정 사용자인 경우 쿠키를 삭제하는 처리를
+            // 로그인 할때 쿠키가 있으면 그냥 삭제하는 처리로 변경
+
+            // axios.post(`${USER_SERVER}/w_auth`, {"w_auth": cookies.get('w_auth')})
+            // .then( userInfo => {
+            //   if (userInfo.data.user[0]) {
+            //     // 불특정 사용자인 경우
+            //     let userName = userInfo.data.user[0].name;
+            //     if (userName.substring(0, 9) === ANONYMOUS) {
+            //       // 쿠키 삭제
+            //       cookies.remove('w_auth');
+            //       cookies.remove('w_authExp');
+            //     }
+            //   }
+            // });
+            
+            cookies.remove('w_auth');
+            cookies.remove('w_authExp');
+            // 불특정사용자의 정보가 남아 있을수 있기 때문에 삭제
+            sessionStorage.removeItem('userId');
+            sessionStorage.removeItem('userName');
           }
           
           let dataToSubmit = {
@@ -79,10 +87,7 @@ function LoginPage(props) {
                 // local storage에 등록
                 localStorage.setItem('userId', userInfo.payload.userInfo._id);
                 localStorage.setItem('userName', userInfo.payload.userInfo.name);
-
-                // 불특정사용자의 정보가 남아 있을수 있기 때문에 삭제+
-                sessionStorage.removeItem('userId');
-                sessionStorage.removeItem('userName');
+                
                 // 사용자 정보의 언어 속송값을 다국어에서 사용하기 위해 로컬스토리지에 셋팅
                 if (userInfo.payload.userInfo.language) {
                   setIsLanguage(userInfo.payload.userInfo.language);
@@ -93,21 +98,15 @@ function LoginPage(props) {
                 .then( result => {
                   // 세션에 저장
                   sessionStorage.setItem("tokenAddedTime", result.data.codeInfo.value1);
-                  // 포인트 적용률 가져오기
-                  axios.get(`${CODE_SERVER}/code_by_code?code=POINT`)
-                  .then( result => {
-                    // 세션에 저장
-                    // sessionStorage.setItem("pointRate", result.data.codeInfo.value1);
                     
-                    // remember
-                    if (rememberMe === true) {
-                      localStorage.setItem('rememberMe', values.id);
-                    } else {
-                      localStorage.removeItem('rememberMe');
-                    }
-                    // 랜딩페이지 이동
-                    props.history.push("/");
-                  })
+                  // remember
+                  if (rememberMe === true) {
+                    localStorage.setItem('rememberMe', values.id);
+                  } else {
+                    localStorage.removeItem('rememberMe');
+                  }
+                  // 랜딩페이지 이동
+                  props.history.push("/");
                 });
               } else {
                 setFormErrorMessage('Check out your Account or Password again')

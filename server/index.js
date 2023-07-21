@@ -38,7 +38,6 @@ const server = async() => {
     // 아래 주소로 오면 해당 라우터로 가라는 지정
     app.use('/api/users', require('./routes/users'));
     app.use('/api/product', require('./routes/product'));
-    app.use('/api/customers', require('./routes/customers'));
     app.use('/api/csv', require('./routes/csv'));
     app.use('/api/sendmail', require('./routes/sendmail'));
     app.use('/api/payment', require('./routes/payment'));

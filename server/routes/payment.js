@@ -320,12 +320,6 @@ router.get('/wechat/register', async (req, res) => {
           productPoint = parseInt(arrSod[1]); // 누적할 포인트
           totalPoint = parseInt(arrSod[2]); // 총 포인트
 
-
-          console.log("arrSod: ", arrSod);
-          console.log("pointToUse: ", pointToUse);
-          console.log("productPoint: ", productPoint);
-          console.log("totalPoint: ", totalPoint);
-
           // Cart인 경우 Wechat확인 페이지에서 tmpOrder에 등록할때 userId를 제외한 
           // uniqueField로 등록해서 userId를 제외한 uniqueField로 검색한다
           // UPC에 전송할때 userId를 붙인 이유는 redirect 페이지에서 사용하기 위함

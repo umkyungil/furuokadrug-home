@@ -1,33 +1,69 @@
-@import '~antd/dist/antd.css';
-
-.footer {
-    display: block;
-    text-align: 'center';
-    list-style: 'none';
-    display: 'inline-block';
-    color: '#fff';
-    height: 'auto';
-    padding: '120px';
-    /* flexDirection: 'column'; */
-    /* justifyContent: 'center'; */
-    /* fontSize: '1rem'; */
-    background-color: #1a1e65;
+.footerContainer {
+    display: 'flex';
+    justify-content: 'center';
+    align-items: 'center';
+    padding: '40px 0';
+    border-top: '1px solid rgb(25, 25, 25)';
+    width: '100%';
+    position: 'relative';
+    z-index: 100;
+    
+    @media (max-width: 768px) {
+        padding:20px 20px;
+        padding-bottom: 30px;
+    }
 }
 
+.footerLinkContainer {
+    width: 500px;
 
-.footermenu ul{
-    /* display: 'inline'; */
-    display: 'inline-block';
-    text-align: 'center';
-    color: '#ffffff';
-    font-size: '1rem';
-    /* backgroundColor: '#1a1e65'; */
+    @media (max-width: 768px) {
+        width: 100%;
+    }
 }
 
-.footermenu li {
-    display:'inline-block';
-    list-style: 'none';
-    text-align: 'center';
-    color: '#ffffff';
-    font-size: '15pt';
+.footerLinkTitle {
+    color: gray;
+    font-size: 17px;
+}
+
+.footerLinkContent {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 35px;
+
+    @media (max-width: 768px) {
+        margin-top: 26px;
+    }
+}
+
+.footerLink {
+    color: red;
+    font-size: 14px;
+    width: 110px;
+    margin-bottom: 21px;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        margin-bottom: 16px;
+    }
+}
+
+.footerDescContainer {
+    margin-top: 30px;
+
+    @media (max-width:768px) {
+        margin-top: 20px;
+    }
+}
+
+.footerDescRights {
+    color: white;
+    font-size: 14px;
+    text-align: center;
 }

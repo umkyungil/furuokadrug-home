@@ -60,22 +60,6 @@
     "member": "会員専用",
     "createdAt": "登録日"
   },
-  "Customer": {
-    "listTitle": "顧客一覧",
-    "regTitle": "顧客登録",
-    "updateTitle": "顧客更新",
-    "detailTitle": "顧客詳細",
-    "smaregiId": "スマレジID",
-    "name": "名前",
-    "tel": "電話番号",
-    "email": "メール",
-    "address1": "配達先1",
-    "address2": "配達先2",
-    "address3": "配達先3",
-    "salesman": "スタッフ",
-    "point": "ポイント",
-    "action": "Action"
-  },
   "Order": {
     "listTitle": "注文一覧",
     "regTitle": "注文登録",
@@ -105,7 +89,7 @@
   "Reservation": {
     "title": "仮想予約",
     "name": "名前",
-    "weChatId": "WeChat ID",
+    "wechatId": "Wechat ID",
     "tel": "電話番号",
     "date": "予約日",
     "item": "興味を持ったアイテム",
@@ -188,8 +172,8 @@
     "inquiry": "お問い合わせ内容"
   },
   "Alipay": {
-    "listTitle": "Alipay決済履歴一覧",
-    "detailTitle": "Alipay決済履歴詳細",
+    "listTitle": "Alipay履歴一覧",
+    "detailTitle": "Alipay履歴詳細",
     "paymentNumber": "決済番号",
     "result": "処理結果",
     "controlNumber": "管理番号",
@@ -206,8 +190,8 @@
     "updatedDate": "更新日"
   },
   "Wechat": {
-    "listTitle": "WeChat決済履歴一覧",
-    "detailTitle": "WeChat決済履歴詳細",
+    "listTitle": "Wechat履歴一覧",
+    "detailTitle": "Wechat履歴詳細",
     "paymentNumber": "決済番号",
     "result": "処理結果",
     "controlNumber": "管理番号",

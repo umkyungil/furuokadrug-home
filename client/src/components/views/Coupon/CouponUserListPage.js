@@ -11,7 +11,7 @@ axios.defaults.withCredentials = true;
 function CouponUserListPage() {
 	const [Users, setUsers] = useState([]);
 	const {t, i18n} = useTranslation();
-	const { isLanguage, setIsLanguage } = useContext(LanguageContext);
+	const {isLanguage, setIsLanguage} = useContext(LanguageContext);
 
 	useEffect(() => {
     i18n.changeLanguage(isLanguage);

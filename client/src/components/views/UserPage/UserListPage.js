@@ -60,6 +60,10 @@ function UserListPage() {
 						let tmpDate = new Date(result.data.userInfo[i].lastLogin);
 						const date = new Date(tmpDate.getTime() - (tmpDate.getTimezoneOffset() * 60000)).toISOString();
 						result.data.userInfo[i].date = date.replace('T', ' ').substring(0, 19) + ' (JST)';
+
+						console.log("tmpDate: ", tmpDate);
+						console.log("date: ", date);
+						console.log("result.data.userInfo[i].date: ", result.data.userInfo[i].date);
 					}
 					// 삭제날짜 변형(delDate 추가)
 					if(result.data.userInfo[i].deletedAt) {

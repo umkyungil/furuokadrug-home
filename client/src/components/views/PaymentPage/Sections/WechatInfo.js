@@ -87,7 +87,7 @@ function WechatInfo(props) {
       <br />
       <br />
       <div style={{ display: 'flex', justifyContent: 'center' }} >
-        <Button size="large" onClick={listHandler}>
+        <Button onClick={listHandler}>
           Wechat List
         </Button>
       </div>
@@ -95,4 +95,4 @@ function WechatInfo(props) {
   )
 }
 
-export default WechatInfo
+export default WechatInfo;

@@ -7,7 +7,6 @@ const { Payment } = require('../models/Payment');
 const { TmpPayment } = require('../models/TmpPayment');
 const { Point } = require('../models/Point');
 const { Counter } = require('../models/Counter');
-const { Code } = require('../models/Code');
 const { auth } = require("../middleware/auth");
 const async = require('async');
 const bcrypt = require('bcrypt');
@@ -59,9 +58,9 @@ router.get("/auth", auth, (req, res) => {
 // Login
 router.post("/login", async (req, res) => {
     try {
-        // 요청된 이메일을 데이터베이스에서 있는지 찾는다
+        // 이메일로 로그인정보 체크 
         User.findOne({ email: req.body.email }, (err, user) => {
-            // 한명도 없다면
+            // 로그인 정보가 없으면
             if (!user) {
                 return res.json({ loginSuccess: false, message: "Auth failed, email not found" });
             }
@@ -72,10 +71,9 @@ router.post("/login", async (req, res) => {
                     return res.json({ loginSuccess: false, message: "Wrong password" });
                 }
                 
-                // 비밀번호까지 맞다면 토큰및 토큰 유효기간을 생성하기
-                user.generateToken(async (err, user) => {
+                // 비밀번호까지 맞다면 토큰및 토큰 유효기간및 라스트 로그인 생성
+                user.genTokenAndLastLogin(async (err, user) => {
                     if (err) return res.status(400).send(err);
-                    let expiration = moment(user.tokenExp).format('YYYY-MM-DD HH:mm');
 
                     // 토큰및 토큰 유효기간을 클라이언트의 쿠키에 저장한다
                     res.cookie("w_authExp", user.tokenExp);
@@ -100,8 +98,8 @@ router.get("/redirect/login", async (req, res) => {
         // 한명도 없다면
         if (!user) return res.json({ loginSuccess: false, message: "Auth failed, email not found" });
 
-        // 토큰및 토큰 유효기간을 생성하기
-        user.generateToken(async (err, user) => {
+        // 토큰및 토큰 유효기간및 라스트 로그인 생성
+        user.genTokenAndLastLogin(async (err, user) => {
             if (err) return res.status(400).send(err);
 
             // 토큰및 토큰 유효기간을 클라이언트의 쿠키에 저장한다

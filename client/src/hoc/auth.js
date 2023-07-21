@@ -50,8 +50,12 @@ export default function (SpecificComponent, option, adminRoute = null) {
                         }
                         // 불특정 사용자인 경우 토큰 체크를 하지 않는다
                         if (response.payload.role !== 3) {
-                            // 토큰유효기간 체크(파라메터: 사용자 아이디, 사용자 토큰 유효시간)
-                            handleChkTokenExp(response.payload._id);
+                            // 관리자인 경우 제외를 한다
+                            if (response.payload.role !== 2) {
+                                // 토큰유효기간 체크(파라메터: 사용자 아이디, 사용자 토큰 유효시간)
+                                handleChkTokenExp(response.payload._id);
+                            }
+                            
                         }
                     }
                 }

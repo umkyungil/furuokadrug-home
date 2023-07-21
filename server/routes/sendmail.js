@@ -369,16 +369,25 @@ router.post("/passwordConfirm", async (req, res) => {
 router.post("/preregister", async (req, res) => {
     // 메일내용 설정
     let japaneseMessage = req.body.lastName + " " + req.body.name + " 様\n\n";
-    japaneseMessage += "この度は、「FURUOKADRUG」にお申し込み頂きまして誠にありがとうございます。\n\n";
-    japaneseMessage += "ご本人様確認のため、下記URLへ「1時間以内」にアクセスし\n";
-    japaneseMessage += "アカウントの本登録を完了させて下さい。\n";
+
+    japaneseMessage += "古岡ドラックにお申込みいただきありがとうございます。\n\n";
+
+    japaneseMessage += "会員登録はまだ完了しておりません。\n";
+    japaneseMessage += "下記ページより本登録を行ってください。\n";
     japaneseMessage += PRE_REGISTER_URL + `${req.body._id}\n\n`;
-    japaneseMessage += "※当メール送信後、1時間を超過しますと、セキュリティ保持のため有効期限切れとなります。\n";
-    japaneseMessage += "　その場合は再度、最初からお手続きをお願い致します。\n";
-    japaneseMessage += "※当メールは送信専用メールアドレスから配信されています。\n";
-    japaneseMessage += "　このままご返信いただいてもお答えできませんのでご了承ください。\n";
-    japaneseMessage += "※当メールに心当たりの無い場合は、誠に恐れ入りますが\n";
-    japaneseMessage += "　破棄して頂けますよう、よろしくお願い致します。";
+
+    japaneseMessage += "※上記のURLは発行より1時間有効です。\n\n";
+
+    japaneseMessage += "1時間経過してしまった場合は、お手数ですが以下より再度ご登録の手続きをお願いします。\n";
+    japaneseMessage += "https://furuokadrug.herokuapp.com/preregister\n\n";
+    
+    japaneseMessage += "-------------------------------\n";
+    japaneseMessage += "本メールにお心あたりが無い方へ\n";
+    japaneseMessage += "-------------------------------\n\n";
+
+    japaneseMessage += "このメールは、古岡ドラックに会員登録のお申し込みをいただいたお客様に自動で送信しています。本メールにお心あたりが無い場合は、破棄していただきますようよろしくお願いいたします。\n\n";
+
+    japaneseMessage += "※このメールアドレスは送信専用になっております。本メールに返信いただきましても、お答えする事は出来ませんのでご了承願います。";
     
     let chineseMessage = "亲爱的" + req.body.lastName + " " + req.body.name + "\n\n";
     chineseMessage += "非常感谢您在「FURUOKADRUG」注册账号。\n\n";

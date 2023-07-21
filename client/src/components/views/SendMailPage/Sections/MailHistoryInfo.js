@@ -44,12 +44,12 @@ function MailHistoryInfo(props) {
       <br />
       <br />
       <div style={{ display: 'flex', justifyContent: 'center' }} >
-        <Button size="large" onClick={listHandler}>
-          Mail History List
+        <Button onClick={listHandler}>
+          Mail List
         </Button>
       </div>
     </div>
   )
 }
 
-export default MailHistoryInfo
+export default MailHistoryInfo;

@@ -17,6 +17,8 @@ import UserPreregisterPage from "./views/UserPage/UserPreregisterPage.js"; // �
 import UserPreregisterConfirmPage from "./views/UserPage/UserPreregisterConfirmPage.js"; // 임시사용자 수정
 import UserPasswordChangePage from "./views/UserPage/UserPasswordChangePage.js"; // 사용자 비밀번호 변경 안내메일
 import UserPasswordConfirmPage from "./views/UserPage/UserPasswordConfirmPage.js"; // 사용자 비밀번호 변경
+import MyInfoDetailPage from "./views/UserPage/MyInfoDetailPage.js"; // 자신의 상세정보
+import MyInfoUpdatePage from "./views/UserPage/MyInfoUpdatePage.js"; // 자신의정보 수정
 // 초기페이지
 import LandingPage from "./views/LandingPage/LandingPage.js";
 // 상품관리
@@ -26,11 +28,6 @@ import ProductRegisterPage from "./views/ProductPage/ProductRegisterPage.js";
 import ProductListPage from "./views/ProductPage/ProductListPage.js";
 import ProductUploadCsvPage from "./views/ProductPage/ProductUploadCsvPage.js";
 import ProductListAdminPage from "./views/ProductPage/ProductListAdminPage.js";
-// 고객관리
-import CustomerRegisterPage from "./views/CustomerPage/CustomerRegisterPage.js";
-import CustomerListPage from "./views/CustomerPage/CustomerListPage.js";
-import CustomerUpdatePage from "./views/CustomerPage/CustomerUpdatePage.js";
-import CustomerDetailPage from "./views/CustomerPage/CustomerDetailPage.js"; // 고객상세
 // 결제관리
 import AlipayListPage from "./views/PaymentPage/AlipayListPage.js"; // AliPay 결제결과 리스트
 import WechatListPage from "./views/PaymentPage/WechatListPage.js"; // WeChat 결제결과 리스트
@@ -94,7 +91,7 @@ function App() {
 
   return (
     <Suspense fallback={(<div>Loading...</div>)}>
-      <LanguageContext.Provider value={{ isLanguage, setIsLanguage }}>
+      <LanguageContext.Provider value={{isLanguage, setIsLanguage}}>
         
         <NavBar />
         
@@ -113,6 +110,9 @@ function App() {
             <Route exact path="/user/preregisterConfirm/:userId" component={UserPreregisterConfirmPage} />
             <Route exact path="/passwordChange" component={Auth(UserPasswordChangePage)} />
             <Route exact path="/user/confirm/:userId" component={UserPasswordConfirmPage} />
+            
+            <Route exact path="/myInfo/detail" component={Auth(MyInfoDetailPage, true)} />
+            <Route exact path="/myInfo/update/:userId" component={Auth(MyInfoUpdatePage, true)} />
             {/* 상품관리 */}
             <Route exact path="/product/upload" component={Auth(ProductRegisterPage, true)} />
             <Route exact path="/product/list/:type" component={Auth(ProductListPage, null)} />
@@ -122,12 +122,6 @@ function App() {
             <Route exact path="/product/update/:productId/" component={Auth(ProductUpdatePage, null)} />
             <Route exact path="/product/csv/upload" component={Auth(ProductUploadCsvPage, null)} />
             <Route exact path="/product/admin/list" component={Auth(ProductListAdminPage, true)} />
-
-            {/* 고객관리 */}
-            <Route exact path="/customer/register" component={Auth(CustomerRegisterPage, true)} />
-            <Route exact path="/customer/list" component={Auth(CustomerListPage, true)} />
-            <Route exact path="/customer/:customerId" component={Auth(CustomerDetailPage, true)} />
-            <Route exact path="/customer/update/:customerId" component={Auth(CustomerUpdatePage, true)} />
             {/* 메일관리 */}
             <Route exact path="/mail/notice/:type/:toEmail" component={Auth(NoticeMailPage, true)} />
             <Route exact path="/mail/reserve" component={Auth(VirtualReservationPage, null)} />

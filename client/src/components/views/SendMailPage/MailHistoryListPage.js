@@ -101,7 +101,7 @@ function MailHistoryListPage() {
 	
 	return (
 		<div style={{ width:'80%', margin: '3rem auto'}}>
-			<div style={{ textAlign: 'center' }}>
+			<div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
 				<h1>{t('Mail.listTitle')}</h1>
 			</div>
 

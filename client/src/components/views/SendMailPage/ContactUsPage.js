@@ -86,7 +86,7 @@ function ContactUsPage() {
   }
 
   return (
-    <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+    <div style={{ maxWidth: '700px', margin: '3rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Contact.title')}</h1>
       </div>

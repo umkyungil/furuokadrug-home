@@ -92,9 +92,9 @@ function AlipayConfirmPage(props) {
     getCountry();
   }, [])
 
-  // 전체의 몇 퍼센트는 얼마인지 구하기
-  const percent = (par, total) => {
-    return parseInt(( parseInt(total) * parseInt(par) ) / 100);
+  // 퍼센트로 값 구하기(전체값 * 퍼센트 / 100)
+  const percent = (total, rate) => {
+    return parseInt((parseInt(total) * parseInt(rate)) / 100);
   }
 
   // 로그인 사용자정보 가져오기
@@ -268,7 +268,7 @@ function AlipayConfirmPage(props) {
     }
   }
 
-  // 포인트 적용률정보 가져오기
+  // 포인트 적용률정보 가져와서 세션에 저장
   const getPointRate = async () => {
     try {
       const pointRate = await axios.get(`${CODE_SERVER}/code_by_code?code=POINT`);
@@ -449,7 +449,7 @@ function AlipayConfirmPage(props) {
         // Live에서 이동된 경우에도 사용자에게 포인트를 누적하기 위해 sod에 포인트를 추가한다
         // Live도 로그인한 사용자가 사용하니깐 포인트 누적이 가능하도록 한다
         // Live에서 이동된 경우 총금액에 해당하는 포인트를 구한다 (소숫점을 자른다)
-        acquisitionPointsRef.current = percent(sessionStorage.getItem("pointRate"), siam1);
+        acquisitionPointsRef.current = percent(siam1, sessionStorage.getItem("pointRate"));
         sod = acquisitionPointsRef.current + "_" + sod;
       }
       

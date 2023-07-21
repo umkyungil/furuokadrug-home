@@ -21,7 +21,7 @@ function UserCardBlock(props) {
           {product.quantity} {t('Cart.unit')}
         </td>
         <td>
-          {Number(product.price).toLocaleString()}
+          {Number(product.price).toLocaleString()}(JPY)
         </td>
         <td>
           <Button onClick={() => props.removeItem(product._id)}>
@@ -54,4 +54,4 @@ function UserCardBlock(props) {
   )
 }
 
-export default UserCardBlock
+export default UserCardBlock;

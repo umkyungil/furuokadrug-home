@@ -77,11 +77,11 @@ function OrderInfo(props) {
           <br />
           <br />
           <div style={{ display: 'flex', justifyContent: 'center' }} >
-            <Button size="large" onClick={listHandler}>
+            <Button onClick={listHandler}>
               Order List
             </Button>
             &nbsp;&nbsp;&nbsp;
-            <Button size="large" type="danger" onClick={deleteHandler}>
+            <Button type="danger" onClick={deleteHandler}>
               Delete
             </Button>
           </div>
@@ -113,7 +113,7 @@ function OrderInfo(props) {
           <br />
           <br />
           <div style={{ display: 'flex', justifyContent: 'center' }} >
-            <Button size="large" onClick={listHandler}>
+            <Button onClick={listHandler}>
               Order List
             </Button>
           </div>
@@ -145,7 +145,7 @@ function OrderInfo(props) {
         <br />
         <br />
         <div style={{ display: 'flex', justifyContent: 'center' }} >
-            <Button size="large" onClick={listHandler}>
+            <Button onClick={listHandler}>
               Order List
             </Button>
           </div>

@@ -75,10 +75,10 @@ function CodeDetailPage(props) {
         <br />
         <br />
         <div style={{ display: 'flex', justifyContent: 'center' }} >
-          <Button size="large" onClick={listHandler}>
+          <Button onClick={listHandler}>
             Code List
           </Button>
-          <Button size="large" type="danger" onClick={deleteHandler}>
+          <Button type="danger" onClick={deleteHandler}>
             Delete
           </Button>
         </div>

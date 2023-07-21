@@ -60,22 +60,6 @@
     "member": "仅限会员",
     "createdAt": "注册日期"
   },
-  "Customer": {
-    "listTitle": "客户信息列表",
-    "regTitle": "客户信息登记",
-    "updateTitle": "客户信息更新",
-    "detailTitle": "客户详细信息",
-    "smaregiId": "Smaregi ID",
-    "name": "姓名",
-    "tel": "手机号码",
-    "email": "电子邮件",
-    "address1": "收货地址1",
-    "address2": "收货地址2",
-    "address3": "收货地址3",
-    "salesman": "工作人员",
-    "point": "关键点",
-    "action": "行动"
-  },
   "Order": {
     "listTitle": "订单信息列表",
     "regTitle": "订单信息登记",
@@ -105,7 +89,7 @@
   "Reservation": {
     "title": "云导购预约",
     "name": "姓名",
-    "weChatId": "微信账号",
+    "wechatId": "微信账号",
     "tel": "手机号码",
     "date": "预约日期",
     "item": "感兴趣的商品",
@@ -188,8 +172,8 @@
     "inquiry": "咨询内容"
   },
   "Alipay": {
-    "listTitle": "支付宝历史支付记录一览",
-    "detailTitle": "支付宝历史支付记录详情",
+    "listTitle": "支付宝历史列表",
+    "detailTitle": "支付宝历史详情",
     "paymentNumber": "支付编号",
     "result": "处理结果",
     "controlNumber": "控制序列号",
@@ -206,8 +190,8 @@
     "updatedDate": "更新日期"
   },
   "Wechat": {
-    "listTitle": "微信历史支付记录一览",
-    "detailTitle": "微信历史支付记录详情",
+    "listTitle": "微信历史记录列表",
+    "detailTitle": "微信历史记录详情",
     "paymentNumber": "支付编号",
     "result": "处理结果",
     "controlNumber": "控制序列号",

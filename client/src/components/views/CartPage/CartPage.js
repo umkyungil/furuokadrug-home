@@ -21,6 +21,7 @@ function CartPage(props) {
   const [AvailablePoints, setAvailablePoints] = useState(0); // 보유하고 있는 포인트 - 사용자가 입력한 포인트
   const [AcquisitionPoints, setAcquisitionPoints] = useState(0); // 구매시 취득가능한 포인트(총금액의 10%)
   const [UsePoint, setUsePoint] = useState(0); // 사용자가 입력한 포인트
+  const [InputPoint, setInputPoint] = useState(""); // 사용자가 입력한 포인트
   const [PointConfirm, setPointConfirm] = useState(0); // 포인트 확인 버튼을 눌렀는지 확인
   const [MyPoint, setMyPoint] = useState(0); // 보유 포인트
   const [Coupon, setCoupon] = useState({}); // 사용자가 입력한 쿠폰코드로 검색한 쿠폰정보
@@ -28,6 +29,9 @@ function CartPage(props) {
   const [CouponAmount, setCouponAmount] = useState(0); // 쿠폰타입에 의해 계산된 할인금액
   const [ShowTotal, setShowTotal] = useState(false);
   const [ShowSuccess, setShowSuccess] = useState(false);
+  const [PointRate, setPointRate] = useState(() => {
+    return sessionStorage.getItem("pointRate") || 10
+  });
   
   const showSaleTotalRef = useRef(false); // 세일금액 표시(화면이 리로드되도 저장됨)
   const saleTotalDiscountAmount = useRef(0);
@@ -73,11 +77,12 @@ function CartPage(props) {
     if (props.user.userData && props.user.userData.cart) {
       if (props.user.userData.cart.length > 0) {
         // 사용자의 유효기간 내의 사용가능한 포인트 가져오기
+        // 포인트가 없으면 0을 받는다
         const myPoint = await getCalcPoint(props.user.userData._id);
         setMyPoint(myPoint);
-        setAvailablePoints(myPoint);
+        setAvailablePoints(myPoint); // 사용할수 있는 포인트(취득한 포인트)
 
-        // 카트의 상품의 ID를 가지고온다
+        // 카트의 상품의 ID를 가지고와서 배열에 넣는다
         props.user.userData.cart.forEach(item => {
           cartItems.push(item.id);
         });
@@ -87,9 +92,6 @@ function CartPage(props) {
         // 2번째 파라메터는 사용자의 카트정보
         dispatch(getCartItems(cartItems, props.user.userData.cart))
         .then(response => {
-
-          calculateTotal(response.payload);
-
           // 카트에 들어있는 상품금액 및 누적될 포인트 계산
           const cartDetail = response.payload;
           let total = 0;
@@ -100,14 +102,14 @@ function CartPage(props) {
           setCartDetail(cartDetail); // 카트의 모든 상품정보
           setTotal(total); // 카트의 상품 누적금액
           setFinalTotal(total);
-          setAcquisitionPoints(parseInt(total/100)); // 취득할 포인트는 총금액에서 100으로 나누어서 계산된 포인트를 대입한다
+          setAcquisitionPoints(percent(total, PointRate)); // 취득할 포인트 계산하기
           setDiscount(0);
           setShowTotal(true);
 
           // 세일정보가 있을경우 총 합계, 취득 포인트, 할인금액등을 계산한다
           const mySale = getSale();
           mySale.then(saleInfos => {
-            if (saleInfos) {
+            if (saleInfos.length > 0) {
               showSaleTotalRef.current = true;
               calcBySaleItem(saleInfos, cartDetail);
             } else {
@@ -119,7 +121,7 @@ function CartPage(props) {
     }
   }
 
-  // 현재날짜가 포함되어 있는 모든 세일정보 가져오기
+  // 현재날짜가 포함되어 있는 모든 세일정보 가져와서 배열에 담아 넘긴다
   const getSale = async () => {
     let saleInfos = [];
     try {
@@ -134,12 +136,14 @@ function CartPage(props) {
       }
     } catch (err) {
       console.log("getSale err: ", err);
+      alert("Please contact the administrator");
+      history.push("/");
     }
   }
 
   // 카테고리 또는 상품이 지정된 경우 세일금액을 계산한다.
   const calcBySaleItem = async (saleInfos, cartDetail) => {
-    // 특정상품의 세일정보를 저장(화면에서 카테고리 ALL인 경우는 상품을 지정할수 없다)
+    // 특정상품의 세일정보를 저장(세일등록 화면에서 카테고리 ALL인 경우는 상품을 지정할수 없게 되어있다)
     let saleProduct = [];
     for (let i=0; i<saleInfos.length; i++) {
       // 카테고리와 관계없이 특정상품 세일정보가 있는경우
@@ -225,7 +229,7 @@ function CartPage(props) {
 
       // 상품세일에 최소금액이 있는경우(동일상품이 하나이상있는 경우 합계금액에 대해 최소금액을 비교한다)
       if (saleProduct[i].minAmount !== "") {
-        const minProductAmount = Number(saleProduct[i].minAmount);
+        const minProductAmount = parseInt(saleProduct[i].minAmount);
         // 해당 상품의 합계금액이 최소금액보다 작은경우 세일계산을 하지 않는다
         if (price < minProductAmount) {
           price = 0;
@@ -293,11 +297,11 @@ function CartPage(props) {
     // 카테고리 ALL인 세일정보가 있는 경우
     tmpCartDetail = [...cpCartDetail];
     // 카테고리 ALL은 하나만 존재한다
-    for (let i=0; i<allCategory.length; i++) {
+    for (let i = 0; i < allCategory.length; i++) {
       let price = 0;
       let count = 0;
       
-      for (let j=0; j<tmpCartDetail.length; j++) {
+      for (let j = 0; j < tmpCartDetail.length; j++) {
         price += parseInt(tmpCartDetail[j].price,10) * tmpCartDetail[j].quantity;
         count = tmpCartDetail[j].quantity;
         cpCartDetail.splice(j, 1);
@@ -316,6 +320,7 @@ function CartPage(props) {
       if (price > 0) {
         const allCategoryAmount  = calcBySaleType(price, allCategory[i]);
         
+        // 세일타입이 포인트부여인 경우
         if (allCategory[i].type === SaleType[1].key) {
           // 상품갯수당 포인트를 부여한다
           const point = allCategoryAmount * count;
@@ -349,7 +354,7 @@ function CartPage(props) {
       let total = parseInt(allProductPrice - totalDiscountAmount);
       setFinalTotal(total);
       // 포인트 부여로 취득한 포인트와 구매상품의 총 금액에서 취득한 포인트를 추가한다
-      const point = parseInt(total / 100);
+      const point = percent(total, PointRate);
       totalAcquisitionPoints += point;
       setAcquisitionPoints(totalAcquisitionPoints);
       setDiscount(totalDiscountAmount);
@@ -365,13 +370,13 @@ function CartPage(props) {
     
     // 0: Gross Percentage(총 금액의 몇 퍼센트 할인)
     if (type === SaleType[0].key) {
-      // 전체금액이 아닌 해당상품의 총 금액에서 할인율을 적용한다
+      // 전체금액이 아닌 해당상품의 총 금액에서 할인율을 적용한다 (전체값 * 퍼센트 / 100)
       discountAmount = parseInt((targetProductPrice * amount) / 100);
-    // 1: Granting points(포인트 부여)
+    // 1: Granting points(포인트 부여)는 그대로 넘긴다
     } else if (type === SaleType[1].key) {
       // 포인트를 돌려준다
       discountAmount = amount;
-    // 2: Discount amount(할인금액)
+    // 2: Discount amount(할인금액)는 그대로 넘긴다
     } else if (type === SaleType[2].key) {
       discountAmount = amount
     }
@@ -380,23 +385,8 @@ function CartPage(props) {
   }
 
   // 랜딩페이지 이동
-  const listHandler = () => {
+  const handleList = () => {
     history.push("/");
-  }
-
-  // 카트에 들어있는 상품금액 및 누적될 포인트 계산
-  let calculateTotal = (cartDetail) => {
-    let total = 0;
-    cartDetail.map(item => {
-      total += parseInt(item.price,10) * item.quantity;
-    })
-
-    setCartDetail(cartDetail); // 카트의 모든 상품정보
-    setTotal(total); // 카트의 상품 누적금액
-    setFinalTotal(total);
-    setAcquisitionPoints(parseInt(total/100)); // 취득할 포인트는 총금액에서 100으로 나누어서 계산된 포인트를 대입한다
-    setDiscount(0);
-    setShowTotal(true);
   }
 
   // 카트삭제
@@ -513,7 +503,7 @@ function CartPage(props) {
   }
 
   // AliPay 결제
-  const aliPayHandler = () => {
+  const handleAliPay = () => {
     // 업데이트할 포인트 계산: (기존포인트 - 사용자가 입력한 포인트) + 획득가능 포인트(총 금액의 10%)
     const grantPoint = AvailablePoints + AcquisitionPoints;
 
@@ -537,7 +527,7 @@ function CartPage(props) {
   } 
 
   // WeChat 결제
-  const weChatHandler = () => {
+  const handleWeChat = () => {
     // 업데이트할 포인트 계산: (기존포인트 - 사용자가 입력한 포인트) + 획득가능 포인트(총 금액의 10%)
     const grantPoint = AvailablePoints + AcquisitionPoints;
 
@@ -585,46 +575,72 @@ function CartPage(props) {
   }
 
   // 포인트 입력창
-  const pointInputHandler = (e) => {
-    let point = Number(e.target.value);
+  const handlePoint = (e) => {
+    if (e.target.value !== "") {
+      
+      if (isNaN(e.target.value)) {
+        alert("Points can only be entered in numbers");
+        setUsePoint(0);
+        setInputPoint("");
+        return false;
+      }
 
-    // 보유포인트가 100 포인트 이하인 경우
-    if (MyPoint < 100) {
-      alert("Points can be used from 100 points");
-      setUsePoint(0);
-      return false;
-    }
-    // 입력한 포인트가 음수인 경우
-    if (point < 0) {
-      alert("Please check the available points");
-      setUsePoint(0);
-      return false;
-    }
-    // 입력한 포인트가 보유 포인트보다 많은경우
-    if (point > MyPoint) {
-      alert("Please check the available points");
-      setUsePoint(0);
-      return false;
-    }
+      let point = parseInt(e.target.value);
 
-    setUsePoint(point);
+      // 보유포인트가 100 포인트 이하인 경우
+      if (MyPoint < 100) {
+        alert("Points can be used from 100 points");
+        setUsePoint(0);
+        setInputPoint("");
+        return false;
+      }
+      // 입력한 포인트가 음수인 경우
+      if (point < 0) {
+        alert("Please check the available points");
+        setUsePoint(0);
+        setInputPoint("");
+        return false;
+      }
+      // 입력한 포인트가 보유 포인트보다 많은경우
+      if (point > MyPoint) {
+        alert("Please check the available points");
+        setUsePoint(0);
+        setInputPoint("");
+        return false;
+      }
+
+      setInputPoint(String(point));
+      setUsePoint(point);
+      
+    } else {
+      setUsePoint(0);
+      setInputPoint("");
+    }
   }
 
   // 포인트 확인 버튼
-  const pointConfirmHandler = () => {
+  const handleConfirmPoint = () => {
+    // 숫자가 아닌경우
+    if (isNaN(UsePoint)) {
+      alert("Points can only be entered in numbers");
+      setUsePoint(0);
+      setInputPoint("");
+      setPointConfirm(0);
+      return false;
+    }
     // 확인버튼을 클릭했다면
-    if (PointConfirm !== 0) {
+    if (PointConfirm === 1) {
       alert("Points can be applied only once.");
       return false;
     } else {
-      // 확인버튼을 클릭 안했으면
-      setPointConfirm(1);
+      // 확인버튼을 클릭 안한 상태로 변경
+      setPointConfirm(0);
     }
-
     // 보유포인트가 100 포인트 이하인 경우
     if (MyPoint < 100) {
       alert("Points can be used from 100 points");
       setUsePoint(0);
+      setInputPoint("");
       setPointConfirm(0);
       return false;
     }
@@ -632,6 +648,7 @@ function CartPage(props) {
     if (UsePoint < 100) {
       alert("Points can be used from 100 points");
       setUsePoint(0);
+      setInputPoint("");
       setPointConfirm(0);
       return false;
     }
@@ -639,6 +656,7 @@ function CartPage(props) {
     if (UsePoint > MyPoint) {
       alert("Please check the available points.");
       setUsePoint(0);
+      setInputPoint("");
       setPointConfirm(0);
       return false;
     }
@@ -651,14 +669,14 @@ function CartPage(props) {
     }
     // 사용가능한 포인트 계산(보유 포인트 - 사용할 포인트)
     setAvailablePoints(MyPoint - UsePoint);
-    // 취득 포인트
-    setAcquisitionPoints(parseInt((FinalTotal - UsePoint) / 100) + saleAcquisitionPoints.current + couponAcquisitionPoints.current);
+    // 취득 포인트(구매상품의 포인트 + 세일 포인트 + 쿠폰 포인트)
+    setAcquisitionPoints(percent((FinalTotal - UsePoint), PointRate) + saleAcquisitionPoints.current + couponAcquisitionPoints.current);
     // 할인금액
     setDiscount(Number(Discount) + Number(UsePoint));
   }
 
   // 포인트 크리어 버튼
-  const clearPointHandler = () => {
+  const handleClearPoint = () => {
     // 포인트를 반영하지 않은 총 금액으로 돌려준다 
     const total = parseInt(FinalTotal + UsePoint);
     // 포인트를 반영하지 않은 총 할인금액으로 돌려준다
@@ -673,6 +691,7 @@ function CartPage(props) {
     setAvailablePoints(MyPoint);
     // 사용자가 입력한 포인트를 0으로 변경
     setUsePoint(0);
+    setInputPoint("");
     
     // 세일이 있고 포인트 부여인 경우 상품 취득포인트에 더해준다
     if (saleTotalDiscountAmount.current > 0) {
@@ -682,12 +701,13 @@ function CartPage(props) {
       showSaleTotalRef.current = false;
     }
 
-    const totalPoint = parseInt(total / 100) + saleAcquisitionPoints.current + couponAcquisitionPoints.current;
+    // 포인트 구하기(구매상품 포인트 + 세일 포인트 + 쿠폰 포인트)
+    const totalPoint = percent(total, PointRate) + saleAcquisitionPoints.current + couponAcquisitionPoints.current;
     setAcquisitionPoints(totalPoint);
   }
 
   // 쿠폰 입력창
-  const couponHandler = (e) => {
+  const handleCoupon = (e) => {
     setCouponCode(e.target.value);
   }
 
@@ -723,7 +743,7 @@ function CartPage(props) {
   }
 
   // 쿠폰 확인 버튼
-  const couponConfirmHandler = async() => {
+  const handleConfirmCoupon = async() => {
     // 쿠폰은 일회만 사용이 가능(처음 입력한 쿠폰으로 계산된 금액이 있는지 확인)
     if (Coupon.code) {
       alert("Coupon can only be used once");
@@ -1012,7 +1032,7 @@ function CartPage(props) {
 
       // 포인트 및 할인금액 계산
       if (total > 0) {
-        setAcquisitionPoints(parseInt(total / 100) + salePoint);
+        setAcquisitionPoints(percent(total, PointRate) + salePoint);
         setDiscount(usePoint + saleAmount + calcPercentage);
       } else {
         // 세일의 포인트가 있을수도 있으니 세일포인트를 대입한다
@@ -1033,7 +1053,7 @@ function CartPage(props) {
 
       // 취득 가능한 포인트 및 할인금액 계산
       if (total > 0) {
-        setAcquisitionPoints(parseInt(total / 100) + salePoint + amount);
+        setAcquisitionPoints(percent(total, PointRate) + salePoint + amount);
         setDiscount(usePoint + saleAmount);
       } else {
         setAcquisitionPoints(salePoint + amount);
@@ -1055,7 +1075,7 @@ function CartPage(props) {
       } else {
         total = parseInt(total - amount);
         setFinalTotal(total);
-        setAcquisitionPoints(parseInt(total / 100) + salePoint);
+        setAcquisitionPoints(percent(total, PointRate) + salePoint);
         setCouponAmount(amount);
 
         const discount = usePoint + saleAmount + amount
@@ -1065,7 +1085,7 @@ function CartPage(props) {
   }
 
   // 입력한 쿠폰 삭제
-  const clearCouponHandler = () => {
+  const handleClearCoupon = () => {
     // 총금액에 적용한 쿠폰금액이 있다면 쿠폰금액을 더해서 원래로 돌려준
     if(Coupon.code) {
       const useWithSale = Number(Coupon.useWithSale);
@@ -1108,12 +1128,17 @@ function CartPage(props) {
       setCouponAmount(0);
       setCoupon({});
 
-      const totalPoint = parseInt(total / 100) + saleAcquisitionPoints.current;
+      const totalPoint = percent(total, PointRate) + saleAcquisitionPoints.current;
       setAcquisitionPoints(totalPoint);
 
       couponTotalDiscountAmount.current = 0;
       couponAcquisitionPoints.current = 0;
     }
+  }
+
+  // 퍼센트로 값 구하기(전체값 * 퍼센트 / 100)
+  const percent = (total, rate) => {
+    return parseInt((parseInt(total) * parseInt(rate)) / 100);
   }
 
   return (
@@ -1130,17 +1155,17 @@ function CartPage(props) {
           {/* 사용가능한 포인트(기존 포인트 - 사용할 포인트) */}
           <span><b>{t('Cart.point')}</b></span>&nbsp;&nbsp;({t('Cart.availablePoints')}:&nbsp;{Number(AvailablePoints).toLocaleString()})<br />
           {/* 사용자가 입력한 포인트 */}
-          <Input id="point" type='number' value={UsePoint} placeholder="100 points or more can be used" onChange={pointInputHandler}  style={{width: '130px'}}/>&nbsp;
-          <Button onClick={pointConfirmHandler} >Confirm</Button>
-          <Button onClick={clearPointHandler} >Clear</Button>
+          <Input id="point" type='text' value={InputPoint} placeholder="points" onChange={handlePoint}  style={{width: '130px'}}/>&nbsp;
+          <Button style={{margin: '0 0 0 0'}} onClick={handleConfirmPoint} >Confirm</Button>&nbsp;
+          <Button onClick={handleClearPoint} >Clear</Button>
           <br />
           <br />
           
           {/* 사용가능한 쿠폰 */}
           <span><b>{t('Cart.coupon')}</b></span><br />
-          <Input id="coupon" type='text' value={CouponCode} placeholder="Enter the coupons to use" onChange={couponHandler}  style={{width: '130px'}}/>&nbsp;
-          <Button onClick={couponConfirmHandler} >Confirm</Button>
-          <Button onClick={clearCouponHandler} >Clear</Button>
+          <Input id="coupon" type='text' value={CouponCode} placeholder="coupons" onChange={handleCoupon}  style={{width: '130px'}}/>&nbsp;
+          <Button style={{margin: '0 0 0 0'}} onClick={handleConfirmCoupon} >Confirm</Button>&nbsp;
+          <Button onClick={handleClearCoupon} >Clear</Button>
           <br />
           <br />
           {/* 총 금액에서 계산된 포인트 */}
@@ -1175,10 +1200,10 @@ function CartPage(props) {
       {ShowTotal && 
         <div>
           <br />
-          <Button type="primary" size="large" onClick={weChatHandler}>
+          <Button type="primary" size="large" onClick={handleWeChat}>
             <b><Icon type="wechat" />WeChat</b>
           </Button>
-          <Button type="primary" size="large" onClick={aliPayHandler}>
+          <Button type="primary" size="large" onClick={handleAliPay}>
             <b><Icon type="alipay" /> AliPay</b>
           </Button>
         </div>
@@ -1187,7 +1212,7 @@ function CartPage(props) {
       <br />
       <br />
       <div style={{ display: 'flex', justifyContent: 'center' }} >
-        <Button size="large" onClick={listHandler}>
+        <Button size="large" onClick={handleList}>
           Landing Page
         </Button>
       </div>

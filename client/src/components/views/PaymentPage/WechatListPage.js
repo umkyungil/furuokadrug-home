@@ -112,7 +112,7 @@ function WechatListPage() {
 
 	return (
 		<div style={{ width:'80%', margin: '3rem auto'}}>
-			<div style={{ textAlign: 'center' }}>
+			<div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
 				<h1>{t('Wechat.listTitle')}</h1>
 			</div>
 
@@ -128,4 +128,4 @@ function WechatListPage() {
 	)
 }
 
-export default WechatListPage
+export default WechatListPage;

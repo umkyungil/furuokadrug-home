@@ -11,7 +11,7 @@ axios.defaults.withCredentials = true;
 function PaymentResultPage(props) {
   const history = useHistory();
   const location = useLocation();
-  const { isLanguage, setIsLanguage } = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   // (ご指定URL)?result=1&pid=0000000&sod=XXXXXXX&ta=00000&uniquefield=1234

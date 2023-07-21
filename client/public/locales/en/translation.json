@@ -30,7 +30,7 @@
   "Product": {
     "productName": "Product name",
     "listTitle": "Product list",
-    "listAdminTitle": "Product Admin list",
+    "listAdminTitle": "Product admin list",
     "uploadTitle": "Product register",
     "updateTitle": "Product update",
     "detailTitle": "Product detail",
@@ -59,22 +59,6 @@
     "chineseUrl": "Product URL(CN)",
     "member": "Member only",
     "createdAt": "Created date"
-  },
-  "Customer": {
-    "listTitle": "Customer list",
-    "regTitle": "Customer register",
-    "updateTitle": "Customer update",
-    "detailTitle": "Customer detail",
-    "smaregiId": "Smaregi ID",
-    "name": "Name",
-    "tel": "Phone number",
-    "email": "E-mail",
-    "address1": "Shipping address1",
-    "address2": "Shipping address2",
-    "address3": "Shipping address3",
-    "salesman": "Salesman",
-    "point": "point",
-    "action": "Action"
   },
   "Order": {
     "listTitle": "Order list",
@@ -105,7 +89,7 @@
   "Reservation": {
     "title": "Virtual reservation",
     "name": "Name",
-    "weChatId": "WeChat ID",
+    "wechatId": "Wechat ID",
     "tel": "Phone number",
     "date": "Reservation date",
     "item": "Interested item",
@@ -188,8 +172,8 @@
     "inquiry": "Inquiry details"
   },
   "Alipay": {
-    "listTitle": "Alipay History list",
-    "detailTitle": "Alipay History detail",
+    "listTitle": "Alipay history list",
+    "detailTitle": "Alipay history detail",
     "paymentNumber": "Payment number",
     "result": "Result",
     "controlNumber": "Control number",
@@ -206,8 +190,8 @@
     "updatedDate": "Update date"
   },
   "Wechat": {
-    "listTitle": "WeChat Payment history list",
-    "detailTitle": "WeChat Payment history detail",
+    "listTitle": "Wechat history list",
+    "detailTitle": "Wechat history detail",
     "paymentNumber": "Payment number",
     "result": "Result",
     "controlNumber": "Control number",

@@ -71,15 +71,21 @@ function ProductListPage(props) {
 	const newSearchTermRef = useRef("");
 	const limitCount = 20;
 
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
 	useEffect(() => {
 		// 다국적언어 설정
 		i18n.changeLanguage(isLanguage);
+		// 스크롤을 Top으로 이동시킨다
+		scrollToTop();
 
 		process();
 	}, [props.match.params.type, props.match.params.category, props.match.params.searchTerm])
+
+	const scrollToTop = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  };
 
 	const process = async () => {
     // 세일정보 가져오기
@@ -165,7 +171,7 @@ function ProductListPage(props) {
 					}
 				} else if (isLanguage === I18N_JAPANESE) {
 					for (let i=0; i<products.productInfos.length; i++) {
-						products.productInfos[i].title = products.productInfos[i].japaneseTitle;
+						products.productInfos[i].title = products.productInfos[i].title;
 					}
 				} else {
 					for (let i=0; i<products.productInfos.length; i++) {
@@ -201,12 +207,10 @@ function ProductListPage(props) {
 			const response =  await axios.post(`${PRODUCT_SERVER}/list`, body);
 			const products = response.data;
 
-			console.log("products: ", products);
-			
 			if (products.success) {
 				if (isLanguage === I18N_JAPANESE) {
 					for (let i=0; i<products.productInfo.length; i++) {
-						products.productInfo[i].title = products.productInfo[i].japaneseTitle;
+						products.productInfo[i].title = products.productInfo[i].title;
 					}
 				} else if (isLanguage === I18N_CHINESE) {
 					for (let i=0; i<products.productInfo.length; i++) {
@@ -377,11 +381,9 @@ function ProductListPage(props) {
 
 	// 상품별 카드를 생성
 	const renderCards = Products.map((product, index) => {
-		// 상품가격에 콤마 추가
-		const price = Number(product.price).toLocaleString();
 		// 세일계산
 		let saleAmount = calcBySaleItem(SaleInfos, product);
-		const minusSalesAmount = Number(product.price) - saleAmount;
+		let minusSalesAmount = Number(product.price) - saleAmount;
 
 		let isSale = false;
 		let isRecommended = false;

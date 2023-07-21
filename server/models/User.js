@@ -150,9 +150,13 @@ UserSchema.methods.comparePassword = function(plainPassword, cb) {
     })
 }
 
-// jsonwebtoken을 이용해서 token생성하기
-UserSchema.methods.generateToken = async function(cb) {
+// jsonwebtoken을 이용해서 token생성및 lastLogin저장
+UserSchema.methods.genTokenAndLastLogin = async function(cb) {
     let user = this;
+
+    // 로그인한 시간을 업데이트
+    user.lastLogin = new Date();
+
     let token =  jwt.sign(user._id.toHexString(),'secret');
     // User스키마의 token필드에 생성된 token을 넣어준다
     user.token = token;
@@ -169,7 +173,7 @@ UserSchema.methods.generateToken = async function(cb) {
     // 서버시간(new Date)으로 로컬시간을 구해서 연장시간을 더해준다
     // 그냥 new Date안하고 moment만 사용해도 로컬 날짜를 구하는데 혹시 몰라서 서버날짜(new Date)를 대입했다.
     let expiration = moment(new Date()).add(tmpExp, 'm').valueOf(); // valueOf(): moment 객체를 숫자(밀리세컨드)로 변환
-
+    
     // User스키마의 tokenExp필드에 생성된 token유효기간을 넣어준다
     user.tokenExp = expiration;
     user.save(function (err, user){

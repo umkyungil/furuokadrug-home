@@ -32,17 +32,13 @@ function ProductListAdminPage() {
 		try {
 			const result = await axios.get(`${PRODUCT_SERVER}/list`);
 
-			console.log("result: " , result);
-
-			
+			console.log("result: ", result.data);
 
 			if (result.data.success)  {
 				for (let i=0; i<result.data.productInfos.length; i++) {
 					count++;
 
 					const productInfos = result.data.productInfos;
-					
-					
 					// 상품 카테고리 데이터 변경
 					for (let j=0; j<MAIN_CATEGORY.length; j++) {
 						if (productInfos[i].continents === MAIN_CATEGORY[j].key) {
@@ -50,7 +46,7 @@ function ProductListAdminPage() {
 						}
 					}
 
-					// 상품 카테고리 데이터 변경
+					// 상품 노출 데이터 변경
 					if (productInfos[i].exposureType.length > 0) {
 						for (let j=0; j<PRODUCT_VISIBLE_TYPE.length; j++) {
 							if (productInfos[i].exposureType[0] === PRODUCT_VISIBLE_TYPE[j].key) {
@@ -77,9 +73,9 @@ function ProductListAdminPage() {
 
 	const columns = [
 		{
-      title: t('Product.englishTitle'),
-      dataIndex: 'englishTitle',
-      key: 'englishTitle'
+      title: t('Product.japaneseTitle'),
+      dataIndex: 'title',
+      key: 'title'
     },
 		{
       title: t('Product.price'),
