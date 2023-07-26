@@ -16,7 +16,7 @@ export const SID = '110106';
 // LIVE SERVER
 // export const LIVE_SERVER = 'https://live.furuokadrug.com/#/'
 // UPC 점포코드 설정(prod)
-// export const SID = '1';
+// export const SID = '109643';
 
 ////////////////////////////////////////////////////////////////
 // COMMON

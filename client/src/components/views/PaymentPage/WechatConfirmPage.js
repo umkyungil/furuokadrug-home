@@ -481,7 +481,7 @@ function WechatConfirmPage(props) {
       // 로컬에서 하면 localhost에서 보내는 거라서 UPC에서 거절당한다
       // 테스트를 하려면 아래와 같이 DB에 직접 데이타를 보내서 해야 한다
       // ##########################TEST##########################
-      const paymentResult = axios.get(`${PAYMENT_SERVER}/wechat/register?rst=1&pid=1239&sod=${sod}&uniqueField=${uniqueFieldRef.current}`);
+      // const paymentResult = axios.get(`${PAYMENT_SERVER}/wechat/register?rst=1&pid=1239&sod=${sod}&uniqueField=${uniqueFieldRef.current}`);
       // ##########################TEST##########################  
 
       // 윈도우 오픈(UPC화면을 기존 탭에 열리도록 한다)

@@ -1190,21 +1190,21 @@ function CartPage(props) {
             </>
       }
 
-      {ShowTotal && 
+      {/* {ShowTotal && 
         <Paypal 
           total={FinalTotal} // Paypal 컴포넌트에 프롭스로 가격을 내려준다
           onSuccess={transactionSuccess} // 결제성공시 Paypal결제 정보를 대입받아 실행시킬 메소드를 Paypal 컴포넌트에 프롭스로 보낸다
         />
-      }
+      } */}
       
       {ShowTotal && 
         <div>
           <br />
           <Button type="primary" size="large" onClick={handleWeChat}>
-            <b><Icon type="wechat" />WeChat</b>
+            <b><Icon type="wechat" />Wechat payment</b>
           </Button>
           <Button type="primary" size="large" onClick={handleAliPay}>
-            <b><Icon type="alipay" /> AliPay</b>
+            <b><Icon type="alipay" /> Alipay payment</b>
           </Button>
         </div>
       }
@@ -1213,7 +1213,7 @@ function CartPage(props) {
       <br />
       <div style={{ display: 'flex', justifyContent: 'center' }} >
         <Button size="large" onClick={handleList}>
-          Landing Page
+          Landing page
         </Button>
       </div>
     </div>

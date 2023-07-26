@@ -1,15 +1,8 @@
 @charset "utf-8";
-
 /* リセットCSS（sanitize.css）の読み込み */
 @import url("https://unpkg.com/sanitize.css");
-/* slick.cssの読み込み */
-/* @import url("https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"); */
 /*Font Awesomeの読み込み*/
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css");
-/*Google Fontsの読み込み*/
-@import url('https://fonts.googleapis.com/css2?family=BIZ+UDPGothic&display=swap');
-
-/*リセット*/
 
 dd {
   margin: 0;
