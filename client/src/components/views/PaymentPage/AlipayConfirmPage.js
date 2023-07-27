@@ -446,8 +446,7 @@ function AlipayConfirmPage(props) {
         uniqueFieldRef.current = uniqueFieldRef.current + '_' + userId;
       } else {
         // 카트에서 이동된 경우는 sod에 포인트가 추가되어 있어서 동일하게
-        // Live에서 이동된 경우에도 사용자에게 포인트를 누적하기 위해 sod에 포인트를 추가한다
-        // Live도 로그인한 사용자가 사용하니깐 포인트 누적이 가능하도록 한다
+        // Live도 로그인한 사용자가 사용하니깐 포인트 누적이 가능하도록 sod에 포인트를 추가한다
         // Live에서 이동된 경우 총금액에 해당하는 포인트를 구한다 (소숫점을 자른다)
         acquisitionPointsRef.current = percent(siam1, sessionStorage.getItem("pointRate"));
         sod = acquisitionPointsRef.current + "_" + sod;

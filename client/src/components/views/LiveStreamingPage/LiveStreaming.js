@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
 import moment from 'moment';
-import { LIVE_SERVER, MAIL_SERVER, USER_SERVER } from '../../Config';
+import { LIVE_SERVER, MAIL_SERVER, USER_SERVER, SID } from '../../Config';
 import { useHistory } from 'react-router-dom';
 import { Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -38,7 +38,9 @@ function LiveStreaming() {
       if(e.data.type !== "exitRoom") {
         const type = e.data.type;
         const loginUserId = e.data.loginUserId; // ECSystem 로그인 유저ID
-        const sid = e.data.sid;
+        // 점포코드는 여기서 지정한다(라이브는 테스트 코드로 되어 있다)
+        // const sid = e.data.sid;
+        const sid = SID;
         const sod = e.data.sod;
         const siam1 = e.data.siam1; // amount
         const uniqueField = encodeURIComponent(e.data.uniqueField); // uniqueField = 'alipay' + '_' + loginUserId + '_' + uniqueDate;
