@@ -263,9 +263,9 @@ function ProductListPage(props) {
 			// 카테고리 검색인 경우 상품 가져오기
 			body.continents = categoryRef.current;
 			await getProducts(body);
-		} else if (newSearchTermRef !== "") { 
+		} else if (newSearchTermRef.current !== "") { 
 			// 키워드 검색인 경우 상품 가져오기
-			body.searchTerm = newSearchTermRef;
+			body.searchTerm = newSearchTermRef.current;
 			await getProducts(body);
 		}	
 		
