@@ -1,20 +1,18 @@
 import React, { useState, useEffect, useContext } from "react";
 import { withRouter } from "react-router-dom";
 import { loginUser } from "../../../_actions/user_actions";
-import { USER_SERVER, CODE_SERVER } from '../../Config';
+import { CODE_SERVER } from '../../Config';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Form, Icon, Input, Button } from 'antd';
 import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
-import { Cookies } from "react-cookie";
+import cookie from 'react-cookies';
 import axios from 'axios';
 import { LanguageContext } from '../../context/LanguageContext';
-import { ANONYMOUS } from '../../utils/Const';
+
 // CORS 대책
 axios.defaults.withCredentials = true;
-
-const cookies = new Cookies();
 
 function LoginPage(props) {
   const dispatch = useDispatch();
@@ -51,25 +49,10 @@ function LoginPage(props) {
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
           // 로그인 하기전에 쿠키정보가 있으면 
-          if (cookies.get('w_auth')) {
-            // 쿠키정보로 사용자 정보 가져와서 불특정 사용자인 경우 쿠키를 삭제하는 처리를
-            // 로그인 할때 쿠키가 있으면 그냥 삭제하는 처리로 변경
-
-            // axios.post(`${USER_SERVER}/w_auth`, {"w_auth": cookies.get('w_auth')})
-            // .then( userInfo => {
-            //   if (userInfo.data.user[0]) {
-            //     // 불특정 사용자인 경우
-            //     let userName = userInfo.data.user[0].name;
-            //     if (userName.substring(0, 9) === ANONYMOUS) {
-            //       // 쿠키 삭제
-            //       cookies.remove('w_auth');
-            //       cookies.remove('w_authExp');
-            //     }
-            //   }
-            // });
-            
-            cookies.remove('w_auth');
-            cookies.remove('w_authExp');
+          if (cookie.load('w_auth')) {
+            // 로그인 할때 쿠키가 있으면 삭제
+            cookie.remove('w_auth', { path: '/' });
+            cookie.remove('w_authExp', { path: '/' });
             // 불특정사용자의 정보가 남아 있을수 있기 때문에 삭제
             sessionStorage.removeItem('userId');
             sessionStorage.removeItem('userName');

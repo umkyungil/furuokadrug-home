@@ -5,7 +5,7 @@ import { USER_SERVER } from '../../../Config';
 import { ENGLISH, JAPANESE, CHINESE, I18N_ENGLISH, I18N_CHINESE, I18N_JAPANESE } from '../../../utils/Const';
 import { withRouter } from 'react-router-dom';
 import { useSelector } from "react-redux";
-import { useCookies } from 'react-cookie';
+import cookie from 'react-cookies';
 import { LanguageContext } from '../../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
@@ -17,7 +17,6 @@ const SubMenu = Menu.SubMenu;
 function RightMenu(props) {
   const user = useSelector(state => state.user);
   const {isLanguage, setIsLanguage} = useContext(LanguageContext);
-  const [cookies, setCookie, removeCookie] = useCookies(['w_auth', 'w_authExp']);
   const {t, i18n} = useTranslation();
 
   // 다국적언어
@@ -49,8 +48,9 @@ function RightMenu(props) {
       // 포인트 적용률 삭제
       sessionStorage.removeItem("pointRate");
       // 쿠키 삭제
-      removeCookie('w_auth');
-      removeCookie('w_authExp');
+      cookie.remove('w_auth', { path: '/' });
+      cookie.remove('w_authExp', { path: '/' });
+
       props.history.push("/login");
     } catch (err) {
       console.log("err: ", err);
@@ -383,11 +383,11 @@ function RightMenu(props) {
         )
       }
     } else {
-      if (!locUserName && !sesUserName && cookies.w_auth) {
+      if (!locUserName && !sesUserName && cookie.load('w_auth')) {
         // 붙특정 사용자가 브라우저를 강제 종료후 재 접속했을때 세션에 사용자 정보가 없다
         // 쿠키 삭제
-        removeCookie('w_auth');
-        removeCookie('w_authExp');
+        cookie.remove('w_auth', { path: '/' });
+        cookie.remove('w_authExp', { path: '/' });
       }
 
       // 로그인 했지만 user.userData를 아직 가져오지 못했을 경우

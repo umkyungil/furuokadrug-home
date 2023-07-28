@@ -2,15 +2,13 @@
 import React, { useEffect } from 'react';
 import { auth } from '../_actions/user_actions';
 import { useSelector, useDispatch } from "react-redux";
-import { Cookies } from "react-cookie";
+import cookie from 'react-cookies';
 import { USER_SERVER } from '../components/Config';
 import moment from "moment";
 import axios from 'axios';
 import { getLocalTime, getServerDate } from '../components/utils/CommonFunction';
 // CORS 대책
 axios.defaults.withCredentials = true;
-
-const cookies = new Cookies();
 
 export default function (SpecificComponent, option, adminRoute = null) {
     // 【option】
@@ -69,7 +67,7 @@ export default function (SpecificComponent, option, adminRoute = null) {
             // 서버시간을 로컬시간으로 변경
             const chgServerToLocalTime = moment(getServerDate()).local().format('YYYY-MM-DD HH:mm');
             // 토큰 유효시간을 로컬시간으로 변경
-            const userTokenExp = parseInt(cookies.get('w_authExp'));
+            const userTokenExp = parseInt(cookie.load('w_authExp'));
             const userTokenExpToLocal = getLocalTime(userTokenExp);
             
             try {
@@ -120,8 +118,8 @@ export default function (SpecificComponent, option, adminRoute = null) {
                 // 포인트 적용률 삭제
                 sessionStorage.removeItem("pointRate");
                 // 쿠키 삭제
-                cookies.remove('w_auth');
-                cookies.remove('w_authExp');
+                cookie.remove('w_auth', { path: '/' });
+                cookie.remove('w_authExp', { path: '/' });
             } catch (err) {
                 console.log("err: ", err);
             }

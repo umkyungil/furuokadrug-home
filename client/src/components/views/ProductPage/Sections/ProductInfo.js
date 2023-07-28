@@ -6,13 +6,11 @@ import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { PRODUCT_SERVER, USER_SERVER } from '../../../Config.js';
 import { useTranslation } from 'react-i18next';
-import { Cookies } from "react-cookie";
+import cookie from 'react-cookies';
 import { LanguageContext } from '../../../context/LanguageContext';
 import { SALE_TAG, NOTICE_TAG, PRODUCT_VISIBLE_TYPE, ANONYMOUS } from '../../../utils/Const';
 // CORS 대책
 axios.defaults.withCredentials = true;
-
-const cookies = new Cookies();
 
 const saleTag = {
   fontSize: "12px",
@@ -189,7 +187,7 @@ function ProductInfo(props) {
           const userId = sessionStorage.getItem("userId");
           const userName = sessionStorage.getItem("userName");
           // 쿠키에 토큰정보가 없는경우
-          if (!cookies.get('w_auth')) {
+          if (!cookie.load('w_auth')) {
             // 로컬스토리지에 붙특정 사용자의 정보가 있는경우 로그인 처리
             if (userName === ANONYMOUS) {
               // 로그인해서 토큰정보를 쿠키에 저장
@@ -253,7 +251,7 @@ function ProductInfo(props) {
   }
 
   // 로그인 후
-  if (User.hasOwnProperty("_id") && cookies.get('w_auth')) {
+  if (User.hasOwnProperty("_id") && cookie.load('w_auth')) {
     // 스텝인 경우
     if (User.role === 1) {
       return (

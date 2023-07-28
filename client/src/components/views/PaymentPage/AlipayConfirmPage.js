@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Form, Input, Button, Radio, Tooltip, Select } from 'antd';
 import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER, UPC_PAYMENT, CODE_SERVER } from '../../Config.js';
 import { NOT_SET, EC_SYSTEM, UNIDENTIFIED, ANONYMOUS } from '../../utils/Const.js';
-import { useCookies } from 'react-cookie';
+import cookie from 'react-cookies';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 // CORS 대책
@@ -34,7 +34,6 @@ const tailFormItemLayout = {
 
 function AlipayConfirmPage(props) {
   const history = useHistory();
-  const [cookies, setCookie, removeCookie] = useCookies(['w_auth', 'w_authExp']);
   const [SelectedAddress, setSelectedAddress] = useState("");
   const [ChangeZip, setChangeZip] = useState("");
   const [ChangeAddress, setChangeAddress] = useState("");
@@ -86,6 +85,15 @@ function AlipayConfirmPage(props) {
     if (!sessionStorage.getItem("pointRate")) {
       getPointRate();
     }
+    // 결제확인 페이지는 일반 사용자 또는 불특정 사용자만이 들어올수 있는 페이지인데
+    // 로컬스토리지에 사용자 이름이 있다면 일반 사용자이다
+    if (localStorage.getItem("userName")) {
+      // 일반 사용자 권한
+      roleRef.current = 0;
+    } else {
+      // 불특정 사용자 권한
+      roleRef.current = 3;
+    }
     // 로그인 사용자정보 가져오기
     getUserInfo();
     // 코드테이블에서 국가정보 가져오기
@@ -100,6 +108,7 @@ function AlipayConfirmPage(props) {
   // 로그인 사용자정보 가져오기
   const getUserInfo = async () => {
     try {
+      // 로그인 사용자정보 가져오기
       const userInfo = await axios.get(`${USER_SERVER}/users_by_id?id=${userId}`);
 
       if (userInfo.data.success) {
@@ -251,6 +260,7 @@ function AlipayConfirmPage(props) {
       if (codes.data.success) {
         let arrCodes = [];
         
+        // 코드마스타의 값이 value7까지 있다  
         if (codes.data.codeInfo.value1 !== "") arrCodes.push(codes.data.codeInfo.value1);
         if (codes.data.codeInfo.value2 !== "") arrCodes.push(codes.data.codeInfo.value2);
         if (codes.data.codeInfo.value3 !== "") arrCodes.push(codes.data.codeInfo.value3);
@@ -336,8 +346,8 @@ function AlipayConfirmPage(props) {
         // 포인트 적용률 삭제
         sessionStorage.removeItem("pointRate");
         // 쿠키 삭제
-        removeCookie('w_auth');
-        removeCookie('w_authExp');
+        cookie.remove('w_auth', { path: '/' });
+        cookie.remove('w_authExp', { path: '/' });
     } catch (err) {
         console.log("err: ", err);
         alert("Please contact the administrator");
@@ -418,16 +428,18 @@ function AlipayConfirmPage(props) {
       // 임시 주문정보 저장
       const tmpOrderResult = await axios.post(`${ORDER_SERVER}/tmpRegister`, body);
       if (tmpOrderResult.data.success) {
+
         // 붙특정 사용자인 경우 아이디 및 로그인 정보를 삭제한다
         if (nameRef.current.substring(0, 9) === ANONYMOUS) {
-          // 사용자 삭제
+          // 불특정 사용자 삭제
           await axios.post(`${USER_SERVER}/delete`, {userId : idRef.current});
           // 세션삭제
           sessionStorage.removeItem("userId");
           sessionStorage.removeItem("userName");
+          
           // 쿠키삭제
-          removeCookie('w_auth');
-          removeCookie('w_authExp');
+          cookie.remove('w_auth', { path: '/' });
+          cookie.remove('w_authExp', { path: '/' });
         } else {
           // 일반 사용자는 UPC에 접속하기 전에 로그아웃 시킨다
           handleLogout();
@@ -482,7 +494,7 @@ function AlipayConfirmPage(props) {
       // ##########################TEST##########################
 
       // 윈도우 오픈(UPC화면을 기존 탭에 열리도록 한다)
-      window.open(url, "_self");
+      // window.open(url, "_self");
 
     } catch (err) {
       console.log("err: ", err);
@@ -498,7 +510,7 @@ function AlipayConfirmPage(props) {
 
       <Form style={{ height:'80%', margin:'1em' }} {...formItemLayout} onSubmit={sendPaymentInfo} >
         {/* 일반 사용자 */}
-        { roleRef.current !== 3 && 
+        { roleRef.current === 0 && 
           <>
             <Form.Item label="Name">
               <Input type="text" style={{ width: '95%', backgroundColor: '#f2f2f2' }} value={nameRef.current} readOnly />
