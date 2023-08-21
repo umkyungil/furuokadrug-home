@@ -28,6 +28,8 @@ import ProductRegisterPage from "./views/ProductPage/ProductRegisterPage.js";
 import ProductListPage from "./views/ProductPage/ProductListPage.js";
 import ProductUploadCsvPage from "./views/ProductPage/ProductUploadCsvPage.js";
 import ProductListAdminPage from "./views/ProductPage/ProductListAdminPage.js";
+// 재고관리
+import InventoryListPage from "./views/InventoryPage/InventoryListPage.js";
 // 결제관리
 import AlipayListPage from "./views/PaymentPage/AlipayListPage.js"; // AliPay 결제결과 리스트
 import WechatListPage from "./views/PaymentPage/WechatListPage.js"; // WeChat 결제결과 리스트
@@ -122,6 +124,8 @@ function App() {
             <Route exact path="/product/update/:productId/" component={Auth(ProductUpdatePage, null)} />
             <Route exact path="/product/csv/upload" component={Auth(ProductUploadCsvPage, null)} />
             <Route exact path="/product/admin/list" component={Auth(ProductListAdminPage, true)} />
+            {/* 재고관리 */}
+            <Route exact path="/inventory/list" component={Auth(InventoryListPage, true)} />
             {/* 메일관리 */}
             <Route exact path="/mail/notice/:type/:toEmail" component={Auth(NoticeMailPage, true)} />
             <Route exact path="/mail/reserve" component={Auth(VirtualReservationPage, null)} />

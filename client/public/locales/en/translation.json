@@ -58,7 +58,10 @@
     "japaneseUrl": "Product URL(JP)",
     "chineseUrl": "Product URL(CN)",
     "member": "Member only",
-    "createdAt": "Created date"
+    "createdAt": "Created date",
+    "quantity": "Quantity",
+    "maxQuantity": "Max quantity",
+    "inventoryExcept": "Inventory except"
   },
   "Order": {
     "listTitle": "Order list",

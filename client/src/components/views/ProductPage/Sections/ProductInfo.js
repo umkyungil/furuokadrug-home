@@ -8,46 +8,22 @@ import { PRODUCT_SERVER, USER_SERVER } from '../../../Config.js';
 import { useTranslation } from 'react-i18next';
 import cookie from 'react-cookies';
 import { LanguageContext } from '../../../context/LanguageContext';
-import { SALE_TAG, NOTICE_TAG, PRODUCT_VISIBLE_TYPE, ANONYMOUS } from '../../../utils/Const';
+import { SALE_TAG, NOTICE_TAG, SOLD_OUT_TAG, PRODUCT_VISIBLE_TYPE, ANONYMOUS } from '../../../utils/Const';
 // CORS 대책
 axios.defaults.withCredentials = true;
-
-const saleTag = {
-  fontSize: "12px",
-  fontWeight: "bold",
-  top: "150px",
-  left: "165px",
-  width: "60px",
-  height: "25px",
-  color: "#ffffff",
-  background: "#ff0404",
-  textAlign: "center"
-}
-
-const noticeTag = {
-  fontSize: "12px",
-  fontWeight: "bold",
-  top: "150px",
-  left: "165px",
-  width: "60px",
-  height: "25px",
-  color: "#ffffff",
-  background: "#ff8800",
-  textAlign: "center"
-}
 
 // props 상품정보
 function ProductInfo(props) {
   const history = useHistory();
   const dispatch = useDispatch();
+  const {isLanguage} = useContext(LanguageContext);
+  const {t, i18n} = useTranslation();
   const {Panel} = Collapse;
     
   const [User, setUser] = useState({});
   const [IsRecTag, setIsRecTag] = useState(false);
   const [IsSaleTag, setIsSaleTag] = useState(false);
-  
-  const {isLanguage} = useContext(LanguageContext);
-  const {t, i18n} = useTranslation();
+  const [SoldOutTag, setSoldOutTag] = useState(false);
 
   useEffect(() => {
     // 다국적언어 설정
@@ -85,7 +61,7 @@ function ProductInfo(props) {
     }
   }
 
-  // 상품 노출정보로 상품태그 확인
+  // 상품 노출정보및 상품재고가 없는경우 태그표시
   const handleTag = async () => {
     try {
       // 상품 노출정보 가져오기
@@ -102,6 +78,13 @@ function ProductInfo(props) {
             }
           }
         }
+      }      
+      
+      // 재고관리 대상외 상품이거나 재고가 0인경우 
+      if (props.detail.inventoryExcept || props.detail.quantity === 0) {
+        setSoldOutTag(true);
+      } else {
+        setSoldOutTag(false);
       }
     } catch (err) {
       console.log("err: ",err);
@@ -111,6 +94,12 @@ function ProductInfo(props) {
   // 카트 넣기
   const cartHandler = async () => {
     try {
+      // 재고가 없으면 구매를 하지 못하게 한다
+      if (SoldOutTag) {
+        alert("This product is out of stock");
+        return;
+      }
+
       // 로그인 한 경우
       if (localStorage.getItem("userId")) {
         // 필요한 정보를 Cart필드에 넣어준다
@@ -252,72 +241,45 @@ function ProductInfo(props) {
 
   // 로그인 후
   if (User.hasOwnProperty("_id") && cookie.load('w_auth')) {
-    // 스텝인 경우
-    if (User.role === 1) {
-      return (
-        <div>
-          <Descriptions>
-            <Descriptions.Item label={t('Product.price')}>{Number(props.detail.price).toLocaleString()}</Descriptions.Item>
-            <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
-            <Descriptions.Item >
-              {IsSaleTag && <Tag style={saleTag}>{SALE_TAG}</Tag>}
-              {IsRecTag && <Tag style={noticeTag}>{NOTICE_TAG}</Tag>}
-            </Descriptions.Item>
-          </Descriptions>
+    return (
+      <div>
+        <Descriptions>
+          <Descriptions.Item label={t('Product.price')}>{Number(props.detail.price).toLocaleString()}</Descriptions.Item>
+          <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
+          <Descriptions.Item >
+            {t('Product.quantity')}: {props.detail.quantity}&nbsp;&nbsp;&nbsp;&nbsp;
+            {IsSaleTag && <Tag color="#f50">&nbsp;&nbsp;{SALE_TAG}&nbsp;&nbsp;</Tag>}
+            {IsRecTag && <Tag color="#fa0">{NOTICE_TAG}</Tag>}
+            {SoldOutTag && <Tag color="#0af">{SOLD_OUT_TAG}</Tag>}
+          </Descriptions.Item>
+        </Descriptions>
 
-          <Collapse defaultActiveKey={['0']}>
-            <Panel header={t('Product.description')}>
-              <Descriptions>
-                <Descriptions.Item>{props.detail.description}</Descriptions.Item>
-              </Descriptions>
-            </Panel>
-          </Collapse>
-          <br />  
-          <Collapse defaultActiveKey={['1']}>
-            <Panel header={t('Product.howToUse')}>
-              <Descriptions>
-                <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
-              </Descriptions>
-            </Panel>
-          </Collapse>
-          <br />
-          <div style={{ display:'flex', justifyContent:'center' }} >
-            <Button onClick={listHandler}>
-              Landing Page
-            </Button>
-          </div>
-        </div>
-      )
-    // 관리자인 경우
-    } else if (User.role === 2) {
-      return (
-        <div>
-          <Descriptions>
-            <Descriptions.Item label={t('Product.price')}>{Number(props.detail.price).toLocaleString()}</Descriptions.Item>
-            <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
-            <Descriptions.Item >
-              {IsSaleTag && <Tag style={saleTag}>{SALE_TAG}</Tag>}
-              {IsRecTag && <Tag style={noticeTag}>{NOTICE_TAG}</Tag>}
-            </Descriptions.Item>
-          </Descriptions>
-
-          <Collapse defaultActiveKey={['0']}>
-            <Panel header={t('Product.description')}>
-              <Descriptions>
-                <Descriptions.Item>{props.detail.description}</Descriptions.Item>
-              </Descriptions>
-            </Panel>
-          </Collapse>
-          <br />  
-          <Collapse defaultActiveKey={['1']}>
-            <Panel header={t('Product.howToUse')}>
-              <Descriptions>
-                <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
-              </Descriptions>
-            </Panel>
-          </Collapse>
-          <br />
-          <div style={{ display:'flex', justifyContent:'center' }} >
+        <Collapse defaultActiveKey={['0']}>
+          <Panel header={t('Product.description')}>
+            <Descriptions>
+              <Descriptions.Item>{props.detail.description}</Descriptions.Item>
+            </Descriptions>
+          </Panel>
+        </Collapse>
+        <br />  
+        <Collapse defaultActiveKey={['1']}>
+          <Panel header={t('Product.howToUse')}>
+            <Descriptions>
+              <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
+            </Descriptions>
+          </Panel>
+        </Collapse>
+        <br />
+        <div style={{ display:'flex', justifyContent:'center' }} >
+        {/* 스텝인 경우 */}
+        { User.role === 1 && 
+          <Button onClick={listHandler}>
+            Landing Page
+          </Button>
+        }
+        {/* 관리자인 경우 */}
+        { User.role === 2 && 
+          <>
             <Button onClick={listHandler}>
               Landing Page
             </Button>
@@ -327,49 +289,22 @@ function ProductInfo(props) {
             <Button type="danger" onClick={deleteHandler}>
               Delete
             </Button>
-          </div>
-        </div>
-      )
-    } else {
-      // 일반사용자인 경우
-      return (
-        <div>
-          <Descriptions>
-            <Descriptions.Item label={t('Product.price')}>{Number(props.detail.price).toLocaleString()}</Descriptions.Item>
-            <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
-            <Descriptions.Item >
-              {IsSaleTag && <Tag style={saleTag}>{SALE_TAG}</Tag>}
-              {IsRecTag && <Tag style={noticeTag}>{NOTICE_TAG}</Tag>}
-            </Descriptions.Item>
-          </Descriptions>
-
-          <Collapse defaultActiveKey={['0']}>
-            <Panel header={t('Product.description')}>
-              <Descriptions>
-                <Descriptions.Item>{props.detail.description}</Descriptions.Item>
-              </Descriptions>
-            </Panel>
-          </Collapse>
-          <br />  
-          <Collapse defaultActiveKey={['1']}>
-            <Panel header={t('Product.howToUse')}>
-              <Descriptions>
-                <Descriptions.Item>{props.detail.usage}</Descriptions.Item>
-              </Descriptions>
-            </Panel>
-          </Collapse>
-          <br />
-          <div style={{ display:'flex', justifyContent:'center' }} >
+          </>
+        }
+        {/* 일반사용자인 경우 */}
+        { (User.role !== 1 && User.role !== 2) && 
+          <>
             <Button onClick={listHandler}>
               Landing Page
             </Button>
             <Button type="primary" onClick={cartHandler}>
               Add to Cart
             </Button>
-          </div>
+          </>
+        }
         </div>
-      )
-    }
+      </div>
+    )
   // 로그인 전
   } else {
     return (
@@ -378,8 +313,10 @@ function ProductInfo(props) {
           <Descriptions.Item label={t('Product.price')}>{Number(props.detail.price).toLocaleString()}</Descriptions.Item>
           <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
           <Descriptions.Item >
-            {IsSaleTag && <Tag style={saleTag}>{SALE_TAG}</Tag>}
-            {IsRecTag && <Tag style={noticeTag}>{NOTICE_TAG}</Tag>}
+            {t('Product.quantity')}: {props.detail.quantity}&nbsp;&nbsp;&nbsp;&nbsp;
+            {IsSaleTag && <Tag color="#f50">&nbsp;&nbsp;{SALE_TAG}&nbsp;&nbsp;</Tag>}
+            {IsRecTag && <Tag color="#fa0">{NOTICE_TAG}</Tag>}
+            {SoldOutTag && <Tag color="#0af">{SOLD_OUT_TAG}</Tag>}
           </Descriptions.Item>
         </Descriptions>
         

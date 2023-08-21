@@ -93,18 +93,15 @@ function CouponUserListPage() {
 	}
 
 	return (
-		<div style={{ width:'80%', margin: '3rem auto'}}>
-			<div style={{ textAlign: 'center' }}>
-				<h1>{t('User.listTitle')}</h1>
-			</div>
-
-			{/* Filter */}
+		<div style={{ maxWidth: '700px', margin: '3rem auto' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
+        <h1>{t('User.listTitle')}</h1>
+      </div>
 			{/* Search */}
 			<div style={{ display:'flex', justifyContent:'flex-end', margin:'1rem auto' }}>
 				<SearchFeature refreshFunction={updateSearchTerm}/>
 			</div>
 			{/* Search */}
-
 			<Table columns={columns} dataSource={Users} />
 		</div>	
 	)

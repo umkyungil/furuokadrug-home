@@ -58,6 +58,7 @@ const ProductSchema = new Schema(
     type: Number,
     default: 0
   },
+  // 상퓸 카테고리
   continents: {
     type: Number,
     default: 0
@@ -87,7 +88,22 @@ const ProductSchema = new Schema(
   chineseUrl: {
     type: String,
     default: ""
-  }
+  },
+  // 상품재고
+  quantity: {
+    type: Number,
+    default: 10
+  },
+  // 재고대상
+  inventoryExcept: {
+    type: Boolean,
+    default: false // true: 재고대상에서 제외, false: 재고대상에 포함
+  },
+  // 최대구매 수량
+  maxQuantity: {
+    type: Number,
+    default: 10
+  },
 }, { timestamps: true })
 
 const Product = model('Product', ProductSchema);

@@ -92,10 +92,10 @@ button {
 /*headerの下ブロック（最上段のブロックの下 hd3）
 ---------------------------------------------------------------------------*/
 
-
-/*mainブロックの設定*/
 main {
   flex: 1;
+  font-family: "游ゴシック体", YuGothic, "游ゴシック", "Yu Gothic", "Heiti SC","SimHei","SF Pro SC","SF Pro Text","SF Pro Icons","PingFang SC","Helvetica Neue","Helvetica","Arial",sans-serif;
+  font-feature-settings: 'palt';
 }
 
 /*video下説明ブロック設定*/

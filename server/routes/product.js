@@ -132,7 +132,11 @@ router.post('/list', async (req, res) => {
           }
         }
         return res.status(200).json({ success: true, productInfo: _20JapaneseTitleProducts, postSize: japaneseTitleProducts.length });
-      }    
+      }
+
+      // 데이타가 없는경우
+      return res.status(200).json({ success: true });
+      
     // 카테고리 검색
     } else if (!term && category) {
       const numCategory = Number(category);
@@ -187,6 +191,7 @@ router.get('/products_by_id', (req, res) => {
         return item;
       })
     }
+
     // 하나 이상의 productId로 상품의 정보들을 가져온다
     Product.find({ _id: { $in: productIds } })
     .populate('writer')
@@ -344,31 +349,6 @@ router.post('/delete_image', async (req, res) => {
 // 상품수정(이미지 경로포함)
 router.post('/update', async (req, res) => {
   try {
-    // AWS 정보가져오기
-    // const s3Info = await Code.findOne({ code: AWS_S3 });
-    // const s3Object = new AWS_SDK.S3({
-    //   accessKeyId: s3Info.value1,
-    //   secretAccessKey: s3Info.value2,
-    //   region: s3Info.value3
-    // });
-
-    // 기존 이미지 삭제
-    // const oldImages = req.body.oldImages
-    // AWS S3 이미지 삭제
-    // for (let i = 0; i < oldImages.length; i++) {
-    //   let str = oldImages[i];
-    //   let words = str.split('/');
-    //   let fileName = words[words.length-1];
-    //   const params = { Bucket: AWS_BUCKET_NAME, Key: fileName };
-
-    //   s3Object.deleteObject(params, (err, data) => {
-    //     if (err) {
-    //       console.log(err, err.stack);
-    //       return res.json({success: false, err});
-    //     }
-    //   })
-    // }
-
     // 업데이트 처리
     let product = await Product.findById(req.body.id);
     product.writer = req.body.writer;
@@ -398,6 +378,119 @@ router.post('/update', async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.status(500).json({ success: false, message: err.message });
+  }
+})
+
+// 상품재고 가져오기
+router.post("/inventory/list", async (req, res) => {
+  
+  let term = req.body.searchTerm;
+  try {
+    // term[0] = 0은 전체 검색
+    if (term[0] === '0' && term[1] === "") {
+      Product.find()
+        .sort({ "updatedAt": -1 })
+        .skip(req.body.skip)
+        .exec((err, productInfos) => {
+          if (err) return res.status(400).json({ success: false, err });
+          return res.status(200).json({ success: true, productInfos});
+      });
+    }
+
+    // 상품명 검색
+    if (term[0] === '0' && term[1] !== "") {
+      Product.find({ "title":{ '$regex':term[1], $options: 'i' }})
+        .sort({ "updatedAt": -1 })
+        .skip(req.body.skip)
+        .exec((err, productInfos) => {
+          if (err) return res.status(400).json({ success: false, err });
+          return res.status(200).json({ success: true, productInfos})
+      });
+    }
+
+    //  재고관리 대상 상품중에서 품절된 모든상품 검색
+    if (term[0] === '1' && term[1] === "") {
+      Product.find({ "quantity": 0, "inventoryExcept": false })
+        .sort({ "updatedAt": -1 })
+        .skip(req.body.skip)
+        .exec((err, productInfos) => {
+          if (err) return res.status(400).json({ success: false, err });
+          return res.status(200).json({ success: true, productInfos})
+      });
+    }
+
+    // 재고관리 대상 상품중에서 품절된 상품의 상품명 검색
+    if (term[0] === '1' && term[1] !== "") {
+      Product.find({ "quantity":0, "inventoryExcept": false, "title":{ '$regex':term[1], $options: 'i' }})
+        .sort({ "updatedAt": -1 })
+        .skip(req.body.skip)
+        .exec((err, productInfos) => {
+          if (err) return res.status(400).json({ success: false, err });
+          return res.status(200).json({ success: true, productInfos})
+      });
+    }
+
+    // 재고관리 대상이 아닌 모든상품 검색
+    if (term[0] === '2' && term[1] === "") {
+      Product.find({ "inventoryExcept": true }) 
+        .sort({ "updatedAt": -1 })
+        .skip(req.body.skip)
+        .exec((err, productInfos) => {
+          if (err) return res.status(400).json({ success: false, err });
+          return res.status(200).json({ success: true, productInfos})
+      });
+    }
+
+    // 재고관리 대상이 아닌 상품의 상품명 검색
+    if (term[0] === '2' && term[1] !== "") {
+      Product.find({ "inventoryExcept": true, "title":{ '$regex':term[1], $options: 'i' }})
+        .sort({ "updatedAt": -1 })
+        .skip(req.body.skip)
+        .exec((err, productInfos) => {
+          if (err) return res.status(400).json({ success: false, err });
+          return res.status(200).json({ success: true, productInfos})
+      });
+    }
+  } catch (err) {
+      console.log(err);
+      return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 상품재고 수정
+router.post('/inventory/update', async (req, res) => {
+  try {
+    // 상품 재고수량 수정
+    if (req.body.type === 'quantity') {
+      // 재고관리 대상 상품인지 확인
+      const productInfo = await Product.findOne({ _id: req.body._id });
+      if (productInfo.inventoryExcept) return res.status(200).json({ success: false });
+
+      await Product.findOneAndUpdate({ _id: req.body._id }, { quantity: parseInt(req.body.quantity)});
+      return res.status(200).send({ success: true });
+    }
+    // 상품 구매한도 수량 수정
+    if (req.body.type === 'maxQuantity') {
+      // 재고관리 대상 상품인지 확인
+      const productInfo = await Product.findOne({ _id: req.body._id });
+      if (productInfo.inventoryExcept) return res.status(200).json({ success: false });
+      
+      await Product.findOneAndUpdate({ _id: req.body._id }, { maxQuantity: parseInt(req.body.maxQuantity)});
+      return res.status(200).send({ success: true });
+    }
+    // 재고관리 대상외 상품
+    if (req.body.type === 'except') {
+      await Product.findOneAndUpdate({ _id: req.body._id }, { inventoryExcept: true, quantity: 0, maxQuantity: 0});
+      return res.status(200).send({ success: true });
+    }
+    // 재고관리 대상외 상품에서 대상상품으로 변경시 상품재고수량 및 최대구매량을 9999에서 10으로 수정
+    if (req.body.type === 'include') {
+      await Product.findOneAndUpdate({ _id: req.body._id }, { inventoryExcept: false, quantity: 10, maxQuantity: 10});
+      return res.status(200).send({ success: true });
+    }
+  } catch (err) {
+      console.log("err: ", err);
+      return res.status(500).json({ success: false, message: err.message });
   }
 })
 

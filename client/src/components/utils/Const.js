@@ -196,6 +196,7 @@ export const OPEN = "open";
 export const PRIVATE = "private";
 export const SALE_TAG = "sale";
 export const NOTICE_TAG = "notice";
+export const SOLD_OUT_TAG = "sold";
 
 export const ENGLISH = "English";
 export const JAPANESE = "日本語";

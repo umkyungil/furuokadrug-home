@@ -58,7 +58,10 @@
     "japaneseUrl": "商品URL(JP)",
     "chineseUrl": "商品URL(CN)",
     "member": "会員専用",
-    "createdAt": "登録日"
+    "createdAt": "登録日",
+    "quantity": "数量",
+    "maxQuantity": "最大購入数",
+    "inventoryExcept": "在庫除外"
   },
   "Order": {
     "listTitle": "注文一覧",

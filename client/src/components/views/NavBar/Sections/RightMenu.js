@@ -273,6 +273,9 @@ function RightMenu(props) {
               <Menu.Item key="productCsv">
                 <a href="/product/csv/upload">Product CSV</a>
               </Menu.Item>
+              <Menu.Item key="inventoryList">
+                <a href="/inventory/list">Inventory List</a>
+              </Menu.Item>
               <Menu.Item key="productList">
                 <a href="/product/admin/list">Product Admin List</a>
               </Menu.Item>
@@ -280,7 +283,7 @@ function RightMenu(props) {
 
             <SubMenu title={<span style={{color: 'white'}}>Other Mgt</span>}>
               <SubMenu title={<span>Order</span>}>
-                <Menu.Item key="list">
+                <Menu.Item key="orderList">
                   <a href="/order/list" >Order list</a>
                 </Menu.Item>
               </SubMenu>

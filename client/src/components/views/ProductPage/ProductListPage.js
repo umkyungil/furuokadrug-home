@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
-import { Col, Card, Row, Button, Tag } from 'antd';
+import { Col, Card, Row, Button, Tag, Empty } from 'antd';
 import ImageSlider from '../../utils/ImageSlider';
 import Meta from 'antd/lib/card/Meta';
 import { PRODUCT_SERVER, SALE_SERVER } from '../../Config.js';
@@ -22,19 +22,7 @@ const saleTag = {
   textAlign: "center"
 }
 
-const noticeTag2 = {
-  fontSize: "12px",
-  fontWeight: "bold",
-  top: "150px",
-  left: "165px",
-  width: "60px",
-  height: "25px",
-  color: "#ffffff",
-  background: "#ff8800",
-  textAlign: "center"
-}
-
-const noticeTag1 = {
+const noticeTag = {
   fontSize: "12px",
   fontWeight: "bold",
   top: "150px",
@@ -47,8 +35,6 @@ const noticeTag1 = {
 }
 
 const blankTag = {
-  // fontSize: "12px",
-  // fontWeight: "bold",
 	borderStyle: 'none',
   top: "150px",
   left: "165px",
@@ -56,12 +42,12 @@ const blankTag = {
   height: "24px",
   color: "#ffffff",
   background: "#ffffff",
-  // textAlign: "center"
 }
 
 function ProductListPage(props) {
 	const [Products, setProducts] = useState([]);
 	const [SaleInfos, setSaleInfos] = useState([]);
+	const [ShowSuccess, setShowSuccess] = useState(false);
 	const [ShowMore, setShowMore] = useState(false);
 
 	const skipRef = useRef(0);
@@ -76,7 +62,27 @@ function ProductListPage(props) {
 
 	useEffect(() => {
 		// 다국적언어 설정
-		i18n.changeLanguage(isLanguage);
+		if (!isLanguage || isLanguage === "") {
+      const i18 = localStorage.getItem("i18nextLng");
+      
+      if (i18) {
+        if (i18 === 'ja-JP') {
+          setIsLanguage('en');
+          localStorage.setItem('i18nextLng', 'en');
+          i18n.changeLanguage('en');
+        } else {
+          setIsLanguage(i18);
+          i18n.changeLanguage(i18);
+        }
+      } else {
+        setIsLanguage('en');
+        localStorage.setItem('i18nextLng', 'en');
+        i18n.changeLanguage('en');
+      }
+    } else {
+			i18n.changeLanguage(isLanguage);	
+		}
+		
 		// 스크롤을 Top으로 이동시킨다
 		scrollToTop();
 
@@ -163,8 +169,8 @@ function ProductListPage(props) {
 			body.id = localStorage.getItem('userId');
 			const response = await axios.post(`${PRODUCT_SERVER}/products_by_type`, body);
 			const products = response.data;
-			
-			if (products.success) {
+
+			if (products.productInfos) {
 				if (isLanguage === I18N_CHINESE) {
 					for (let i=0; i<products.productInfos.length; i++) {
 						products.productInfos[i].title = products.productInfos[i].chineseTitle;
@@ -188,14 +194,16 @@ function ProductListPage(props) {
 				}
 				// 검색한 상품의 갯수
 				postSizeRef.current = Number(products.productInfos.length);
+
+				setShowSuccess(true);
 			} else {
-				alert("Please contact the administrator");
-				props.history.push('/');
+				// 검색결과가 없는 경우
+				setShowSuccess(false);
 			}
 		} catch (err) {
 			console.log("err: ", err);
 			alert("Please contact the administrator");
-			props.history.push('/');
+			listHandler();
 		}
 	}
 
@@ -205,9 +213,9 @@ function ProductListPage(props) {
 			// 회원, 비회원 구분으로 상품을 가져오기 위해서
 			body.id = localStorage.getItem('userId');
 			const response =  await axios.post(`${PRODUCT_SERVER}/list`, body);
-			const products = response.data;
 
-			if (products.success) {
+			const products = response.data;
+			if (products.productInfo) {
 				if (isLanguage === I18N_JAPANESE) {
 					for (let i=0; i<products.productInfo.length; i++) {
 						products.productInfo[i].title = products.productInfo[i].title;
@@ -236,14 +244,16 @@ function ProductListPage(props) {
 				} else {
 					setShowMore(false);
 				}
+
+				setShowSuccess(true);
 			} else {
-				alert("Please contact the administrator");
-				props.history.push('/');
+				// 검색결과가 없는 경우
+				setShowSuccess(false);
 			}
 		} catch (err) {
 			console.log("err: ", err);
 			alert("Please contact the administrator");
-			props.history.push('/');
+			listHandler();
 		}
 	}
 
@@ -420,10 +430,10 @@ function ProductListPage(props) {
 					<Tag style={saleTag} >{SALE_TAG}</Tag>
 				}
 				{isRecommended && isSale &&
-					<Tag style={noticeTag1} >{NOTICE_TAG}</Tag>
+					<Tag style={noticeTag} >{NOTICE_TAG}</Tag>
 				}
 				{isRecommended && !isSale &&
-					<Tag style={noticeTag2} >{NOTICE_TAG}</Tag>
+					<Tag style={noticeTag} >{NOTICE_TAG}</Tag>
 				}
 				{/* 태그가있는 경우 폼이 이상해 지기때문에 태그가 없는 상품에 블랭크 태그를 두개 추가 */}
 				{!isSale && !isRecommended &&
@@ -436,27 +446,54 @@ function ProductListPage(props) {
 		</Col>
 	});
 
+	// Landing pageへ戻る
+  const listHandler = () => {
+    props.history.push('/')
+  }
+
 	return (
 		<div style={{ width:'75%', margin:'3rem auto' }}>
 			<div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
 				<h1>{t('Product.listTitle')}</h1>
 			</div>
 
-			{/* Cards */}
-			{/* gutter={[16, 16]}: [옆 카드사이의 여백, 위 아래 카드사이의 여백] */}
-			<Row gutter={[16, 16]}>
-				{renderCards}
-			</Row>
+			{/* 검색결과가 있는 경우 리스트를 보여 주고 없는 경우 Empty화면을 보여준다 */}
+			{ ShowSuccess ?
+				<>
+					{/* Cards */}
+					{/* gutter={[16, 16]}: [옆 카드사이의 여백, 위 아래 카드사이의 여백] */}
+					<Row gutter={[16, 16]}>
+						{renderCards} 
+					</Row>
 
-			<br />
-			{/* PostSize가 Limit보다 크거나 같으면 더보기 버튼을 보여주는 조건 */}
-			{/* PostSize: Product Size */}
-			{ ShowMore && 
-				<div style={{ display:'flex', justifyContent:'center' }}>
-					<Button type="primary" onClick={loadMoreHandler}>More</Button>
-				</div>
+					<br />
+				
+					{/* PostSize가 Limit보다 크거나 같으면 더보기 버튼을 보여주는 조건 */}
+					{/* PostSize: Product Size */}
+					{ ShowMore && 
+						<div style={{ display:'flex', justifyContent:'center' }}>
+							<Button type="primary" onClick={loadMoreHandler}>More</Button>
+						</div>
+					}
+				</>
+			:	
+				<>
+					<br />
+					<br />
+					<br />
+					<Empty description={false} />
+					<br />
+					<br />
+					<br />
+					<br />
+					<br />
+					<div style={{ display:'flex', justifyContent:'center' }}>
+						<Button type="primary" onClick={listHandler}>
+							Landing Page
+						</Button>
+					</div>
+				</>
 			}
-			
 		</div>
 	)
 }

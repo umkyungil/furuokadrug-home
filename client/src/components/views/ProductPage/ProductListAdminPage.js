@@ -32,8 +32,6 @@ function ProductListAdminPage() {
 		try {
 			const result = await axios.get(`${PRODUCT_SERVER}/list`);
 
-			console.log("result: ", result.data);
-
 			if (result.data.success)  {
 				for (let i=0; i<result.data.productInfos.length; i++) {
 					count++;

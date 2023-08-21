@@ -58,7 +58,10 @@
     "japaneseUrl": "产品网址(JP)",
     "chineseUrl": "产品网址(CN)",
     "member": "仅限会员",
-    "createdAt": "注册日期"
+    "createdAt": "注册日期",
+    "quantity": "数量",
+    "maxQuantity": "最大购买数量",
+    "inventoryExcept": "库存排除"
   },
   "Order": {
     "listTitle": "订单信息列表",

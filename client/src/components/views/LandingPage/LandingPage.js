@@ -51,7 +51,9 @@ function LandingPage() {
         localStorage.setItem('i18nextLng', 'en');
         i18n.changeLanguage('en');
       }
-    }
+    } else {
+			i18n.changeLanguage(isLanguage);	
+		}
 
     // 노출상풍을 가져오기
     getProducts(); // type 1:now on air, type 2:recording, type 3: recommended, type 4: sale

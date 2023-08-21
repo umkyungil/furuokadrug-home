@@ -1,26 +1,23 @@
 @import "~react-image-gallery/styles/css/image-gallery.css";
+/* @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100&display=swap'); */
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: "游ゴシック体", YuGothic, "游ゴシック", "Yu Gothic", "SF Pro SC", "SF Pro Text", "SF Pro Icons", "PingFang SC", "Helvetica Neue", "Helvetica", "Arial", sans-serif !important;
+  font-feature-settings: 'palt' !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
-}
-
-body {
-  font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, "微软雅黑", STXihei, "华文细黑",
-    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+/*   letter-spacing: 0.1em; */
   font-size: 14px;
   line-height: 1.5;
   color: #24292e;
   background-color: #fff;
+}
+
+code {
+  font-family: sans-serif;
+  font-feature-settings: 'palt';
+    /* monospace; */
 }
 
 .app {
