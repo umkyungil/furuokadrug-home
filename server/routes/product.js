@@ -75,6 +75,7 @@ router.post('/list', async (req, res) => {
     if (term && !category) {
       // 중국어 타이틀 검색
       let chineseTitleProducts;
+      // 회원 비회원인 경우 보여주는 상품을 구분하기 위해
       if (userId) {
         chineseTitleProducts = await Product.find({'chineseTitle': {'$regex': term}}).sort({"englishTitle": 1, "price": 1}).skip(skip);
       } else {
@@ -91,11 +92,13 @@ router.post('/list', async (req, res) => {
             _20ChineseTitleProducts.push(chineseTitleProducts[i]);
           }
         }
+        
         return res.status(200).json({ success: true, productInfo: _20ChineseTitleProducts, postSize: chineseTitleProducts.length });
       }
 
       // 영어 타이틀 검색
       let englishTitleProducts;
+      // 회원 비회원인 경우 보여주는 상품을 구분하기 위해
       if (userId) {
         englishTitleProducts = await Product.find({'englishTitle': {'$regex': term}}).sort({"englishTitle": 1, "price": 1}).skip(skip);
       } else {
@@ -111,11 +114,13 @@ router.post('/list', async (req, res) => {
             _20EnglishTitleProducts.push(englishTitleProducts[i]);
           }
         }
+
         return res.status(200).json({ success: true, productInfo: _20EnglishTitleProducts, postSize: englishTitleProducts.length });
       }
 
       // 일본어 타이틀 검색
       let japaneseTitleProducts;
+      // 회원 비회원인 경우 보여주는 상품을 구분하기 위해
       if (userId) {
         japaneseTitleProducts = await Product.find({'title': {'$regex': term}}).sort({"englishTitle": 1, "price": 1}).skip(skip);
       } else {
@@ -131,6 +136,7 @@ router.post('/list', async (req, res) => {
             _20JapaneseTitleProducts.push(japaneseTitleProducts[i]);
           }
         }
+
         return res.status(200).json({ success: true, productInfo: _20JapaneseTitleProducts, postSize: japaneseTitleProducts.length });
       }
 
@@ -157,6 +163,7 @@ router.post('/list', async (req, res) => {
           _20CategoryProducts.push(categoryProduct[i]);
         }
       }
+
       return res.status(200).json({ success: true, productInfo: _20CategoryProducts, postSize: categoryProduct.length });
     }
   } catch (err) {
@@ -385,71 +392,45 @@ router.post('/update', async (req, res) => {
 router.post("/inventory/list", async (req, res) => {
   
   let term = req.body.searchTerm;
+  const qtyFrom = parseInt(term[1]);
+  const qtyTo = parseInt(term[2]);
+
   try {
-    // term[0] = 0은 전체 검색
-    if (term[0] === '0' && term[1] === "") {
-      Product.find()
-        .sort({ "updatedAt": -1 })
-        .skip(req.body.skip)
-        .exec((err, productInfos) => {
-          if (err) return res.status(400).json({ success: false, err });
-          return res.status(200).json({ success: true, productInfos});
-      });
+    // term[0] = 0은 전체 검색, term[0] = 키워드 검색 
+    if (term[0] === '0' && term[3] === "") {
+      const productInfos = await Product.find({ "quantity":{ $gte: qtyFrom, $lte: qtyTo }}).sort({ "updatedAt": -1 });
+      return res.status(200).json({ success: true, productInfos});
     }
 
     // 상품명 검색
-    if (term[0] === '0' && term[1] !== "") {
-      Product.find({ "title":{ '$regex':term[1], $options: 'i' }})
-        .sort({ "updatedAt": -1 })
-        .skip(req.body.skip)
-        .exec((err, productInfos) => {
-          if (err) return res.status(400).json({ success: false, err });
-          return res.status(200).json({ success: true, productInfos})
-      });
+    if (term[0] === '0' && term[3] !== "") {
+      const productInfos = await Product.find(
+        { "quantity":{ $gte: qtyFrom, $lte: qtyTo }, "title":{ '$regex':term[3], $options: 'i' }}).sort({ "updatedAt": -1 });
+      return res.status(200).json({ success: true, productInfos});
     }
 
     //  재고관리 대상 상품중에서 품절된 모든상품 검색
-    if (term[0] === '1' && term[1] === "") {
-      Product.find({ "quantity": 0, "inventoryExcept": false })
-        .sort({ "updatedAt": -1 })
-        .skip(req.body.skip)
-        .exec((err, productInfos) => {
-          if (err) return res.status(400).json({ success: false, err });
-          return res.status(200).json({ success: true, productInfos})
-      });
+    if (term[0] === '1' && term[3] === "") {
+      const productInfos = await Product.find({ "quantity": 0, "inventoryExcept": false }).sort({ "updatedAt": -1 });
+      return res.status(200).json({ success: true, productInfos});
     }
 
     // 재고관리 대상 상품중에서 품절된 상품의 상품명 검색
-    if (term[0] === '1' && term[1] !== "") {
-      Product.find({ "quantity":0, "inventoryExcept": false, "title":{ '$regex':term[1], $options: 'i' }})
-        .sort({ "updatedAt": -1 })
-        .skip(req.body.skip)
-        .exec((err, productInfos) => {
-          if (err) return res.status(400).json({ success: false, err });
-          return res.status(200).json({ success: true, productInfos})
-      });
+    if (term[0] === '1' && term[3] !== "") {
+      const productInfos = await Product.find({ "quantity":0, "inventoryExcept": false, "title":{ '$regex':term[3], $options: 'i' }}).sort({ "updatedAt": -1 });
+      return res.status(200).json({ success: true, productInfos});
     }
 
     // 재고관리 대상이 아닌 모든상품 검색
-    if (term[0] === '2' && term[1] === "") {
-      Product.find({ "inventoryExcept": true }) 
-        .sort({ "updatedAt": -1 })
-        .skip(req.body.skip)
-        .exec((err, productInfos) => {
-          if (err) return res.status(400).json({ success: false, err });
-          return res.status(200).json({ success: true, productInfos})
-      });
+    if (term[0] === '2' && term[3] === "") {
+      const productInfos = await Product.find({ "inventoryExcept": true }).sort({ "updatedAt": -1 });
+      return res.status(200).json({ success: true, productInfos});
     }
 
     // 재고관리 대상이 아닌 상품의 상품명 검색
-    if (term[0] === '2' && term[1] !== "") {
-      Product.find({ "inventoryExcept": true, "title":{ '$regex':term[1], $options: 'i' }})
-        .sort({ "updatedAt": -1 })
-        .skip(req.body.skip)
-        .exec((err, productInfos) => {
-          if (err) return res.status(400).json({ success: false, err });
-          return res.status(200).json({ success: true, productInfos})
-      });
+    if (term[0] === '2' && term[3] !== "") {
+      const productInfos = await Product.find({ "inventoryExcept": true, "title":{ '$regex':term[3], $options: 'i' }}).sort({ "updatedAt": -1 });
+      return res.status(200).json({ success: true, productInfos});
     }
   } catch (err) {
       console.log(err);
@@ -464,7 +445,8 @@ router.post('/inventory/update', async (req, res) => {
     if (req.body.type === 'quantity') {
       // 재고관리 대상 상품인지 확인
       const productInfo = await Product.findOne({ _id: req.body._id });
-      if (productInfo.inventoryExcept) return res.status(200).json({ success: false });
+      // 재고대상에서 제외한 상품인 경우 수정할 필요가 없다. true: 재고대상에서 제외, false: 재고대상에 포함
+      if (productInfo.inventoryExcept) return res.status(200).json({ success: false, message: "except" });
 
       await Product.findOneAndUpdate({ _id: req.body._id }, { quantity: parseInt(req.body.quantity)});
       return res.status(200).send({ success: true });
@@ -473,14 +455,21 @@ router.post('/inventory/update', async (req, res) => {
     if (req.body.type === 'maxQuantity') {
       // 재고관리 대상 상품인지 확인
       const productInfo = await Product.findOne({ _id: req.body._id });
-      if (productInfo.inventoryExcept) return res.status(200).json({ success: false });
+      // 재고대상에서 제외한 상품인 경우 수정할 필요가 없다. true: 재고대상에서 제외, false: 재고대상에 포함
+      if (productInfo.inventoryExcept) return res.status(200).json({ success: false, message: "except" });
+
+      if (productInfo.quantity) {
+        if (productInfo.quantity < parseInt(req.body.maxQuantity)) {
+          return res.status(200).json({ success: false, message: "quantity" });
+        }
+      }
       
       await Product.findOneAndUpdate({ _id: req.body._id }, { maxQuantity: parseInt(req.body.maxQuantity)});
       return res.status(200).send({ success: true });
     }
     // 재고관리 대상외 상품
     if (req.body.type === 'except') {
-      await Product.findOneAndUpdate({ _id: req.body._id }, { inventoryExcept: true, quantity: 0, maxQuantity: 0});
+      await Product.findOneAndUpdate({ _id: req.body._id }, { inventoryExcept: true, quantity: 9999, maxQuantity: 9999});
       return res.status(200).send({ success: true });
     }
     // 재고관리 대상외 상품에서 대상상품으로 변경시 상품재고수량 및 최대구매량을 9999에서 10으로 수정

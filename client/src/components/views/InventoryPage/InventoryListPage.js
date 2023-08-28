@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Table, Radio } from 'antd';
+import { Table, Button, Radio } from 'antd';
 import { PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
@@ -21,7 +21,7 @@ function InventoryListPage() {
 	useEffect(() => {
 		// 다국어 설정
     i18n.changeLanguage(isLanguage);
-		getProducts({ searchTerm: ["0", ""] });
+		getProducts({ searchTerm: ["0", "0", "9999", ""] });
 	}, [])
 
 	// 상품정보 가져오기
@@ -89,75 +89,73 @@ function InventoryListPage() {
   }
 
 	const handleClick = async (id, e) => {
-		try {
-			if (e.target.value === 'quantity') {
-
-				const quantity = window.prompt("Please enter the stock quantity");
+		// 재고수량
+		if (e.target.value === 'quantity') {
+			const quantity = window.prompt("Please enter the stock quantity");
+			
+			if (quantity) {
+				// 숫자 체크
+				if (isNaN(quantity)) {
+					alert("Please enter a number");
+					return;
+				}
 				
-				if (quantity) {
-					// 숫자 체크
-					if (isNaN(quantity)) {
-						alert("Please enter a number");
-						return;
-					}
-					
-					const result = await axios.post(`${PRODUCT_SERVER}/inventory/update`, {_id: id, type: 'quantity', quantity: quantity});
-					if (result.data.success) {
-						getProducts({ searchTerm: ["0", ""] });
-					} else {
-						alert("This product is not subject to inventory management");
-						return;
-					}
+				const result = await axios.post(`${PRODUCT_SERVER}/inventory/update`, {_id: id, type: 'quantity', quantity: quantity});
+				if (result.data.success) {
+					getProducts({ searchTerm: ["0", "0", "9999", ""] });
+				} else {
+					alert("This product is not subject to inventory management");
+					return;
 				}
 			}
-			// 최대 구매갯수
-			if (e.target.value === 'maxQuantity') {
-				const maxQuantity = window.prompt("Please enter the maximum purchase quantity");
-
-				if (maxQuantity) {
-					// 숫자 체크
-					if (isNaN(maxQuantity)) {
-						alert("Please enter a number");
-						return;
-					}
-		
-					const result = await axios.post(`${PRODUCT_SERVER}/inventory/update`, {_id: id, type: 'maxQuantity', maxQuantity: maxQuantity});
-					if (result.data.success) {
-						getProducts({ searchTerm: ["0", ""] });
-					} else {
-						alert("This product is not subject to inventory management");
-						return;
-					}
-				}
-			}
-			// 재고관리 제외상품
-			if (e.target.value === 'except') {
-				const except = window.confirm("Don't you do inventory management?");
-
-				if (except) {
-					const result = await axios.post(`${PRODUCT_SERVER}/inventory/update`, {_id: id, type: 'except'});
-					if (result.data.success) {
-						getProducts({ searchTerm: ["0", ""] });
-					}
-				}
-			}
-			// 재고관리 대상상품
-			if (e.target.value === 'include') {
-				const include = window.confirm("Do you want to manage inventory?");
-
-				if (include) {
-					const result = await axios.post(`${PRODUCT_SERVER}/inventory/update`, {_id: id, type: 'include'});
-					if (result.data.success) {
-						getProducts({ searchTerm: ["0", ""] });
-					}
-				}
-			}	
-		} catch (err) {
-			console.log("err: ", err);
-			alert("Please contact the administrator");
-			listHandler();
 		}
-  }
+		// 최대 구매수량
+		if (e.target.value === 'maxQuantity') {
+			const maxQuantity = window.prompt("Please enter the maximum purchase quantity");
+
+			if (maxQuantity) {
+				// 숫자 체크
+				if (isNaN(maxQuantity)) {
+					alert("Please enter a number");
+					return;
+				}
+	
+				const result = await axios.post(`${PRODUCT_SERVER}/inventory/update`, {_id: id, type: 'maxQuantity', maxQuantity: maxQuantity});
+				if (result.data.success) {
+					getProducts({ searchTerm: ["0", "0", "9999", ""] });
+				} else {
+					if (result.data.message === "except") {
+						alert("This product is not subject to inventory management");
+					} else if (result.data.message === "quantity") {
+						alert("Please check stock quantity");
+					}
+					return;
+				}
+			}
+		}
+		// 재고관리 제외상품
+		if (e.target.value === 'except') {
+			const except = window.confirm("Don't you do inventory management?");
+
+			if (except) {
+				const result = await axios.post(`${PRODUCT_SERVER}/inventory/update`, {_id: id, type: 'except'});
+				if (result.data.success) {
+					getProducts({ searchTerm: ["0", "0", "9999", ""] });
+				}
+			}
+		}
+		// 재고관리 대상상품
+		if (e.target.value === 'include') {
+			const include = window.confirm("Do you want to manage inventory?");
+
+			if (include) {
+				const result = await axios.post(`${PRODUCT_SERVER}/inventory/update`, {_id: id, type: 'include'});
+				if (result.data.success) {
+					getProducts({ searchTerm: ["0", "0", "9999", ""] });
+				}
+			}
+		}	
+  }	
 
 	// 상품정보 검색
 	const searchTerm = (newSearchTerm) => {
@@ -199,7 +197,7 @@ function InventoryListPage() {
 			title: 'Action',
 			key: 'update',
 			render: (_, record) => (
-				<>
+				<>					
 					<Radio.Group onChange={(e) => {handleClick(record._id, e)}}>
 						<Radio.Button style={{height:'30px'}} value="quantity">Qty</Radio.Button>
 						<Radio.Button style={{height:'30px', color:'white', backgroundColor:'#3385ff'}} value="maxQuantity">Max Qty</Radio.Button>
@@ -214,7 +212,7 @@ function InventoryListPage() {
 	return (
 		<div style={{ width:'80%', margin: '3rem auto'}}>
 			<div style={{ textAlign: 'center', paddingTop: '38px' }}>
-				<h1>{'Inventory list'}</h1>
+				<h1>{'Product inventory list'}</h1>
 			</div>
 			{/* Search */}
 			<div style={{ display:'flex', justifyContent:'flex-end', margin:'1rem auto' }}>

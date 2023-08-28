@@ -80,8 +80,9 @@ function ProductInfo(props) {
         }
       }      
       
-      // 재고관리 대상외 상품이거나 재고가 0인경우 
-      if (props.detail.inventoryExcept || props.detail.quantity === 0) {
+      // 재고관리 대상외 상품은 구매가 언제든지 가능한 제품
+      // 재고가 0인경우만 구매를 못하게 한다   
+      if (props.detail.quantity === 0) {
         setSoldOutTag(true);
       } else {
         setSoldOutTag(false);
@@ -247,7 +248,12 @@ function ProductInfo(props) {
           <Descriptions.Item label={t('Product.price')}>{Number(props.detail.price).toLocaleString()}</Descriptions.Item>
           <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
           <Descriptions.Item >
-            {t('Product.quantity')}: {props.detail.quantity}&nbsp;&nbsp;&nbsp;&nbsp;
+            {/* 일반 사용자인 경우는 표시하지 않는다 */}
+            { User.role !== 0 && 
+              <>
+                {t('Product.quantity')}: {props.detail.quantity}&nbsp;&nbsp;&nbsp;&nbsp;
+              </>
+            }
             {IsSaleTag && <Tag color="#f50">&nbsp;&nbsp;{SALE_TAG}&nbsp;&nbsp;</Tag>}
             {IsRecTag && <Tag color="#fa0">{NOTICE_TAG}</Tag>}
             {SoldOutTag && <Tag color="#0af">{SOLD_OUT_TAG}</Tag>}
@@ -271,18 +277,12 @@ function ProductInfo(props) {
         </Collapse>
         <br />
         <div style={{ display:'flex', justifyContent:'center' }} >
-        {/* 스텝인 경우 */}
-        { User.role === 1 && 
           <Button onClick={listHandler}>
             Landing Page
           </Button>
-        }
         {/* 관리자인 경우 */}
         { User.role === 2 && 
           <>
-            <Button onClick={listHandler}>
-              Landing Page
-            </Button>
             <Button type="primary" onClick={modifyHandler}>
               Modify
             </Button>
@@ -291,16 +291,11 @@ function ProductInfo(props) {
             </Button>
           </>
         }
-        {/* 일반사용자인 경우 */}
-        { (User.role !== 1 && User.role !== 2) && 
-          <>
-            <Button onClick={listHandler}>
-              Landing Page
-            </Button>
-            <Button type="primary" onClick={cartHandler}>
-              Add to Cart
-            </Button>
-          </>
+        {/* 일반사용자이고 상품재고가 있는 경우 */}
+        { User.role === 0 && !SoldOutTag &&  
+          <Button type="primary" onClick={cartHandler}>
+            Add to Cart
+          </Button>
         }
         </div>
       </div>
@@ -313,7 +308,6 @@ function ProductInfo(props) {
           <Descriptions.Item label={t('Product.price')}>{Number(props.detail.price).toLocaleString()}</Descriptions.Item>
           <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
           <Descriptions.Item >
-            {t('Product.quantity')}: {props.detail.quantity}&nbsp;&nbsp;&nbsp;&nbsp;
             {IsSaleTag && <Tag color="#f50">&nbsp;&nbsp;{SALE_TAG}&nbsp;&nbsp;</Tag>}
             {IsRecTag && <Tag color="#fa0">{NOTICE_TAG}</Tag>}
             {SoldOutTag && <Tag color="#0af">{SOLD_OUT_TAG}</Tag>}
@@ -336,13 +330,16 @@ function ProductInfo(props) {
           </Panel>
         </Collapse>
         <br />
-        <div style={{ display:'flex', justifyContent:'center' }} >
+        <div style={{ display:'flex', justifyContent:'center' }} >          
           <Button onClick={listHandler}>
             Landing Page
           </Button>
-          <Button type="primary" onClick={cartHandler}>
-            Add to Cart
-          </Button>
+          {/* 상품재고가 있는 경우 */}
+          { !SoldOutTag &&  
+            <Button type="primary" onClick={cartHandler}>
+              Add to Cart
+            </Button>
+          }
         </div>
       </div>
     )

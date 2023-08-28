@@ -60,7 +60,7 @@
     "member": "会員専用",
     "createdAt": "登録日",
     "quantity": "数量",
-    "maxQuantity": "最大購入数",
+    "maxQuantity": "最大購入数量",
     "inventoryExcept": "在庫除外"
   },
   "Order": {

@@ -20,22 +20,20 @@ const { NOT_SET, DEPOSITED } = require('../config/const')
 // UPC AliPay 결제결과 등록
 router.get('/alipay/register', async (req, res) => {
   try {
-    // UPC 사양에 의해 관리페이지의 킥백에 설정한 주소로 
-    // 1바이트 문자를 표시하기 위한 조건
+    // UPC 사양에 의해 관리페이지의 킥백에 설정한 주소로 1바이트 문자를 표시하기 위한 조건
     if (!req.query) {
       return res.status(200).json({success: true});
     } else {
       // 링크결제는 이래의 로직을 타지 않게 한다(uniqueField가 없다)
       if (req.query.uniqueField) {
         // 결제 성공했을 경우
-        if (req.query.rst === "1") {
-          
+        if (req.query.rst === "1") {          
           let dt1 = new Date();
           let currentDate = new Date(dt1.getTime() - (dt1.getTimezoneOffset() * 60000)).toISOString();
           let dt2 = new Date(dt1.setFullYear(dt1.getFullYear() + 1));
           let oneYearDate = new Date(dt2.getTime() - (dt2.getTimezoneOffset() * 60000)).toISOString();
-          
-          // 카트결제인 경우 sod의 포인트값들을 추출
+
+          // Cart결제인 경우 sod의 포인트값들을 추출
           let pointToUse = 0;
           let productPoint = 0;
           let totalPoint = 0;
@@ -68,11 +66,11 @@ router.get('/alipay/register', async (req, res) => {
           // Alipay에 결제결과 등록
           // uniqueField는 tmpOrder와 동일하게 userId를 삭제한 값으로 등록한다
           req.query.uniqueField = uniqueField;
-          const alipay = new Alipay(req.query)
+          const alipay = new Alipay(req.query);
           await alipay.save();
 
           // 임시 주문정보 가져오기(Alipay확인 페이지에서 tmpOrder정보를 저장한다)
-          const tmpOrderInfo = await TmpOrder.findOne({ "uniqueField": uniqueField});
+          const tmpOrderInfo = await TmpOrder.findOne({ "uniqueField": uniqueField });
 
           // 주문정보 설정
           const body = {
@@ -153,7 +151,7 @@ router.get('/alipay/register', async (req, res) => {
                   console.log("payment update failed: ", err);
                 } else {
                   // Product의 sold 필드 정보 업데이트
-                  // 상품당 몇개를 샀는지 파악 
+                  // 상품별 몇개를 샀는지 파악 
                   let products = [];
                   doc.product.forEach(item => {
                       products.push({ id: item.id, quantity: item.quantity })
@@ -163,7 +161,7 @@ router.get('/alipay/register', async (req, res) => {
                   async.eachSeries(products, (item, callback) => {
                     Product.updateOne(
                       { _id: item.id },
-                      { $inc: { "sold": item.quantity }},
+                      { $inc: { "sold": item.quantity, "quantity": item.quantity * -1 }},
                       { new: false },
                       callback
                     )
@@ -202,7 +200,7 @@ router.get('/alipay/register', async (req, res) => {
                         async.eachSeries(products, (item, callback) => {
                           Product.updateOne(
                             { _id: item.id },
-                            { $inc: { "sold": item.quantity }},
+                            { $inc: { "sold": item.quantity, "quantity": item.quantity * -1 }},
                             { new: false },
                             callback
                           )
@@ -278,7 +276,7 @@ router.get('/alipay/register', async (req, res) => {
                       savePoint(dataToSubmit);
                     }
                 })
-              }            
+              }
             })
           }
         } else {
@@ -288,7 +286,6 @@ router.get('/alipay/register', async (req, res) => {
       // UPC 사양에 의해 관리페이지의 킥백에 설정한 주소로 
       // 1바이트 문자를 표시하기 위한 조건
       return res.status(200).json({success: true});
-
     }
   } catch (err) {
     console.log("AliPay payment from UPC failed: ", err);
@@ -298,8 +295,7 @@ router.get('/alipay/register', async (req, res) => {
 // UPC WeChat 결제결과 등록
 router.get('/wechat/register', async (req, res) => {
   try {
-    // UPC 사양에 의해 관리페이지의 킥백에 설정한 주소로
-    // 1바이트 문자를 표시하기 위한 조건
+    // UPC 사양에 의해 관리페이지의 킥백에 설정한 주소로 1바이트 문자를 표시하기 위한 조건
     if (!req.query) {
       return res.status(200).json({success: true});
     } else {
@@ -326,9 +322,9 @@ router.get('/wechat/register', async (req, res) => {
             // sod는 카트에서 이동된 경우, 사용자가 사용한 포인트, 상품구매의 포인트 그리고 총 포인트가 넘어온다
             // sod = UsePoint + '_' + AcquisitionPoints + '_' + grantPoint;
             let arrSod = req.query.sod.split('_');
-            pointToUse = parseInt(arrSod[0]); // 사용자가 입력한 포인트
-            productPoint = parseInt(arrSod[1]); // 누적할 포인트
-            totalPoint = parseInt(arrSod[2]); // 총 포인트
+            pointToUse = parseInt(arrSod[0]); // 사용자가 입력한 포인트(UsePoint)
+            productPoint = parseInt(arrSod[1]); // 누적할 포인트(AcquisitionPoints)
+            totalPoint = parseInt(arrSod[2]); // 총 포인트(grantPoint)
 
             // Cart인 경우 Wechat확인 페이지에서 tmpOrder에 등록할때 userId를 제외한 
             // uniqueField로 등록해서 userId를 제외한 uniqueField로 검색한다
@@ -347,7 +343,7 @@ router.get('/wechat/register', async (req, res) => {
           req.query.uniqueField = uniqueField;
           const wechat = new Wechat(req.query);
           await wechat.save();
-          
+
           // 임시 주문정보 가져오기(Wechat확인 페이지에서 tmpOrder정보를 저장한다)
           const tmpOrderInfo = await TmpOrder.findOne({ "uniqueField": uniqueField });
 
@@ -404,10 +400,10 @@ router.get('/wechat/register', async (req, res) => {
             // 카트결제인 경우만 uniqueKey에 PaymentId가 들어온다
             const paymentId = arrUniqueField[1];
 
-            // TmpPayment 가져오기
+            // TmpPayment 가져오기(카트 페이지에서 저장)
             const tmpPaymentInfo = await TmpPayment.findOne({ _id: paymentId })
 
-            // 구매상품 모든곳에 WeChat 결제ID 설정
+            // 모든 구매상품에 WeChat 결제ID 설정
             for(let i=0; i<tmpPaymentInfo.product.length; i++) {
               tmpPaymentInfo.product[i].paymentId = req.query.pid;
             }
@@ -421,7 +417,7 @@ router.get('/wechat/register', async (req, res) => {
             transactionData.data = paymentData;
             transactionData.product = tmpPaymentInfo.product;
 
-            //불특정 사용자인 경우(확인 페이지에서 아이디가 삭제되기 때문에 별도처리가 필요)
+            // 불특정 사용자인 경우(확인 페이지에서 아이디가 삭제되기 때문에 별도처리가 필요)
             if (tmpOrderInfo.name.substring(0, 9) === 'Anonymous') {
               // Payment에 결제정보 저장
               const payment = new Payment(transactionData);
@@ -440,7 +436,7 @@ router.get('/wechat/register', async (req, res) => {
                   async.eachSeries(products, (item, callback) => {
                     Product.updateOne(
                       { _id: item.id },
-                      { $inc: { "sold": item.quantity }},
+                      { $inc: { "sold": item.quantity, "quantity": item.quantity * -1 }},
                       { new: false },
                       callback
                     )
@@ -479,7 +475,7 @@ router.get('/wechat/register', async (req, res) => {
                         async.eachSeries(products, (item, callback) => {
                           Product.updateOne(
                             { _id: item.id },
-                            { $inc: { "sold": item.quantity }},
+                            { $inc: { "sold": item.quantity, "quantity": item.quantity * -1 }},
                             { new: false },
                             callback
                           )
@@ -497,6 +493,7 @@ router.get('/wechat/register', async (req, res) => {
               )
               
               // 사용자가 입력한 포인트가 있는지 확인 (입력한 포인트는 기본값이 화면단에서 0으로 설정되어 있다)
+              // 불특정 사용자는 포인트 입력을 못한다
               const userId = tmpOrderInfo.userId;
               const name = tmpOrderInfo.name;
               const lastName = tmpOrderInfo.lastName;
@@ -518,11 +515,11 @@ router.get('/wechat/register', async (req, res) => {
                   dateUsed:''
                 }
                 // 포인트 등록
-                savePoint(dataToSubmit)
+                savePoint(dataToSubmit);
               }
             }
           } else {
-            // 라이브에서 이동된 경우 포인트 처리
+            // 라이브에서 이동된 경우 포인트 처리(라이브는 로그인 한 사용자만 사용이 가능하기에 사용자 정보를 가지고 있다.)
             // 상품에 대한 정보가 없기 때문에 TmpPayment, Payment정보를 저장하지 않는다
             // 사용자 포인트 가져오기
             User.findOne({ "_id": tmpOrderInfo.userId, "deletedAt": null , "role": 0 }, function(err, userInfo) {
@@ -542,7 +539,7 @@ router.get('/wechat/register', async (req, res) => {
                         userId: tmpOrderInfo.userId,
                         userName: tmpOrderInfo.name,
                         userLastName: tmpOrderInfo.lastName,
-                        point: productPoint,
+                        point: productPoint, // 구매상품 포인트 합계
                         remainingPoints: productPoint,
                         usePoint: 0,
                         dspUsePoint: 0,
@@ -551,7 +548,7 @@ router.get('/wechat/register', async (req, res) => {
                         dateUsed:''
                       }
                       // 포인트 등록
-                      savePoint(dataToSubmit);  
+                      savePoint(dataToSubmit);
                     }
                 })
               }
@@ -564,7 +561,6 @@ router.get('/wechat/register', async (req, res) => {
       // UPC 사양에 의해 관리페이지의 킥백에 설정한 주소로 
       // 1바이트 문자를 표시하기 위한 조건
       return res.status(200).json({success: true});
-      
     }
   } catch (err) {
     console.log("WeChat payment from UPC failed: ", err);

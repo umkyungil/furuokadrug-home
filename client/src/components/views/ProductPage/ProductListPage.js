@@ -10,30 +10,6 @@ import axios from 'axios';
 // CORS 대책
 axios.defaults.withCredentials = true;
 
-const saleTag = {
-  fontSize: "12px",
-  fontWeight: "bold",
-  top: "150px",
-  left: "165px",
-  width: "60px",
-  height: "25px",
-  color: "#ffffff",
-  background: "#ff0404",
-  textAlign: "center"
-}
-
-const noticeTag = {
-  fontSize: "12px",
-  fontWeight: "bold",
-  top: "150px",
-  left: "165px",
-  width: "60px",
-  height: "25px",
-  color: "#ffffff",
-  background: "#ff8800",
-  textAlign: "center"
-}
-
 const blankTag = {
 	borderStyle: 'none',
   top: "150px",
@@ -395,14 +371,14 @@ function ProductListPage(props) {
 		let saleAmount = calcBySaleItem(SaleInfos, product);
 		let minusSalesAmount = Number(product.price) - saleAmount;
 
-		let isSale = false;
-		let isRecommended = false;
+		let isSaleTag = false;
+		let isRecTag = false;
 		for (let i = 0; i < product.exposureType.length; i++) {
 			if (product.exposureType[i] === PRODUCT_VISIBLE_TYPE[3].key) {
-				isRecommended = true;
+				isRecTag = true;
 			} 
 			if (product.exposureType[i] === PRODUCT_VISIBLE_TYPE[4].key) {
-				isSale = true;
+				isSaleTag = true;
 			} 
 		}
 
@@ -426,22 +402,15 @@ function ProductListPage(props) {
 				<b>{minusSalesAmount.toLocaleString()} (JPY)</b>
 				{/* &nbsp;&nbsp; */}
 				<br />
-				{isSale && 
-					<Tag style={saleTag} >{SALE_TAG}</Tag>
-				}
-				{isRecommended && isSale &&
-					<Tag style={noticeTag} >{NOTICE_TAG}</Tag>
-				}
-				{isRecommended && !isSale &&
-					<Tag style={noticeTag} >{NOTICE_TAG}</Tag>
-				}
+				{ isSaleTag && <Tag color="#f50" >&nbsp;&nbsp;{SALE_TAG}&nbsp;&nbsp;</Tag>	}
+				{ isRecTag && <Tag color="#fa0" >{NOTICE_TAG}</Tag> }
 				{/* 태그가있는 경우 폼이 이상해 지기때문에 태그가 없는 상품에 블랭크 태그를 두개 추가 */}
-				{!isSale && !isRecommended &&
-					<Tag style={blankTag} >blank</Tag>
-				}
-				{!isSale && !isRecommended &&
-					<Tag style={blankTag} >blank</Tag>
-				}
+				{ !isSaleTag && !isRecTag &&
+					<>
+						<Tag style={blankTag} >blank</Tag>
+						<Tag style={blankTag} >blank</Tag>
+					</>
+				}				
 			</Card>
 		</Col>
 	});

@@ -158,7 +158,7 @@ function RightMenu(props) {
             {/* <Menu.Item key="chat">
               <a onClick={chatHandler}>Chat</a>
             </Menu.Item> */}
-            <SubMenu title={<span style={{color: 'white'}}>My Information</span>}>
+            <SubMenu title={<span style={{color: 'white'}}>My information</span>}>
               {/* <Menu.Item key="pointList">
                 <a href="/point/list">Point List</a>
               </Menu.Item>
@@ -172,9 +172,9 @@ function RightMenu(props) {
                 <a href="/myInfo/detail">MyInfo detail</a>
               </Menu.Item>
             </SubMenu>
-            <Menu.Item key="live">
+            {/* <Menu.Item key="live">
               <a href="/live" style={{color: 'white'}}>Live Streaming</a>
-            </Menu.Item>            
+            </Menu.Item>             */}
             <Menu.Item key="cart" style={{paddingBottom:3}}>
               <Badge count={count}>
                 <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
@@ -209,19 +209,19 @@ function RightMenu(props) {
             {/* <Menu.Item key="chat">
               <a onClick={chatHandler}>Chat</a>
             </Menu.Item> */}
-            <Menu.Item key="live">
+            {/* <Menu.Item key="live">
               <a href="/live" style={{color: 'white'}}>Live Streaming</a>
-            </Menu.Item>
+            </Menu.Item> */}
             <SubMenu title={<span style={{color: 'white'}}>History</span>}>
               <SubMenu title={<span>Payment</span>}>
                 <Menu.Item key="aliPayList">
-                  <a href="/payment/alipay/list">Alipay Payment History</a>
+                  <a href="/payment/alipay/list">Alipay payment history</a>
                 </Menu.Item>
                 <Menu.Item key="weChatList">
-                  <a href="/payment/wechat/list">WeChat Payment History</a>
+                  <a href="/payment/wechat/list">WeChat payment history</a>
                 </Menu.Item>
                 <Menu.Item key="paypalAdminList">
-                  <a href="/payment/paypal/admin/list">Cart Payment History</a>
+                  <a href="/payment/paypal/admin/list">Cart payment history</a>
                 </Menu.Item>
               </SubMenu>
               <Menu.Item key="mailList">
@@ -252,32 +252,32 @@ function RightMenu(props) {
             {/* <Menu.Item key="chat">
               <a onClick={chatHandler}>Chat</a>
             </Menu.Item> */}
-            <Menu.Item key="live">
+            {/* <Menu.Item key="live">
               <a href="/live" style={{color: 'white'}}>Live Streaming</a>
-            </Menu.Item>
+            </Menu.Item> */}
             {/* <Menu.Item key="jitSi">
               <a href="/jitSi" style={{color: 'white'}}>JitSi meet</a>
             </Menu.Item>  */}
             <SubMenu title={<span style={{color: 'white'}}>User</span>}>
               <Menu.Item key="userRegister">
-                <a href="/register">User Reg</a>
+                <a href="/register">User reg</a>
               </Menu.Item>
               <Menu.Item key="userList">
-                <a href="/user/list">User List</a>
+                <a href="/user/list">User list</a>
               </Menu.Item>
             </SubMenu>
             <SubMenu title={<span style={{color: 'white'}}>Product</span>}>
               <Menu.Item key="productRegister">
-                <a href="/product/upload">Product Reg</a>
+                <a href="/product/upload">Product reg</a>
               </Menu.Item>
               <Menu.Item key="productCsv">
                 <a href="/product/csv/upload">Product CSV</a>
               </Menu.Item>
               <Menu.Item key="inventoryList">
-                <a href="/inventory/list">Inventory List</a>
+                <a href="/inventory/list">Product inventory list</a>
               </Menu.Item>
               <Menu.Item key="productList">
-                <a href="/product/admin/list">Product Admin List</a>
+                <a href="/product/admin/list">Product admin list</a>
               </Menu.Item>
             </SubMenu>
 
@@ -289,57 +289,57 @@ function RightMenu(props) {
               </SubMenu>
               <SubMenu title={<span>Sale</span>}>
                 <Menu.Item key="saleList">
-                  <a href="/sale/list">Sale List</a>
+                  <a href="/sale/list">Sale list</a>
                 </Menu.Item>
                 <Menu.Item key="saleRegister">
-                  <a href="/sale/register">Sale Reg</a>
+                  <a href="/sale/register">Sale reg</a>
                 </Menu.Item>
               </SubMenu>
               <SubMenu title={<span>Coupon</span>}>
                 <Menu.Item key="couponList">
-                  <a href="/coupon/list">Coupon List</a>
+                  <a href="/coupon/list">Coupon list</a>
                 </Menu.Item>
                 <Menu.Item key="couponRegister">
-                  <a href="/coupon/register">Coupon Reg</a>
+                  <a href="/coupon/register">Coupon reg</a>
                 </Menu.Item>
                 <Menu.Item key="couponBirthRegister">
-                  <a href="/coupon/birth/register">Coupon Birthday Reg</a>
+                  <a href="/coupon/birth/register">Coupon bday reg</a>
                 </Menu.Item>
               </SubMenu>
               <SubMenu title={<span>Images</span>}>
                 <Menu.Item key="imgReg">
-                  <a href="/images/register">Images Reg</a>
+                  <a href="/images/register">Images reg</a>
                 </Menu.Item>
                 <Menu.Item key="imagesList">
-                  <a href="/images/list">Images List</a>
+                  <a href="/images/list">Images list</a>
                 </Menu.Item>
               </SubMenu>
               <SubMenu title={<span>Code</span>}>
                 <Menu.Item key="codeReg">
-                  <a href="/code/register">Code Reg</a>
+                  <a href="/code/register">Code reg</a>
                 </Menu.Item>
                 <Menu.Item key="codeList">
-                  <a href="/code/list">Code List</a>
+                  <a href="/code/list">Code list</a>
                 </Menu.Item>
               </SubMenu>
               <Menu.Item key="csv">
-                <a href="/csv/upload/univaPayCast">CSV Upload</a>
+                <a href="/csv/upload/univaPayCast">CSV upload</a>
               </Menu.Item>
               <SubMenu title={<span>History</span>}>
                 <Menu.Item key="alipayList">
-                  <a href="/payment/alipay/list">Alipay Payment History</a>
+                  <a href="/payment/alipay/list">Alipay payment history</a>
                 </Menu.Item>
                 <Menu.Item key="wechatList">
-                  <a href="/payment/wechat/list">WeChat Payment History</a>
+                  <a href="/payment/wechat/list">WeChat payment history</a>
                 </Menu.Item>
                 <Menu.Item key="paypalAdminList">
-                  <a href="/payment/paypal/admin/list">Cart Payment History</a>
+                  <a href="/payment/paypal/admin/list">Cart payment history</a>
                 </Menu.Item>
                 <Menu.Item key="mailList">
-                  <a href="/mail/list">Mail History</a>
+                  <a href="/mail/list">Mail history</a>
                 </Menu.Item>
                 <Menu.Item key="couponHistory">
-                  <a href="/coupon/history">Coupon History</a>
+                  <a href="/coupon/history">Coupon history</a>
                 </Menu.Item>
               </SubMenu>
             </SubMenu>

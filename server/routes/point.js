@@ -17,7 +17,7 @@ router.get('/users_by_id', async (req, res) => {
         let currentDate = new Date(dt.getTime() - (dt.getTimezoneOffset() * 60000)).toISOString();
         let current = new Date(currentDate.substring(0, 10));
 
-        const points = await Point.find({ "userId": userId, "remainingPoints": { $gt: 0 }}).sort({ "createdAt": 1 })
+        const points = await Point.find({ "userId": userId, "remainingPoints": { $gt: 0 }}).sort({ "createdAt": 1 });
 
         for (let i=0; i<points.length; i++) {
             let from = new Date(points[i].validFrom);

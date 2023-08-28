@@ -56,35 +56,21 @@ export const IMAGES_TYPE = [
   {"_id": 6, "name": "baby"},
   {"_id": 7, "name": "pet"}
 ]
+
 // 이미지 등록 또는 수정시 선택항목
 export const IMAGES_VISIBLE_ITEM = [
   {"_id": 0, "name": "Invisible"},
   {"_id": 1, "name": "Visible"}
 ]
+
 // 이미지 등록 또는 수정시 선택항목
 export const IMAGES_LANGUAGE = [
   {"_id": "jp", "name": "Japanese"},
   {"_id": "cn", "name": "Chinese" },
   {"_id": "en", "name": "English" }
 ]
-// AWS 서비스 선택항목
-export const AWS_TYPE = [
-  {"_id": "S3", "name": "S3"},
-  {"_id": "SES", "name": "SES" }
-]
 
 // 상품 리스트화면의 검색조건
-// export const PRODUCT_LIST_CATEGORY = [
-//   { "_id": 1, "name": "Cosmetic" },
-//   { "_id": 2, "name": "Pharmaceuticals"  },
-//   { "_id": 3, "name": "Food/Supplement" },
-//   { "_id": 4, "name": "Daily Necessaries" },
-//   { "_id": 5, "name": "Baby" },
-//   { "_id": 6, "name": "Pet" },
-//   { "_id": 7, "name": "Recommended" },
-//   { "_id": 8, "name": "Sale" }
-// ]
-
 export const PRODUCT_LIST_CATEGORY = [
   {key:0, value: "All"},
   {key:1, value: "Cosmetic"},
@@ -95,92 +81,6 @@ export const PRODUCT_LIST_CATEGORY = [
   {key:6, value: "Pet"},
   {key:7, value: "Recommended"},
   {key:8, value: "Sale"}
-]
-
-export const COSMETIC_CATEGORY = [
-  {key:1, value: "Skin Care"},
-  {key:2, value: "Eye Care"},
-  {key:3, value: "Hair Care"},
-  {key:4, value: "Others"},
-  {key:5, value: "Supplement"},
-  {key:6, value: "Men's"}
-]
-
-export const PHARMACEUTICALS_CATEGORY = [
-]
-
-export const FOOD_CATEGORY = [
-]
-
-export const DAILY_NECESSARIES_CATEGORY = [
-]
-
-export const BABY_CATEGORY = [
-]
-
-export const PET_CATEGORY = [
-]
-
-
-// 상품 리스트화면의 검색조건
-export const COSMETICS = [
-  {
-    "_id": 1,
-    "name": "Skin Care"
-  },
-  {
-    "_id": 2,
-    "name": "Eye Care"
-  },
-  {
-    "_id": 3,
-    "name": "Hair Care"
-  },
-  {
-    "_id": 4,
-    "name": "Others"
-  },
-  {
-    "_id": 5,
-    "name": "Supplement"
-  },
-  {
-    "_id": 6,
-    "name": "Men's"
-  }
-]
-
-export const PRICE = [
-  {
-    "_id": 0,
-    "name": "Any",
-    "array": []
-  },
-  {
-    "_id": 1,
-    "name": "¥0 to ¥1990",
-    "array": [0, 1990]
-  },
-  {
-    "_id": 2,
-    "name": "¥2000 to ¥2499",
-    "array": [2000, 2499]
-  },
-  {
-    "_id": 3,
-    "name": "¥2500 to ¥2799",
-    "array": [2500, 2799]
-  },
-  {
-    "_id": 4,
-    "name": "¥2800 to ¥2990",
-    "array": [2800, 2999]
-  },
-  {
-    "_id": 5,
-    "name": "More than ¥3000",
-    "array": [3000, 15000000]
-  },
 ]
 
 export const NOT_SET = "未設定";
