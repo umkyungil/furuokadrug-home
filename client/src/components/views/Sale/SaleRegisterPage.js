@@ -4,12 +4,15 @@ import { useHistory } from 'react-router-dom';
 import { DatePicker, Select, Form, Input, Button, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY, SaleType } from '../../utils/Const';
-import { dateFormatYMD } from '../../utils/CommonFunction'
-import { MAIL_SERVER, SALE_SERVER, PRODUCT_SERVER } from '../../Config.js'
-import schedule from 'node-schedule'
-import axios from 'axios';
+import { dateFormatYMD } from '../../utils/CommonFunction';
+import { MAIL_SERVER, SALE_SERVER, PRODUCT_SERVER } from '../../Config.js';
+import schedule from 'node-schedule';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const { Option } = Select;
@@ -63,7 +66,8 @@ function SaleRegisterPage() {
   const [ShowMailComment, setShowMailComment] = useState(false);
   const [ShowExcept, setShowExcept] = useState(false);
   const history = useHistory();
-  const {isLanguage} = useContext(LanguageContext);
+
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

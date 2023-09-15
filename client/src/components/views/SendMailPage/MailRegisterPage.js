@@ -8,6 +8,8 @@ import { useHistory } from 'react-router-dom';
 import { Select, Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
 
 const { TextArea } = Input;
 const {Option} = Select;
@@ -40,7 +42,8 @@ function MailRegisterPage(props) {
   const [Message, setMessage] = useState("");
   const dispatch = useDispatch();
   const history = useHistory();
-  const {isLanguage} = useContext(LanguageContext);
+
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

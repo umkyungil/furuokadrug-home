@@ -3,13 +3,16 @@ import { Form, Input, Button } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
-import axios from 'axios';
 import { CODE_SERVER } from '../../Config';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function CodeUpdatePage(props) {
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   const [Id, setId] = useState("");

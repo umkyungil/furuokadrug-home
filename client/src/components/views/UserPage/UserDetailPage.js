@@ -3,10 +3,12 @@ import UserInfo from './Sections/UserInfo'
 import { Row, Col } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
 
 function UserDetailPage(props) {
   const userId = props.match.params.userId;
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

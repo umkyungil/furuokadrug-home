@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Dropzone from 'react-dropzone';
 import { Icon } from 'antd';
-import axios from 'axios';
 import { PRODUCT_SERVER } from '../Config.js';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function FileUpload(props) {

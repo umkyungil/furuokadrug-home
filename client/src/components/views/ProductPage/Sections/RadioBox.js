@@ -2,12 +2,14 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Collapse, Radio } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../../context/LanguageContext';
+import './product.css';
+import { getLanguage } from '../../../utils/CommonFunction';
 
 const { Panel } = Collapse;
 
 function RadioBox(props) {
   const [Value, setValue] = useState(0);
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
@@ -41,4 +43,4 @@ function RadioBox(props) {
   )
 }
 
-export default RadioBox
+export default RadioBox;

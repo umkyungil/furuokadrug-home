@@ -7,9 +7,12 @@ import { MAIN_CATEGORY, CouponType, UseWithSale } from '../../utils/Const';
 import { dateFormatYMD } from '../../utils/CommonFunction'
 import { COUPON_SERVER, MAIL_SERVER, USER_SERVER, PRODUCT_SERVER } from '../../Config.js'
 import schedule from 'node-schedule'
-import axios from 'axios';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const {Option} = Select;
@@ -61,7 +64,7 @@ function CouponRegisterPage() {
   const [Count, setCount] = useState("1");
   const history = useHistory();
 
-  const { isLanguage } = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

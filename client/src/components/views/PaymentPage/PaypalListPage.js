@@ -5,14 +5,17 @@ import { USER_SERVER } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
 import SearchFeature from './Sections/PaypalSearchFeature.js';
 import { LanguageContext } from '../../context/LanguageContext.js';
-import axios from 'axios';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function PaypalListPage() {
   const [PaypalInfo, setPaypalInfo] = useState([]);
   const history = useHistory();
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

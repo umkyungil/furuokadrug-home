@@ -5,9 +5,13 @@ import Meta from 'antd/lib/card/Meta';
 import { PRODUCT_SERVER, SALE_SERVER } from '../../Config.js';
 import { I18N_JAPANESE, I18N_CHINESE, SaleType, PRODUCT_LIST_CATEGORY, PRODUCT_VISIBLE_TYPE, SALE_TAG, NOTICE_TAG } from '../../utils/Const';
 import { useTranslation } from 'react-i18next';
+import cookie from 'react-cookies';
 import { LanguageContext } from '../../context/LanguageContext';
-import axios from 'axios';
+import './Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const blankTag = {
@@ -38,30 +42,10 @@ function ProductListPage(props) {
 
 	useEffect(() => {
 		// 다국적언어 설정
-		if (!isLanguage || isLanguage === "") {
-      const i18 = localStorage.getItem("i18nextLng");
-      
-      if (i18) {
-        if (i18 === 'ja-JP') {
-          setIsLanguage('en');
-          localStorage.setItem('i18nextLng', 'en');
-          i18n.changeLanguage('en');
-        } else {
-          setIsLanguage(i18);
-          i18n.changeLanguage(i18);
-        }
-      } else {
-        setIsLanguage('en');
-        localStorage.setItem('i18nextLng', 'en');
-        i18n.changeLanguage('en');
-      }
-    } else {
-			i18n.changeLanguage(isLanguage);	
-		}
-		
+		getLanguage();
 		// 스크롤을 Top으로 이동시킨다
 		scrollToTop();
-
+		// 메인처리
 		process();
 	}, [props.match.params.type, props.match.params.category, props.match.params.searchTerm])
 
@@ -69,11 +53,37 @@ function ProductListPage(props) {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   };
 
+	const getLanguage = () => {
+    if (!isLanguage || isLanguage === "") {
+      let lan = localStorage.getItem("i18nextLng");
+      
+      if (lan) {
+        if (lan === 'ja-JP') {
+          lan = "en";
+          localStorage.setItem('i18nextLng', lan);
+          i18n.changeLanguage(lan);
+        } else {
+          i18n.changeLanguage(lan);
+        }
+      } else {
+        lan = "en";
+        localStorage.setItem('i18nextLng', lan);
+        i18n.changeLanguage(lan);
+      }
+
+      setIsLanguage(lan);
+
+    } else {
+			i18n.changeLanguage(isLanguage);	
+		}
+  }
+
+	// 메인 처리(프로세스)
 	const process = async () => {
     // 세일정보 가져오기
 		await getSale();
 
-		// 화면 노출타입 검색 Landing page(3: Sale, 4: Recommend)
+		// 화면 노출타입 검색 (3: Sale, 4: Recommend)
 		if (props.match.params.type) {
 			// 노출 검색정보를 저장
 			typeRef.current = Number(props.match.params.type);
@@ -121,6 +131,7 @@ function ProductListPage(props) {
 				skipRef.current = 0;
 			}
 		}
+
 		// 키워드 검색
 		if (props.match.params.searchTerm) {			
 			// 키워드 검색정보를 저장
@@ -129,7 +140,6 @@ function ProductListPage(props) {
 			categoryRef.current = 0;
 			// 노출 검색정보를 초기화
 			typeRef.current = 0;
-
 
 			let body = { skip: 0, limit: limitCount,	searchTerm: newSearchTermRef.current }
 			// 상품 가져오기
@@ -187,9 +197,15 @@ function ProductListPage(props) {
 	const getProducts = async (body) => {
 		try {
 			// 회원, 비회원 구분으로 상품을 가져오기 위해서
-			body.id = localStorage.getItem('userId');
+			if (localStorage.getItem('userId') && cookie.load('w_auth')) {
+				body.id = localStorage.getItem('userId');
+				body.language = isLanguage;
+			} else {
+				body.id = "";
+				body.language = isLanguage;
+			}
+			
 			const response =  await axios.post(`${PRODUCT_SERVER}/list`, body);
-
 			const products = response.data;
 			if (products.productInfo) {
 				if (isLanguage === I18N_JAPANESE) {
@@ -385,15 +401,23 @@ function ProductListPage(props) {
 		// 한 Row는 24사이즈 즉 카드 하나당 6사이즈로 하면 화면에 4개가 표시된다 
 		// lg: 화면이 가장 클때, md: 중간 
 		return <Col lg={6} md={8} xs={24} key={index} > 
-			<Card
+			<Card 
 				// ImageSlider에 images라는 이름으로 데이터를 넘김
 				cover={<a href={`/product/${product._id}`}><ImageSlider images={product.images}/></a>} 
 			>	
-				<Meta 
-					title={product.title}
-					// 세일값이 있으면 원래 가격을 보여주고 삭제표시를 하고 세일값이 없으면 아무것도 안보여준다
-					// description={<span style={{textDecoration:"line-through"}}>{saleAmount > 0 ? price:undefined}</span>}
-				/>
+				{isLanguage === "cn" &&
+					<span className='lanCN'>
+						<Meta title={product.title}
+							// 세일값이 있으면 원래 가격을 보여주고 삭제표시를 하고 세일값이 없으면 아무것도 안보여준다
+							// description={<span style={{textDecoration:"line-through"}}>{saleAmount > 0 ? price:undefined}</span>}
+						/>
+					</span>
+				}
+				{isLanguage !== "cn" &&
+					<span className='lanJP'>
+						<Meta title={product.title} />
+					</span>
+				}
 				{/* 세일로 계산된 상품이 있으면 카드의 왁구를 맞추기 위해서 개행을 넣는다 */}
 				{saleAmount < 1 && 
 					<br />
@@ -422,9 +446,16 @@ function ProductListPage(props) {
 
 	return (
 		<div style={{ width:'75%', margin:'3rem auto' }}>
-			<div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
-				<h1>{t('Product.listTitle')}</h1>
-			</div>
+			{isLanguage === "cn" && 
+				<div className='lanCP' style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
+					<h1>{t('Product.listTitle')}</h1>
+				</div>
+      }
+			{isLanguage !== "cn" && 
+				<div className='lanJP' style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
+					<h1>{t('Product.listTitle')}</h1>
+				</div>
+      }
 
 			{/* 검색결과가 있는 경우 리스트를 보여 주고 없는 경우 Empty화면을 보여준다 */}
 			{ ShowSuccess ?

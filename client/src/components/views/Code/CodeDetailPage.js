@@ -2,16 +2,19 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Button, Descriptions } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { LanguageContext } from '../../context/LanguageContext';
 import { CODE_SERVER } from '../../Config';
-import axios from 'axios';
+import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function CodeDetailPage(props) {
   const [Code, setCode] = useState({});
   const codeId = props.match.params.codeId;
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
   const history = useHistory();
 

@@ -3,10 +3,12 @@ import { Button, Descriptions } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../../context/LanguageContext';
+import '../../ProductPage/Sections/product.css';
+import { getLanguage } from '../../../utils/CommonFunction';
 
 function WechatInfo(props) {
   const history = useHistory();
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

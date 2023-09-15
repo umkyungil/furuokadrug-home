@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import styles from './LandingPage.module.css';
 import Slider from "react-slick";
 import 'slick-carousel/slick/slick.css';
@@ -9,10 +9,14 @@ import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE, IMAGES_TYPE, I18N_ENGLISH, I18N_JA
 import { Button, Tag } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LanguageContext } from '../../context/LanguageContext';
 import ReactPlayer from 'react-player'
-import axios from 'axios';
+import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function LandingPage() {
@@ -32,28 +36,12 @@ function LandingPage() {
   const _history = useHistory();
   const {t, i18n} = useTranslation();
   const {isLanguage, setIsLanguage} = useContext(LanguageContext);
-    
+
   useEffect(() => {
-    if (!isLanguage || isLanguage === "") {
-      const i18 = localStorage.getItem("i18nextLng");
-      
-      if (i18) {
-        if (i18 === 'ja-JP') {
-          setIsLanguage('en');
-          localStorage.setItem('i18nextLng', 'en');
-          i18n.changeLanguage('en');
-        } else {
-          setIsLanguage(i18);
-          i18n.changeLanguage(i18);
-        }
-      } else {
-        setIsLanguage('en');
-        localStorage.setItem('i18nextLng', 'en');
-        i18n.changeLanguage('en');
-      }
-    } else {
-			i18n.changeLanguage(isLanguage);	
-		}
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);    
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
 
     // 노출상풍을 가져오기
     getProducts(); // type 1:now on air, type 2:recording, type 3: recommended, type 4: sale
@@ -63,35 +51,24 @@ function LandingPage() {
     getPointRate();
   },[url]);
 
-  // 포인트비율은 한번만 가져오게 한다
-  useEffect(() => {
-    getPointRate();
-  },[]);
-
   // 빈 객체인 경우 true, 속성이 있는경우 false
   function isEmptyObj(obj)  {
-    // 객체 타입체크
-    if(obj.constructor !== Object)  {
+    if (!Object.keys(obj).includes('type')) {
+      return true;
+    } else {
       return false;
     }
-    
-    // property 체크
-    for(let prop in obj)  {
-      if(obj.hasOwnProperty(prop))  {
-        return false;
-      }
-    }
-    
-    return true;
   }
 
-  // 포인트 적용률정보 가져오기
+  // 코드테이블에서 포인트 적용률정보 가져오기
   const getPointRate = async () => {
     try {
       const pointRate = await axios.get(`${CODE_SERVER}/code_by_code?code=POINT`);
       // 세션에 저장
       if (pointRate.data.success) {
         sessionStorage.setItem("pointRate", pointRate.data.codeInfo.value1);
+      } else {
+        sessionStorage.setItem("pointRate", "10");
       }
     } catch (err) {
       alert('Please contact the administrator');
@@ -102,7 +79,7 @@ function LandingPage() {
   // 노출상풍을 가져오기
   const getProducts = async () => {
     try {
-      // Landing page 상품 가져오기(회원및 비회원을 구분하기 위해 사용자ID를 파라메터로 넘김)
+      // Landing page 상품 가져오기(회원및 비회원을 구분하기 위해 사용자ID를 파라메터로 넘김, 비외원인 경우 ""가 전달되서 서버에서 처리함)
       const userId  = localStorage.getItem("userId");
       const allProducts = await axios.get(`${PRODUCT_SERVER}/all_products_by_type?id=${userId}`);
       const recdTypeProducts = allProducts.data.productInfos[0]; // now on sale과 recording상품 가져오기
@@ -111,7 +88,10 @@ function LandingPage() {
       
       let arrRecd = [], arrNowOnAir = [];
       if (recdTypeProducts.length > 0) {
-        recdTypeProducts.map((product) => {
+
+        for (let i = 0; i < recdTypeProducts.length; i++) {
+
+          let product = recdTypeProducts[i];
           for (let i = 0; i < product.exposureType.length; i++) {
             // 일반상품: 0, 방송상품: 1, 동영상 존재 상품: 2, 
             // 1: 방송상품(now on sale)과 2: recording은 같이 등록된 상품이 없기에 같은 배열에 넣어도 상품이 중복안된다
@@ -121,7 +101,8 @@ function LandingPage() {
               arrRecd.push(product);
             }
           }
-        });
+        }
+        
         // now on air상품을 먼저 보여주기위해 정렬
         setNowOnAirAndRec([...arrNowOnAir, ...arrRecd]);
       }
@@ -163,6 +144,7 @@ function LandingPage() {
         }
       }
     } catch (err) {
+      alert('Please contact the administrator');
       console.log("err: ", err);
     }
   }
@@ -172,22 +154,18 @@ function LandingPage() {
     try {
       // 이미지 전부 가져오기
       const images = await axios.get(`${IMAGES_SERVER}/list`);
-      if (images.data.imageInfos.length > 0) {
-        // isLanguage 초기값 변경경
-        let tmpLanguage = "";
-        if (isLanguage === "") {
-          tmpLanguage = I18N_ENGLISH;
-        } else {
-          tmpLanguage = isLanguage;
-        }
 
+      if (images.data.imageInfos.length > 0) {
         let tmpBanner={}, tmpPharmaceutical={}, tmpCosmetics={}, tmpDailyNecessaries={}, tmpFood={}, tmpBaby={}, tmpPet={};
-        // 이미지 주소 대입
-        images.data.imageInfos.map((item) => {
-          // 화면에 노출 가능하고 해당언어의 이미지만 추출
-          if (item.visible === IMAGES_VISIBLE_ITEM[1]._id && item.language === tmpLanguage) {
+
+        // 각 이미지별 주소 대입
+        for (let i = 0; i < images.data.imageInfos.length; i++) {
+          const item = images.data.imageInfos[i];
+
+          // 화면에 노출 가능하고 해당언어의 이미지 하나만 추출
+          if (item.visible === IMAGES_VISIBLE_ITEM[1]._id && item.language === isLanguage) {
+            // 배너
             if (item.type === IMAGES_TYPE[1]._id) {
-              // 배너
               setBanner(item);
               tmpBanner = item;
             } else if (item.type === IMAGES_TYPE[2]._id) {
@@ -216,80 +194,90 @@ function LandingPage() {
               setPet(item);
             }
           }
-        })
-
-        // 해당언어의 배너 이미지가 없는경우 일단 있는걸 보여준다
+        }
+        
+        // 해당 언어의 배너 이미지가 없는경우 있는것중 첫번째 이미지를 보여준다
         if (isEmptyObj(tmpBanner)) {
-          images.data.imageInfos.map((item) => {
-            if (item.type === IMAGES_TYPE[1]._id) {
-              if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
-                setBanner(item);
+          for (let i = 0; i < images.data.imageInfos.length; i++) {
+            const banner = images.data.imageInfos[i];
+            if (banner.type === IMAGES_TYPE[1]._id) {
+              if (banner.visible === IMAGES_VISIBLE_ITEM[1]._id) {
+                setBanner(banner);
               }
             }
-          })
+          }
         }
-        // 해당언어의 의약품 이미지가 없는경우 일단 있는걸 보여준다
+        // 해당 언어의 의약품 이미지가 없는경우 있는것중 첫번째 이미지를 보여준다
         if (isEmptyObj(tmpPharmaceutical)) {
-          images.data.imageInfos.map((item) => {
-            if (item.type === IMAGES_TYPE[2]._id) {
-              if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
-                setPharmaceutical(item);
+          for (let i = 0; i < images.data.imageInfos.length; i++) {
+            const pharmaceutical = images.data.imageInfos[i];
+            if (pharmaceutical.type === IMAGES_TYPE[2]._id) {
+              if (pharmaceutical.visible === IMAGES_VISIBLE_ITEM[1]._id) {
+                setPharmaceutical(pharmaceutical);
               }
             }
-          })
+          }
         }
-        // 해당언어의 화장품 이미지가 없는경우 일단 있는걸 보여준다
+        // 해당 언어의 화장품 이미지가 없는경우 있는것중 첫번째 이미지를 보여준다
         if (isEmptyObj(tmpCosmetics)) {
-          images.data.imageInfos.map((item) => {
-            if (item.type === IMAGES_TYPE[3]._id) {
-              if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
-                setCosmetics(item);
+          for (let i = 0; i < images.data.imageInfos.length; i++) {
+            const cosmetics = images.data.imageInfos[i];
+            if (cosmetics.type === IMAGES_TYPE[3]._id) {
+              if (cosmetics.visible === IMAGES_VISIBLE_ITEM[1]._id) {
+                setCosmetics(cosmetics);
               }
             }
-          })
+          }
         }
-        // 해당언어의 생활용품 이미지가 없는경우 일단 있는걸 보여준다
+        // 해당 언어의 생활용품 이미지가 없는경우 있는것중 첫번째 이미지를 보여준다
         if (isEmptyObj(tmpDailyNecessaries)) {
-          images.data.imageInfos.map((item) => {
-            if (item.type === IMAGES_TYPE[4]._id) {
-              if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
-                setDailyNecessaries(item);
+          for (let i = 0; i < images.data.imageInfos.length; i++) {
+            const dailyNecessaries = images.data.imageInfos[i];
+            if (dailyNecessaries.type === IMAGES_TYPE[4]._id) {
+              if (dailyNecessaries.visible === IMAGES_VISIBLE_ITEM[1]._id) {
+                setDailyNecessaries(dailyNecessaries);
               }
             }
-          })
+          }
         }
-        // 해당언어의 식품 이미지가 없는경우 일단 있는걸 보여준다
+        // 해당 언어의 식품 이미지가 없는경우 있는것중 첫번째 이미지를 보여준다
         if (isEmptyObj(tmpFood)) {
-          images.data.imageInfos.map((item) => {
-            if (item.type === IMAGES_TYPE[5]._id) {
-              if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
-                setFood(item);
+          for (let i = 0; i < images.data.imageInfos.length; i++) {
+            const food = images.data.imageInfos[i];
+            if (food.type === IMAGES_TYPE[5]._id) {
+              if (food.visible === IMAGES_VISIBLE_ITEM[1]._id) {
+                setFood(food);
               }
             }
-          })
+          }
         }
-        // 해당언어의 아기용품 이미지가 없는경우 일단 있는걸 보여준다
+        // 해당 언어의 Baby이미지가 없는경우 있는것중 첫번째 이미지를 보여준다
         if (isEmptyObj(tmpBaby)) {
-          images.data.imageInfos.map((item) => {
-            if (item.type === IMAGES_TYPE[6]._id) {
-              if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
-                setBaby(item);
+          for (let i = 0; i < images.data.imageInfos.length; i++) {
+            const baby = images.data.imageInfos[i];
+            if (baby.type === IMAGES_TYPE[6]._id) {
+              if (baby.visible === IMAGES_VISIBLE_ITEM[1]._id) {
+                setBaby(baby);
               }
             }
-          })
+          }
         }
-        // 해당언어의 애완동물 이미지가 없는경우 일단 있는걸 보여준다
+        // 해당 언어의 Pet이미지가 없는경우 있는것중 첫번째 이미지를 보여준다
         if (isEmptyObj(tmpPet)) {
-          images.data.imageInfos.map((item) => {
-            if (item.type === IMAGES_TYPE[7]._id) {
-              if (item.visible === IMAGES_VISIBLE_ITEM[1]._id) {
-                setPet(item);
+          for (let i = 0; i < images.data.imageInfos.length; i++) {
+            const pet = images.data.imageInfos[i];
+            if (pet.type === IMAGES_TYPE[7]._id) {
+              if (pet.visible === IMAGES_VISIBLE_ITEM[1]._id) {
+                setPet(pet);
               }
             }
-          })
+          }
         }
+      } else {
+        alert("No registered image\nPlease contact the administrator");
       }
     } catch (err) {
+      alert("Please contact the administrator");
       console.log("err: ", err);
     }
   }
@@ -346,7 +334,6 @@ function LandingPage() {
                 className="video" 
                 controls={true}
                 url={videoSrc}
-                // url={"https://youtu.be/lKK-dFJCG60"} 
                 width="100%" 
                 height="360px" 
                 muted={true} //chrome정책으로 인해 자동 재생을 위해 mute 옵션을 true로 해주었다.
@@ -381,17 +368,17 @@ function LandingPage() {
                       {/* 다국어 대응 */}
                       {(isLanguage === I18N_ENGLISH || isLanguage === "") && 
                         <a href={`/product/${product._id}`}>
-                          <div className={styles.onAirPicName} style={{textDecoration: 'blue underline'}}>{product.englishTitle}</div>
+                          <div className={`${styles.onAirPicName} ${styles.lanJP}`} style={{textDecoration: 'blue underline'}}>{product.englishTitle}</div>
                         </a>
                       }
                       {isLanguage === I18N_CHINESE && 
                         <a href={`/product/${product._id}`}>
-                          <div className={styles.onAirPicName} style={{textDecoration: 'blue underline'}}>{product.chineseTitle}</div>
+                          <div className={`${styles.onAirPicName} ${styles.lanCN}`} style={{textDecoration: 'blue underline'}}>{product.chineseTitle}</div>
                         </a>
                       }
                       {isLanguage === I18N_JAPANESE && 
                         <a href={`/product/${product._id}`}>
-                          <div className={styles.onAirPicName} style={{textDecoration: 'blue underline'}}>{product.title}</div>
+                          <div className={`${styles.onAirPicName} ${styles.lanJP}`} style={{textDecoration: 'blue underline'}}>{product.title}</div>
                         </a>
                       }
                       {/* 상품가격 */}
@@ -413,7 +400,7 @@ function LandingPage() {
             {/* 추천상품 */}
             { recommended.length > 0 &&
             <>
-              <h2>{t('Landing.recommendTitle')}</h2>
+              <h2 className={isLanguage === "cn" ? styles.lanCN : styles.lanJP}>{t('Landing.recommendTitle')}</h2>
               <Slider {...settings}>
                 {recommended.map((recProduct, idx) => {
 
@@ -432,13 +419,13 @@ function LandingPage() {
                         <a href={`/product/${recProduct._id}`}><img src={recProduct.images[0]} alt='product'/></a>
                         {/* 상품명 */}
                         {(isLanguage === I18N_ENGLISH || isLanguage === "") && 
-                          <p className={styles.proNameS}>{recProduct.englishTitle}</p>
+                          <p className={`${styles.proNameS} ${styles.lanJP}`}>{recProduct.englishTitle}</p>
                         }
                         {isLanguage === I18N_CHINESE && 
-                          <p className={styles.proNameS}>{recProduct.chineseTitle}</p>
+                          <p className={`${styles.proNameS} ${styles.lanCN}`}>{recProduct.chineseTitle}</p>
                         }
                         {isLanguage === I18N_JAPANESE && 
-                          <p className={styles.proNameS}>{recProduct.title}</p>
+                          <p className={`${styles.proNameS} ${styles.lanJP}`}>{recProduct.title}</p>
                         }
                         {/* 상품가격 */}
                         <p className={styles.capS}>{Number(recProduct.price).toLocaleString()} (JPY)</p>
@@ -453,9 +440,7 @@ function LandingPage() {
               </Slider>
               
               <div style={{ display:'flex', justifyContent:'center' }}>
-                <Button 
-                  type="primary" 
-                  shape="round" 
+                <Button type="primary" shape="round" 
                   style={{ marginTop:"50px", height:"40px", width:"40%", background:"#1a1e65" }}
                   onClick={() => handleSearchVisibleType(PRODUCT_VISIBLE_TYPE[3].key)}>
                     More
@@ -466,7 +451,7 @@ function LandingPage() {
             {/* 세일상품 */}
             { sale.length > 0 &&
             <>
-              <h2>{t('Landing.saleTitle')}</h2>
+              <h2 className={isLanguage === "cn" ? styles.lanCN : styles.lanJP}>{t('Landing.saleTitle')}</h2>
               <Slider {...settings}>
                 {sale.map((salProduct, idx) => {
                   let isRecommendedTag = false, isSaleTag = false;
@@ -484,13 +469,13 @@ function LandingPage() {
                         <a href={`/product/${salProduct._id}`}><img src={salProduct.images[0]} alt='product' /></a>
                         {/* 상품명 */}
                         {(isLanguage === I18N_ENGLISH || isLanguage === "") && 
-                          <p className={styles.saleNameS}>{salProduct.englishTitle}</p>
+                          <p className={`${styles.saleNameS} ${styles.lanJP}`}>{salProduct.englishTitle}</p>
                         }
                         {isLanguage === I18N_CHINESE && 
-                          <p className={styles.saleNameS}>{salProduct.chineseTitle}</p>
+                          <p className={`${styles.saleNameS} ${styles.lanCN}`}>{salProduct.chineseTitle}</p>
                         }
                         {isLanguage === I18N_JAPANESE && 
-                          <p className={styles.saleNameS}>{salProduct.title}</p>
+                          <p className={`${styles.saleNameS} ${styles.lanJP}`}>{salProduct.title}</p>
                         }
                         {/* 상품가격 */}
                         <p className={styles.saleCapS}>{parseInt(salProduct.price).toLocaleString()} (JPY)</p>
@@ -514,72 +499,71 @@ function LandingPage() {
               </div>
             </>
             }
-            {/* <!--/.list-container-->  */}
-            <h2>{t('Landing.itemTitle')}</h2>
-            
-            <div className={styles.itemlistContent}>
+
+            <h2 className={isLanguage === "cn" ? styles.lanCN : styles.lanJP}>{t('Landing.recommendTitle')}</h2>
+            <div className={styles.itemListContent}>
               {!isEmptyObj(Pharmaceutical) && 
-                <div className={styles.itemlistBox}>
-                  <div className={styles.itemlistImage}>
+                <div className={styles.itemListBox}>
+                  <div className={styles.itemListImage}>
                     <img src={Pharmaceutical.image} style={{ maxWidth: "100%", height: "auto" }} 
                       onClick={() => {handleSearchCategory(MAIN_CATEGORY[2].key)}} alt='product' />
                   </div>
-                  <div className={styles.itemlistProduct}>
+                  <div className={styles.itemListProduct}>
                     {t('Landing.pharmaceuticalsTitle')}
                   </div>
                 </div>
               }
               {!isEmptyObj(Cosmetics) &&
-                <div className={styles.itemlistBox}>
-                  <div className={styles.itemlistImage}>
+                <div className={styles.itemListBox}>
+                  <div className={styles.itemListImage}>
                     <img src={Cosmetics.image} style={{ maxWidth: "100%", height: "auto" }} 
                       onClick={() => {handleSearchCategory(MAIN_CATEGORY[1].key)}} alt='product' />
                   </div>
-                  <div className={styles.itemlistProduct}>
+                  <div className={styles.itemListProduct}>
                     {t('Landing.cosmeticsTitle')}
                   </div>
                 </div>
               }
               {!isEmptyObj(DailyNecessaries) &&
-                <div className={styles.itemlistBox}>
-                  <div className={styles.itemlistImage}>
+                <div className={styles.itemListBox}>
+                  <div className={styles.itemListImage}>
                     <img src={DailyNecessaries.image} style={{ maxWidth: "100%", height: "auto" }} 
                       onClick={() => {handleSearchCategory(MAIN_CATEGORY[4].key)}} alt='product' />
                   </div>
-                  <div className={styles.itemlistProduct}>
+                  <div className={styles.itemListProduct}>
                     {t('Landing.dailyNecessariesTitle')}
                   </div>
                 </div>
               }
               {!isEmptyObj(Food) && 
-                <div className={styles.itemlistBox}>
-                  <div className={styles.itemlistImage}>
+                <div className={styles.itemListBox}>
+                  <div className={styles.itemListImage}>
                     <img src={Food.image} style={{ maxWidth: "100%", height: "auto" }} 
                       onClick={() => {handleSearchCategory(MAIN_CATEGORY[3].key)}} alt='product' />
                   </div>
-                  <div className={styles.itemlistProduct}>
+                  <div className={styles.itemListProduct}>
                     {t('Landing.foodTitle')}
                   </div>
                 </div> 
               }
               {!isEmptyObj(Baby) && 
-                <div className={styles.itemlistBox}>
-                  <div className={styles.itemlistImage}>
+                <div className={styles.itemListBox}>
+                  <div className={styles.itemListImage}>
                     <img src={Baby.image} style={{ maxWidth: "100%", height: "auto" }} 
                       onClick={() => {handleSearchCategory(MAIN_CATEGORY[5].key)}} alt='product' />
                   </div>
-                  <div className={styles.itemlistProduct}>
+                  <div className={styles.itemListProduct}>
                     {t('Landing.babyTitle')}
                   </div>
                 </div> 
               }
               {!isEmptyObj(Pet) && 
-                <div className={styles.itemlistBox}>
-                  <div className={styles.itemlistImage}>
+                <div className={styles.itemListBox}>
+                  <div className={styles.itemListImage}>
                     <img src={Pet.image} style={{ maxWidth: "100%", height: "auto" }} 
                       onClick={() => {handleSearchCategory(MAIN_CATEGORY[6].key)}} alt='product' />
                   </div>
-                  <div className={styles.itemlistProduct}>
+                  <div className={styles.itemListProduct}>
                     {t('Landing.petTitle')}                  
                   </div>
                 </div> 

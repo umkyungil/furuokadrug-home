@@ -15,8 +15,9 @@ import {
     PASSWORD_CONFIRM
 } from './types';
 import { USER_SERVER, PRODUCT_SERVER } from '../components/Config.js';
-import axios from 'axios';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 // 사용자 등록
@@ -186,7 +187,7 @@ export function onSuccessBuy(data) {
     }
 }
 
-// Paypal결재정보 저장(객체를 파라메터로 받는다)
+// AliPay, WeChat TmpPayment(결제정보) 임시저장, Cart정보 삭제
 export function onSuccessBuyTmp(data) {
     const request = axios.post(`${USER_SERVER}/successBuyTmp`, data)
         .then(response => response.data);

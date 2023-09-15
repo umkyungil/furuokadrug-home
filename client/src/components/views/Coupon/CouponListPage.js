@@ -1,18 +1,20 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
 import { Table } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { COUPON_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { CouponType, CouponActive, MAIN_CATEGORY, UseWithSale } from '../../utils/Const.js'
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
 
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function CouponListPage() {
 	const [Coupons, setCoupons] = useState([]);
-	const { isLanguage, setIsLanguage } = useContext(LanguageContext);
+	const {isLanguage, setIsLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 
 	useEffect(() => {
@@ -148,4 +150,4 @@ function CouponListPage() {
 	)
 }
 
-export default CouponListPage
+export default CouponListPage;

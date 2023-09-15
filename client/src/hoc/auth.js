@@ -5,9 +5,10 @@ import { useSelector, useDispatch } from "react-redux";
 import cookie from 'react-cookies';
 import { USER_SERVER } from '../components/Config';
 import moment from "moment";
-import axios from 'axios';
 import { getLocalTime, getServerDate } from '../components/utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 export default function (SpecificComponent, option, adminRoute = null) {
@@ -101,22 +102,27 @@ export default function (SpecificComponent, option, adminRoute = null) {
             try {
                 const userId = localStorage.getItem("userId");
                 await axios.get(`${USER_SERVER}/logout?id=${userId}`);
-                // 로컬스토리지 사용자 정보 삭제
-                localStorage.removeItem("userId");
-                localStorage.removeItem("userName");
-                localStorage.removeItem("userRole");
-                localStorage.removeItem("i18nextLng");
-                // 세션스토리지 사용자 정보 삭제
-                sessionStorage.removeItem("userId");
-                sessionStorage.removeItem("userName");
-                // 세션스토리지 랜딩페이지 비디오 정보 삭제
-                sessionStorage.removeItem("video_cn");
-                sessionStorage.removeItem("video_en");
-                sessionStorage.removeItem("video_jp");
-                //  토큰 연장시간 삭제
-                sessionStorage.removeItem("tokenAddedTime");
-                // 포인트 적용률 삭제
-                sessionStorage.removeItem("pointRate");
+
+                localStorage.clear();
+                sessionStorage.clear();
+
+                // // 로컬스토리지 사용자 정보 삭제
+                // localStorage.removeItem("userId");
+                // localStorage.removeItem("userName");
+                // localStorage.removeItem("userRole");
+                // localStorage.removeItem("i18nextLng");
+                // // 세션스토리지 사용자 정보 삭제
+                // sessionStorage.removeItem("userId");
+                // sessionStorage.removeItem("userName");
+                // // 세션스토리지 랜딩페이지 비디오 정보 삭제
+                // sessionStorage.removeItem("video_cn");
+                // sessionStorage.removeItem("video_en");
+                // sessionStorage.removeItem("video_jp");
+                // //  토큰 연장시간 삭제
+                // sessionStorage.removeItem("tokenAddedTime");
+                // // 포인트 적용률 삭제
+                // sessionStorage.removeItem("pointRate");
+                
                 // 쿠키 삭제
                 cookie.remove('w_auth', { path: '/' });
                 cookie.remove('w_authExp', { path: '/' });

@@ -2,12 +2,14 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Collapse, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../../context/LanguageContext';
+import './product.css';
+import { getLanguage } from '../../../utils/CommonFunction';
 
 const { Panel } = Collapse;
 
 function CheckBox(props) {
   const [Checked, setChecked] = useState([]);
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
@@ -56,4 +58,4 @@ function CheckBox(props) {
   )
 }
 
-export default CheckBox
+export default CheckBox;

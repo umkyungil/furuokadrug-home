@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
-import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { Button } from 'antd';
 import { CSV_SERVER } from '../../Config.js';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function UploadCSVUnivaPayCastPage() {

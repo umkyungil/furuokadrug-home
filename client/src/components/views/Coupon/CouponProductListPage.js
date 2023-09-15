@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
 import { Table, Button } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const items = MAIN_CATEGORY;

@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Form, Input, Button } from 'antd';
-import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import Footer from '../Footer/Footer';
 import { LanguageContext } from '../../context/LanguageContext.js';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const { TextArea } = Input;
@@ -36,12 +39,14 @@ function ContactUsPage() {
   const [Email, setEmail] = useState("");
   const [Message, setMessage] = useState("");
   const history = useHistory();
-  const { isLanguage } = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
-    // 다국적언어 설정
-		i18n.changeLanguage(isLanguage);
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);    
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
   }, [])
 
   // 메일 송신
@@ -86,7 +91,7 @@ function ContactUsPage() {
   }
 
   return (
-    <div style={{ maxWidth: '700px', margin: '3rem auto' }}>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '3rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Contact.title')}</h1>
       </div>

@@ -5,15 +5,17 @@ import { useTranslation } from 'react-i18next';
 import { NOTHING, ENGLISH, JAPANESE, CHINESE, I18N_ENGLISH, I18N_CHINESE, I18N_JAPANESE } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
 import { USER_SERVER } from '../../Config';
-import axios from 'axios';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
 
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function MyInfoDetailPage() {
   const [User, setUser] = useState({});
   const history = useHistory();
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

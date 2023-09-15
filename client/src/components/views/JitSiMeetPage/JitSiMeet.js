@@ -4,15 +4,18 @@ import { useHistory } from 'react-router-dom';
 import { Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
-import axios from 'axios';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function JitSiMeet() {
   const history = useHistory();
   const [URL, setUrl] = useState("");
   const [Visible, setVisible] = useState(false);
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
   
   React.useEffect(() => {

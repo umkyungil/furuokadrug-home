@@ -6,9 +6,12 @@ import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY, CouponType, CouponActive, UseWithSale } from '../../utils/Const';
 import { COUPON_SERVER, MAIL_SERVER, PRODUCT_SERVER, USER_SERVER } from '../../Config.js';
 import schedule from 'node-schedule'
-import axios from 'axios';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const { Option } = Select;

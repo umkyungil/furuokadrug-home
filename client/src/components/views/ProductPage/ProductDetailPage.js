@@ -4,10 +4,13 @@ import ProductInfo from './Sections/ProductInfo';
 import { Row, Col } from 'antd';
 import { PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
-import { LanguageContext } from '../../context/LanguageContext';
 import { I18N_ENGLISH, I18N_CHINESE } from '../../utils/Const';
-import axios from 'axios';
+import { LanguageContext } from '../../context/LanguageContext';
+import './Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 // 상품상세
@@ -19,28 +22,15 @@ function ProductDetailPage(props) {
 
   useEffect(() => {
     // 다국어 설정
-    if (!isLanguage || isLanguage === "") {
-      const i18 = localStorage.getItem("i18nextLng");
-      
-      if (i18) {
-        if (i18 === 'ja-JP') {
-          setIsLanguage('en');
-          localStorage.setItem('i18nextLng', 'en');
-          i18n.changeLanguage('en');
-        } else {
-          setIsLanguage(i18);
-          i18n.changeLanguage(i18);
-        }
-      } else {
-        setIsLanguage('en');
-        localStorage.setItem('i18nextLng', 'en');
-        i18n.changeLanguage('en');
-      }
-    }
-
+    const lang = getLanguage(isLanguage);    
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+    
     // 상품정보 가져오기
     getProduct();
   }, [])
+
+  
 
   const getProduct = async () => {
     try {
@@ -95,7 +85,7 @@ function ProductDetailPage(props) {
 
   return (
     <div style={{ width:'100%', padding:'3rem 4rem' }}>
-      <div style={{ textAlign: 'center', paddingTop: '38px' }}>
+      <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ textAlign: 'center', paddingTop: '38px' }}>
         <h1>{Product.title}</h1>
       </div>
       <br />

@@ -1,11 +1,14 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Button, Descriptions, Result } from 'antd';
 import { useHistory, useLocation } from 'react-router-dom';
-import axios from 'axios';
 import { USER_SERVER } from '../../Config';
-import { LanguageContext } from '../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
+import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function PaymentResultPage(props) {

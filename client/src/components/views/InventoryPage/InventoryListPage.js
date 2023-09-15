@@ -1,20 +1,22 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Table, Button, Radio } from 'antd';
+import { Table, Radio } from 'antd';
 import { PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE } from '../../utils/Const.js'
 import { LanguageContext } from '../../context/LanguageContext.js';
 import { getLocalTime } from '../../utils/CommonFunction.js';
-
-import axios from 'axios';
 import SearchFeature from './Section/SearchFeature.js';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function InventoryListPage() {
 	const [Products, setProducts] = useState([]);
-	const {isLanguage} = useContext(LanguageContext);
+	const {isLanguage, setIsLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 	const history = useHistory();
 

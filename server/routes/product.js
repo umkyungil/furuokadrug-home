@@ -61,6 +61,25 @@ router.post('/register', (req, res) => {
   }
 })
 
+// 중복된 객체를 제거하는 함수
+const removeDuplicateObjects = (arr) => {
+  const uniqueObjects = [];
+  const uniqueIds = new Set(); // 중복을 추적하기 위한 Set
+
+  for (const obj of arr) {
+    // 객체를 문자열로 직렬화하여 비교
+    const objString = JSON.stringify(obj);
+    
+    // 객체의 문자열 표현을 기반으로 중복 체크
+    if (!uniqueIds.has(objString)) {
+      uniqueIds.add(objString); // 중복이 아닌 경우 Set에 추가
+      uniqueObjects.push(obj); // 중복이 아닌 경우 결과 배열에 추가
+    }
+  }
+
+  return uniqueObjects;
+}
+
 // 상품 가져오기(카테고리 또는 키워드 검색)
 router.post('/list', async (req, res) => {
   try {
@@ -68,103 +87,99 @@ router.post('/list', async (req, res) => {
     const limit = req.body.limit ? parseInt(req.body.limit) : 20;
     const skip  = req.body.skip ? parseInt(req.body.skip)  : 0;
     const userId = req.body.id;
-    const term = req.body.searchTerm; // 검색어
-    const category = req.body.continents // 카테고리
+    let term = req.body.searchTerm; // 키워드 검색
+    let category = req.body.continents // 카테고리 검색
 
-    // 키워드 검색
+    console.log("term: ",  term);
+    console.log("category: ",  category);
+
+    // 사용자 언어 속송에 의한 상품명 키워드 검색
+    const titleSearch = async (lan) => {
+      let products;
+
+      // 회원 비회원인 경우 보여주는 상품을 구분하기 위해
+      if (userId) {
+        if (lan === "en") {
+          products = await Product.find({'englishTitle': {'$regex': term.trim()}}).sort({"englishTitle": 1, "price": 1}).skip(skip);
+        } else if (lan === "jp") {
+          products = await Product.find({'title': {'$regex': term.trim()}}).sort({"englishTitle": 1, "price": 1}).skip(skip);
+        } else if (lan === "cn") {
+          products = await Product.find({'chineseTitle': {'$regex': term.trim()}}).sort({"englishTitle": 1, "price": 1}).skip(skip);
+        }
+      } else {
+        if (lan === "en") {
+          products = await Product.find({'englishTitle': {'$regex': term.trim()}, $or: [{'member': {$exists: false}}, {'member': false}]})
+          .sort({"englishTitle": 1, "price": 1}).skip(skip);
+        } else if (lan === "jp") {
+          products = await Product.find({'title': {'$regex': term.trim()}, $or: [{'member': {$exists: false}}, {'member': false}]})
+          .sort({"englishTitle": 1, "price": 1}).skip(skip);
+        } else if (lan === "cn") {
+          products = await Product.find({'chineseTitle': {'$regex': term.trim()}, $or: [{'member': {$exists: false}}, {'member': false}]})
+          .sort({"englishTitle": 1, "price": 1}).skip(skip);
+        }
+      }
+
+      return products;
+    }
+
+    let enRes, cnRes, jpRes;
+    let arrResult = [];
+    // 사용자 언어 속송에 의한 상품명 키워드 검색
     if (term && !category) {
-      // 중국어 타이틀 검색
-      let chineseTitleProducts;
-      // 회원 비회원인 경우 보여주는 상품을 구분하기 위해
-      if (userId) {
-        chineseTitleProducts = await Product.find({'chineseTitle': {'$regex': term}}).sort({"englishTitle": 1, "price": 1}).skip(skip);
-      } else {
-        chineseTitleProducts = await Product.find({'chineseTitle': {'$regex': term}, $or: [{'member': {$exists: false}}, {'member': false}]})
-        .sort({"englishTitle": 1, "price": 1}).skip(skip);
+      cnRes = await titleSearch("cn");
+      if (cnRes && cnRes.length > 0) {
+        arrResult = [...arrResult, ...cnRes];
       }
+      enRes = await titleSearch("en");
+      if (enRes && enRes.length > 0) {
+        arrResult = [...arrResult, ...enRes];
+      }
+      jpRes = await titleSearch("jp");
+      if (jpRes && jpRes.length > 0) {
+        arrResult = [...arrResult, ...jpRes];
+      }
+
+      // 중복제거
+      const products = removeDuplicateObjects(arrResult);
 
       // 지정된 데이타 갯수만큼 추출
-      let _20ChineseTitleProducts = [];      
-      if (chineseTitleProducts.length > 0) {
-        for (let i = 0; i < chineseTitleProducts.length; i++) {
-          // 0부터 시작하니까 [i < limit]로 조건을 준다
-          if (i < limit) {
-            _20ChineseTitleProducts.push(chineseTitleProducts[i]);
-          }
+      let _20Products = [];
+      if (products && products.length > 0) {
+        for (let i = 0; i < products.length; i++) {
+          // 0 < 20 으로 20건이 대입된다
+          if (i < limit) _20Products.push(products[i]);
         }
-        
-        return res.status(200).json({ success: true, productInfo: _20ChineseTitleProducts, postSize: chineseTitleProducts.length });
-      }
-
-      // 영어 타이틀 검색
-      let englishTitleProducts;
-      // 회원 비회원인 경우 보여주는 상품을 구분하기 위해
-      if (userId) {
-        englishTitleProducts = await Product.find({'englishTitle': {'$regex': term}}).sort({"englishTitle": 1, "price": 1}).skip(skip);
+        return res.status(200).json({ success: true, productInfo: _20Products, postSize: products.length });
       } else {
-        englishTitleProducts = await Product.find({'englishTitle': {'$regex': term}, $or: [{'member': {$exists: false}}, {'member': false}]})
-        .sort({"englishTitle": 1, "price": 1}).skip(skip);
+        return res.status(200).json({ success: true });
       }
-
-      // 지정된 데이타 갯수만큼 추출
-      let _20EnglishTitleProducts = [];
-      if (englishTitleProducts.length > 0) {
-        for (let i = 0; i < englishTitleProducts.length; i++) {
-          if (i < limit) {
-            _20EnglishTitleProducts.push(englishTitleProducts[i]);
-          }
-        }
-
-        return res.status(200).json({ success: true, productInfo: _20EnglishTitleProducts, postSize: englishTitleProducts.length });
-      }
-
-      // 일본어 타이틀 검색
-      let japaneseTitleProducts;
-      // 회원 비회원인 경우 보여주는 상품을 구분하기 위해
-      if (userId) {
-        japaneseTitleProducts = await Product.find({'title': {'$regex': term}}).sort({"englishTitle": 1, "price": 1}).skip(skip);
-      } else {
-        japaneseTitleProducts = await Product.find({'title': {'$regex': term}, $or: [{'member': {$exists: false}}, {'member': false}]})
-        .sort({"englishTitle": 1, "price": 1}).skip(skip);
-      }
-      
-      // 지정된 데이타 갯수만큼 추출
-      let _20JapaneseTitleProducts = [];
-      if (japaneseTitleProducts.length > 0) {
-        for (let i = 0; i < japaneseTitleProducts.length; i++) {
-          if (i < limit) {
-            _20JapaneseTitleProducts.push(japaneseTitleProducts[i]);
-          }
-        }
-
-        return res.status(200).json({ success: true, productInfo: _20JapaneseTitleProducts, postSize: japaneseTitleProducts.length });
-      }
-
-      // 데이타가 없는경우
-      return res.status(200).json({ success: true });
-      
     // 카테고리 검색
     } else if (!term && category) {
       const numCategory = Number(category);
 
-      let categoryProduct;
+      let products;
       if (userId) {
-        categoryProduct = await Product.find({'continents': numCategory}).sort({"englishTitle": 1, "price": 1}).skip(skip);
+        products = await Product.find({'continents': numCategory}).sort({"englishTitle": 1, "price": 1}).skip(skip);
       } else {
-        categoryProduct = await Product.find({'continents': numCategory, $or: [{'member': {$exists: false}}, {'member': false}]})
+        products = await Product.find({'continents': numCategory, $or: [{'member': {$exists: false}}, {'member': false}]})
         .sort({"englishTitle": 1, "price": 1}).skip(skip);
       }
       
       // 지정된 데이타 갯수만큼 추출
-      let _20CategoryProducts = [];
-      for (let i = 0; i < categoryProduct.length; i++) {
-        // 0부터 시작하니까 [i < limit]로 조건을 준다
-        if (i < limit) {
-          _20CategoryProducts.push(categoryProduct[i]);
+      let _20Products = [];
+      if (products && products.length > 0) {
+        for (let i = 0; i < products.length; i++) {
+          // 0부터 시작하니까 [i < limit]로 조건을 준다
+          if (i < limit) {
+            _20Products.push(products[i]);
+          }
         }
-      }
 
-      return res.status(200).json({ success: true, productInfo: _20CategoryProducts, postSize: categoryProduct.length });
+        return res.status(200).json({ success: true, productInfo: _20Products, postSize: products.length });
+      } else {
+        // 데이타가 없는경우
+        return res.status(200).json({ success: true });
+      }
     }
   } catch (err) {
     console.log(err);

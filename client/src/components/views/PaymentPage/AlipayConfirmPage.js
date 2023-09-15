@@ -4,8 +4,9 @@ import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER, UPC_PAYMENT, CODE_SERVER } f
 import { NOT_SET, EC_SYSTEM, UNIDENTIFIED, ANONYMOUS } from '../../utils/Const.js';
 import cookie from 'react-cookies';
 import { useHistory } from 'react-router-dom';
-import axios from 'axios';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const {Option} = Select;
@@ -329,22 +330,27 @@ function AlipayConfirmPage(props) {
   const handleLogout = async () => {
     try {
         await axios.get(`${USER_SERVER}/logout?id=${userId}`);
-        // 로컬스토리지 사용자 정보 삭제
-        localStorage.removeItem("userId");
-        localStorage.removeItem("userName");
-        localStorage.removeItem("userRole");
-        localStorage.removeItem("i18nextLng");
-        // 세션스토리지 사용자 정보 삭제
-        sessionStorage.removeItem("userId");
-        sessionStorage.removeItem("userName");
-        // 세션스토리지 랜딩페이지 비디오 정보 삭제
-        sessionStorage.removeItem("video_cn");
-        sessionStorage.removeItem("video_en");
-        sessionStorage.removeItem("video_jp");
-        // 토큰 연장시간 삭제
-        sessionStorage.removeItem("tokenAddedTime");
-        // 포인트 적용률 삭제
-        sessionStorage.removeItem("pointRate");
+
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // // 로컬스토리지 사용자 정보 삭제
+        // localStorage.removeItem("userId");
+        // localStorage.removeItem("userName");
+        // localStorage.removeItem("userRole");
+        // localStorage.removeItem("i18nextLng");
+        // // 세션스토리지 사용자 정보 삭제
+        // sessionStorage.removeItem("userId");
+        // sessionStorage.removeItem("userName");
+        // // 세션스토리지 랜딩페이지 비디오 정보 삭제
+        // sessionStorage.removeItem("video_cn");
+        // sessionStorage.removeItem("video_en");
+        // sessionStorage.removeItem("video_jp");
+        // // 토큰 연장시간 삭제
+        // sessionStorage.removeItem("tokenAddedTime");
+        // // 포인트 적용률 삭제
+        // sessionStorage.removeItem("pointRate");
+        
         // 쿠키 삭제
         cookie.remove('w_auth', { path: '/' });
         cookie.remove('w_authExp', { path: '/' });

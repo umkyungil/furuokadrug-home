@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
 import { Table, Button } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { USER_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function CouponUserListPage() {

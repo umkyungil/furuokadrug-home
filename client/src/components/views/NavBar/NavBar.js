@@ -7,9 +7,11 @@ import SearchFeature from './Sections/SearchFeature';
 import { Drawer, Button, Icon, Select } from 'antd';
 import './Sections/Navbar.css';
 import { useHistory } from 'react-router-dom';
-import axios from 'axios';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
+
 const {Option} = Select;
 
 function NavBar() {
@@ -96,13 +98,14 @@ function NavBar() {
             <RightMenu mode="inline" />
           </Drawer>
         </div>
-        {/* Search */}
+        {/* 키워드 검색 */}
         <div className="headMenu2">
           <SearchFeature refreshFunction={handleSearchTerm} />
         </div>
-        <div className="listblock">
+        {/* 카테고리 검색 */}
+        <div className="listBlock">
           <Select defaultValue="" style={{ width:"48%", float:"right", position:"relative", textAlign:"lest" }} onChange={handleCategory} >
-            <Option key={0} value={""} > {""} </Option>
+            <Option key={0} value={""} > <span style={{ color: "lightgrey" }}>{"Category"}</span> </Option>
             {PRODUCT_LIST_CATEGORY.map(item => {
               // 카테고리에서 All제외
               if (item.key !== 0) {

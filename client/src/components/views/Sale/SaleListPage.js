@@ -1,16 +1,19 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
 import { Table } from 'antd';
 import { SALE_SERVER, PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { SaleType, MAIN_CATEGORY } from '../../utils/Const.js'
 import { LanguageContext } from '../../context/LanguageContext.js';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function SaleListPage() {
 	const [Sales, setSales] = useState([]);
-	const {isLanguage} = useContext(LanguageContext);
+	const {isLanguage, setIsLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 
 	useEffect(() => {

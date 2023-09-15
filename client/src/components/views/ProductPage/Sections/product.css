@@ -1,0 +1,25 @@
+.lanJP {
+  font-family: "游ゴシック体", YuGothic, "游ゴシック", "Yu Gothic", "Heiti SC","SimHei","SF Pro SC","SF Pro Text","SF Pro Icons","PingFang SC","Helvetica Neue","Helvetica","Arial",sans-serif !important;
+}
+
+.lanCN {
+  font-family: "Microsoft YaHei", "游ゴシック体", YuGothic, "游ゴシック", "Yu Gothic", "Heiti SC","SimHei","SF Pro SC","SF Pro Text","SF Pro Icons","PingFang SC","Helvetica Neue","Helvetica","Arial",sans-serif;
+}
+
+/* .body-cn {
+  font-family: Tahoma, Helvetica, Arial, "Microsoft Yahei","微软雅黑", STXihei, "华文细黑", sans-serif;
+} */
+
+/* .body-jp {
+  font-family: Verdana, Roboto, "Droid Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+} */
+
+/* PC만 지원한다면  */
+/* body {
+  font-family: Verdana, "游ゴシック", YuGothic, "メイリオ", Meiryo, "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+} */
+
+/* Mobile만 지원한다면  */
+/* body {
+  font-family: sans-serif;
+} */

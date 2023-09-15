@@ -679,7 +679,8 @@ router.post('/successBuy', auth, (req, res) => {
                     async.eachSeries(products, (item, callback) => {
                         Product.updateOne(
                             { _id: item.id },
-                            { $inc: { "sold": item.quantity }},
+                            { $inc: { "sold": item.quantity, "quantity": item.quantity * -1 }},
+                            // { $inc: { "sold": item.quantity }},
                             { new: false },
                             callback
                         )

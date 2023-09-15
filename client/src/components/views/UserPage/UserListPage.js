@@ -1,17 +1,20 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
 import { Table } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { USER_SERVER } from '../../Config.js';
 import { ENGLISH, CHINESE, JAPANESE, NOTHING, I18N_ENGLISH, I18N_JAPANESE, I18N_CHINESE } from '../../utils/Const.js'
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function UserListPage() {
 	const [Users, setUsers] = useState([]);
-	const {isLanguage} = useContext(LanguageContext);
+	const {isLanguage, setIsLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 
 	useEffect(() => {

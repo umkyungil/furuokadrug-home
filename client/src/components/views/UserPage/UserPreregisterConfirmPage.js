@@ -10,8 +10,11 @@ import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER, USER_SERVER } from '../../Config';
 import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
-import axios from 'axios';
+import '../ProductPage/Sections/product.css'
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const {Option} = Select;
@@ -44,7 +47,7 @@ function UserPreregisterConfirmPage(props) {
   const [Email, setEmail] = useState("");
   const dispatch = useDispatch();
   const history = useHistory();
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
@@ -54,7 +57,10 @@ function UserPreregisterConfirmPage(props) {
       history.push("/");
     } else {
       // 다국어 설정
-      i18n.changeLanguage(isLanguage);
+      const lang = getLanguage(isLanguage);    
+      i18n.changeLanguage(lang);
+      setIsLanguage(lang);
+
       // 사용자 정보 취득
       getUser(props.match.params.userId);
     }
@@ -226,7 +232,7 @@ function UserPreregisterConfirmPage(props) {
       {props => {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
-          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+          <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>{t('SignUp.title')}</h1>
             </div>

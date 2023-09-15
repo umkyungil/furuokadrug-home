@@ -4,14 +4,18 @@ import { Row, Col } from 'antd';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
-import axios from 'axios';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function MailHistoryDetailPage(props) {
   const [MailHistory, setMailHistory] = useState({});
   const mailId = props.match.params.mailId;
-  const {isLanguage} = useContext(LanguageContext);
+
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

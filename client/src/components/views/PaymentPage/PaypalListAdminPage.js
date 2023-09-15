@@ -4,13 +4,16 @@ import SearchFeature from './Sections/PaypalAdminSearchFeature';
 import { PAYMENT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
-import axios from 'axios';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function PaypalListAdminPage(props) {
   const [PaypalInfo, setPaypalInfo] = useState([]);
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

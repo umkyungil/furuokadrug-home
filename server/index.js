@@ -173,47 +173,47 @@ const batchJob = async() => {
 
   // 3달동안 로그인하지 않은 사용자에게 메일전송
   // 매월 1일 아침 6시
-  let rule3 = new schedule.RecurrenceRule();
-  rule3.date = 1;
-  rule3.hour = 6;
-  rule3.minute = 0;
-  rule3.second = 0;
-  rule3.tz = 'Asia/Tokyo';
+  // let rule3 = new schedule.RecurrenceRule();
+  // rule3.date = 1;
+  // rule3.hour = 6;
+  // rule3.minute = 0;
+  // rule3.second = 0;
+  // rule3.tz = 'Asia/Tokyo';
 
-  schedule.scheduleJob(rule3, async function() {
-    let startToday = new Date();
-    let startTime = startToday.toLocaleString('ja-JP');
-    console.log("-------------------------------------------");
-    console.log("Send mail to users who haven't logged in for 3 months: ", startTime);
-    console.log("-------------------------------------------");
+  // schedule.scheduleJob(rule3, async function() {
+  //   let startToday = new Date();
+  //   let startTime = startToday.toLocaleString('ja-JP');
+  //   console.log("-------------------------------------------");
+  //   console.log("Send mail to users who haven't logged in for 3 months: ", startTime);
+  //   console.log("-------------------------------------------");
 
-    try {
-      // 3달전 일자 취득
-      let today = new Date();
-      let utc = new Date(today.setMonth(today.getMonth() - 3));
-      let jst = new Date(utc.getFullYear(), utc.getMonth(), utc.getDate(), 23, 59, 59);
-      let threeMonthsAgo = new Date(jst.getFullYear(), jst.getMonth(), jst.getDate(), jst.getHours() + 9, 59, 59);
+  //   try {
+  //     // 3달전 일자 취득
+  //     let today = new Date();
+  //     let utc = new Date(today.setMonth(today.getMonth() - 3));
+  //     let jst = new Date(utc.getFullYear(), utc.getMonth(), utc.getDate(), 23, 59, 59);
+  //     let threeMonthsAgo = new Date(jst.getFullYear(), jst.getMonth(), jst.getDate(), jst.getHours() + 9, 59, 59);
 
-      // 사용자 정보취득
-      const userInfos = await getUserLastLogin(threeMonthsAgo);
-      for (let i=0; i < userInfos.length; i++) {
-        let message = userInfos[i].name + " " + userInfos[i].lastName + "様\n\n"
-        message = message + "ご来訪いただきますよう、何卒よろしくお願いいたします。";
+  //     // 사용자 정보취득
+  //     const userInfos = await getUserLastLogin(threeMonthsAgo);
+  //     for (let i=0; i < userInfos.length; i++) {
+  //       let message = userInfos[i].name + " " + userInfos[i].lastName + "様\n\n"
+  //       message = message + "ご来訪いただきますよう、何卒よろしくお願いいたします。";
 
-        const body = {
-          type: "Batch",
-          subject: "お知らせします。",
-          from: ADMIN_EMAIL,
-          to: userInfos[i].email,
-          message: message
-        }
-        // 메일송신
-        sendMailProcess(body, true);
-      }
-    } catch (err) {
-      console.log("Failed to search for users who have not logged in for 3 months ", err);
-    }
-  });
+  //       const body = {
+  //         type: "Batch",
+  //         subject: "お知らせします。",
+  //         from: ADMIN_EMAIL,
+  //         to: userInfos[i].email,
+  //         message: message
+  //       }
+  //       // 메일송신
+  //       sendMailProcess(body, true);
+  //     }
+  //   } catch (err) {
+  //     console.log("Failed to search for users who have not logged in for 3 months ", err);
+  //   }
+  // });
 
   // 매월 삭제되는 포인트가 있는 사용자에게 메일전송
   // 매월 1일 아침 8시

@@ -5,8 +5,11 @@ import { IMAGES_SERVER } from '../../Config.js';
 import { IMAGES_VISIBLE_ITEM, IMAGES_TYPE, IMAGES_LANGUAGE, I18N_JAPANESE } from '../../utils/Const';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
-import axios from 'axios';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const tailFormItemLayout = {
@@ -28,7 +31,7 @@ function ImagesRegisterPage(props) {
   const [Language, setLanguage] = useState(I18N_JAPANESE);
   const [Images, setImages] = useState([]);
   const [OldImages, setOldImages] = useState([]); // 실제 사용하지는 않지만 빈 배열을 props로 넘기는 용도로 사용
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

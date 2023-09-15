@@ -3,15 +3,18 @@ import { Table } from 'antd';
 import { PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE } from '../../utils/Const.js'
-import { LanguageContext } from '../../context/LanguageContext.js';
-import axios from 'axios';
 import { getLocalTime } from '../../utils/CommonFunction.js';
+import { LanguageContext } from '../../context/LanguageContext.js';
+import './Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function ProductListAdminPage() {
 	const [Products, setProducts] = useState([]);
-	const {isLanguage} = useContext(LanguageContext);
+	const {isLanguage, setIsLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 
 	useEffect(() => {

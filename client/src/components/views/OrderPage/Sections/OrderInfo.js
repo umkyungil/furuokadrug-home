@@ -1,12 +1,13 @@
 import React from 'react';
 import { Button, Descriptions } from 'antd';
-import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { ORDER_SERVER } from '../../../Config.js';
 import { useSelector } from "react-redux";
 import { useTranslation } from 'react-i18next';
 import { NOT_SET } from '../../../utils/Const';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function OrderInfo(props) {

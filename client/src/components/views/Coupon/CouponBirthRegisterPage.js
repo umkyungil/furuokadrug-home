@@ -6,10 +6,12 @@ import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY, CouponType, UseWithSale } from '../../utils/Const';
 import { dateFormatYMD } from '../../utils/CommonFunction'
 import { COUPON_SERVER, MAIL_SERVER, USER_SERVER, PRODUCT_SERVER } from '../../Config.js'
-import axios from 'axios';
-import { get } from 'mongoose';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const {Option} = Select;
@@ -53,7 +55,7 @@ function CouponBirthRegisterPage() {
   const [ProductItem, setProductItem] = useState("");
   const history = useHistory();
 
-  const { isLanguage, setIsLanguage } = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

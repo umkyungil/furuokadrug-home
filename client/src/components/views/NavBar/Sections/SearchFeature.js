@@ -11,9 +11,9 @@ function SearchFeature(props) {
   return (
     <div>
       <Search
-        // placeholder="input product name"
+        placeholder="Product name"
         onSearch={onSearch}
-        style={{ width:150 }}
+        style={{ width:151 }}
       />
     </div>
   )

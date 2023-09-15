@@ -4,15 +4,17 @@ import * as Yup from 'yup';
 import { passwordConfirm } from "../../../_actions/user_actions";
 import { useDispatch } from "react-redux";
 import { useHistory } from 'react-router-dom';
-import { Select, Form, Input, Button } from 'antd';
+import { Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER } from '../../Config';
-import axios from 'axios';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
-const {Option} = Select;
 const formItemLayout = {
   labelCol: {
     xs: { span: 24 },
@@ -40,7 +42,7 @@ function UserPasswordConfirmPage(props) {
   const [UserId, setUserId] = useState({});
   const dispatch = useDispatch();
   const history = useHistory();
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
@@ -49,7 +51,10 @@ function UserPasswordConfirmPage(props) {
       history.push("/");
     } else {
       // 다국어 설정
-      i18n.changeLanguage(isLanguage);
+      const lang = getLanguage(isLanguage);    
+      i18n.changeLanguage(lang);
+      setIsLanguage(lang);
+
       // query string 취득
       setUserId(props.match.params.userId);
     }
@@ -138,10 +143,12 @@ function UserPasswordConfirmPage(props) {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
           <div className="app">
-            <h1>{t('Password.subTitle')}</h1>
+            <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
+              <h1>{t('Password.subTitle')}</h1>
+            </div>
             <br />
 
-            <Form style={{ minWidth: '350px' }} {...formItemLayout} onSubmit={handleSubmit} >
+            <Form className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ minWidth: '350px' }} {...formItemLayout} onSubmit={handleSubmit} >
               {/* 비밀번호 */}
               <Form.Item required label={t('Password.password')} hasFeedback validateStatus={errors.password && touched.password ? "error" : 'success'} >
                 <Input id="password" placeholder="Enter your password" type="password" value={values.password} onChange={handleChange} onBlur={handleBlur}

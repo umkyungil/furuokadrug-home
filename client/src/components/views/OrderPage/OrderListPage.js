@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
 import { Table } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { ORDER_SERVER, USER_SERVER } from '../../Config.js';
@@ -7,7 +6,11 @@ import { UNIDENTIFIED, DeliveryCompleted } from '../../utils/Const.js';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function OrderListPage(props) {
@@ -17,7 +20,7 @@ function OrderListPage(props) {
 	const [DeliveryStatusChange, setDeliveryStatusChange] = useState("");	
 	const [Mode, setMode] = useState(true); // 스텝 초기페이지 모드
 	const paramOrderId = props.match.params.orderId; // delivery 링크를 눌렀을때 다시 이 화면을 호출하면서 주문id를 보낸다
-	const {isLanguage} = useContext(LanguageContext);
+	const {isLanguage, setIsLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 	
 	useEffect(() => {

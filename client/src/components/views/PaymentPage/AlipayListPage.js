@@ -1,16 +1,19 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
 import { Table } from 'antd';
 import SearchFeature from './Sections/AlipaySearchFeature';
 import { useTranslation } from 'react-i18next';
 import { PAYMENT_SERVER } from '../../Config.js';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function AlipayListPage() {
 	const [AlipayInfo, setAlipayInfo] = useState([]);
-	const {isLanguage} = useContext(LanguageContext);
+	const {isLanguage, setIsLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 
 	useEffect(() => {

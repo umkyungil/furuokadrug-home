@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { Form, Input, Button } from 'antd';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext.js';
+import '../ProductPage/Sections/product.css'
+import { getLanguage } from '../../utils/CommonFunction.js';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const { TextArea } = Input;
@@ -34,7 +37,7 @@ const tailFormItemLayout = {
 function VirtualReservationPage(props) {
   const _history = useHistory();
   // 다국적언어 설정
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   // query string 취득  
@@ -53,8 +56,10 @@ function VirtualReservationPage(props) {
   const [Email, setEmail] = useState("");
 
   useEffect(() => {
-		// 다국어 설정
-		i18n.changeLanguage(isLanguage);
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);    
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
   }, [])
   
   const body = {
@@ -109,13 +114,12 @@ function VirtualReservationPage(props) {
   }
 
   return (
-
-    <div style={{ maxWidth: '700px', margin: '3rem auto' }}>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '3rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Reservation.title')}</h1>
       </div>
       
-      <Form style={{ minWidth: '350px', margin:'1em' }} {...formItemLayout} onSubmit={sendEmail} autoComplete="off" >        
+      <Form style={{ minWidth: '350px', margin:'1em' }} {...formItemLayout} onSubmit={sendEmail} autoComplete="off" >
         <Form.Item label={t('Reservation.name')} name="username" rules={[{ required: true }]}>
           <Input placeholder="Please enter name" type="text" value={Name} onChange={nameHandler} />
         </Form.Item>
@@ -144,8 +148,7 @@ function VirtualReservationPage(props) {
             Send
           </Button>
         </Form.Item>
-        
-      </Form>  
+      </Form> 
     </div>
   );
 };

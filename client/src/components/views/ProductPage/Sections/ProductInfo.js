@@ -3,20 +3,23 @@ import { Button, Descriptions, Collapse, Tag } from 'antd';
 import { useDispatch } from 'react-redux';
 import { addToCart, anyRegisterUser, loginUser } from '../../../../_actions/user_actions';
 import { useHistory } from 'react-router-dom';
-import axios from 'axios';
 import { PRODUCT_SERVER, USER_SERVER } from '../../../Config.js';
 import { useTranslation } from 'react-i18next';
 import cookie from 'react-cookies';
 import { LanguageContext } from '../../../context/LanguageContext';
 import { SALE_TAG, NOTICE_TAG, SOLD_OUT_TAG, PRODUCT_VISIBLE_TYPE, ANONYMOUS } from '../../../utils/Const';
+import './product.css';
+import { getLanguage } from '../../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 // props 상품정보
 function ProductInfo(props) {
   const history = useHistory();
   const dispatch = useDispatch();
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
   const {Panel} = Collapse;
     
@@ -28,6 +31,7 @@ function ProductInfo(props) {
   useEffect(() => {
     // 다국적언어 설정
     i18n.changeLanguage(isLanguage);
+    
     if (props.detail) {
       process();
     }
@@ -262,7 +266,7 @@ function ProductInfo(props) {
 
         <Collapse defaultActiveKey={['0']}>
           <Panel header={t('Product.description')}>
-            <Descriptions>
+            <Descriptions className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
               <Descriptions.Item>{props.detail.description}</Descriptions.Item>
             </Descriptions>
           </Panel>
@@ -316,7 +320,7 @@ function ProductInfo(props) {
         
         <Collapse defaultActiveKey={['0']}>
           <Panel header={t('Product.description')}>
-            <Descriptions>
+            <Descriptions className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
               <Descriptions.Item>{props.detail.description}</Descriptions.Item>
             </Descriptions>
           </Panel>

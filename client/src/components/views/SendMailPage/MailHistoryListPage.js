@@ -4,13 +4,17 @@ import SearchFeature from './Sections/SearchFeature';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
-import axios from 'axios';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function MailHistoryListPage() {
 	const [MailHistory, setMailHistory] = useState([]);
-	const {isLanguage} = useContext(LanguageContext);
+
+	const {isLanguage, setIsLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 	
 	useEffect(() => {

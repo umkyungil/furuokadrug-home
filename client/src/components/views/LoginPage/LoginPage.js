@@ -8,10 +8,12 @@ import { Form, Icon, Input, Button } from 'antd';
 import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
 import cookie from 'react-cookies';
-import axios from 'axios';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
 
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function LoginPage(props) {
@@ -23,7 +25,10 @@ function LoginPage(props) {
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
-		i18n.changeLanguage(isLanguage);
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);    
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
   }, [])
 
   // const handleRememberMe = () => {
@@ -108,8 +113,11 @@ function LoginPage(props) {
       {props => {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
+          
           <div className="app">
-            <h1>{t('Login.title')}</h1>
+            <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} >
+              <h1>{t('Login.title')}</h1>
+            </div>
             
             <form onSubmit={handleSubmit} style={{ width: '350px' }}>
               <Form.Item required>
@@ -156,14 +164,22 @@ function LoginPage(props) {
                 <a className="login-form-forgot" href="/reset_user" style={{ float: 'right' }}>
                   forgot password
                   </a> */}
-                <div>
+                <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
                   <Button type="primary" htmlType="submit" className="login-form-button" style={{ minWidth: '100%' }} disabled={isSubmitting} onSubmit={handleSubmit}>
                     {t('Login.title')}
-                </Button>
+                  </Button>
                 </div>
-                {t('Login.or')} <a href="/preregister">{t('Login.register')}</a>
-                &nbsp;&nbsp;&nbsp;
-                <a href="/passwordChange">{t('Password.downTitle')}</a>
+                <span className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>{t('Login.or')} </span> 
+                <a href="/preregister">
+                  <span className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>{t('Login.register')}</span>
+                </a>
+                &nbsp;
+                &nbsp;
+                &nbsp;
+
+                <a href="/passwordChange">
+                  <span className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>{t('Password.downTitle')}</span>
+                </a>
               </Form.Item>
             </form>
           </div>

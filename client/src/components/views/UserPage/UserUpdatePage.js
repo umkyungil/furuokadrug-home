@@ -8,8 +8,11 @@ import { getUser } from '../../utils/CommonFunction';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
 import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
-import axios from 'axios';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const { Option } = Select;
@@ -39,7 +42,7 @@ const tailFormItemLayout = {
 
 function UserUpdatePage(props) {
   const dispatch = useDispatch();
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   const [Id, setId] = useState("");

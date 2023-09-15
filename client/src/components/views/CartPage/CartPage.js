@@ -9,8 +9,11 @@ import { getCartItems, removeCartItem, onSuccessBuy, onSuccessBuyTmp } from '../
 import { ORDER_SERVER, COUPON_SERVER, POINT_SERVER, SALE_SERVER, SID } from '../../Config.js';
 import { NOT_SET, UNIDENTIFIED, DEPOSITED, EC_SYSTEM, MAIN_CATEGORY, UseWithSale, CouponType, SaleType } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
-import axios from 'axios';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function CartPage(props) {
@@ -39,7 +42,7 @@ function CartPage(props) {
   const couponTotalDiscountAmount = useRef(0);
   const couponAcquisitionPoints = useRef(0);
 
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
   const dispatch = useDispatch();
   const history = useHistory();
@@ -64,9 +67,12 @@ function CartPage(props) {
   };
 
   useEffect(() => {
-    // 다국적언어 설정
-		i18n.changeLanguage(isLanguage);
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);    
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
 
+    // 메인처리
     process();
   }, [props.user.userData])
 
@@ -1142,7 +1148,7 @@ function CartPage(props) {
   }
 
   return (
-    <div style={{width: '85%', margin: '3rem auto'}}>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{width: '85%', margin: '3rem auto'}}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Cart.title')}</h1>
       </div>

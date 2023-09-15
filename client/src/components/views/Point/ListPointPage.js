@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
 import { Table, Input, Form, Button  } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { POINT_SERVER } from '../../Config.js';
@@ -7,7 +6,11 @@ import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { EXPIRED_CN, EXPIRED_JP, EXPIRED_EN, I18N_ENGLISH, I18N_JAPANESE, I18N_CHINESE } from '../../utils/Const'
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function ListPointPage(props) {
@@ -17,7 +20,7 @@ function ListPointPage(props) {
 	const [InvalidData, setInvalidData] = useState([]);
 	const [ShowButton, setShowButton] = useState(true);
 	const history = useHistory();
-	const {isLanguage} = useContext(LanguageContext);
+	const {isLanguage, setIsLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
 
 	useEffect(() => {

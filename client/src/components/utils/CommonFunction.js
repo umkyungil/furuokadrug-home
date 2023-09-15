@@ -1,7 +1,8 @@
 import { USER_SERVER } from '../Config';
 import moment from 'moment';
-import axios from 'axios';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 
@@ -53,5 +54,29 @@ export const getUser = async (userId) => {
     if (userInfo.data.success) return userInfo.data.user[0];
   } catch (err) {
     console.log("err: ",err);
+  }
+}
+
+// 언어정보 가져오기
+export const getLanguage = (isLanguage) => {
+  if (!isLanguage || isLanguage === "") {
+    let lang = localStorage.getItem("i18nextLng");
+    
+    if (lang) {
+      if (lang === 'ja-JP') {
+        lang = "en";
+        localStorage.setItem('i18nextLng', lang);
+      }
+    } else {
+      lang = "en";
+      localStorage.setItem('i18nextLng', lang);
+    }
+
+    console.log("common lang: ", lang);
+
+    return lang;
+  } else {
+    console.log("common isLanguage: ", isLanguage);
+    return isLanguage;
   }
 }

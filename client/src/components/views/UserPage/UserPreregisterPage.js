@@ -9,8 +9,11 @@ import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER } from '../../Config';
 import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
-import axios from 'axios';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction.js';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const {Option} = Select;
@@ -39,12 +42,14 @@ function UserPreregisterPage(props) {
   const [SelectItem, setSelectItem] = useState("jp");
   const dispatch = useDispatch();
   const history = useHistory();
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);    
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
   }, [])
 
   // 언어 설정
@@ -125,7 +130,7 @@ function UserPreregisterPage(props) {
       {props => {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
-          <div style={{ maxWidth: '700px', margin: '3rem auto' }}>
+          <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '3rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>{t('SignUp.title')}</h1>
             </div>
@@ -172,7 +177,7 @@ function UserPreregisterPage(props) {
 
               <Form.Item {...tailFormItemLayout}>
                 <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
-                  本登録用URLメール送信する
+                  Send by email for registration
                 </Button>
               </Form.Item>
             </Form>

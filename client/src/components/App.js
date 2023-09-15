@@ -89,7 +89,7 @@ import NotFoundPage from "./views/NotFound.js";
 //false  로그인 한 사용자는 안으로 들어갈수 없다
 //3번쩨  인자로 true를 주면 admin만 들어갈수 있다
 function App() {
-  const [isLanguage, setIsLanguage] = useState('');
+  const [isLanguage, setIsLanguage] = useState("");
 
   return (
     <Suspense fallback={(<div>Loading...</div>)}>

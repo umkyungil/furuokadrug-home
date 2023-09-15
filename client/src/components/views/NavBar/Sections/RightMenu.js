@@ -8,8 +8,11 @@ import { useSelector } from "react-redux";
 import cookie from 'react-cookies';
 import { LanguageContext } from '../../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
+import '../../ProductPage/Sections/product.css';
+import { getLanguage } from '../../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const SubMenu = Menu.SubMenu;
@@ -22,6 +25,7 @@ function RightMenu(props) {
   // 다국적언어
   const setMultiLanguage = (lang) => {    
     setIsLanguage(lang);
+    localStorage.setItem('i18nextLng', lang);
     i18n.changeLanguage(lang);
   }
   
@@ -30,23 +34,27 @@ function RightMenu(props) {
     try {
       const userId = localStorage.getItem("userId");
       await axios.get(`${USER_SERVER}/logout?id=${userId}`);
-  
-      // 로컬스토리지 사용자정보 삭제
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userName");
-      localStorage.removeItem("userRole");
-      localStorage.removeItem("i18nextLng");
-      // 세션스토리지 불특정 사용자정보 삭제
-      sessionStorage.removeItem("userId");
-      sessionStorage.removeItem("userName");
-      // 세션스토리지 랜딩페이지 비디오정보 삭제
-      sessionStorage.removeItem("video_cn");
-      sessionStorage.removeItem("video_en");
-      sessionStorage.removeItem("video_jp");
-      // 토큰 연장시간 삭제
-      sessionStorage.removeItem("tokenAddedTime");
-      // 포인트 적용률 삭제
-      sessionStorage.removeItem("pointRate");
+      
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // // 로컬스토리지 사용자정보 삭제
+      // localStorage.removeItem("userId");
+      // localStorage.removeItem("userName");
+      // localStorage.removeItem("userRole");
+      // localStorage.removeItem("i18nextLng");
+      // // 세션스토리지 불특정 사용자정보 삭제
+      // sessionStorage.removeItem("userId");
+      // sessionStorage.removeItem("userName");
+      // // 세션스토리지 랜딩페이지 비디오정보 삭제
+      // sessionStorage.removeItem("video_cn");
+      // sessionStorage.removeItem("video_en");
+      // sessionStorage.removeItem("video_jp");
+      // // 토큰 연장시간 삭제
+      // sessionStorage.removeItem("tokenAddedTime");
+      // // 포인트 적용률 삭제
+      // sessionStorage.removeItem("pointRate");
+
       // 쿠키 삭제
       cookie.remove('w_auth', { path: '/' });
       cookie.remove('w_authExp', { path: '/' });
@@ -270,9 +278,9 @@ function RightMenu(props) {
               <Menu.Item key="productRegister">
                 <a href="/product/upload">Product reg</a>
               </Menu.Item>
-              <Menu.Item key="productCsv">
+              {/* <Menu.Item key="productCsv">
                 <a href="/product/csv/upload">Product CSV</a>
-              </Menu.Item>
+              </Menu.Item> */}
               <Menu.Item key="inventoryList">
                 <a href="/inventory/list">Product inventory list</a>
               </Menu.Item>
@@ -282,11 +290,6 @@ function RightMenu(props) {
             </SubMenu>
 
             <SubMenu title={<span style={{color: 'white'}}>Other Mgt</span>}>
-              <SubMenu title={<span>Order</span>}>
-                <Menu.Item key="orderList">
-                  <a href="/order/list" >Order list</a>
-                </Menu.Item>
-              </SubMenu>
               <SubMenu title={<span>Sale</span>}>
                 <Menu.Item key="saleList">
                   <a href="/sale/list">Sale list</a>
@@ -322,9 +325,6 @@ function RightMenu(props) {
                   <a href="/code/list">Code list</a>
                 </Menu.Item>
               </SubMenu>
-              <Menu.Item key="csv">
-                <a href="/csv/upload/univaPayCast">CSV upload</a>
-              </Menu.Item>
               <SubMenu title={<span>History</span>}>
                 <Menu.Item key="alipayList">
                   <a href="/payment/alipay/list">Alipay payment history</a>
@@ -342,6 +342,12 @@ function RightMenu(props) {
                   <a href="/coupon/history">Coupon history</a>
                 </Menu.Item>
               </SubMenu>
+              <Menu.Item key="orderList">
+                <a href="/order/list" >Order list</a>
+              </Menu.Item>
+              <Menu.Item key="csv">
+                <a href="/csv/upload/univaPayCast">UPC CSV upload</a>
+              </Menu.Item>
             </SubMenu>
             <Menu.Item key="logout">
               <a onClick={logoutHandler} style={{color: 'white'}}>Logout</a>

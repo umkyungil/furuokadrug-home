@@ -3,8 +3,11 @@ import { Button, Form, Input } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext.js';
 import { CODE_SERVER } from '../../Config.js';
-import axios from 'axios';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function CodeRegisterPage(props) {
@@ -18,7 +21,7 @@ function CodeRegisterPage(props) {
   const [Value6, setValue6] = useState("");
   const [Value7, setValue7] = useState("");
 
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   useEffect(() => {

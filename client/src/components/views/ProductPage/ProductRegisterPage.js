@@ -5,8 +5,11 @@ import { PRODUCT_SERVER } from '../../Config.js';
 import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE } from '../../utils/Const';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
-import axios from 'axios';
+import './Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const {TextArea} = Input;
@@ -47,7 +50,7 @@ function ProductRegisterPage(props) {
   const englishUrlRef = useRef("");
   const chineseUrlRef = useRef("");
 
-  const {isLanguage} = useContext(LanguageContext);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
   // 상품의 메인화면 노출여부의 라디오 항목 작성

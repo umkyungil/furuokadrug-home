@@ -5,10 +5,13 @@ import { DatePicker, Form, Input, Button, Select, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY, SaleType, SaleActive } from '../../utils/Const';
 import { SALE_SERVER, MAIL_SERVER, PRODUCT_SERVER } from '../../Config.js';
-import schedule from 'node-schedule'
-import axios from 'axios';
+import schedule from 'node-schedule';
 import { LanguageContext } from '../../context/LanguageContext';
+import '../ProductPage/Sections/product.css';
+import { getLanguage } from '../../utils/CommonFunction';
+
 // CORS 대책
+import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const { Option } = Select;
@@ -61,7 +64,8 @@ function SaleUpdatePage(props) {
   const [EnMailComment, setEnMailComment] = useState("");
   const [Except, setExcept] = useState(false);
   const [ShowExcept, setShowExcept] = useState(false);
-  const {isLanguage} = useContext(LanguageContext);
+
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
   
   useEffect(() => {
