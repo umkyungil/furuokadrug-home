@@ -155,6 +155,9 @@
     "role": "権限",
     "deletedAt": "論理削除"
   },
+  "MyInfo": {
+    "detailTitle": "個人情報詳細"
+  },
   "Mail": {
     "listTitle": "メール履歴一覧",
     "detailTitle": "メール履歴詳細",
@@ -303,8 +306,9 @@
     "regTitle": "Code登録",
     "updateTitle": "Code更新",
     "detailTitle": "Code詳細",
-    "name": "Code説明",
+    "description": "Code説明",
     "code": "Code",
+    "name": "Code名称",
     "value1": "Code1",
     "value2": "Code2",
     "value3": "Code3",

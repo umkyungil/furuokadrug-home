@@ -7,9 +7,10 @@ import { useDispatch } from "react-redux";
 import { useHistory } from 'react-router-dom';
 import { Select, Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 const { TextArea } = Input;
 const {Option} = Select;
@@ -48,8 +49,13 @@ function MailRegisterPage(props) {
 
   useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(isLanguage);
-  }, [])
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+  }, [isLanguage])
 
   const listHandler = () => {
     history.push("/user/list");
@@ -130,7 +136,7 @@ function MailRegisterPage(props) {
       {props => {
         const { touched, errors, isSubmitting, handleSubmit, } = props;
         return (
-          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+          <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>Mail Content Registration</h1>
             </div>

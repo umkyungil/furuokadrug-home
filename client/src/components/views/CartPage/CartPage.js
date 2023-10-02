@@ -10,7 +10,7 @@ import { ORDER_SERVER, COUPON_SERVER, POINT_SERVER, SALE_SERVER, SID } from '../
 import { NOT_SET, UNIDENTIFIED, DEPOSITED, EC_SYSTEM, MAIN_CATEGORY, UseWithSale, CouponType, SaleType } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -68,13 +68,16 @@ function CartPage(props) {
 
   useEffect(() => {
     // 다국어 설정
-    const lang = getLanguage(isLanguage);    
+    const lang = getLanguage(isLanguage);
     i18n.changeLanguage(lang);
     setIsLanguage(lang);
 
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
     // 메인처리
     process();
-  }, [props.user.userData])
+  }, [props.user.userData, isLanguage])
 
   const process = async () => {
     let cartItems=[]

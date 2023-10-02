@@ -8,8 +8,6 @@ import { useSelector } from "react-redux";
 import cookie from 'react-cookies';
 import { LanguageContext } from '../../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
-import '../../ProductPage/Sections/product.css';
-import { getLanguage } from '../../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -22,7 +20,7 @@ function RightMenu(props) {
   const {isLanguage, setIsLanguage} = useContext(LanguageContext);
   const {t, i18n} = useTranslation();
 
-  // 다국적언어
+  // 다국어 설정
   const setMultiLanguage = (lang) => {    
     setIsLanguage(lang);
     localStorage.setItem('i18nextLng', lang);

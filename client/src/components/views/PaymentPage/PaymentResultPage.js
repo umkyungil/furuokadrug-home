@@ -3,9 +3,10 @@ import { Button, Descriptions, Result } from 'antd';
 import { useHistory, useLocation } from 'react-router-dom';
 import { USER_SERVER } from '../../Config';
 import { useTranslation } from 'react-i18next';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -47,9 +48,17 @@ function PaymentResultPage(props) {
   }
 
   useEffect(() => {
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
     // 로그인 처리(결제 성공 실패와 관계없이 ID존재 여부로 파악)
     loginProcess(userId);
-	}, [])
+	}, [isLanguage])
 
   const loginProcess = async (userId) => {
     try {
@@ -81,7 +90,7 @@ function PaymentResultPage(props) {
   }
   
   return (
-    <div style={{width: '85%', margin: '3rem auto'}}>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{width: '85%', margin: '3rem auto'}}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{'Payment result'}</h1>
       </div>

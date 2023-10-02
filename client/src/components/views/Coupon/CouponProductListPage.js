@@ -4,9 +4,10 @@ import SearchFeature from './Sections/SearchFeature';
 import { PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY } from '../../utils/Const';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -21,15 +22,21 @@ function CouponProductListPage(props) {
   const {t, i18n} = useTranslation();
 
 	useEffect(() => {
-		i18n.changeLanguage(isLanguage);
+		// 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
 
 		// query string 가져오기
 		const item = props.match.params.item;
 		setItem(item);
+
 		// 사용자정보 취득	
-		let body = { item: item, searchTerm: ""	}
-		getProducts(body);
-	}, [])
+		getProducts({ item: item, searchTerm: ""	});
+	}, [isLanguage])
 
 	const columns = [
     {
@@ -106,7 +113,7 @@ function CouponProductListPage(props) {
 	}
 
 	return (
-		<div style={{ maxWidth: '700px', margin: '3rem auto' }}>
+		<div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '3rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Product.listTitle')}</h1>
       </div>

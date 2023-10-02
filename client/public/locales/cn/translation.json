@@ -2,7 +2,7 @@
   "Login": {
     "title": "登陆",
     "register": "立即注册！",
-    "or": "或"
+    "or": "or"
   },
   "Password": {
     "title": "更改密码",
@@ -155,6 +155,9 @@
     "role": "权限",
     "deletedAt": "删除用户"
   },
+  "MyInfo": {
+    "detailTitle": "我的细节"
+  },
   "Mail": {
     "listTitle": "历史邮件记录一览",
     "detailTitle": "历史邮件记录详情",
@@ -303,8 +306,9 @@
     "regTitle": "代码登记",
     "updateTitle": "代码更新",
     "detailTitle": "代码详情",
-    "name": "代码名称",
+    "description": "代码名称",
     "code": "描述",
+    "name": "代码名称",
     "value1": "代码价值1",
     "value2": "代码价值2",
     "value3": "代码价值3",

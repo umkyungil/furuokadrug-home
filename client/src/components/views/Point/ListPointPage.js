@@ -5,9 +5,10 @@ import { POINT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { EXPIRED_CN, EXPIRED_JP, EXPIRED_EN, I18N_ENGLISH, I18N_JAPANESE, I18N_CHINESE } from '../../utils/Const'
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -25,7 +26,12 @@ function ListPointPage(props) {
 
 	useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
 
 		let userId = props.match.params.userId; // 관리자에서 들어올 경우
 		if (!userId) {
@@ -38,9 +44,8 @@ function ListPointPage(props) {
 		setUserId(userId);
 
 		// 포인트 정보 가져오기
-		let body = {userId: userId, searchTerm: []}
-		getPointInfo(body);
-	}, [])
+		getPointInfo({userId: userId, searchTerm: []});
+	}, [isLanguage])
 	
 	// 포인트 정보 검색
 	const updateSearchTerm = (newSearchTerm) => {
@@ -197,7 +202,7 @@ function ListPointPage(props) {
   ];
 
 	return (
-		<div style={{ width:'80%', margin: '3rem auto'}}>
+		<div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ width:'80%', margin: '3rem auto'}}>
 			<div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
 				<h1>{t('Point.listTitle')}</h1>	
 			</div>

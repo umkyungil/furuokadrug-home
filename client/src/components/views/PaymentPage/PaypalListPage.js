@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { USER_SERVER } from '../../Config.js';
 import { useHistory } from 'react-router-dom';
 import SearchFeature from './Sections/PaypalSearchFeature.js';
+
 import { LanguageContext } from '../../context/LanguageContext.js';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -20,7 +21,13 @@ function PaypalListPage() {
 
   useEffect(() => {
     // 다국어 설정
-    i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
     // 사용자정보 취득
     if (localStorage.getItem("userId")) {
       let body = {userId: localStorage.getItem("userId")}
@@ -29,7 +36,7 @@ function PaypalListPage() {
       console.log("no user id in localStorage");
       history.push("/login");
     }
-	}, [])
+	}, [isLanguage])
 
   // 사용자 자신의 결제 history정보 취득
   async function getUserInfo(body) {
@@ -120,7 +127,7 @@ function PaypalListPage() {
 	}
 
   return (
-    <div style={{ width:'80%', margin: '3rem auto'}}>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ width:'80%', margin: '3rem auto'}}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Paypal.title')}</h1>
       </div>

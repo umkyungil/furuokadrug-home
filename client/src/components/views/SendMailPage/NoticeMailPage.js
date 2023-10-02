@@ -3,9 +3,11 @@ import { Form, Input, Button } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+import { ADMIN_EMAIL } from '../../utils/Const.js';
+
 import { LanguageContext } from '../../context/LanguageContext.js';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -47,7 +49,7 @@ const NoticeMailPage = (props) => {
   }
   
   const [Subject, setSubject] = useState("");
-  const [FromEmail, setFromEmail] = useState("info@furuokadrug.com");
+  const [FromEmail, setFromEmail] = useState(ADMIN_EMAIL);
   const [ToEmail, setToEmail] = useState(to_email);
   const [Message, setMessage] = useState("");
   const history = useHistory();
@@ -57,8 +59,13 @@ const NoticeMailPage = (props) => {
   
   useEffect(() => {
     // 다국어 설정
-    i18n.changeLanguage(isLanguage);
-  }, [])
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+  }, [isLanguage])
 
   const body = {
     type: props.match.params.type,
@@ -105,7 +112,7 @@ const NoticeMailPage = (props) => {
   }
 
   return (
-    <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '2rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Mail.noticeTitle')}</h1>
       </div>

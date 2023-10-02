@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Button, Descriptions } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { ORDER_SERVER } from '../../../Config.js';
 import { useSelector } from "react-redux";
-import { useTranslation } from 'react-i18next';
 import { NOT_SET } from '../../../utils/Const';
+import { useTranslation } from 'react-i18next';
+
+import { LanguageContext } from '../../../context/LanguageContext.js';
+import '../../ProductPage/Sections/product.css';
+import { getLanguage, setHtmlLangProps } from '../../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -12,19 +16,29 @@ axios.defaults.withCredentials = true;
 
 function OrderInfo(props) {
   const history = useHistory();
-  const user = useSelector(state => state.user)
-  // 다국적언어
-	const {t, i18n} = useTranslation();
+  const user = useSelector(state => state.user);
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
+  const {t, i18n} = useTranslation();
+
+  useEffect(() => {
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+  }, [isLanguage])  
   
   // 주문정보 및 결제정보 삭제
-  function deleteHandler() {
+  const deleteHandler = async () => {
     let body = { orderId:props.detail._id, type:props.detail.type, uniqueField:props.detail.uniqueField }
-		axios.post(`${ORDER_SERVER}/delete`, body)
+		await axios.post(`${ORDER_SERVER}/delete`, body)
       .then(response => {
         if (response.data.success) {
 					history.push("/order/list");
         } else {
-          alert("Failed to delete order information.")
+          alert("Failed to delete order information");
         }
       })
 	}
@@ -53,7 +67,7 @@ function OrderInfo(props) {
   if (user.userData) {
 		if (user.userData.role === 2) {
       return (
-        <div>
+        <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
           <Descriptions>
             <Descriptions.Item label={t('Order.type')}>{props.detail.type}</Descriptions.Item>
             <Descriptions.Item label={t('Order.userId')}>{props.detail.userId}</Descriptions.Item>
@@ -91,7 +105,7 @@ function OrderInfo(props) {
     } else {
       // 관리자가 아닌 경우
       return (
-        <div>
+        <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} >
           <Descriptions>
             <Descriptions.Item label={t('Order.type')}>{props.detail.type}</Descriptions.Item>
             <Descriptions.Item label={t('Order.userId')}>{props.detail.userId}</Descriptions.Item>
@@ -123,7 +137,7 @@ function OrderInfo(props) {
     }
   } else {
     return (
-      <div>
+      <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
         <Descriptions>
           <Descriptions.Item label={t('Order.type')}>{props.detail.type}</Descriptions.Item>
           <Descriptions.Item label={t('Order.userId')}>{props.detail.userId}</Descriptions.Item>

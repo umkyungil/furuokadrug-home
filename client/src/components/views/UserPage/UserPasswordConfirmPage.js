@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER } from '../../Config';
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -51,14 +51,17 @@ function UserPasswordConfirmPage(props) {
       history.push("/");
     } else {
       // 다국어 설정
-      const lang = getLanguage(isLanguage);    
+      const lang = getLanguage(isLanguage);
       i18n.changeLanguage(lang);
       setIsLanguage(lang);
+
+      // HTML lang속성 변경
+      setHtmlLangProps(lang);
 
       // query string 취득
       setUserId(props.match.params.userId);
     }
-  }, [])
+  }, [isLanguage])
 
   // Landing pageへ戻る
   const listHandler = () => {

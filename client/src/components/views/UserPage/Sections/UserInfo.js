@@ -8,7 +8,7 @@ import { NOTHING, ENGLISH, JAPANESE, CHINESE, I18N_ENGLISH, I18N_CHINESE, I18N_J
 import { USER_SERVER } from '../../../Config';
 import { LanguageContext } from '../../../context/LanguageContext';
 import '../../ProductPage/Sections/product.css';
-import { getLanguage } from '../../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -27,10 +27,16 @@ function UserInfo(props) {
 
   useEffect(() => {
 		// 다국어 설정
-    i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
 
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
+    // 메인처리
     process();
-	}, [])
+	}, [isLanguage])
 
   const process = async () => {
     // 사용자정보 가져오기
@@ -120,7 +126,7 @@ function UserInfo(props) {
   }
   
   return (
-    <div>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} >
       <Descriptions>
         <Descriptions.Item label={t('User.lastName')}>{User.lastName}</Descriptions.Item>
         <Descriptions.Item label={t('User.name')}>{User.name}</Descriptions.Item>

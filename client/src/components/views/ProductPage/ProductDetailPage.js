@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { I18N_ENGLISH, I18N_CHINESE } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
 import './Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -22,13 +22,16 @@ function ProductDetailPage(props) {
 
   useEffect(() => {
     // 다국어 설정
-    const lang = getLanguage(isLanguage);    
+    const lang = getLanguage(isLanguage);
     i18n.changeLanguage(lang);
     setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
     
     // 상품정보 가져오기
     getProduct();
-  }, [])
+  }, [isLanguage])
 
   
 
@@ -56,7 +59,7 @@ function ProductDetailPage(props) {
         }
         let tmpCnUsage = product.data[0].chineseUsage;
         if (tmpCnUsage) {
-          product.data.usage = convert(tmpCnDesc);
+          product.data[0].usage = convert(tmpCnDesc);
         }       
       } else {
         let tmpJpDesc = product.data[0].description;

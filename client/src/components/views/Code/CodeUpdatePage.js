@@ -2,10 +2,11 @@ import React, {useEffect, useState, useContext} from "react";
 import { Form, Input, Button } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LanguageContext } from '../../context/LanguageContext';
 import { CODE_SERVER } from '../../Config';
+
+import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -29,13 +30,19 @@ function CodeUpdatePage(props) {
   const history = useHistory();
 
   useEffect(() => {
-    // 다국적언어
-    i18n.changeLanguage(isLanguage);
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
     // query string 가져오기
     const codeId = props.match.params.codeId;
     // 코드정보 가져오기
     getCode(codeId);
-  }, [])
+  }, [isLanguage])
   
   // 코드정보 가져오기
   const getCode = async (codeId) => {
@@ -132,37 +139,37 @@ function CodeUpdatePage(props) {
   };
 
   return (
-    <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '2rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
-        <h1>Code update</h1>
+        <h1>{t('Code.updateTitle')}</h1>
       </div>
 
       <Form name="code" labelCol={{ span: 8}} wrapperCol={{ span: 16 }} style={{ maxWidth: 600 }} onSubmit={handleSubmit} >
-        <Form.Item label="Code" name="code" required >
+        <Form.Item label={t('Code.code')} name="code" required >
           <Input value={Code} required />
         </Form.Item>
-        <Form.Item label="Name" name="name" required >
+        <Form.Item label={t('Code.name')} name="name" required >
           <Input value={Name} onChange={handleName} required />
         </Form.Item>
-        <Form.Item label="Value1" name="value1" required >
+        <Form.Item label={t('Code.value1')} name="value1" required >
           <Input value={Value1} onChange={handleValue1} required />
         </Form.Item>
-        <Form.Item label="Value2" name="value2" >
+        <Form.Item label={t('Code.value2')} name="value2" >
           <Input value={Value2} onChange={handleValue2} />
         </Form.Item>
-        <Form.Item label="Value3" name="value3" >
+        <Form.Item label={t('Code.value3')} name="value3" >
           <Input value={Value3} onChange={handleValue3} />
         </Form.Item>
-        <Form.Item label="Value4" name="value4" >
+        <Form.Item label={t('Code.value4')} name="value4" >
           <Input value={Value4} onChange={handleValue4} />
         </Form.Item>
-        <Form.Item label="Value5" name="value5" >
+        <Form.Item label={t('Code.value5')} name="value5" >
           <Input value={Value5} onChange={handleValue5} />
         </Form.Item>
-        <Form.Item label="Value6" name="value6" >
+        <Form.Item label={t('Code.value6')} name="value6" >
           <Input value={Value6} onChange={handleValue6} />
         </Form.Item>
-        <Form.Item label="Value7" name="value7" >
+        <Form.Item label={t('Code.value7')} name="value7" >
           <Input value={Value7} onChange={handleValue7} />
         </Form.Item>
 

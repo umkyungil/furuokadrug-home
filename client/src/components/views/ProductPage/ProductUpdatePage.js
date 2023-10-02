@@ -4,9 +4,10 @@ import FileUpload from '../../utils/FileUpload';
 import { PRODUCT_SERVER } from '../../Config.js';
 import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE } from '../../utils/Const';
 import { useTranslation } from 'react-i18next';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import './Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -54,11 +55,17 @@ function ProductUpdatePage(props) {
 
   // 상품정보 취득
   useEffect(() => {
-    // 다국적언어 설정
-    i18n.changeLanguage(isLanguage);
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
+
     // 상품가져오기
     process();
-  }, [])
+  }, [isLanguage])
 
   const process = async () => {
     await getProduct();
@@ -313,7 +320,7 @@ function ProductUpdatePage(props) {
   }
 
   return (
-    <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '2rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Product.updateTitle')}</h1>
       </div>

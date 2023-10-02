@@ -4,9 +4,10 @@ import { PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE } from '../../utils/Const.js'
 import { getLocalTime } from '../../utils/CommonFunction.js';
+
 import { LanguageContext } from '../../context/LanguageContext.js';
 import './Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -19,9 +20,16 @@ function ProductListAdminPage() {
 
 	useEffect(() => {
 		// 다국어 설정
-    i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
+
+		// 메인처리
 		process();
-	}, [])
+	}, [isLanguage])
 
 	const process = async () => {
 		await getProducts();
@@ -110,7 +118,7 @@ function ProductListAdminPage() {
   ];
 
 	return (
-		<div style={{ width:'80%', margin: '3rem auto'}}>
+		<div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ width:'80%', margin: '3rem auto'}}>
 			<div style={{ textAlign: 'center', paddingTop: '38px' }}>
 				<h1>{t('Product.listAdminTitle')}</h1>
 			</div>

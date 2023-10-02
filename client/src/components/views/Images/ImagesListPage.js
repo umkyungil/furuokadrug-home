@@ -4,9 +4,10 @@ import { IMAGES_SERVER } from '../../Config.js';
 import { IMAGES_VISIBLE_ITEM, IMAGES_LANGUAGE, IMAGES_TYPE } from '../../utils/Const';
 import moment from 'moment';
 import { useTranslation } from 'react-i18next';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -19,10 +20,16 @@ function ImagesListPage() {
 
 	useEffect(() => {
 		// 다국어 설정
-    i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
+
 		// 이미지정보 가져오기
 		getImages();
-	}, [])
+	}, [isLanguage])
 
 	// 이미지정보 가져오기
 	const getImages = async () => {
@@ -117,7 +124,7 @@ function ImagesListPage() {
   ];
 
 	return (
-		<div style={{ width:'80%', margin: '3rem auto'}}>
+		<div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ width:'80%', margin: '3rem auto'}}>
 			<div style={{ textAlign: 'center', paddingTop: '38px' }}>
 				<h1>{t('Images.listTitle')}</h1>
 			</div>

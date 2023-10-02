@@ -6,9 +6,10 @@ import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY, CouponType, UseWithSale } from '../../utils/Const';
 import { dateFormatYMD } from '../../utils/CommonFunction'
 import { COUPON_SERVER, MAIL_SERVER, USER_SERVER, PRODUCT_SERVER } from '../../Config.js'
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -21,13 +22,9 @@ const sale = UseWithSale;
 const formItemLayout = {
   labelCol: {
     span: 6
-    // xs: { span: 24 },
-    // sm: { span: 8 },
   },
   wrapperCol: {
     span: 14
-    // xs: { span: 24 },
-    // sm: { span: 16 },
   },
 };
 const tailFormItemLayout = {
@@ -59,10 +56,17 @@ function CouponBirthRegisterPage() {
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
-		i18n.changeLanguage(isLanguage);
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
     // 사용자 정보가져오기
     getUsers();
-  }, [])
+  }, [isLanguage])
 
   // Landing pageへ戻る
   const listHandler = () => {
@@ -254,7 +258,7 @@ function CouponBirthRegisterPage() {
       {props => {
         const { isSubmitting, handleBlur, handleSubmit, } = props;
         return (
-          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+          <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>{t('Coupon.birthRegTitle')}</h1>
             </div>

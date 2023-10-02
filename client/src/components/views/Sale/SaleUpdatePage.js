@@ -8,7 +8,7 @@ import { SALE_SERVER, MAIL_SERVER, PRODUCT_SERVER } from '../../Config.js';
 import schedule from 'node-schedule';
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -69,13 +69,17 @@ function SaleUpdatePage(props) {
   const {t, i18n} = useTranslation();
   
   useEffect(() => {
-    // 다국적언어
-    i18n.changeLanguage(isLanguage);
-    // Query string에서 세일ID 가져오기
-    const saleId = props.match.params.saleId;
-     // 세일정보 가져오기
-    getSale(saleId);
-  }, [])
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
+    
+    // 세일정보 가져오기
+    getSale(props.match.params.saleId);
+  }, [isLanguage])
 
   // 세일정보 가져오기
   const getSale = async (saleId) => {
@@ -351,7 +355,7 @@ function SaleUpdatePage(props) {
       {props => {
         const { isSubmitting, handleSubmit, } = props;
         return (
-          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+          <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>{t('Sale.updateTitle')}</h1>
             </div>

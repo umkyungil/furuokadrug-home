@@ -3,9 +3,10 @@ import WechatInfo from './Sections/WechatInfo'
 import { Row, Col } from 'antd';
 import { PAYMENT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -17,12 +18,17 @@ function WechatDetailPage(props) {
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
-    const wechatId = props.match.params.wechatId;
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
     // 알리페이 정보 취득
-    getWechat(wechatId);
-    // 다국적언어
-    i18n.changeLanguage(isLanguage);
-  }, [])
+    getWechat(props.match.params.wechatId);
+  }, [isLanguage])
 
   // 위쳇 정보 취득
   const getWechat = async (wechatId) => {
@@ -37,7 +43,7 @@ function WechatDetailPage(props) {
   }
 
   return (
-    <div style={{ width:'80%', margin: '3rem auto'}}>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ width:'80%', margin: '3rem auto'}}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Wechat.detailTitle')}</h1>
       </div>

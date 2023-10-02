@@ -5,7 +5,7 @@ import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -20,10 +20,16 @@ function MailHistoryDetailPage(props) {
 
   useEffect(() => {
     // 다국어 설정
-		i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
     // 메일정보 취득
     getMailHistory();
-  }, [])
+  }, [isLanguage])
 
   // 메일정보 취득
   const getMailHistory = async () => {
@@ -52,7 +58,7 @@ function MailHistoryDetailPage(props) {
 
   return (
     <div style={{ width:'100%', padding:'3rem 4rem' }}>
-      <div style={{ display:'flex', justifyContent:'center' }}>
+      <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ textAlign: 'center', paddingTop: '38px' }}>
         <h1>{t('Mail.detailTitle')}</h1>
       </div>
       <br />

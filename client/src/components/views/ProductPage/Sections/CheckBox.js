@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Collapse, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
+
 import { LanguageContext } from '../../../context/LanguageContext';
 import './product.css';
-import { getLanguage } from '../../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../../utils/CommonFunction';
 
 const { Panel } = Collapse;
 
@@ -13,9 +14,14 @@ function CheckBox(props) {
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
-    // 다국적언어 설정
-		i18n.changeLanguage(isLanguage);
-	}, [])
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
+	}, [isLanguage])
 
   const handleToggle = (value) => {
     // 누른 것의 Index를 구하고
@@ -47,7 +53,7 @@ function CheckBox(props) {
   ))
 
   return (
-    <div>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
       <Collapse defaultActiveKey={['0']}>
         <Panel header={t('Product.itemSelection')} key="1">
           {/* 체크박스를 표시 */}

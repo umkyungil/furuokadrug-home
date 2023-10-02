@@ -3,9 +3,10 @@ import { Table } from 'antd';
 import { COUPON_SERVER, USER_SERVER, PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { CouponType, CouponActive, MAIN_CATEGORY, UseWithSale } from '../../utils/Const.js'
+
 import { LanguageContext } from '../../context/LanguageContext.js';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -18,10 +19,17 @@ function CouponHistoryListPage() {
   const {t, i18n} = useTranslation();
 
 	useEffect(() => {
-    i18n.changeLanguage(isLanguage);
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
 		// 쿠폰정보 취득	
 		getHistoryCoupons();
-	}, [])
+	}, [isLanguage])
 
 	const columns = [
 		{
@@ -175,7 +183,7 @@ function CouponHistoryListPage() {
 
 	return (
 		<div style={{ width:'80%', margin: '3rem auto'}}>
-			<div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+			<div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ textAlign: 'center', marginBottom: '2rem' }}>
 				<h1>{t('Coupon.historyTitle')}</h1>
 			</div>
 

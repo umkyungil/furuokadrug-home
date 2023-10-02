@@ -3,9 +3,10 @@ import { Table, Button } from 'antd';
 import SearchFeature from './Sections/SearchFeature';
 import { USER_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -17,11 +18,17 @@ function CouponUserListPage() {
 	const {isLanguage, setIsLanguage} = useContext(LanguageContext);
 
 	useEffect(() => {
-    i18n.changeLanguage(isLanguage);
-		// 사용자정보 취득	
-		let body = {skip: 0, limit: 8}
-		getUsers(body);
-	}, [])
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
+		// 사용자정보 취득
+		getUsers({skip: 0, limit: 8});
+	}, [isLanguage])
 
 	const columns = [
     {
@@ -96,7 +103,7 @@ function CouponUserListPage() {
 	}
 
 	return (
-		<div style={{ maxWidth: '700px', margin: '3rem auto' }}>
+		<div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '3rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('User.listTitle')}</h1>
       </div>

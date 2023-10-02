@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import ReactPlayer from 'react-player'
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 
 // CORS 대책
@@ -39,9 +39,12 @@ function LandingPage() {
 
   useEffect(() => {
     // 다국어 설정
-    const lang = getLanguage(isLanguage);    
+    const lang = getLanguage(isLanguage);
     i18n.changeLanguage(lang);
     setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
 
     // 노출상풍을 가져오기
     getProducts(); // type 1:now on air, type 2:recording, type 3: recommended, type 4: sale
@@ -49,7 +52,7 @@ function LandingPage() {
     getImages(); // visible 0:private, visible:public
     // 포인트 적용율 가져오기
     getPointRate();
-  },[url]);
+  },[url, isLanguage]);
 
   // 빈 객체인 경우 true, 속성이 있는경우 false
   function isEmptyObj(obj)  {

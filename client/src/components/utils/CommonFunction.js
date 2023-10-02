@@ -72,11 +72,22 @@ export const getLanguage = (isLanguage) => {
       localStorage.setItem('i18nextLng', lang);
     }
 
-    console.log("common lang: ", lang);
-
     return lang;
   } else {
-    console.log("common isLanguage: ", isLanguage);
     return isLanguage;
   }
+}
+
+// HTML lang속성 바꾸기
+export const setHtmlLangProps = (lang) => {
+  let htmlLang = '';
+    if (lang === 'jp') {
+      htmlLang = 'ja';
+    } else if (lang === 'cn') {
+      htmlLang = 'zh-cmn-Hans';
+    } else {
+      htmlLang = lang;
+    }
+
+    document.querySelector("html").lang = htmlLang;
 }

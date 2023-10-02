@@ -3,9 +3,10 @@ import { Table } from 'antd';
 import SearchFeature from './Sections/PaypalAdminSearchFeature';
 import { PAYMENT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -18,11 +19,16 @@ function PaypalListAdminPage(props) {
 
   useEffect(() => {
     // 다국어 설정
-    i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
     // 결제 정보 취득
-    let body = {skip: 0, limit: 8}
-    getPaypalInfo(body);
-  }, [])
+    getPaypalInfo({skip: 0, limit: 8});
+  }, [isLanguage])
 
   const columns = [
     {
@@ -111,7 +117,7 @@ function PaypalListAdminPage(props) {
 	}
   
   return (
-    <div style={{ width:'80%', margin: '3rem auto'}}>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ width:'80%', margin: '3rem auto'}}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
         <h1>{t('Paypal.title')}</h1>
       </div>

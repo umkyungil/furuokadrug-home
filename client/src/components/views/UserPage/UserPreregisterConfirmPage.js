@@ -11,7 +11,7 @@ import { MAIL_SERVER, USER_SERVER } from '../../Config';
 import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css'
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -57,14 +57,17 @@ function UserPreregisterConfirmPage(props) {
       history.push("/");
     } else {
       // 다국어 설정
-      const lang = getLanguage(isLanguage);    
+      const lang = getLanguage(isLanguage);
       i18n.changeLanguage(lang);
       setIsLanguage(lang);
+
+      // HTML lang속성 변경
+      setHtmlLangProps(lang);
 
       // 사용자 정보 취득
       getUser(props.match.params.userId);
     }
-  }, [])
+  }, [isLanguage])
 
   // Landing pageへ戻る
   const listHandler = () => {

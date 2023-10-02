@@ -7,9 +7,10 @@ import { MAIN_CATEGORY, SaleType } from '../../utils/Const';
 import { dateFormatYMD } from '../../utils/CommonFunction';
 import { MAIL_SERVER, SALE_SERVER, PRODUCT_SERVER } from '../../Config.js';
 import schedule from 'node-schedule';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -72,8 +73,13 @@ function SaleRegisterPage() {
 
   useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(isLanguage);
-  }, [])
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
+  }, [isLanguage])
 
   // Landing pageへ戻る
   const listHandler = () => {
@@ -479,7 +485,7 @@ function SaleRegisterPage() {
       {props => {
         const { isSubmitting, handleBlur, handleSubmit, } = props;
         return (
-          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+          <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>{t('Sale.regTitle')}</h1>
             </div>

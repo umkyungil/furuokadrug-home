@@ -6,10 +6,10 @@ import { Select, Form, Input, Button, Checkbox } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { getUser } from '../../utils/CommonFunction';
 import { useTranslation } from 'react-i18next';
-import { LanguageContext } from '../../context/LanguageContext';
 import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
+import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -41,10 +41,6 @@ const tailFormItemLayout = {
 };
 
 function UserUpdatePage(props) {
-  const dispatch = useDispatch();
-  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
-  const {t, i18n} = useTranslation();
-
   const [Id, setId] = useState("");
   const [Name, setName] = useState("");
   const [LastName, setLastName] = useState("");
@@ -66,14 +62,24 @@ function UserUpdatePage(props) {
   const [Language, setLanguage] = useState("");
   const [Checked, setChecked] = useState(false);
 
+  const dispatch = useDispatch();
+  const {isLanguage, setIsLanguage} = useContext(LanguageContext);
+  const {t, i18n} = useTranslation();
+
   useEffect(() => {
-    // 다국적언어
-    i18n.changeLanguage(isLanguage);
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
     // query string 가져오기
     const userId = props.match.params.userId;
     // 사용자 정보 가져오기
     getUserInfo(userId);
-  }, [])
+  }, [isLanguage])
 
   // 사용자 정보 취득
   const getUserInfo = async (userId) => {
@@ -264,7 +270,7 @@ function UserUpdatePage(props) {
       {props => {
         const { isSubmitting, handleBlur, handleSubmit, } = props;
         return (
-          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+          <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>{t('User.updateTitle')}</h1>
             </div>

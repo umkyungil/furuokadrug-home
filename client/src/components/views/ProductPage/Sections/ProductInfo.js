@@ -9,7 +9,7 @@ import cookie from 'react-cookies';
 import { LanguageContext } from '../../../context/LanguageContext';
 import { SALE_TAG, NOTICE_TAG, SOLD_OUT_TAG, PRODUCT_VISIBLE_TYPE, ANONYMOUS } from '../../../utils/Const';
 import './product.css';
-import { getLanguage } from '../../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -29,13 +29,18 @@ function ProductInfo(props) {
   const [SoldOutTag, setSoldOutTag] = useState(false);
 
   useEffect(() => {
-    // 다국적언어 설정
-    i18n.changeLanguage(isLanguage);
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
     
     if (props.detail) {
       process();
     }
-	}, [props.detail])
+	}, [props.detail, isLanguage])
 
   const process = async() => {
     try {

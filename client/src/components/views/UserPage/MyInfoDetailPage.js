@@ -3,10 +3,10 @@ import { Row, Col, Button, Descriptions } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { NOTHING, ENGLISH, JAPANESE, CHINESE, I18N_ENGLISH, I18N_CHINESE, I18N_JAPANESE } from '../../utils/Const';
-import { LanguageContext } from '../../context/LanguageContext';
 import { USER_SERVER } from '../../Config';
+import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -20,10 +20,16 @@ function MyInfoDetailPage() {
 
   useEffect(() => {
 		// 다국어 설정
-    i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
     
+    // 메인처리
     process();
-	}, [])
+	}, [isLanguage])
 
   const process = async () => {
     // 사용자정보 가져오기
@@ -88,8 +94,8 @@ function MyInfoDetailPage() {
   
   return (
     <div style={{ width:'100%', padding:'3rem 4rem' }}>
-      <div style={{ textAlign: 'center', paddingTop: '38px' }}>
-        <h1>MyInfo detail</h1>
+      <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ textAlign: 'center', paddingTop: '38px' }}>
+        <h1>{t('MyInfo.detailTitle')}</h1>
       </div>
       <br />
       
@@ -97,7 +103,7 @@ function MyInfoDetailPage() {
       <Row gutter={[16, 16]} >
         <Col lg={32} sm={24}>
           {/* ProductInfo */}
-          <div>
+          <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
             <Descriptions>
               <Descriptions.Item label={t('User.lastName')}>{User.lastName}</Descriptions.Item>
               <Descriptions.Item label={t('User.name')}>{User.name}</Descriptions.Item>

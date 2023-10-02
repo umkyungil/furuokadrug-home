@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { CouponType, CouponActive, MAIN_CATEGORY, UseWithSale } from '../../utils/Const.js'
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -18,10 +18,17 @@ function CouponListPage() {
 	const {t, i18n} = useTranslation();
 
 	useEffect(() => {
-    i18n.changeLanguage(isLanguage);
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
 		// 사용자정보 취득	
 		getCoupons();
-	}, [])
+	}, [isLanguage])
 
 	const columns = [
 		{
@@ -141,7 +148,7 @@ function CouponListPage() {
 
 	return (
 		<div style={{ width:'80%', margin: '3rem auto'}}>
-			<div style={{ textAlign: 'center' }}>
+			<div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ textAlign: 'center' }}>
 				<h1>{t('Coupon.listTitle')}</h1>
 			</div>
 

@@ -1,10 +1,11 @@
 import React, { useEffect, useContext, useState } from 'react';
 import { Button, Form, Input } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { LanguageContext } from '../../context/LanguageContext.js';
 import { CODE_SERVER } from '../../Config.js';
+
+import { LanguageContext } from '../../context/LanguageContext.js';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -25,8 +26,14 @@ function CodeRegisterPage(props) {
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
-		i18n.changeLanguage(isLanguage);
-	}, [])
+		// 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+	}, [isLanguage])
   
   const handleCode = (e) => {
     setCode(e.target.value);
@@ -109,46 +116,41 @@ function CodeRegisterPage(props) {
   }
 
   return (
-    <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '2rem auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
-        <h1>Code registration</h1>
+        <h1>{t('Code.regTitle')}</h1>
       </div>
 
       <Form name="code" labelCol={{ span: 8}} wrapperCol={{ span: 16 }} style={{ maxWidth: 600 }} onSubmit={handleSubmit} >
-        <Form.Item label="Code" name="code" required >
+        <Form.Item label={t('Code.code')} name="code" required >
           <Input onChange={handleCode} required />
         </Form.Item>
-        <Form.Item label="Name" name="name" required >
+        <Form.Item label={t('Code.name')} name="name" required >
           <Input onChange={handleName} required />
         </Form.Item>
-        <Form.Item label="Value1" name="value1" required >
+        <Form.Item label={t('Code.value1')} name="value1" required >
           <Input onChange={handleValue1} required />
         </Form.Item>
-        <Form.Item label="Value2" name="value2" >
+        <Form.Item label={t('Code.value2')} name="value2" >
           <Input onChange={handleValue2} />
         </Form.Item>
-        <Form.Item label="Value3" name="value3" >
+        <Form.Item label={t('Code.value3')} name="value3" >
           <Input onChange={handleValue3} />
         </Form.Item>
-        <Form.Item label="Value4" name="value4" >
+        <Form.Item label={t('Code.value4')} name="value4" >
           <Input onChange={handleValue4} />
         </Form.Item>
-        <Form.Item label="Value5" name="value5" >
+        <Form.Item label={t('Code.value5')} name="value5" >
           <Input onChange={handleValue5} />
         </Form.Item>
-        <Form.Item label="Value6" name="value6" >
+        <Form.Item label={t('Code.value6')} name="value6" >
           <Input onChange={handleValue6} />
         </Form.Item>
-        <Form.Item label="Value7" name="value7" >
+        <Form.Item label={t('Code.value7')} name="value7" >
           <Input onChange={handleValue7} />
         </Form.Item>
 
-        <Form.Item
-          wrapperCol={{
-            offset: 8,
-            span: 16,
-          }}
-        >
+        <Form.Item wrapperCol={{ offset: 8, span: 16 }} >
           <Button onClick={listHandler}>
             Code list
           </Button>

@@ -6,9 +6,10 @@ import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY, CouponType, CouponActive, UseWithSale } from '../../utils/Const';
 import { COUPON_SERVER, MAIL_SERVER, PRODUCT_SERVER, USER_SERVER } from '../../Config.js';
 import schedule from 'node-schedule'
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -23,13 +24,9 @@ const withSale = UseWithSale;
 const formItemLayout = {
   labelCol: {
     span: 6
-    // xs: { span: 24 },
-    // sm: { span: 8 },
   },
   wrapperCol: {
     span: 14
-    // xs: { span: 24 },
-    // sm: { span: 16 },
   },
 };
 const tailFormItemLayout = {
@@ -68,10 +65,17 @@ function CouponUpdatePage(props) {
   const {t, i18n} = useTranslation();
   
   useEffect(() => {
-    i18n.changeLanguage(isLanguage);
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
      // 쿠폰정보 가져오기
     getCoupon(props.match.params.couponId);
-  }, [])
+  }, [isLanguage])
 
   // 쿠폰정보 가져오기
   const getCoupon = async (couponId) => {
@@ -309,7 +313,7 @@ function CouponUpdatePage(props) {
       {props => {
         const { isSubmitting, handleSubmit, } = props;
         return (
-          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+          <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>{t('Coupon.updateTitle')}</h1>
             </div>

@@ -5,7 +5,7 @@ import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext.js';
 import '../ProductPage/Sections/product.css'
-import { getLanguage } from '../../utils/CommonFunction.js';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction.js';
 
 // CORS 대책
 import axios from 'axios';
@@ -57,10 +57,13 @@ function VirtualReservationPage(props) {
 
   useEffect(() => {
     // 다국어 설정
-    const lang = getLanguage(isLanguage);    
+    const lang = getLanguage(isLanguage);
     i18n.changeLanguage(lang);
     setIsLanguage(lang);
-  }, [])
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+  }, [isLanguage])
   
   const body = {
     name: Name,

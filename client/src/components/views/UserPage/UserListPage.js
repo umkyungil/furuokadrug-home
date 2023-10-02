@@ -6,7 +6,7 @@ import { ENGLISH, CHINESE, JAPANESE, NOTHING, I18N_ENGLISH, I18N_JAPANESE, I18N_
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -19,11 +19,16 @@ function UserListPage() {
 
 	useEffect(() => {
 		// 다국어 설정
-    i18n.changeLanguage(isLanguage);
-		// 사용자정보 취득	
-		let body = {skip: 0, limit: 8}
-		getUsers(body);
-	}, [])
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
+
+		// 사용자정보 취득
+		getUsers({skip: 0, limit: 8});
+	}, [isLanguage])
 
 	// 사용자 정보 가져오기
 	const getUsers = async (body) => {
@@ -154,7 +159,7 @@ function UserListPage() {
 
 	return (
 		<div style={{ width:'80%', margin: '3rem auto'}}>
-			<div style={{ textAlign: 'center', paddingTop: '38px' }}>
+			<div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ textAlign: 'center', paddingTop: '38px' }}>
 				<h1>{t('User.listTitle')}</h1>
 			</div>
 
@@ -165,7 +170,7 @@ function UserListPage() {
 			</div>
 			{/* Search */}
 
-			<Table columns={columns} dataSource={Users} />
+			<Table className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} columns={columns} dataSource={Users} />
 		</div>	
 	)
 }

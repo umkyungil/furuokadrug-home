@@ -3,9 +3,10 @@ import { useHistory } from 'react-router-dom';
 import { Button, Descriptions } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { CODE_SERVER } from '../../Config';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -20,10 +21,16 @@ function CodeDetailPage(props) {
 
   useEffect(() => {
     // 다국어 설정
-    i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
     // 코드정보 가져오기
     getCode(codeId);
-  }, [])
+  }, [isLanguage])
   
   // 코드정보 가져오기
   const getCode = async (codeId) => {
@@ -54,7 +61,7 @@ function CodeDetailPage(props) {
   }
 
   return (
-    <div style={{ width:'100%', padding:'3rem 4rem' }}>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ width:'100%', padding:'3rem 4rem' }}>
       <div style={{ textAlign: 'center', paddingTop: '38px' }}>
         <h1>{t('Code.detailTitle')}</h1>
       </div>
@@ -62,7 +69,7 @@ function CodeDetailPage(props) {
 
       <div>
         <Descriptions>
-          <Descriptions.Item label={t('Code.name')}>{Code.name}</Descriptions.Item>
+          <Descriptions.Item label={t('Code.description')}>{Code.name}</Descriptions.Item>
           <Descriptions.Item label={t('Code.code')}>{Code.code}</Descriptions.Item>
           <Descriptions.Item label={t('Code.value1')}>{Code.value1}</Descriptions.Item>
           <Descriptions.Item label={t('Code.value2')}>{Code.value2}</Descriptions.Item>

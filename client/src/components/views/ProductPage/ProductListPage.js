@@ -6,9 +6,10 @@ import { PRODUCT_SERVER, SALE_SERVER } from '../../Config.js';
 import { I18N_JAPANESE, I18N_CHINESE, SaleType, PRODUCT_LIST_CATEGORY, PRODUCT_VISIBLE_TYPE, SALE_TAG, NOTICE_TAG } from '../../utils/Const';
 import { useTranslation } from 'react-i18next';
 import cookie from 'react-cookies';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import './Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -41,42 +42,22 @@ function ProductListPage(props) {
   const {t, i18n} = useTranslation();
 
 	useEffect(() => {
-		// 다국적언어 설정
-		getLanguage();
+		// 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
 		// 스크롤을 Top으로 이동시킨다
 		scrollToTop();
 		// 메인처리
 		process();
-	}, [props.match.params.type, props.match.params.category, props.match.params.searchTerm])
+
+	}, [props.match.params.type, props.match.params.category, props.match.params.searchTerm, isLanguage])
 
 	const scrollToTop = () => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   };
-
-	const getLanguage = () => {
-    if (!isLanguage || isLanguage === "") {
-      let lan = localStorage.getItem("i18nextLng");
-      
-      if (lan) {
-        if (lan === 'ja-JP') {
-          lan = "en";
-          localStorage.setItem('i18nextLng', lan);
-          i18n.changeLanguage(lan);
-        } else {
-          i18n.changeLanguage(lan);
-        }
-      } else {
-        lan = "en";
-        localStorage.setItem('i18nextLng', lan);
-        i18n.changeLanguage(lan);
-      }
-
-      setIsLanguage(lan);
-
-    } else {
-			i18n.changeLanguage(isLanguage);	
-		}
-  }
 
 	// 메인 처리(프로세스)
 	const process = async () => {
@@ -447,7 +428,7 @@ function ProductListPage(props) {
 	return (
 		<div style={{ width:'75%', margin:'3rem auto' }}>
 			{isLanguage === "cn" && 
-				<div className='lanCP' style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
+				<div className='lanCN' style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
 					<h1>{t('Product.listTitle')}</h1>
 				</div>
       }

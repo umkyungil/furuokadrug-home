@@ -10,7 +10,7 @@ import { MAIL_SERVER } from '../../Config';
 import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction.js';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction.js';
 
 // CORS 대책
 import axios from 'axios';
@@ -47,10 +47,13 @@ function UserPreregisterPage(props) {
 
   useEffect(() => {
 		// 다국어 설정
-    const lang = getLanguage(isLanguage);    
+    const lang = getLanguage(isLanguage);
     i18n.changeLanguage(lang);
     setIsLanguage(lang);
-  }, [])
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+  }, [isLanguage])
 
   // 언어 설정
   const selectHandler = (value) => {

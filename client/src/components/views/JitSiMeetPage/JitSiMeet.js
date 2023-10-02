@@ -3,9 +3,10 @@ import { USER_SERVER } from '../../Config';
 import { useHistory } from 'react-router-dom';
 import { Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -20,7 +21,12 @@ function JitSiMeet() {
   
   React.useEffect(() => {
     // 다국어 설정
-    i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
     
     // 사용자정보 취득
     if (localStorage.getItem("userId")) {
@@ -29,7 +35,7 @@ function JitSiMeet() {
       alert("Please login");
       history.push("/login");
     }
-  }, [])
+  }, [isLanguage])
 
   // 사용자 정보 취득
   async function getUserInfo(userId) {
@@ -70,7 +76,7 @@ function JitSiMeet() {
   }
 
   return (
-    <div>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
       <Modal
         title={t('Modal.title')}
         visible={Visible}

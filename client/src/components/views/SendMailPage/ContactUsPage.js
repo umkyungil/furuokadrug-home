@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import Footer from '../Footer/Footer';
 import { LanguageContext } from '../../context/LanguageContext.js';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -44,10 +44,13 @@ function ContactUsPage() {
 
   useEffect(() => {
     // 다국어 설정
-    const lang = getLanguage(isLanguage);    
+    const lang = getLanguage(isLanguage);
     i18n.changeLanguage(lang);
     setIsLanguage(lang);
-  }, [])
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+  }, [isLanguage])
 
   // 메일 송신
   const sendEmail = async (e) => { 

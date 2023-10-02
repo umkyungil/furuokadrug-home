@@ -2,9 +2,10 @@ import React, { useEffect, useContext } from 'react';
 import { Button, Descriptions } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+
 import { LanguageContext } from '../../../context/LanguageContext';
 import '../../ProductPage/Sections/product.css';
-import { getLanguage } from '../../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../../utils/CommonFunction';
 
 function MailHistoryInfo(props) {
   const history = useHistory();
@@ -13,8 +14,13 @@ function MailHistoryInfo(props) {
 
   useEffect(() => {
     // 다국어 설정
-		i18n.changeLanguage(isLanguage);
-  }, [])
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+  }, [isLanguage])
 
   // 메일 이력리스트 화면에 이동
   const listHandler = () => {
@@ -29,7 +35,7 @@ function MailHistoryInfo(props) {
   }
 	
   return (
-    <div>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} >
       <Descriptions>
         <Descriptions.Item label={t('Mail.type')}>{props.detail.type}</Descriptions.Item>
         <Descriptions.Item label={t('Mail.mailId')}>{props.detail._id}</Descriptions.Item>

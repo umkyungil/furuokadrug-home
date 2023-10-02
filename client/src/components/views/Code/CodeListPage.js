@@ -3,9 +3,10 @@ import { Table } from 'antd';
 import { CODE_SERVER } from '../../Config';
 import { getLocalTime } from '../../utils/CommonFunction';
 import { useTranslation } from 'react-i18next';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 
 // CORS 대책
@@ -19,10 +20,16 @@ function CodeListPage() {
 
 	useEffect(() => {
 		// 다국어 설정
-    i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
+
 		// 코드정보 가져오기
 		getCode();
-	}, [])
+	}, [isLanguage])
 
 	// 코드정보 가져오기
 	const getCode = async () => {
@@ -114,7 +121,7 @@ function CodeListPage() {
       key: 'code'
     },
 		{
-      title: t('Code.name'),
+      title: t('Code.description'),
       dataIndex: 'name',
       key: 'name'
     },
@@ -171,7 +178,7 @@ function CodeListPage() {
   ];
 
 	return (
-		<div style={{ width:'80%', margin: '3rem auto'}}>
+		<div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ width:'80%', margin: '3rem auto'}}>
 			<div style={{ textAlign: 'center', paddingTop: '38px' }}>
 				<h1>{t('Code.listTitle')}</h1>
 			</div>

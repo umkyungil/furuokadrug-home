@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Collapse, Radio } from 'antd';
 import { useTranslation } from 'react-i18next';
+
 import { LanguageContext } from '../../../context/LanguageContext';
 import './product.css';
-import { getLanguage } from '../../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../../utils/CommonFunction';
 
 const { Panel } = Collapse;
 
@@ -13,9 +14,14 @@ function RadioBox(props) {
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
-    // 다국적언어 설정
-		i18n.changeLanguage(isLanguage);
-	}, [])
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
+	}, [isLanguage])
 
    // props.list && : props.list가 있으면 그 이후의 처리를 한다
   const renderRadioBoxLists = () => props.list && props.list.map((value) => (
@@ -29,7 +35,7 @@ function RadioBox(props) {
   }
 
   return (
-    <div>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
       <Collapse defaultActiveKey={['0']}>
         <Panel header={t('Product.priceSelection')} key="1">
           {/* Radio Group으로 해야 하나만 선택이 된다 */}

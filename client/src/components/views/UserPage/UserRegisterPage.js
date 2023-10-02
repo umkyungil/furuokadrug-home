@@ -11,7 +11,7 @@ import { MAIL_SERVER } from '../../Config';
 import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -48,8 +48,13 @@ function UserRegisterPage(props) {
 
   useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(isLanguage);
-  }, [])
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+  }, [isLanguage])
 
   // Landing pageへ戻る
   const listHandler = () => {
@@ -198,7 +203,7 @@ function UserRegisterPage(props) {
       {props => {
         const { values, touched, errors, isSubmitting, handleChange, handleBlur, handleSubmit, } = props;
         return (
-          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+          <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>{t('User.regTitle')}</h1>
             </div>

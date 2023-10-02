@@ -5,11 +5,12 @@ import { useDispatch } from "react-redux";
 import { Select, Form, Input, Button } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LanguageContext } from '../../context/LanguageContext';
 import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
 import { USER_SERVER } from '../../Config';
+
+import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -67,11 +68,17 @@ function MyInfoUpdatePage(props) {
   const [Checked, setChecked] = useState(false);
 
   useEffect(() => {
-    // 다국적언어
-    i18n.changeLanguage(isLanguage);
+    // 다국어 설정
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
+
     // 사용자 정보 가져오기
     getUserInfo();
-  }, [])
+  }, [isLanguage])
 
   // 사용자 정보 취득
   const getUserInfo = async (userId) => {
@@ -243,7 +250,7 @@ function MyInfoUpdatePage(props) {
       {props => {
         const { isSubmitting, handleBlur, handleSubmit, } = props;
         return (
-          <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+          <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ maxWidth: '700px', margin: '2rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
               <h1>MyInfo update</h1>
             </div>

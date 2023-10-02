@@ -3,9 +3,10 @@ import { Table } from 'antd';
 import { SALE_SERVER, PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { SaleType, MAIN_CATEGORY } from '../../utils/Const.js'
+
 import { LanguageContext } from '../../context/LanguageContext.js';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -18,10 +19,16 @@ function SaleListPage() {
 
 	useEffect(() => {
 		// 다국어 설정
-    i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
+
 		// 세일정보 취득	
 		getSales();
-	}, [])
+	}, [isLanguage])
 
 	// 세일정보 취득
 	const getSales = async () => {
@@ -172,7 +179,7 @@ function SaleListPage() {
   ];
 
 	return (
-		<div style={{ width:'80%', margin: '3rem auto'}}>
+		<div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ width:'80%', margin: '3rem auto'}}>
 			<div style={{ textAlign: 'center', paddingTop: '38px' }}>
 				<h1>{t('Sale.listTitle')}</h1>
 			</div>

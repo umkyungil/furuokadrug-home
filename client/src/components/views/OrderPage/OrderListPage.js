@@ -5,9 +5,10 @@ import { ORDER_SERVER, USER_SERVER } from '../../Config.js';
 import { UNIDENTIFIED, DeliveryCompleted } from '../../utils/Const.js';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -25,7 +26,12 @@ function OrderListPage(props) {
 	
 	useEffect(() => {
 		// 다국어 설정
-		i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
 
 		// 사용자 ID 취득
 		let userId = "";
@@ -45,18 +51,11 @@ function OrderListPage(props) {
 			getOrderPaymentStatus(paramOrderId);
 		}
 
-		// Order정보 취득갯수 설정
-		let body = {
-			skip: 0,
-			limit: 8,
-			id: userId,
-			mode: Mode, // 스텝권한의 사용자가 처음 검색시 스텝이 담당한 사용자만 검색하기 위한 구분자(초기페이지만 자신이 담당한 사용자정보를 표시)
-		}
-		
+		// Mode: 스텝권한의 사용자가 처음 검색시 스텝이 담당한 사용자만 검색하기 위한 구분자(초기페이지만 자신이 담당한 사용자정보를 표시)
 		// Order정보 취득
-		getOrderInfo(body);
+		getOrderInfo({ skip: 0,	limit: 8, id: userId, mode: Mode });
 
-	}, [DeliveryStatusChange])
+	}, [DeliveryStatusChange, isLanguage])
 
 	// 사용자정보 가지고 오기
 	const getUserInfo = async (userId) => {
@@ -255,7 +254,7 @@ function OrderListPage(props) {
 	}
 	
 	return (
-		<div style={{ width:'80%', margin: '3rem auto'}}>
+		<div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ width:'80%', margin: '3rem auto'}}>
 			<div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
 				<h1>{t('Order.listTitle')}</h1>
 			</div>

@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../../context/LanguageContext';
 import '../../ProductPage/Sections/product.css';
-import { getLanguage } from '../../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../../utils/CommonFunction';
 
 function AlipayInfo(props) {
   const history = useHistory();
@@ -13,8 +13,13 @@ function AlipayInfo(props) {
 
   useEffect(() => {
     // 다국어 설정
-    i18n.changeLanguage(isLanguage);
-	}, [])
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+		// HTML lang속성 변경
+    setHtmlLangProps(lang);
+	}, [isLanguage])
 
   // 리스트 이동
   const listHandler = () => {
@@ -69,7 +74,7 @@ function AlipayInfo(props) {
   }
 
   return (
-    <div>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
       <Descriptions>
         <Descriptions.Item label={t('Alipay.type')}>Alipay決済</Descriptions.Item>
         <Descriptions.Item label={t('Alipay.paymentNumber')}>{props.detail.pid}</Descriptions.Item>

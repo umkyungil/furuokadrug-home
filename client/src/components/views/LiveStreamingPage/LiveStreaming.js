@@ -6,7 +6,7 @@ import { Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
-import { getLanguage } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -22,7 +22,12 @@ function LiveStreaming() {
   
   useEffect(() => {
     // 다국어 설정
-    i18n.changeLanguage(isLanguage);
+    const lang = getLanguage(isLanguage);
+    i18n.changeLanguage(lang);
+    setIsLanguage(lang);
+
+    // HTML lang속성 변경
+    setHtmlLangProps(lang);
     
     // 사용자정보 취득
     if (localStorage.getItem("userId")) {
@@ -65,7 +70,7 @@ function LiveStreaming() {
         history.push("/");
       }
     })
-  }, [])
+  }, [isLanguage])
 
   // 토큰 유효기간 연장
   const updateTokenExp = async () => {
@@ -161,7 +166,7 @@ function LiveStreaming() {
   }
 
   return (
-    <div>
+    <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
       <Modal
         title={t('Modal.title')}
         visible={ShowModal}

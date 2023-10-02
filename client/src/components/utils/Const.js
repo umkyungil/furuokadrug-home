@@ -111,3 +111,4 @@ export const VIDEO_CN = "video_cn";
 export const VIDEO_EN = "video_en";
 
 export const ANONYMOUS = "Anonymous";
+export const ADMIN_EMAIL = "umkyungil@hirosophy.co.jp"
