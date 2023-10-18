@@ -1,9 +1,11 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import { Table } from 'antd';
 import { PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE } from '../../utils/Const.js'
 import { getLocalTime } from '../../utils/CommonFunction.js';
+import SearchFeatureAdmin from './Sections/SearchFeatureAdmin';
+import { useHistory } from 'react-router-dom';
 
 import { LanguageContext } from '../../context/LanguageContext.js';
 import './Sections/product.css';
@@ -14,6 +16,14 @@ import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 function ProductListAdminPage() {
+	const history = useHistory();
+
+	const skipRef = useRef(0);
+	const typeRef = useRef(0);
+	const categoryRef = useRef(0);
+	const newSearchTermRef = useRef("");
+	const limitCount = 20;
+
 	const [Products, setProducts] = useState([]);
 	const {isLanguage, setIsLanguage} = useContext(LanguageContext);
 	const {t, i18n} = useTranslation();
@@ -79,6 +89,18 @@ function ProductListAdminPage() {
 		}
 	}
 
+	const getProductsByTypeForAdmin = async (body) => {
+		try {
+			const response = await axios.post(`${PRODUCT_SERVER}/products_by_type_for_admin`, body);
+			const products = response.data;
+										
+			setProducts(products.productInfos);
+		} catch (err) {
+			console.log("err: ", err);
+			alert("Please contact the administrator");
+		}
+	}
+
 
 	const columns = [
 		{
@@ -117,10 +139,35 @@ function ProductListAdminPage() {
 		},
   ];
 
+	// 상품의 태그정보 검색
+	const tagSearchTerm = async (newSearchTerm) => {
+		if (localStorage.getItem("userId")) {
+			let userId = localStorage.getItem("userId");
+			let body = { 
+				searchTerm: newSearchTerm, 
+				id: userId
+			}
+
+			// 화면 노출타입 검색 (3: Sale, 4: Recommend)
+			typeRef.current = Number(newSearchTerm);
+			// 상품 가져오기
+			await getProductsByTypeForAdmin({ type: typeRef.current });
+		
+		} else {
+			alert("Please login");
+			history.push("/login");
+		}
+	}
+
 	return (
 		<div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'} style={{ width:'80%', margin: '3rem auto'}}>
 			<div style={{ textAlign: 'center', paddingTop: '38px' }}>
 				<h1>{t('Product.listAdminTitle')}</h1>
+			</div>
+
+			{/* Search */}
+			<div style={{ display:'flex', justifyContent:'flex-end', margin:'1rem auto' }}>
+				<SearchFeatureAdmin refreshFunction={tagSearchTerm} />
 			</div>
 
 			<Table columns={columns} dataSource={Products} />

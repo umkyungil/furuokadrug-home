@@ -265,6 +265,26 @@ router.post('/products_by_type', async (req, res) => {
   }
 })
 
+// Product list page 에서 조건별 상품가져오기 
+// type:1 now on airt, type:2 recording, type:3 추천상품, type:4 세일상품
+router.post('/products_by_type_for_admin', async (req, res) => {
+  try {
+    const type = req.body.type;
+    let products = "";
+
+    if (type === 0) {
+      products = await Product.find().sort({"englishTitle": 1, "price": 1});
+    } else {
+      products = await Product.find({exposureType: {$in: type}}).sort({"englishTitle": 1, "price": 1});
+    }
+    
+    return res.status(200).json({ success: true, productInfos: products });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+})
+
 // Landing page 
 // type:1 now on airt, type:2 recording, type:3 추천상품, type:4 세일상품
 router.get('/all_products_by_type', async (req, res) => {

@@ -4,6 +4,7 @@ import { LIVE_SERVER, MAIL_SERVER, USER_SERVER, SID } from '../../Config';
 import { useHistory } from 'react-router-dom';
 import { Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
+
 import { LanguageContext } from '../../context/LanguageContext';
 import '../ProductPage/Sections/product.css';
 import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';

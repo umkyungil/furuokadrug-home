@@ -258,8 +258,7 @@ function OrderListPage(props) {
 			<div style={{ textAlign: 'center', marginBottom: '2rem', paddingTop: '38px' }}>
 				<h1>{t('Order.listTitle')}</h1>
 			</div>
-
-			{/* Filter */}
+			
 			{/* Search */}
 			<div style={{ display:'flex', justifyContent:'flex-end', margin:'1rem auto' }}>
 				<SearchFeature refreshFunction={updateSearchTerm} />

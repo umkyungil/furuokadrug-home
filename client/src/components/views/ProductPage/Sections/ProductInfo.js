@@ -104,6 +104,8 @@ function ProductInfo(props) {
   // 카트 넣기
   const cartHandler = async () => {
     try {
+      console.log("SoldOutTag: ", SoldOutTag);
+
       // 재고가 없으면 구매를 하지 못하게 한다
       if (SoldOutTag) {
         alert("This product is out of stock");
@@ -252,7 +254,7 @@ function ProductInfo(props) {
   // 로그인 후
   if (User.hasOwnProperty("_id") && cookie.load('w_auth')) {
     return (
-      <div>
+      <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
         <Descriptions>
           <Descriptions.Item label={t('Product.price')}>{Number(props.detail.price).toLocaleString()}</Descriptions.Item>
           <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
@@ -271,7 +273,7 @@ function ProductInfo(props) {
 
         <Collapse defaultActiveKey={['0']}>
           <Panel header={t('Product.description')}>
-            <Descriptions className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
+            <Descriptions>
               <Descriptions.Item>{props.detail.description}</Descriptions.Item>
             </Descriptions>
           </Panel>
@@ -312,7 +314,7 @@ function ProductInfo(props) {
   // 로그인 전
   } else {
     return (
-      <div>
+      <div className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
         <Descriptions>
           <Descriptions.Item label={t('Product.price')}>{Number(props.detail.price).toLocaleString()}</Descriptions.Item>
           <Descriptions.Item label={t('Product.contents')}>{props.detail.contents}</Descriptions.Item>
@@ -325,7 +327,7 @@ function ProductInfo(props) {
         
         <Collapse defaultActiveKey={['0']}>
           <Panel header={t('Product.description')}>
-            <Descriptions className={isLanguage === "cn" ? 'lanCN' : 'lanJP'}>
+            <Descriptions>
               <Descriptions.Item>{props.detail.description}</Descriptions.Item>
             </Descriptions>
           </Panel>
