@@ -6,8 +6,7 @@ import { IMAGES_VISIBLE_ITEM, IMAGES_TYPE, IMAGES_LANGUAGE, I18N_JAPANESE } from
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -80,11 +79,11 @@ function ImagesRegisterPage(props) {
 
     // 유효성 체크
     if (Images.length < 1) {
-      alert("Image is required");
+      alert(getMessage(getLanguage(), 'key125'));
       return false; 
     }
     if (Images.length > 1) {
-      alert("Only one image can be registered\nClick on the image you want to delete to delete it");
+      alert(getMessage(getLanguage(), 'key126'));
       return false; 
     }
     // 노출하려는 이미지가 이미 등록되어 있는지
@@ -97,7 +96,7 @@ function ImagesRegisterPage(props) {
     }
     // 노출하려는 이미지가 이미 등록되어 있는경우
     if (isExists) {
-      alert("Images is already registered");
+      alert(getMessage(getLanguage(), 'key127'));
       return false;
     }
 
@@ -110,11 +109,11 @@ function ImagesRegisterPage(props) {
     
     const result = await axios.post(`${IMAGES_SERVER}/register`, body);
     if (result.data.success) {
-      alert('Images upload was successful');
+      alert(getMessage(getLanguage(), 'key102'));
       // 배너리스트 화면에 이동
       props.history.push('/images/list')
     } else {
-      alert('Please contact the administrator');
+      alert(getMessage(getLanguage(), 'key001'));
     }
   }
 

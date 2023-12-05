@@ -5,8 +5,7 @@ import { COUPON_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { CouponType, CouponActive, MAIN_CATEGORY, UseWithSale } from '../../utils/Const.js'
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -142,7 +141,7 @@ function CouponListPage() {
 				setCoupons([...data]);
 			}
 		} catch (err) {
-			console.log("getCoupons err: ",err);
+			console.log("CouponListPage getCoupons err: ",err);
 		}
 	}
 

@@ -4,8 +4,7 @@ import { Form, Input, Button } from 'antd';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext.js';
-import '../ProductPage/Sections/product.css'
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction.js';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction.js';
 
 // CORS 대책
 import axios from 'axios';
@@ -81,14 +80,14 @@ function VirtualReservationPage(props) {
     try {
       const result = await axios.post(`${MAIL_SERVER}/reserve`, body);
       if (result.data.success) {
-        alert("Your virtual reservation has been received");
+        alert(getMessage(getLanguage(), 'key024'));
       } else {
-        alert("Please try again after a while");
+        alert(getMessage(getLanguage(), 'key019'));
       }
       _history.push("/");
     } catch(err) {
-      console.log("VirtualReservationPage err: ", err);
-      alert("Please try again after a while");
+      console.log("VirtualReservationPage sendEmail err: ", err);
+      alert(getMessage(getLanguage(), 'key019'));
       _history.push("/");
     }
   }

@@ -4,6 +4,7 @@ import { USER_SERVER, ORDER_SERVER, PAYMENT_SERVER, UPC_PAYMENT, CODE_SERVER } f
 import { NOT_SET, EC_SYSTEM, UNIDENTIFIED, ANONYMOUS } from '../../utils/Const.js';
 import cookie from 'react-cookies';
 import { useHistory } from 'react-router-dom';
+import { getLanguage, getMessage } from '../../utils/CommonFunction.js'
 
 // CORS 대책
 import axios from 'axios';
@@ -219,12 +220,12 @@ function AlipayConfirmPage(props) {
           staffNameRef.current = NOT_SET;
         }
       } else {
-        alert("Please contact the administrator");
+        alert(getMessage(getLanguage(), 'key001'));
         history.push("/");
       }
     } catch (err) {
-      console.log("err: ", err);
-      alert("Please contact the administrator");
+      console.log("AlipayConfirmPage getUserInfo err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
       history.push("/");
     }
   }
@@ -244,12 +245,12 @@ function AlipayConfirmPage(props) {
           staffNameRef.current = UNIDENTIFIED;
         }
       } else {
-        alert("Please contact the administrator");
+        alert(getMessage(getLanguage(), 'key001'));
         return false;
       }
     } catch (err) {
-      console.log("err: ", err);
-      alert("Please contact the administrator");
+      console.log("AlipayConfirmPage getStaffInfo err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
       return false;
     }
   }
@@ -273,8 +274,8 @@ function AlipayConfirmPage(props) {
         setCode(arrCodes);
       }
     } catch (err) {
-      alert('Please contact the administrator');
-      console.log("err: ",err);
+      alert(getMessage(getLanguage(), 'key001'));
+      console.log("AlipayConfirmPage getCountry err: ",err);
       history.push("/");
     }
   }
@@ -289,8 +290,8 @@ function AlipayConfirmPage(props) {
         sessionStorage.setItem("pointRate", pointRate.data.codeInfo.value1);
       }
     } catch (err) {
-      alert('Please contact the administrator');
-      console.log("err: ",err);
+      alert(getMessage(getLanguage(), 'key001'));
+      console.log("AlipayConfirmPage getPointRate err: ",err);
       history.push("/");
     }
   }
@@ -355,8 +356,8 @@ function AlipayConfirmPage(props) {
         cookie.remove('w_auth', { path: '/' });
         cookie.remove('w_authExp', { path: '/' });
     } catch (err) {
-        console.log("err: ", err);
-        alert("Please contact the administrator");
+        console.log("AlipayConfirmPage handleLogout err: ", err);
+        alert(getMessage(getLanguage(), 'key001'));
     }
   }
 
@@ -407,22 +408,22 @@ function AlipayConfirmPage(props) {
       if (SelectedAddress === ChangeAddress) {
         // 받는사람
         if (ChangeReceiver === "") {
-          alert("Please enter the recipient's name");
+          alert(getMessage(getLanguage(), 'key009'));
           return false;
         }
         // 전화번호
         if (ChangeTel === "") {
-          alert("Please enter the recipient's phone number");
+          alert(getMessage(getLanguage(), 'key010'));
           return false;
         }
         // 받는사람의 전화번호가 숫자인지
         if (isNaN(ChangeTel)){
-          alert("Please enter only numbers for the recipient's phone number");
+          alert(getMessage(getLanguage(), 'key076'));
           return false;
         }
         // 라디오 선택만 하고 주소값을 대입하지 않은경우
         if (ChangeAddress === "") {
-          alert("Please enter the recipient's address");
+          alert(getMessage(getLanguage(), 'key077'));
           return false;
         }
 
@@ -451,7 +452,7 @@ function AlipayConfirmPage(props) {
           handleLogout();
         }
       } else {
-        alert("Please contact the administrator");
+        alert(getMessage(getLanguage(), 'key001'));
         return false;
       }
 
@@ -503,8 +504,8 @@ function AlipayConfirmPage(props) {
       // window.open(url, "_self");
 
     } catch (err) {
-      console.log("err: ", err);
-      alert("Please contact the administrator");
+      console.log("AlipayConfirmPage sendPaymentInfo err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
     }
   }
 

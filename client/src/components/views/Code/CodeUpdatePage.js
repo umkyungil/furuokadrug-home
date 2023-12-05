@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { CODE_SERVER } from '../../Config';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -59,8 +58,8 @@ function CodeUpdatePage(props) {
       setValue6(codeInfo.data.codeInfo.value6);
       setValue7(codeInfo.data.codeInfo.value7);
     } catch (err) {
-      alert('Please contact the administrator');
-      console.log("err: ",err);
+      alert(getMessage(getLanguage(), 'key001'));
+      console.log("CodeUpdatePage getCode err: ",err);
       listHandler();
     }
   }
@@ -99,11 +98,11 @@ function CodeUpdatePage(props) {
     e.preventDefault();
 
     if (Name === "") {
-      alert("Name is required");
+      alert(getMessage(getLanguage(), 'key023'));
       return false;
     }
     if (Value1 === "") {
-      alert("Date of birth is required");
+      alert(getMessage(getLanguage(), 'key005'));
       return false;
     }
 
@@ -122,18 +121,16 @@ function CodeUpdatePage(props) {
 
     try {
       const result = await axios.post(`${CODE_SERVER}/update`, body);
-      console.log("result: ", result);
-    
       if (result.data.success) {
-        alert('Code update was successful');
+        alert(getMessage(getLanguage(), 'key014'));
         listHandler();
       } else {
-        alert('Please contact the administrator');
+        alert(getMessage(getLanguage(), 'key001'));
         listHandler();
       }
     } catch (err) {
-      console.log("err: ", err);
-      alert('Please contact the administrator');
+      console.log("CodeUpdatePage getCode err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
       listHandler();
     }
   };

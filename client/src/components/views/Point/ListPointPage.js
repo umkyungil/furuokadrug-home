@@ -7,8 +7,7 @@ import { useHistory } from 'react-router-dom';
 import { EXPIRED_CN, EXPIRED_JP, EXPIRED_EN, I18N_ENGLISH, I18N_JAPANESE, I18N_CHINESE } from '../../utils/Const'
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -152,8 +151,8 @@ function ListPointPage(props) {
 				setTotalPoint(totalPoint)
       }     
     } catch (err) {
-      console.log("ListPointPage err: ",err);
-			alert("Failed to get user information.")
+      console.log("ListPointPage getPointInfo err: ",err);
+			alert(getMessage(getLanguage(), 'key070'));
     }
   }
 

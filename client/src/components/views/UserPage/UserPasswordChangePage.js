@@ -6,8 +6,7 @@ import { Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER, USER_SERVER } from '../../Config';
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -70,7 +69,7 @@ function UserPasswordChangePage(props) {
 				return false;
 			}
 		} catch (err) {
-      console.log("getUser err: ", err);
+      console.log("UserPasswordChangePage getUser err: ", err);
 			return false;
 		}
   }
@@ -87,7 +86,7 @@ function UserPasswordChangePage(props) {
       }
       return true;
     } catch(err) {
-      console.log("sendEmail err: ", err);
+      console.log("UserPasswordChangePage sendEmail err: ", err);
       return false;
     }
   }
@@ -99,8 +98,8 @@ function UserPasswordChangePage(props) {
       }}
       validationSchema={Yup.object().shape({
         email: Yup.string()
-          .email('Email is invalid')
-          .required('Email is required'),
+          .email(getMessage(getLanguage(), 'key029'))
+          .required(getMessage(getLanguage(), 'key026')),
       })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
@@ -119,24 +118,24 @@ function UserPasswordChangePage(props) {
                 mailResult.then((res) => {
                   console.log(res);
                   if (res) {
-                    alert("Send mail successfully\nPlease continue to change your password");
+                    alert(getMessage(getLanguage(), 'key016'));
                     history.push("/login");
                   } else {
-                    alert("Please contact the administrator");
+                    alert(getMessage(getLanguage(), 'key001'));
                     history.push("/login");
                   }
                 });
               } else {
-                alert("Please contact the administrator");
+                alert(getMessage(getLanguage(), 'key001'));
                 history.push("/login");
               }
             }).catch(function(err) {
-              console.log("err: ", err);
-              alert("Please contact the administrator");
+              console.log("UserPasswordChangePage getUser err: ", err);
+              alert(getMessage(getLanguage(), 'key001'));
               history.push("/login");
             });
           } catch (err) {
-            console.log("UserListPage err: ",err);
+            console.log("UserPasswordChangePage submit err: ",err);
           }
           setSubmitting(false);
         }, 500);

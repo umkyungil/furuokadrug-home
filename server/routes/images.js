@@ -42,7 +42,7 @@ router.post('/image', async (req, res) => {
       return res.json({ success: true, filePath: res.req.file.location});
     })
   } catch (err) {
-    console.log(err);
+    console.log("Image AWS register err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -54,7 +54,7 @@ router.post('/register', async (req, res) => {
     await imageInfo.save();
     return res.status(200).json({success: true});
   } catch (err) {
-    console.log(err);
+    console.log("Image register err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -65,7 +65,7 @@ router.get("/list", async (req, res) => {
     const imageInfos = await Images.find();
     return res.status(200).json({ success: true, imageInfos });
   } catch (err) {
-    console.log(err);
+    console.log("Image list err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }   
 });
@@ -77,7 +77,7 @@ router.post('/images_by_type', async (req, res) => {
     const imageInfo = await Images.find({ type: req.body.type, visible: req.body.visible, language: req.body.language });
     return res.status(200).json({ success: true, imageInfo });
   } catch (err) {
-    console.log(err);
+    console.log("Image images_by_type err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -88,7 +88,7 @@ router.get('/images_by_id', async (req, res) => {
       const imageInfo = await Images.findOne({ _id: req.query.id });
       return res.status(200).send({success: true, imageInfo});
   } catch (err) {
-      console.log(err);
+      console.log("Image images_by_id err: ", err);
       return res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -105,7 +105,7 @@ router.post("/update", async (req, res) => {
       await imageInfo.save();
       return res.status(200).send({ success: true });
   } catch (err) {
-      console.log(err);
+      console.log("Image update err: ", err);
       return res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -137,7 +137,7 @@ router.post('/delete', async (req, res) => {
     await Images.findOneAndDelete({_id: req.body.id});
     return res.json({success: true});
   } catch (err) {
-    console.log(err);
+    console.log("Image delete err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })

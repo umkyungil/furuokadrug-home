@@ -5,8 +5,7 @@ import { ORDER_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -34,7 +33,7 @@ function OrderDetailPage(props) {
           // 다국적언어 설정
           i18n.changeLanguage(lang);
         } else {
-          alert("Failed to get order information");
+          alert(getMessage(getLanguage(), 'key074'));
         }
       })
   }, [isLanguage])

@@ -7,8 +7,7 @@ import { MAIN_CATEGORY, SaleType, SaleActive } from '../../utils/Const';
 import { SALE_SERVER, MAIL_SERVER, PRODUCT_SERVER } from '../../Config.js';
 import schedule from 'node-schedule';
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -136,11 +135,11 @@ function SaleUpdatePage(props) {
           setProductId(saleInfo.productId);
         }
       } else {
-        alert("Failed to get sale information")
+        alert(getMessage(getLanguage(), 'key067'));
       }      
     } catch (err) {
-      alert("Failed to get sale information")
-      console.log("getSale err: ",err);
+      alert(getMessage(getLanguage(), 'key067'));
+      console.log("SaleUpdatePage getSale err: ",err);
     }
   }
 
@@ -152,8 +151,8 @@ function SaleUpdatePage(props) {
         setProductName(result.data.productInfo[0].title);
       }
     } catch (err) {
-      alert("Failed to get product information")
-      console.log("getProduct err: ",err);
+      alert(getMessage(getLanguage(), 'key048'));
+      console.log("SaleUpdatePage getProduct err: ",err);
     }
   }
 
@@ -164,16 +163,16 @@ function SaleUpdatePage(props) {
       axios.post(`${SALE_SERVER}/delete`, dataToSubmit)
       .then(response => {
         if (response.data.success) {
-          alert('Sale has been deleted');
+          alert(getMessage(getLanguage(), 'key033'));
         } else {
-          alert('Please contact the administrator');
+          alert(getMessage(getLanguage(), 'key001'));
         }
         // 세일리스트 이동
         history.push("/sale/list");
       })
     } catch(err) {
-      console.log("submit err: ", err);
-      alert('Please contact the administrator');
+      console.log("SaleUpdatePage deleteHandler err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
       history.push("/sale/list");
     }
 	}
@@ -223,7 +222,7 @@ function SaleUpdatePage(props) {
     const jtc = new Date(MailBatch);
 
     if (today > jtc) {
-      alert("Mail setup time is in the past");
+      alert(getMessage(getLanguage(), 'key049'));
       return false;
     }
     
@@ -262,7 +261,7 @@ function SaleUpdatePage(props) {
           // 모든 사용자와 관리자에게 메일을 보낸다
           await axios.post(`${MAIL_SERVER}/sale`, body);
         } catch (err) {
-          console.log("Failed to send sale registration mail: ", err);
+          console.log("SaleUpdatePage mailBatch err: ", err);
         }
     })
   }
@@ -304,7 +303,7 @@ function SaleUpdatePage(props) {
         setTimeout(() => {
 
           if (!Active || Active === "") {
-            alert("Please select whether the sale is active or inactive");
+            alert(getMessage(getLanguage(), 'key068'));
             setSubmitting(false);
             return false;
           } 
@@ -334,16 +333,16 @@ function SaleUpdatePage(props) {
                 // 메일 송신
                 sendMail(body);
 
-                alert('Sale has been edited');
+                alert(getMessage(getLanguage(), 'key069'));
               } else {
-                alert('Please contact the administrator');
+                alert(getMessage(getLanguage(), 'key001'));
               }
               // 리스트 페이지로 이동
               history.push("/sale/list");
             })
           } catch(err) {
-            alert('Please contact the administrator');
-            console.log("Sale edit err: ", err);
+            alert(getMessage(getLanguage(), 'key001'));
+            console.log("SaleUpdatePage submit err: ", err);
             // 세일리스트 이동
             history.push("/sale/list");
           }

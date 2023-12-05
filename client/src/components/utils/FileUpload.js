@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Dropzone from 'react-dropzone';
 import { Icon } from 'antd';
 import { PRODUCT_SERVER } from '../Config.js';
+import { getLanguage, getMessage } from '../utils/CommonFunction.js';
 
 // CORS 대책
 import axios from 'axios';
@@ -33,7 +34,7 @@ function FileUpload(props) {
         // 부모 컴포넌트에도 이미지 정보를 전달해서 저장할수 있게한다
         props.refreshFunction([...Images, response.data.filePath]);
       } else {
-        alert('Failed to save file.');
+        alert(getMessage(getLanguage(), 'key097'));
       }
     })
   }

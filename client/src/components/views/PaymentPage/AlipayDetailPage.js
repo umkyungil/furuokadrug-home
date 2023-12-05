@@ -5,8 +5,7 @@ import { PAYMENT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -38,7 +37,7 @@ function AlipayDetailPage(props) {
         setAlipay(result.data.alipay[0]);
       }
     } catch (err) {
-      console.log("AlipayDetailPage err: ",err);
+      console.log("AlipayDetailPage getAlipay err: ",err);
     }
   }
 

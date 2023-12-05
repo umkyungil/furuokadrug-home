@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import cookie from 'react-cookies';
 import { USER_SERVER } from '../components/Config';
 import moment from "moment";
-import { getLocalTime, getServerDate } from '../components/utils/CommonFunction';
+import { getLocalTime, getServerDate, getLanguage, getMessage } from '../components/utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -91,8 +91,8 @@ export default function (SpecificComponent, option, adminRoute = null) {
                     }
                 }
             } catch (err) {
-                console.log("err: ", err);
-                alert("Please contact the administrator")
+                console.log("auth handleChkTokenExp err: ", err);
+                alert(getMessage(getLanguage(), 'key001'));
                 props.history.push('/login')
             }
         }
@@ -127,7 +127,7 @@ export default function (SpecificComponent, option, adminRoute = null) {
                 cookie.remove('w_auth', { path: '/' });
                 cookie.remove('w_authExp', { path: '/' });
             } catch (err) {
-                console.log("err: ", err);
+                console.log("auth handleLogout err: ", err);
             }
         };
 

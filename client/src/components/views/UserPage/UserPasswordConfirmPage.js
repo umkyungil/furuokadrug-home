@@ -8,8 +8,7 @@ import { Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER } from '../../Config';
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -47,7 +46,7 @@ function UserPasswordConfirmPage(props) {
 
   useEffect(() => {
     if (!props.match.params.userId) {
-      alert("Please contact the manager");
+      alert(getMessage(getLanguage(), 'key001'));
       history.push("/");
     } else {
       // 다국어 설정
@@ -80,7 +79,7 @@ function UserPasswordConfirmPage(props) {
       }
       return true;
     } catch(err) {
-      console.log("UserPasswordChangeConfirmPage err: ", err);
+      console.log("UserPasswordChangeConfirmPage sendEmail err: ", err);
       return false;
     }
   }
@@ -93,11 +92,11 @@ function UserPasswordConfirmPage(props) {
       }}
       validationSchema={Yup.object().shape({
         password: Yup.string()
-          .min(6, 'Password must be at least 6 characters')
-          .required('Password is required'),
+          .min(6, getMessage(getLanguage(), 'key031'))
+          .required(getMessage(getLanguage(), 'key027')),
         confirmPassword: Yup.string()
-          .oneOf([Yup.ref('password'), null], 'Passwords must match')
-          .required('Confirm Password is required'),
+          .oneOf([Yup.ref('password'), null], getMessage(getLanguage(), 'key030'))
+          .required(getMessage(getLanguage(), 'key028')),
       })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
@@ -121,20 +120,20 @@ function UserPasswordConfirmPage(props) {
               mailResult.then((res) => {
                 console.log(res);
                 if (res) {
-                  alert("Password change successful\nYou have successfully changed your password");
+                  alert(getMessage(getLanguage(), 'key017'));
                   history.push("/login");
                 } else {
-                  alert("Please contact the administrator");
+                  alert(getMessage(getLanguage(), 'key001'));
                   history.push("/login");
                 }
               });
             } else {
-              alert("Please contact the administrator");
+              alert(getMessage(getLanguage(), 'key001'));
               history.push("/login");
             }
           }).catch( function(err) {
-            console.log("err: ", err);
-            alert("Please contact the administrator");
+            console.log("UserPasswordChangeConfirmPage submit err: ", err);
+            alert(getMessage(getLanguage(), 'key001'));
             history.push("/login");
           })
 

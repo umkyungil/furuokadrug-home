@@ -17,7 +17,7 @@ router.get("/list", async (req, res) => {
                 return res.status(200).send({ success: true, saleInfos });
         })
     } catch (err) {
-        console.log(err);
+        console.log("Sale list err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -46,7 +46,7 @@ router.get("/listOfAvailable", async (req, res) => {
         
         return res.status(200).send({success: true, saleInfos});
     } catch (err) {
-        console.log(err);
+        console.log("Sale listOfAvailable err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -122,7 +122,7 @@ router.post("/exist", async (req, res) => {
         
         return res.status(200).send({success: true, saleInfos});
     } catch (err) {
-        console.log(err);
+        console.log("Sale exist err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -136,7 +136,7 @@ router.post("/register", (req, res) => {
             return res.status(200).json({ success: true });
         });
     } catch (err) {
-        console.log(err);
+        console.log("Sale register err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }   
 });
@@ -152,7 +152,7 @@ router.get('/sales_by_cd', (req, res) => {
             return res.status(200).send({success: true, saleInfo});
         })
     } catch (err) {
-        console.log(err);
+        console.log("Sale sales_by_cd err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -168,7 +168,7 @@ router.get('/sales_by_id', (req, res) => {
             return res.status(200).send({success: true, saleInfo});
         })
     } catch (err) {
-        console.log(err);
+        console.log("Sale sales_by_id err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -185,7 +185,7 @@ router.post("/update", (req, res) => {
             }
         );
     } catch (err) {
-        console.log(err);
+        console.log("Sale update err: ", err);
         return res.status(500).json({ success: false, message: err.message })
     }
 });
@@ -202,7 +202,7 @@ router.post('/delete', (req, res) => {
             if (err) return res.status(400).send(err);
         })
     } catch (err) {
-        console.log(err);
+        console.log("Sale delete err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -216,7 +216,7 @@ router.post("/history/register", (req, res) => {
             return res.status(200).json({ success: true });
         });
     } catch (err) {
-        console.log(err);
+        console.log("Sale history_register err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }   
 });
@@ -232,7 +232,7 @@ router.get("/history/list", (req, res) => {
                 return res.status(200).send({ success: true, saleInfos });
         })
     } catch (err) {
-        console.log(err);
+        console.log("Sale history_list err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }   
 });

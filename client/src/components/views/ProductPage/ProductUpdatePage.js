@@ -6,8 +6,7 @@ import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE } from '../../utils/Const';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import './Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -106,11 +105,11 @@ function ProductUpdatePage(props) {
           setChineseUrl(product.data[0].chineseUrl);
         }
       } else {
-        alert("Please contact the administrator")
+        alert(getMessage(getLanguage(), 'key001'));
       }
     } catch (err) {
-      console.log("err: ",err);
-      alert("Please contact the administrator");
+      console.log("ProductUpdatePage getProduct err: ",err);
+      alert(getMessage(getLanguage(), 'key001'));
     }
   }
 
@@ -189,43 +188,43 @@ function ProductUpdatePage(props) {
 
     // 유효성 체크
     if (Images.length < 1) {
-      alert("Please select an image");
+      alert(getMessage(getLanguage(), 'key035'));
       return false; 
     }
     if (JapaneseTitle === "") {
-      alert("Please enter Japanese title");
+      alert(getMessage(getLanguage(), 'key036'));
       return false;
     }
     if (EnglishTitle === "") {
-      alert("Please enter an English title");
+      alert(getMessage(getLanguage(), 'key037'));
       return false;
     }
     if (ChineseTitle === "") {
-      alert("Please enter Chinese title");
+      alert(getMessage(getLanguage(), 'key038'));
       return false;
     }
     if (JapaneseDescription === "") {
-      alert("Please enter a Japanese product description");
+      alert(getMessage(getLanguage(), 'key039'));
       return false;
     }
     if (EnglishDescription === "") {
-      alert("Please enter an English product description");
+      alert(getMessage(getLanguage(), 'key040'));
       return false;
     }
     if (ChineseDescription === "") {
-      alert("Please enter a Chinese product description");
+      alert(getMessage(getLanguage(), 'key041'));
       return false;
     }
     if (Contents === "") {
-      alert("Please enter the contents");
+      alert(getMessage(getLanguage(), 'key042'));
       return false;
     }
     if (!Number(Price)) {
-      alert("Please enter only numbers for the price");
+      alert(getMessage(getLanguage(), 'key043'));
       return false;
     }
     if (Number(Price) <= 0) {
-      alert("Please check the price");
+      alert(getMessage(getLanguage(), 'key044'));
       return false;
     }
     // Now on sale이 선택됐는지
@@ -244,13 +243,13 @@ function ProductUpdatePage(props) {
     });
     // Now on sale과 Recording 둘다 선택됐는지
     if (isNowOnAir && isRecording) {
-      alert("Now on air and recording cannot be selected together");
+      alert(getMessage(getLanguage(), 'key045'));
       return false;
     }
     // now on sale 또는 recording이 선택되어 있으면 url은 필수항목이 된다
     if (UrlShow) {
       if (JapaneseUrl === "" || EnglishUrl === "" || ChineseUrl === "") {
-        alert("URL is required");
+        alert(getMessage(getLanguage(), 'key046'));
         return false;
       }
     } else {
@@ -277,7 +276,7 @@ function ProductUpdatePage(props) {
     }
     // Now on sale 상품이 이미 등록되어 있는경우
     if (isExists) {
-      alert("Product is already registered");
+      alert(getMessage(getLanguage(), 'key047'));
       return false;
     }
     
@@ -306,11 +305,11 @@ function ProductUpdatePage(props) {
 
     const result = await axios.post(`${PRODUCT_SERVER}/update`, body);
     if (result.data.success) {
-      alert('Product update was successful');
+      alert(getMessage(getLanguage(), 'key014'));
       // Landing pageへ戻る
       props.history.push('/')
     } else {
-      alert('Please contact the administrator');
+      alert(getMessage(getLanguage(), 'key001'));
     }
   }
 

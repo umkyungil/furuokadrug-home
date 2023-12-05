@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import { Input, Select } from 'antd';
+import { getLanguage, getMessage } from '../../../utils/CommonFunction';
 
 const {Search} = Input;
 const {Option} = Select;
@@ -23,18 +24,18 @@ function SearchFeature(props) {
 
     if (e.currentTarget.value) {
       if (SelectTerm !== "0") {
-        alert("The product quantity condition is valid only when it is All");
+        alert(getMessage(getLanguage(), 'key083'));
       }
       if (isNaN(e.currentTarget.value)) {
-        alert("Please enter a number");
+        alert(getMessage(getLanguage(), 'key080'));
         return;
       }
       if (parseInt(e.currentTarget.value) < 0) {
-        alert("Negative numbers cannot be used");
+        alert(getMessage(getLanguage(), 'key084'));
         return;
       }
       if (parseInt(e.currentTarget.value) > parseInt(QtyToTerm)) {
-        alert("Please confirm quantity range");
+        alert(getMessage(getLanguage(), 'key128'));
         return;
       }
       
@@ -50,18 +51,18 @@ function SearchFeature(props) {
 
     if (e.currentTarget.value) {
       if (SelectTerm !== "0") {
-        alert("The product quantity condition is valid only when it is All");
+        alert(getMessage(getLanguage(), 'key083'));
       }
       if (isNaN(e.currentTarget.value)) {
-        alert("Please enter a number");
+        alert(getMessage(getLanguage(), 'key080'));
         return;
       }
       if (parseInt(e.currentTarget.value) < 0) {
-        alert("Negative numbers cannot be used");
+        alert(getMessage(getLanguage(), 'key084'));
         return;
       }
       if (parseInt(e.currentTarget.value) < parseInt(QtyFromTerm)) {
-        alert("Please confirm quantity range");
+        alert(getMessage(getLanguage(), 'key128'));
         return;
       }
 

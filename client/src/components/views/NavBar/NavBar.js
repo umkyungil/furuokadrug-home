@@ -31,7 +31,7 @@ function NavBar() {
         setImage(image.data.imageInfo[0].image);
       }
 		} catch (err) {
-			console.log("err: ",err);
+			console.log("NavBar getLogo err: ",err);
 		}
 	}
 

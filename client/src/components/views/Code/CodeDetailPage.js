@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { CODE_SERVER } from '../../Config';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -38,8 +37,8 @@ function CodeDetailPage(props) {
       const codeInfo = await axios.get(`${CODE_SERVER}/code_by_id?id=${codeId}`);
       setCode(codeInfo.data.codeInfo);
     } catch (err) {
-      alert('Please contact the administrator');
-      console.log("err: ",err);
+      alert(getMessage(getLanguage(), 'key001'));
+      console.log("CartDetailPage getCode err: ",err);
       listHandler();
     }
   }
@@ -54,8 +53,8 @@ function CodeDetailPage(props) {
       await axios.post(`${CODE_SERVER}/delete`, { id:codeId });
 			listHandler();
     } catch (err) {
-      alert('Please contact the administrator');
-      console.log("err: ",err);
+      alert(getMessage(getLanguage(), 'key001'));
+      console.log("CartDetailPage deleteHandler err: ",err);
       listHandler();
     }
   }

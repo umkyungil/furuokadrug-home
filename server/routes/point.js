@@ -32,7 +32,7 @@ router.get('/users_by_id', async (req, res) => {
         
         return res.status(200).send({success: true, pointInfos});
     } catch (err) {
-        console.log(err);
+        console.log("Point users_by_id err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -47,7 +47,7 @@ router.post('/list', async (req, res) => {
             return res.status(200).send({success: true, pointInfos});
         })
     } catch (err) {
-        console.log(err);
+        console.log("Point list err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });

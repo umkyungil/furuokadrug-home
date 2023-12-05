@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { NOTHING, ENGLISH, JAPANESE, CHINESE, I18N_ENGLISH, I18N_CHINESE, I18N_JAPANESE } from '../../utils/Const';
 import { USER_SERVER } from '../../Config';
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -84,7 +83,7 @@ function MyInfoDetailPage() {
         return userInfo.data.user[0];
       }
     } catch (err) {
-      console.log("err: ",err);
+      console.log("MyInfoDetailPage getUserInfo err: ",err);
     }
   }
   

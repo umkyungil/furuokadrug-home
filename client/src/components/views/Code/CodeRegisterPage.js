@@ -4,8 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CODE_SERVER } from '../../Config.js';
 
 import { LanguageContext } from '../../context/LanguageContext.js';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -69,22 +68,22 @@ function CodeRegisterPage(props) {
 
     // 유효성 체크
     if (Code === "") {
-      alert("Code is required");
+      alert(getMessage(getLanguage(), 'key108'));
       return false; 
     }
     if (Name === "") {
-      alert("Name is required");
+      alert(getMessage(getLanguage(), 'key023'));
       return false; 
     }
     if (Value1 === "") {
-      alert("Value1 is required");
+      alert(getMessage(getLanguage(), 'key109'));
       return false; 
     }
     // 코드중복체크
     const code = await axios.get(`${CODE_SERVER}/code_by_code?code=${Code}`);
     // 코드가 있으면 에러
     if (code.data.codeInfo) {
-      alert("This is a registered code.");
+      alert(getMessage(getLanguage(), 'key110'));
       return false; 
     }
 
@@ -102,10 +101,10 @@ function CodeRegisterPage(props) {
 
     const result = await axios.post(`${CODE_SERVER}/register`, body);
     if (result.data.success) {
-      alert(' Code registration successful');
+      alert(getMessage(getLanguage(), 'key098'));
       listHandler();
     } else {
-      alert('Please contact the administrator');
+      alert(getMessage(getLanguage(), 'key001'));
       listHandler();
     }
   }

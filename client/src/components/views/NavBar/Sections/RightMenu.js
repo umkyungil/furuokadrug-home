@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import cookie from 'react-cookies';
 import { LanguageContext } from '../../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
+import { getLanguage, getMessage } from '../../../utils/CommonFunction'
 
 // CORS 대책
 import axios from 'axios';
@@ -59,8 +60,8 @@ function RightMenu(props) {
 
       props.history.push("/login");
     } catch (err) {
-      console.log("err: ", err);
-      alert('Please contact the administrator');
+      console.log("RightMenu logoutHandler err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
       props.history.push("/login");
     }
   };

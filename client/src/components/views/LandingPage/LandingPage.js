@@ -11,8 +11,7 @@ import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ReactPlayer from 'react-player'
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 
 // CORS 대책
@@ -43,9 +42,9 @@ function LandingPage() {
     i18n.changeLanguage(lang);
     setIsLanguage(lang);
 
+    getBrowser();
     // HTML lang속성 변경
     setHtmlLangProps(lang);
-
     // 노출상풍을 가져오기
     getProducts(); // type 1:now on air, type 2:recording, type 3: recommended, type 4: sale
     // 이미지 가져오기
@@ -53,6 +52,28 @@ function LandingPage() {
     // 포인트 적용율 가져오기
     getPointRate();
   },[url, isLanguage]);
+
+  const getBrowser = () => {
+    const agent = window.navigator.userAgent;
+    // console.log("agent>>>>>>>>>>>: ", agent);
+    
+    // if (agent.indexOf("chrome") > -1) console.log("iPhone");;
+    // if (agent.indexOf("safari") > -1) console.log("iPhone");;
+
+    console.log("navigator.appName: ", navigator.appName)
+    console.log("navigator.appCodeName: ", navigator.appCodeName)
+    console.log("navigator.platform: ", navigator.platform)
+    console.log("navigator.userAgent: ", navigator.userAgent)
+    console.log("navigator.appVersion: ", navigator.appVersion)
+
+    if (agent.indexOf("iPhone") > -1) {
+      console.log("iPhone");
+    } else if (agent.indexOf("Android") > -1) {
+      console.log("Android");
+    } else {
+      console.log("WebBrowser");
+    }
+  }
 
   // 빈 객체인 경우 true, 속성이 있는경우 false
   function isEmptyObj(obj)  {
@@ -74,8 +95,8 @@ function LandingPage() {
         sessionStorage.setItem("pointRate", "10");
       }
     } catch (err) {
-      alert('Please contact the administrator');
-      console.log("err: ",err);
+      console.log("LandingPage getPointRate err: ",err);
+      alert(getMessage(getLanguage(), 'key001'));
     }
   }
 
@@ -147,8 +168,8 @@ function LandingPage() {
         }
       }
     } catch (err) {
-      alert('Please contact the administrator');
-      console.log("err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
+      console.log("LandingPage getProducts err: ", err);
     }
   }
 
@@ -277,11 +298,11 @@ function LandingPage() {
           }
         }
       } else {
-        alert("No registered image\nPlease contact the administrator");
+        alert(getMessage(getLanguage(), 'key002'));
       }
     } catch (err) {
-      alert("Please contact the administrator");
-      console.log("err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
+      console.log("LandingPage getImages err: ", err);
     }
   }
   

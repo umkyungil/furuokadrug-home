@@ -4,8 +4,7 @@ import { Row, Col } from 'antd';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -44,7 +43,7 @@ function MailHistoryDetailPage(props) {
         setMailHistory(result.data.mailInfo[0])
       }
     } catch (err) {
-      console.log("MailHistoryDetailPage err: ",err);
+      console.log("MailHistoryDetailPage getMailHistory err: ",err);
     }
   }
 
@@ -74,4 +73,4 @@ function MailHistoryDetailPage(props) {
   )
 }
 
-export default MailHistoryDetailPage
+export default MailHistoryDetailPage;

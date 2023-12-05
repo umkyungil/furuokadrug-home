@@ -4,8 +4,7 @@ import SearchFeature from './Sections/SearchFeature';
 import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -98,7 +97,7 @@ function MailHistoryListPage() {
 				setMailHistory([...data]);
 			}
 		} catch (err) {
-			console.log("MailHistoryListPage err: ",err);
+			console.log("MailHistoryListPage getMailHistory err: ",err);
 		}
 	}
 

@@ -288,7 +288,7 @@ router.get('/alipay/register', async (req, res) => {
       return res.status(200).json({success: true});
     }
   } catch (err) {
-    console.log("AliPay payment from UPC failed: ", err);
+    console.log("Payment alipay_register err: ", err);
   } 
 })
 
@@ -563,7 +563,7 @@ router.get('/wechat/register', async (req, res) => {
       return res.status(200).json({success: true});
     }
   } catch (err) {
-    console.log("WeChat payment from UPC failed: ", err);
+    console.log("Payment wechat_register err: ", err);
   }
 })
 
@@ -731,7 +731,7 @@ const calcPoint = (userId, name, lastName, currentDate, oneYearDate, productPoin
       }
     });  
   } catch (err) {
-    console.log(err);
+    console.log("Payment calcPoint err: ", err);
   }
 }
 
@@ -754,7 +754,7 @@ const savePoint  = (dataToSubmit)  => {
       }
     )
   } catch (err) {
-    console.log("err: ", err);
+    console.log("Payment savePoint err: ", err);
   }
 }
 
@@ -769,7 +769,7 @@ const updatePoint = (tmp1, tmp2, tmp3, tmp4, tmp5) => {
       }
     )  
   } catch (err) {
-    console.log("err: ", err); 
+    console.log("Payment updatePoint err: ", err); 
   }
 }
 
@@ -876,7 +876,7 @@ router.post("/alipay/list", (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err);
+    console.log("Payment alipay_list err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -985,7 +985,7 @@ router.post("/wechat/list", (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err);
+    console.log("Payment wechat_list err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -1000,7 +1000,7 @@ router.get('/alipay_by_id', (req, res) => {
       return res.status(200).send({success: true, alipay});
     })
   } catch (err) {
-    console.log(err);
+    console.log("Payment alipay_by_id err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -1015,7 +1015,7 @@ router.get('/wechat_by_id', (req, res) => {
       return res.status(200).send({success: true, wechat});
     })
   } catch (err) {
-    console.log(err);
+    console.log("Payment wechat_by_id err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -1083,7 +1083,7 @@ router.post('/paypal/admin/list', (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err);
+    console.log("Payment paypal_admin_list err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })

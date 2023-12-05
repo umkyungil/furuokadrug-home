@@ -6,8 +6,7 @@ import moment from 'moment';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -71,7 +70,7 @@ function ImagesListPage() {
 			setImages([...data]);
 			
 		} catch (err) {
-			console.log("err: ",err);
+			console.log("ImageListPage getImages err: ",err);
 		}
 	}
 

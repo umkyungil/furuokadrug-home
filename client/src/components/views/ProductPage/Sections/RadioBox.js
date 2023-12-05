@@ -3,8 +3,7 @@ import { Collapse, Radio } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../../context/LanguageContext';
-import './product.css';
-import { getLanguage, setHtmlLangProps } from '../../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../../utils/CommonFunction';
 
 const { Panel } = Collapse;
 

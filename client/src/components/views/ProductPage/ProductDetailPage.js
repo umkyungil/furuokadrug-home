@@ -6,8 +6,7 @@ import { PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { I18N_ENGLISH, I18N_CHINESE } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
-import './Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -31,9 +30,7 @@ function ProductDetailPage(props) {
     
     // 상품정보 가져오기
     getProduct();
-  }, [isLanguage])
-
-  
+  }, [isLanguage])  
 
   const getProduct = async () => {
     try {
@@ -74,7 +71,7 @@ function ProductDetailPage(props) {
       
       setProduct(product.data[0]);
     } catch (err) {
-      console.log("err: ", err);
+      console.log("ProductDetailPage getProduct err: ", err);
     }
   }
 

@@ -6,8 +6,7 @@ import { IMAGES_VISIBLE_ITEM, IMAGES_TYPE, IMAGES_LANGUAGE } from '../../utils/C
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -71,7 +70,7 @@ function ImagesUpdatePage(props) {
         setLanguage(image.data.imageInfo.language);
 			}
 		} catch (err) {
-			console.log("err: ",err);
+			console.log("ImageUpdatePage getImage err: ",err);
 		}
 	}
 
@@ -103,11 +102,11 @@ function ImagesUpdatePage(props) {
     try {
       // 유효성 체크
       if (Images.length < 1) {
-        alert("Image is required");
+        alert(getMessage(getLanguage(), 'key125'));
         return false; 
       }
       if (Images.length > 1) {
-        alert("Only one image can be registered\nClick on the image you want to delete to delete it");
+        alert(getMessage(getLanguage(), 'key126'));
         return false; 
       }
 
@@ -125,7 +124,7 @@ function ImagesUpdatePage(props) {
       }
       // 노출 이미지가 이미 등록되어 있는경우
       if (isExists) {
-        alert("Image is already registered");
+        alert(getMessage(getLanguage(), 'key127'));
         return false;
       }
       // 이미지 수정
@@ -138,14 +137,15 @@ function ImagesUpdatePage(props) {
       
       const result = await axios.post(`${IMAGES_SERVER}/update`, body);
       if (result.data.success) {
-        alert('Image upload was successful');
+        alert(getMessage(getLanguage(), 'key102'));
         // 배너리스트 화면에 이동
         props.history.push('/images/list')
       } else {
-        alert('Please contact the administrator');
+        alert(getMessage(getLanguage(), 'key001'));
       }
     } catch (err) {
-      alert('Please contact the administrator');
+      console.log("ImageUpdatePage submitHandler err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
       // 이미지 리스트 화면에 이동
       listHandler();
     }
@@ -160,11 +160,12 @@ function ImagesUpdatePage(props) {
       }
 
       await axios.post(`${IMAGES_SERVER}/delete`, body);
-      alert('Images deleted was successful');
+      alert(getMessage(getLanguage(), 'key103'));
       // 이미지 리스트 화면에 이동
       listHandler();
-    } catch (error) {
-      alert('Image deletion failed');
+    } catch (err) {
+      console.log("ImageUpdatePage deleteHandler err: ", err);
+      alert(getMessage(getLanguage(), 'key104'));
       // 이미지 리스트 화면에 이동
       listHandler();
     }

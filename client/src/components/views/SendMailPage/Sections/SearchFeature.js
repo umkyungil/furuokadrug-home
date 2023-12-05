@@ -9,8 +9,6 @@ function SearchFeature(props) {
   const [SearchToDate, setSearchToDate] = useState("");
   
   const typeHandler = (event) => {  
-    console.log("event.currentTarget.value: ", event.currentTarget.value);
-
     setSearchType(event.currentTarget.value);
     let arr = [];
     if (SearchFromDate) {
@@ -52,4 +50,4 @@ function SearchFeature(props) {
   )
 }
 
-export default SearchFeature
+export default SearchFeature;

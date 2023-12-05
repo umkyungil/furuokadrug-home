@@ -4,13 +4,11 @@ import { useHistory } from 'react-router-dom';
 import { DatePicker, Select, Form, Input, Button, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY, CouponType, UseWithSale } from '../../utils/Const';
-import { dateFormatYMD } from '../../utils/CommonFunction'
 import { COUPON_SERVER, MAIL_SERVER, USER_SERVER, PRODUCT_SERVER } from '../../Config.js'
 import schedule from 'node-schedule'
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { dateFormatYMD, getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -123,7 +121,7 @@ function CouponRegisterPage() {
   // 상품 검색(검색버튼)
   const productPopupHandler = () => {
     if (Item === 0) {
-      alert("In case of category ALL, product selection is not possible");
+      alert(getMessage(getLanguage(), 'key056'));
     } else {
       window.open(`/coupon/product/${Item}`,"product list","width=550, height=700, top=10, left=10");
     }
@@ -162,8 +160,8 @@ function CouponRegisterPage() {
         setUserName(result.data.user[0].lastName);
       }
     } catch (err) {
-      alert("Failed to get user information")
-      console.log("getUser err: ",err);
+      alert(getMessage(getLanguage(), 'key070'));
+      console.log("CouponRegisterPage getUser err: ",err);
     }
   } 
 
@@ -176,8 +174,8 @@ function CouponRegisterPage() {
         setProductItem(result.data.productInfo[0].continents);
       }
     } catch (err) {
-      alert("Failed to get product information")
-      console.log("getProduct err: ",err);
+      alert(getMessage(getLanguage(), 'key073'));
+      console.log("CouponRegisterPage getProduct err: ",err);
     }
   }
   // 메일 송신
@@ -218,7 +216,7 @@ function CouponRegisterPage() {
     const jtc = new Date(MailBatch);
 
     if (today > jtc) {
-      alert("Mail setup time is in the past");
+      alert(getMessage(getLanguage(), 'key118'));
       return false;
     }
     
@@ -257,7 +255,7 @@ function CouponRegisterPage() {
           // 모든 사용자 또는 지정된 사용자와 관리자에게 메일을 보낸다
           await axios.post(`${MAIL_SERVER}/coupon`, body);
         } catch (err) {
-          console.log("Failed to send coupon registration mail: ", err);
+          console.log("CouponRegisterPage mailBatch err ", err);
         }
     })
   }
@@ -268,35 +266,35 @@ function CouponRegisterPage() {
         setTimeout(() => {
           // 쿠폰코드 체크
           if (CouponCode === "") {
-            alert("Code is required");
+            alert(getMessage(getLanguage(), 'key051'));
             setSubmitting(false);
             return false;
           }
           if (CouponCode.length > 4) {
-            alert("Must be exactly 4 characters");
+            alert(getMessage(getLanguage(), 'key112'));
             setSubmitting(false);
             return false;
           }
           // 금액 체크
           if (Amount === "") {
-            alert("Please enter a value for the coupon type");
+            alert(getMessage(getLanguage(), 'key115'));
             setSubmitting(false);
             return false;
           }
           if (isNaN(Number(Amount))) {
-            alert("Only numbers can be entered for the amount");
+            alert(getMessage(getLanguage(), 'key054'));
             setSubmitting(false);
             return false;
           }
           if (Number(Amount) < 1) {
-            alert("Only positive numbers can be entered for the amount");
+            alert(getMessage(getLanguage(), 'key055'));
             setSubmitting(false);
             return false;
           }
           // 카테고리가 ALL인데 상품이 지정되어 있는경우
           if (Item === MAIN_CATEGORY[0].key) {
             if (ProductId !== "") {
-              alert("If the category is ALL, you cannot designate a product");
+              alert(getMessage(getLanguage(), 'key056'));
               setSubmitting(false);
               return false;
             }
@@ -307,7 +305,7 @@ function CouponRegisterPage() {
               getProduct(ProductId);
               
               if (Item !== ProductItem) {
-                alert("This product does not belong to a category");
+                alert(getMessage(getLanguage(), 'key057'));
                 setSubmitting(false);
                 return false;
               }
@@ -315,17 +313,17 @@ function CouponRegisterPage() {
           }
           // 날짜 체크
           if (ExpirationPeriod.length < 1) {
-            alert("Expiration period is required");
+            alert(getMessage(getLanguage(), 'key116'));
             setSubmitting(false);
             return false;
           }
           if (!ExpirationPeriod[0]) {
-            alert("Expiration period is required");
+            alert(getMessage(getLanguage(), 'key116'));
             setSubmitting(false);
             return false;
           }
           if (!ExpirationPeriod[1]) {
-            alert("Expiration period is required");
+            alert(getMessage(getLanguage(), 'key116'));
             setSubmitting(false);
             return false;
           }
@@ -336,19 +334,19 @@ function CouponRegisterPage() {
 
           // 입력한 날짜가 과거인지 체크
           if (curDate > startDate) {
-            alert("Past dates cannot be used");
+            alert(getMessage(getLanguage(), 'key117'));
             setSubmitting(false);
             return false;
           }
           // 입력한 날짜가 과거인지 체크
           if (curDate > endDate) {
-            alert("Past dates cannot be used");
+            alert(getMessage(getLanguage(), 'key117'));
             setSubmitting(false);
             return false;
           }
           // 날짜의 form to 상관관계 체크
           if (startDate > endDate) {
-            alert("Please check the entered date");
+            alert(getMessage(getLanguage(), 'key119'));
             setSubmitting(false);
             return false;
           }
@@ -356,17 +354,17 @@ function CouponRegisterPage() {
           // 쿠폰 사용횟수 체크, 카운트가 ""인 경우는 무제한
           if (Count !== "") {
             if (Count.length > 2) {
-              alert("Must be exactly 2 characters");
+              alert(getMessage(getLanguage(), 'key120'));
               setSubmitting(false);
               return false;
             }
             if (isNaN(Number(Count))) {
-              alert("Only numbers can be entered for the count");
+              alert(getMessage(getLanguage(), 'key121'));
               setSubmitting(false);
               return false;
             }
             if (Number(Count) < 1) {
-              alert("Only positive numbers can be entered for the coupon count");
+              alert(getMessage(getLanguage(), 'key122'));
               setSubmitting(false);
               return false;
             }  
@@ -406,7 +404,7 @@ function CouponRegisterPage() {
                   }
                   
                   if (cnt > 0) {
-                    alert("The same kind of coupon exists within the period")
+                    alert(getMessage(getLanguage(), 'key123'));
                     return false;
                   } else {
                     // 생일자 쿠폰이외의 쿠폰이 존재하지 않으면 쿠폰 등록
@@ -416,9 +414,9 @@ function CouponRegisterPage() {
                         // 메일 전송
                         sendMail(body);
 
-                        alert('Coupon has been registered');
+                        alert(getMessage(getLanguage(), 'key099'));
                       } else {
-                        alert('Please contact the administrator');
+                        alert(getMessage(getLanguage(), 'key001'));
                       }
                       // 리스트페이지로 이동
                       history.push("/coupon/list");
@@ -432,9 +430,9 @@ function CouponRegisterPage() {
                       // 메일 전송
                       sendMail(body);
 
-                      alert('Coupon has been registered');
+                      alert(getMessage(getLanguage(), 'key099'));
                     } else {
-                      alert('Please contact the administrator');
+                      alert(getMessage(getLanguage(), 'key001'));
                     }
                     // 리스트페이지로 이동
                     history.push("/coupon/list");
@@ -442,13 +440,13 @@ function CouponRegisterPage() {
                 }
               } else {
                 // 같은 세일코드가 존재하는 경우
-                alert("There are duplicate coupon codes");
+                alert(getMessage(getLanguage(), 'key124'));
                 return false;
               }
             })
           } catch (err) {
-            alert("Please contact the administrator");
-            console.log("Coupon register err: ", err);
+            alert(getMessage(getLanguage(), 'key001'));
+            console.log("CouponRegisterPage return err: ", err);
             // 쿠폰리스트 이동
             history.push("/coupon/list");
           }

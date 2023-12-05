@@ -9,8 +9,7 @@ import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
 import cookie from 'react-cookies';
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -48,11 +47,11 @@ function LoginPage(props) {
       }}
       validationSchema={Yup.object().shape({
         email: Yup.string()
-          .email('Email is invalid')
-          .required('Email is required'),
+          .email(getMessage(getLanguage(), 'key029'))
+          .required(getMessage(getLanguage(), 'key026')),
         password: Yup.string()
-          .min(6, 'Password must be at least 6 characters')
-          .required('Password is required'),
+          .min(6, getMessage(getLanguage(), 'key031'))
+          .required(getMessage(getLanguage(), 'key027')),
       })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
@@ -100,11 +99,11 @@ function LoginPage(props) {
                   props.history.push("/");
                 });
               } else {
-                setFormErrorMessage('Check out your Account or Password again')
+                setFormErrorMessage(getMessage(getLanguage(), 'key129'));
               }
             })
             .catch(err => {
-              setFormErrorMessage('Check out your Account or Password again')
+              setFormErrorMessage(getMessage(getLanguage(), 'key129'));
               setTimeout(() => {
                 setFormErrorMessage("")
               }, 3000);

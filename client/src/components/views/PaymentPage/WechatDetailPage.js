@@ -5,8 +5,7 @@ import { PAYMENT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -38,7 +37,7 @@ function WechatDetailPage(props) {
         setWechat(result.data.wechat[0]);
       }
     } catch (err) {
-      console.log("WechatDetailPage err: ",err);
+      console.log("WechatDetailPage getWechat err: ",err);
     }
   }
 

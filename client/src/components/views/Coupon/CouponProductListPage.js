@@ -6,8 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY } from '../../utils/Const';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -92,7 +91,7 @@ function CouponProductListPage(props) {
 				setProducts([...data]);
 			}
 		} catch (err) {
-			console.log("getProducts err: ",err);
+			console.log("CouponProductListPage getProducts err: ",err);
 		}
 	}
 

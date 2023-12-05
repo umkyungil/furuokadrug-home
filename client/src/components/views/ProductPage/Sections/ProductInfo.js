@@ -8,8 +8,7 @@ import { useTranslation } from 'react-i18next';
 import cookie from 'react-cookies';
 import { LanguageContext } from '../../../context/LanguageContext';
 import { SALE_TAG, NOTICE_TAG, SOLD_OUT_TAG, PRODUCT_VISIBLE_TYPE, ANONYMOUS } from '../../../utils/Const';
-import './product.css';
-import { getLanguage, setHtmlLangProps } from '../../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -55,7 +54,7 @@ function ProductInfo(props) {
       // 상품 노출정보로 상품태그 확인
       handleTag()
     } catch (err) {
-      console.log("err: ",err);
+      console.log("ProductInfo process err: ",err);
     }
   } 
   // 사용자정보 가져오기
@@ -66,7 +65,7 @@ function ProductInfo(props) {
         setUser(user.data.user[0]);
       }
     } catch (err) {
-      console.log("err: ",err);
+      console.log("ProductInfo getUser err: ",err);
     }
   }
 
@@ -97,18 +96,16 @@ function ProductInfo(props) {
         setSoldOutTag(false);
       }
     } catch (err) {
-      console.log("err: ",err);
+      console.log("ProductInfo handleTag err: ",err);
     }
   }
 
   // 카트 넣기
   const cartHandler = async () => {
     try {
-      console.log("SoldOutTag: ", SoldOutTag);
-
       // 재고가 없으면 구매를 하지 못하게 한다
       if (SoldOutTag) {
-        alert("This product is out of stock");
+        alert(getMessage(getLanguage(), 'key032'));
         return;
       }
 
@@ -220,8 +217,8 @@ function ProductInfo(props) {
         }
       }
     } catch (err) {
-      console.log("getUser err: ",err);
-      alert("Failed to get user information");
+      console.log("ProductInfo cartHandler err: ",err);
+      alert(getMessage(getLanguage(), 'key001'));
     }
   }
 
@@ -239,10 +236,10 @@ function ProductInfo(props) {
     await axios.post(`${PRODUCT_SERVER}/delete`, body)
       .then(response => {
         if (response.data.success) {
-          alert('Product delete was successful.');
+          alert(getMessage(getLanguage(), 'key033'));
           listHandler();
         } else {
-          alert('Product delete failed.');
+          alert(getMessage(getLanguage(), 'key001'));
         }
       });
   }

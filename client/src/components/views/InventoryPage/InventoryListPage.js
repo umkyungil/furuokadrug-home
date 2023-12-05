@@ -4,12 +4,10 @@ import { PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE } from '../../utils/Const.js'
-import { getLocalTime } from '../../utils/CommonFunction.js';
 import SearchFeature from './Section/SearchFeature.js';
 
 import { LanguageContext } from '../../context/LanguageContext.js';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLocalTime, getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -87,8 +85,8 @@ function InventoryListPage() {
 				setProducts([...data]);
 			}
 		} catch (err) {
-			console.log("err: ",err);
-			alert("Please contact the administrator");
+			console.log("InventoryListPage getProducts err: ",err);
+			alert(getMessage(getLanguage(), 'key001'));
 			listHandler();
 		}
 	}
@@ -106,7 +104,7 @@ function InventoryListPage() {
 			if (quantity) {
 				// 숫자 체크
 				if (isNaN(quantity)) {
-					alert("Please enter a number");
+					alert(getMessage(getLanguage(), 'key080'));
 					return;
 				}
 				
@@ -114,7 +112,7 @@ function InventoryListPage() {
 				if (result.data.success) {
 					getProducts({ searchTerm: ["0", "0", "9999", ""] });
 				} else {
-					alert("This product is not subject to inventory management");
+					alert(getMessage(getLanguage(), 'key081'));
 					return;
 				}
 			}
@@ -126,7 +124,7 @@ function InventoryListPage() {
 			if (maxQuantity) {
 				// 숫자 체크
 				if (isNaN(maxQuantity)) {
-					alert("Please enter a number");
+					alert(getMessage(getLanguage(), 'key080'));
 					return;
 				}
 	
@@ -135,9 +133,9 @@ function InventoryListPage() {
 					getProducts({ searchTerm: ["0", "0", "9999", ""] });
 				} else {
 					if (result.data.message === "except") {
-						alert("This product is not subject to inventory management");
+						alert(getMessage(getLanguage(), 'key081'));
 					} else if (result.data.message === "quantity") {
-						alert("Please check stock quantity");
+						alert(getMessage(getLanguage(), 'key082'));
 					}
 					return;
 				}

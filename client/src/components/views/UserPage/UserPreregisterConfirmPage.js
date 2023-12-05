@@ -10,8 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER, USER_SERVER } from '../../Config';
 import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css'
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -53,7 +52,7 @@ function UserPreregisterConfirmPage(props) {
   useEffect(() => {
     // query string 취득
     if (!props.match.params.userId) {
-      alert("Please contact the manager");
+      alert(getMessage(getLanguage(), 'key001'));
       history.push("/");
     } else {
       // 다국어 설정
@@ -90,12 +89,12 @@ function UserPreregisterConfirmPage(props) {
         setLastName(result.data.user[0].lastName);
         setLanguage(result.data.user[0].language);
       } else {
-        alert("Please contact the administrator");
+        alert(getMessage(getLanguage(), 'key001'));
         history.push("/");
       }      
     } catch (err) {
-      console.log("UserPreregisterConfirmPage err: ",err);
-      alert("Please contact the administrator");
+      console.log("UserPreregisterConfirmPage getUser err: ",err);
+      alert(getMessage(getLanguage(), 'key001'));
       history.push("/");
     }
   }
@@ -115,7 +114,7 @@ function UserPreregisterConfirmPage(props) {
       } 
       return true;
     } catch(err) {
-      console.log("UserPreregisterConfirmPage err: ", err);
+      console.log("UserPreregisterConfirmPage sendEmail err: ", err);
       return false;
     }
   }
@@ -144,35 +143,35 @@ function UserPreregisterConfirmPage(props) {
         language: ''
       }}
       validationSchema={Yup.object().shape({
-        tel: Yup.string().required('Telephone number is required'),
-        birthday: Yup.string().required('Date of birth is required'),
-        address1: Yup.string().required('Address is required'),
-        zip1: Yup.string().required('Required'),
-        receiver1: Yup.string().required('Required'),
-        tel1: Yup.string().required('Required'),
+        tel: Yup.string().required(getMessage(getLanguage(), 'key006')),
+        birthday: Yup.string().required(getMessage(getLanguage(), 'key005')),
+        address1: Yup.string().required(getMessage(getLanguage(), 'key007')),
+        zip1: Yup.string().required(getMessage(getLanguage(), 'key008')),
+        receiver1: Yup.string().required(getMessage(getLanguage(), 'key009')),
+        tel1: Yup.string().required(getMessage(getLanguage(), 'key010')),
         password: Yup.string()
-          .min(6, 'Password must be at least 6 characters')
-          .required('Password is required'),
+          .min(6, getMessage(getLanguage(), 'key031'))
+          .required(getMessage(getLanguage(), 'key027')),
         confirmPassword: Yup.string()
-          .oneOf([Yup.ref('password'), null], 'Passwords must match')
-          .required('Confirm Password is required'),
+          .oneOf([Yup.ref('password'), null], getMessage(getLanguage(), 'key030'))
+          .required(getMessage(getLanguage(), 'key028')),
       })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
           const birthday = values.birthday;
           
           if (birthday.length !== 8) {
-            alert("Date of birth must be exactly 8 characters long");
+            alert(getMessage(getLanguage(), 'key011'));
             setSubmitting(false);
             return false;
           }
           if (isNaN(Number(birthday))) {
-            alert("Only numbers can be entered for the birthday");
+            alert(getMessage(getLanguage(), 'key012'));
             setSubmitting(false);
             return false;
           }
           if (Number(birthday) < 1) {
-            alert("Only positive numbers can be entered for the birthday");
+            alert(getMessage(getLanguage(), 'key013'));
             setSubmitting(false);
             return false;
           }
@@ -210,21 +209,21 @@ function UserPreregisterConfirmPage(props) {
               const mailResult = sendEmail(dataToSubmit);
               mailResult.then((res) => {
                 if (res) {
-                  alert("Membership registration has been completed");
+                  alert(getMessage(getLanguage(), 'key018'));
                   history.push("/login");
                 } else {
-                  alert("Request user registration again.\nPlease try again later.");
+                  alert(getMessage(getLanguage(), 'key019'));
                   history.push("/");
                 }
               });
             } else {
-              alert("Request user registration again.\nPlease try again later.");
+              alert(getMessage(getLanguage(), 'key019'));
               history.push("/");
             }
           })
           .catch( function(err) {
-            console.log("err: ", err);
-            alert("Request user registration again.\nPlease try again later.");
+            console.log("UserPreregisterConfirmPage submit err: ", err);
+            alert(getMessage(getLanguage(), 'key019'));
             history.push("/");
           })
 

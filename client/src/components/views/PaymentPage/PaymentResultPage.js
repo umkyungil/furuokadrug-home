@@ -5,8 +5,7 @@ import { USER_SERVER } from '../../Config';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -79,8 +78,8 @@ function PaymentResultPage(props) {
         }
       }
     } catch (err) {
-      console.log("err: ", err);
-      alert("Please contact the administrator");
+      console.log("PaymentResultPage loginProcess err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
       history.push("/");
     }
   }

@@ -3,8 +3,7 @@ import UserInfo from './Sections/UserInfo'
 import { Row, Col } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 function UserDetailPage(props) {
   const userId = props.match.params.userId;

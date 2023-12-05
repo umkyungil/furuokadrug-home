@@ -4,7 +4,6 @@ import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../../context/LanguageContext';
-import '../../ProductPage/Sections/product.css';
 import { getLanguage, setHtmlLangProps } from '../../../utils/CommonFunction';
 
 function MailHistoryInfo(props) {

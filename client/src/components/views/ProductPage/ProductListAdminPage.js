@@ -3,13 +3,11 @@ import { Table } from 'antd';
 import { PRODUCT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY, PRODUCT_VISIBLE_TYPE } from '../../utils/Const.js'
-import { getLocalTime } from '../../utils/CommonFunction.js';
 import SearchFeatureAdmin from './Sections/SearchFeatureAdmin';
 import { useHistory } from 'react-router-dom';
 
 import { LanguageContext } from '../../context/LanguageContext.js';
-import './Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLocalTime, getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -85,7 +83,7 @@ function ProductListAdminPage() {
 				setProducts([...data]);
 			}
 		} catch (err) {
-			console.log("err: ",err);
+			console.log("ProductAdminPage getProducts err: ",err);
 		}
 	}
 
@@ -96,8 +94,8 @@ function ProductListAdminPage() {
 										
 			setProducts(products.productInfos);
 		} catch (err) {
-			console.log("err: ", err);
-			alert("Please contact the administrator");
+			console.log("ProductAdminPage getProductsByTypeForAdmin err: ", err);
+			alert(getMessage(getLanguage(), 'key001'));
 		}
 	}
 
@@ -154,7 +152,7 @@ function ProductListAdminPage() {
 			await getProductsByTypeForAdmin({ type: typeRef.current });
 		
 		} else {
-			alert("Please login");
+			alert(getMessage(getLanguage(), 'key001'));
 			history.push("/login");
 		}
 	}

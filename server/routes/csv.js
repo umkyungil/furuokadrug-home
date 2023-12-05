@@ -31,7 +31,7 @@ router.post("/univaPayCast/register", (req, res) => {
         console.log("Data inserted")
         return res.status(200).json({success: true})
     }).catch(function(err){
-        console.log(err)
+        console.log("Csv univaPayCast_register err: ", err);
         return res.json({success: false, err})
     });
 });

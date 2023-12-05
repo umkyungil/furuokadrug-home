@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { PAYMENT_SERVER } from '../../Config.js';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -67,7 +66,7 @@ function AlipayListPage() {
 				setAlipayInfo([...data]);
 			}
 		} catch (err) {
-			console.log("AlipayListPage err: ",err);
+			console.log("AlipayListPage getAlipayInfo err: ",err);
 		}
 	}
 

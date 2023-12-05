@@ -69,11 +69,11 @@ function UploadCSVUnivaPayCastPage() {
       axios.post(`${CSV_SERVER}/univaPayCast/register`, CsvData)
       .then(response => {
         if (response.data.success) {
-          alert('CSV registration was successful.');
+          alert('CSV registration was successful');
           setCsvData("");
           history.push("/");
         } else {
-          alert('CSV registration failed.');
+          alert('CSV registration failed');
           setCsvData("");
         }
       });  

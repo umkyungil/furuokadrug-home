@@ -13,7 +13,7 @@ router.post('/register', async (req, res) => {
     await codeInfo.save();
     return res.status(200).json({success: true});
   } catch (err) {
-    console.log(err);
+    console.log("Code register err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -24,7 +24,7 @@ router.get("/list", async (req, res) => {
     const codeInfos = await Code.find();
     return res.status(200).json({ success: true, codeInfos });
   } catch (err) {
-    console.log(err);
+    console.log("Code list err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }   
 });
@@ -35,7 +35,7 @@ router.get('/code_by_id', async (req, res) => {
     const codeInfo = await Code.findOne({ _id: req.query.id });
     return res.status(200).json({ success: true, codeInfo });
   } catch (err) {
-    console.log(err);
+    console.log("Code code_by_id err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -46,7 +46,7 @@ router.get('/code_by_code', async (req, res) => {
     const codeInfo = await Code.findOne({ code: req.query.code });
     return res.status(200).json({ success: true, codeInfo });
   } catch (err) {
-    console.log(err);
+    console.log("Code code_by_code err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -64,7 +64,7 @@ router.post("/update", async (req, res) => {
       await code.save();
       return res.status(200).send({ success: true });
   } catch (err) {
-      console.log(err);
+      console.log("Code update err: ", err);
       return res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -76,7 +76,7 @@ router.post('/delete', async (req, res) => {
     await Code.findOneAndDelete({_id: req.body.id});
     return res.json({success: true});
   } catch (err) {
-    console.log(err);
+    console.log("Code delete err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })

@@ -3,6 +3,7 @@
 @import url("https://unpkg.com/sanitize.css");
 /*Font Awesomeの読み込み*/
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css");
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100&display=swap');
 
 dd {
   margin: 0;
@@ -97,11 +98,11 @@ main {
 }
 
 .lanJP {
-  font-family: "游ゴシック体", YuGothic, "游ゴシック", "Yu Gothic", "Heiti SC","SimHei","SF Pro SC","SF Pro Text","SF Pro Icons","PingFang SC","Helvetica Neue","Helvetica","Arial",sans-serif !important;
+/*   font-family: "游ゴシック体", YuGothic, "游ゴシック", "Yu Gothic","Helvetica Neue","Helvetica","Arial",sans-serif !important; */
 }
 
 .lanCN {
-  font-family: "Microsoft YaHei", "游ゴシック体", YuGothic, "游ゴシック", "Yu Gothic", "Heiti SC","SimHei","SF Pro SC","SF Pro Text","SF Pro Icons","PingFang SC","Helvetica Neue","Helvetica","Arial",sans-serif;
+  font-family: "Microsoft YaHei", "Heiti SC","SimHei","SF Pro SC","SF Pro Text","SF Pro Icons","PingFang SC","Helvetica Neue","Helvetica","Arial",sans-serif;
 }
 
 /*video下説明ブロック設定*/

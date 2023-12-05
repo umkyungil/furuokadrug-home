@@ -6,8 +6,7 @@ import { useHistory } from 'react-router-dom';
 import SearchFeature from './Sections/PaypalSearchFeature.js';
 
 import { LanguageContext } from '../../context/LanguageContext.js';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -84,7 +83,7 @@ function PaypalListPage() {
         }
       }
     } catch (err) {
-      console.log("PaypalListPage err: ",err);
+      console.log("PaypalListPage getUserInfo err: ",err);
     }
   }
 

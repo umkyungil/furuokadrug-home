@@ -5,8 +5,7 @@ import { USER_SERVER } from '../../Config.js';
 import { ENGLISH, CHINESE, JAPANESE, NOTHING, I18N_ENGLISH, I18N_JAPANESE, I18N_CHINESE } from '../../utils/Const.js'
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -91,10 +90,9 @@ function UserListPage() {
 				}
 
 				setUsers([...data]);
-				
 			}
 		} catch (err) {
-			console.log("UserListPage err: ",err);
+			console.log("UserListPage getUsers err: ",err);
 		}
 	}
 

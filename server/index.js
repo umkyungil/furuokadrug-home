@@ -60,7 +60,7 @@ const server = async() => {
     const port = process.env.PORT || 5000
     app.listen(port, () => console.log(`Server Listening on ${port}`));
   } catch (err) {
-    console.log("error: ", err);
+    console.log("index server err: ", err);
   }
 }
 
@@ -120,7 +120,7 @@ const batchJob = async() => {
         }
       }
     } catch (err) {
-      console.log("Temporary User Delete Batch Failed: ", err);
+      console.log("index Delete tmp users err: ", err);
     }
   });
 
@@ -167,7 +167,7 @@ const batchJob = async() => {
         }
       }
     } catch (err) {
-      console.log("Temporary order deletion batch processing failed: ", err);
+      console.log("index Tmp payment and tmp order info deletion err: ", err);
     }
   });
 
@@ -211,7 +211,7 @@ const batchJob = async() => {
   //       sendMailProcess(body, true);
   //     }
   //   } catch (err) {
-  //     console.log("Failed to search for users who have not logged in for 3 months ", err);
+  //     console.log("index Failed to search for users who have not logged in for 3 months ", err);
   //   }
   // });
 
@@ -309,7 +309,7 @@ const batchJob = async() => {
         }
       }
     } catch (err) {
-      console.log("Delete User Points Batch Job Failed: ", err);
+      console.log("index User point confirmation batch err: ", err);
     }
   });
 
@@ -503,7 +503,7 @@ const batchJob = async() => {
         }
       }
     } catch (err) {
-      console.log("Birthday Coupon Batch Job Failed: ", err);
+      console.log("index Birthday coupons batch err: ", err);
     }
   });
 
@@ -535,7 +535,7 @@ const batchJob = async() => {
         }
       }
     } catch (err) {
-      console.log("Anonymous Delete Batch Job Failed: ", err);
+      console.log("index Delete anonymous users err: ", err);
     }
   });
 }
@@ -597,7 +597,7 @@ const sendMailProcess = async (data, optional) => {
       mail.save();
     }
   } catch (err) {
-    console.log("Failed to send batch mail: ", err);
+    console.log("index sendMailProcess err: ", err);
   }
 };
 

@@ -3,8 +3,7 @@ import { Button, Descriptions } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from '../../../context/LanguageContext';
-import '../../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../../utils/CommonFunction';
 
 function AlipayInfo(props) {
   const history = useHistory();

@@ -7,8 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -38,7 +37,7 @@ function OrderListPage(props) {
 		if (localStorage.getItem("userId")) {
 			userId = localStorage.getItem("userId");
 		} else {
-			alert("Please login");
+			alert(getMessage(getLanguage(), 'key079'));
 			history.push("/login");
 		}
 
@@ -66,10 +65,10 @@ function OrderListPage(props) {
 				localStorage.setItem("userRole", result.data.user[0].role) // 권한이 사용자인 경우 이름검색조건을 삭제하기 위해 권한을 취득
 				localStorage.setItem("userName", result.data.user[0].name)
 			} else {
-				alert("Failed to get user information.");
+				alert(getMessage(getLanguage(), 'key070'));
 			}
 		} catch (err) {
-			console.log("ListOrderPage getUserInfo err: ",err);
+			console.log("OrderListPage getUserInfo err: ",err);
 		}
 	}
 
@@ -205,7 +204,7 @@ function OrderListPage(props) {
 				setMode(false); 
 			}
 		} catch (err) {
-			console.log("ListOrderPage getOrderInfo err: ",err);
+			console.log("OrderListPage getOrderInfo err: ",err);
 		}
 	}
 
@@ -218,10 +217,10 @@ function OrderListPage(props) {
 			if (result.data.orders[0].paymentStatus !== UNIDENTIFIED) {
 				updateDeliveryStatus(orderId);
 			} else {
-				alert("Please confirm payment status")
+				alert(getMessage(getLanguage(), 'key078'));
 			}
 		} else {
-			alert("Failed to get order information.")
+			alert(getMessage(getLanguage(), 'key074'));
 		}
 	}
 
@@ -248,7 +247,7 @@ function OrderListPage(props) {
 
 			getOrderInfo(body);
 		} else {
-			alert("Please login");
+			alert(getMessage(getLanguage(), 'key079'));
 			history.push("/login");
 		}
 	}

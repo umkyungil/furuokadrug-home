@@ -4,12 +4,10 @@ import { updateUser } from "../../../_actions/user_actions";
 import { useDispatch } from "react-redux";
 import { Select, Form, Input, Button, Checkbox } from 'antd';
 import { useHistory } from 'react-router-dom';
-import { getUser } from '../../utils/CommonFunction';
 import { useTranslation } from 'react-i18next';
 import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getUser, getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -112,11 +110,11 @@ function UserUpdatePage(props) {
           setChecked(false);
         }
       } else {
-        alert("Please contact the administrator");
+        alert(getMessage(getLanguage(), 'key001'));
       }      
     } catch (err) {
-      console.log("err: ",err);
-      alert("Please contact the administrator");
+      console.log("UserUpdatePage getUserInfo err: ",err);
+      alert(getMessage(getLanguage(), 'key001'));
     }
   }
 
@@ -188,47 +186,47 @@ function UserUpdatePage(props) {
     e.preventDefault();
 
     if (LastName === "") {
-      alert("Last name is required");
+      alert(getMessage(getLanguage(), 'key022'));
       return false;
     }
     if (Name === "") {
-      alert("Name is required");
+      alert(getMessage(getLanguage(), 'key023'));
       return false;
     }
     if (Birthday === "") {
-      alert("Date of birth is required");
+      alert(getMessage(getLanguage(), 'key005'));
       return false;
     }
     if (Tel === "") {
-      alert("Telephone number is required");
+      alert(getMessage(getLanguage(), 'key006'));
       return false;
     }
     if (Address1 === "") {
-      alert("Address is required");
+      alert(getMessage(getLanguage(), 'key007'));
       return false;
     }
     if (Zip1 === "") {
-      alert("Zip code is required");
+      alert(getMessage(getLanguage(), 'key008'));
       return false;
     }
     if (Receiver1 === "") {
-      alert("Receiver is required");
+      alert(getMessage(getLanguage(), 'key009'));
       return false;
     }
     if (Tel1 === "") {
-      alert("Telephone is required");
+      alert(getMessage(getLanguage(), 'key010'));
       return false;
     }
     if (Birthday.length !== 8) {
-      alert("Birthday must be 8 characters long");
+      alert(getMessage(getLanguage(), 'key011'));
       return false;
     }
     if (!Number(Birthday)) {
-      alert("Only numbers can be entered for the birthday");
+      alert(getMessage(getLanguage(), 'key012'));
       return false;
     }
     if (Number(Birthday) < 1) {
-      alert("Only positive numbers can be entered for the birthday");
+      alert(getMessage(getLanguage(), 'key013'));
       return false;
     }
 
@@ -257,10 +255,10 @@ function UserUpdatePage(props) {
 
     dispatch(updateUser(dataToSubmit)).then(response => {
       if (response.payload.success) {
-        alert('User update was successful');
+        alert(getMessage(getLanguage(), 'key014'));
         props.history.push("/user/list");
       } else {
-        alert('Please contact the administrator');
+        alert(getMessage(getLanguage(), 'key001'));
       }
     })
   };

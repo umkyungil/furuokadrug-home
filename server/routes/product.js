@@ -42,6 +42,7 @@ router.post('/image', async (req, res) => {
       return res.json({ success: true, filePath: res.req.file.location});
     })  
   } catch (err) {
+    console.log("Product AWS register err: ", err);
     console.log(err);
     return res.status(500).json({ success: false, message: err.message });
   }
@@ -56,7 +57,7 @@ router.post('/register', (req, res) => {
       return res.status(200).json({success: true});
     })
   } catch (err) {
-    console.log(err);
+    console.log("Product register err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -182,7 +183,7 @@ router.post('/list', async (req, res) => {
       }
     }
   } catch (err) {
-    console.log(err);
+    console.log("Product list err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -193,8 +194,8 @@ router.get("/list", async (req, res) => {
       const productInfos = await Product.find().sort({ "createdAt": -1 });
       return res.status(200).send({ success: true, productInfos });
   } catch (err) {
-      console.log(err);
-      return res.status(500).json({ success: false, message: err.message });
+    console.log("Product list err: ", err);
+    return res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -225,7 +226,7 @@ router.get('/products_by_id', (req, res) => {
       return res.status(200).send(product);
     })
   } catch (err) {
-    console.log(err);
+    console.log("Product products_by_id err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -260,7 +261,7 @@ router.post('/products_by_type', async (req, res) => {
     return res.status(200).json({ success: true, productInfos: _20TypeProducts, postSize: typeProducts.length });
 
   } catch (err) {
-    console.log(err);
+    console.log("Product products_by_type err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -280,7 +281,7 @@ router.post('/products_by_type_for_admin', async (req, res) => {
     
     return res.status(200).json({ success: true, productInfos: products });
   } catch (err) {
-    console.log(err);
+    console.log("Product products_by_type_for_admin err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -317,7 +318,7 @@ router.get('/all_products_by_type', async (req, res) => {
 
     return res.status(200).json({ success: true, productInfos: products });
   } catch (err) {
-    console.log(err);
+    console.log("Product all_products_by_type err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -353,7 +354,7 @@ router.post('/delete', async (req, res) => {
     await Product.findOneAndDelete({_id: req.body.id});
     return res.status(200).json({success: true});
   } catch (err) {
-    console.log(err);
+    console.log("Product delete err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -383,7 +384,7 @@ router.post('/delete_image', async (req, res) => {
       }
     })
   } catch (err) {
-    console.log(err);
+    console.log("Product delete_image err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -418,7 +419,7 @@ router.post('/update', async (req, res) => {
     await product.save();
     return res.status(200).json({success: true});
   } catch (err) {
-    console.log(err);
+    console.log("Product update err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -468,8 +469,8 @@ router.post("/inventory/list", async (req, res) => {
       return res.status(200).json({ success: true, productInfos});
     }
   } catch (err) {
-      console.log(err);
-      return res.status(500).json({ success: false, message: err.message });
+    console.log("Product inventory_list err: ", err);
+    return res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -513,8 +514,8 @@ router.post('/inventory/update', async (req, res) => {
       return res.status(200).send({ success: true });
     }
   } catch (err) {
-      console.log("err: ", err);
-      return res.status(500).json({ success: false, message: err.message });
+    console.log("Product inventory_update err: ", err);
+    return res.status(500).json({ success: false, message: err.message });
   }
 })
 
@@ -558,7 +559,7 @@ router.post('/coupon/list', (req, res) => {
       }
     }
   } catch (err) {
-    console.log(err);
+    console.log("Product coupon_list err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -574,7 +575,7 @@ router.get('/coupon/products_by_id', (req, res) => {
       return res.status(200).json({ success: true, productInfo })
     })
   } catch (err) {
-    console.log(err);
+    console.log("Product coupon_products_by_id err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })

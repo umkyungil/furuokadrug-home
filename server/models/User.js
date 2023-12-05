@@ -208,8 +208,8 @@ const getTokenExp = async () => {
         } else {
             return null;
         }
-    } catch (error) {
-        console.log("err: ", err);
+    } catch (err) {
+        console.log("User getTokenExp err: ", err);
         return null;
     }
 }

@@ -6,8 +6,7 @@ import { Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -34,7 +33,7 @@ function LiveStreaming() {
     if (localStorage.getItem("userId")) {
       getUserInfo(localStorage.getItem("userId"))
     } else {
-      alert("Please login");
+      alert(getMessage(getLanguage(), 'key079'));
       history.push("/login");
     }
     
@@ -63,7 +62,7 @@ function LiveStreaming() {
           } else if (type === 'wechat') {
             history.push(`/payment/wechat/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${staffName}/`);
           } else {
-            alert("Please contact the administrator");
+            alert(getMessage(getLanguage(), 'key001'));
           }
         }
       } else {
@@ -81,8 +80,8 @@ function LiveStreaming() {
       // 토큰 유효시간 연장
       await axios.post(`${USER_SERVER}/update/token`, { id: userId, tokenAddedTime:sesTokenAddedTime });  
     } catch (err) {
-      console.log("err: ", err);
-      alert("Please contact the administrator");
+      console.log("LiveStreaming updateTokenExp err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
     }
   }
 
@@ -95,11 +94,11 @@ function LiveStreaming() {
         mainProcess(response.data.user[0]._id, response.data.user[0].name, response.data.user[0].lastName, 
           response.data.user[0].email, parseInt(response.data.user[0].role));
       } else {
-        alert("Failed to get user information.")
+        alert(getMessage(getLanguage(), 'key070'));
       }
     } catch (err) {
-      console.log("err: ",err);
-      alert("Please contact the administrator");
+      console.log("LiveStreaming getUserInfo err: ",err);
+      alert(getMessage(getLanguage(), 'key001'));
     }
   }
 
@@ -147,8 +146,8 @@ function LiveStreaming() {
           }
         });
     } catch(err) {
-      console.log("err: ",err);
-      alert("Please contact the administrator");
+      console.log("LiveStreaming sendEmail err: ",err);
+      alert(getMessage(getLanguage(), 'key001'));
     }
   }
   // 모달창 보여주기

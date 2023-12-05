@@ -9,8 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { MAIL_SERVER } from '../../Config';
 import { ENGLISH, JAPANESE, CHINESE } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction.js';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction.js';
 
 // CORS 대책
 import axios from 'axios';
@@ -71,7 +70,7 @@ function UserPreregisterPage(props) {
       } 
       return true;
     } catch(err) {
-      console.log("UserPreregisterPage err: ", err);
+      console.log("UserPreregisterPage sendEmail err: ", err);
       return false;
     }
   }
@@ -86,12 +85,12 @@ function UserPreregisterPage(props) {
       }}
       validationSchema={Yup.object().shape({
         name: Yup.string()
-          .required('Name is required'),
+          .required(getMessage(getLanguage(), 'key023')),
         lastName: Yup.string()
-          .required('Last Name is required'),
+          .required(getMessage(getLanguage(), 'key022')),
         email: Yup.string()
-          .email('Email is invalid')
-          .required('Email is required'),
+          .email(getMessage(getLanguage(), 'key029'))
+          .required(getMessage(getLanguage(), 'key026')),
       })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
@@ -110,19 +109,20 @@ function UserPreregisterPage(props) {
               const mailResult = sendEmail(dataToSubmit);
               mailResult.then((res) => {
                 if (res) {
-                  alert("Sent mail\nPlease continue with the user registration process");
+                  alert(getMessage(getLanguage(), 'key020'));
                   history.push("/login");
                 } else {
-                  alert("Failed to send mail\nPlease contact the administrator");
+                  alert(getMessage(getLanguage(), 'key004'));
                   history.push("/");
                 }
               });
             } else {
-              alert("This e-mail address is already registered");
+              alert(getMessage(getLanguage(), 'key021'));
             }
           })
           .catch( function(err) {
-            alert("Please contact the administrator");
+            console.log("UserPreregisterPage submit err: ", err);
+            alert(getMessage(getLanguage(), 'key001'));
             history.push("/");
           })
 

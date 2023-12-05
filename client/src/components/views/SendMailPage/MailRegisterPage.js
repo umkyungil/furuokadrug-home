@@ -9,8 +9,7 @@ import { Select, Form, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 const { TextArea } = Input;
 const {Option} = Select;
@@ -86,22 +85,22 @@ function MailRegisterPage(props) {
       }}
       validationSchema={Yup.object().shape({
         name: Yup.string()
-          .required('Name is required'),
+          .required(getMessage(getLanguage(), 'key023')),
         lastName: Yup.string()
-          .required('Last Name is required'),
+          .required(getMessage(getLanguage(), 'key022')),
         email: Yup.string()
-          .email('Email is invalid')
-          .required('Email is required'),
+          .email(getMessage(getLanguage(), 'key029'))
+          .required(getMessage(getLanguage(), 'key026')),
         tel: Yup.string()
-          .required('Telephone number is required'),
+          .required(getMessage(getLanguage(), 'key006')),
         address1: Yup.string()          
-          .required('address is required'),
+          .required(getMessage(getLanguage(), 'key007')),
         password: Yup.string()
-          .min(6, 'Password must be at least 6 characters')
-          .required('Password is required'),
+          .min(6, getMessage(getLanguage(), 'key031'))
+          .required(getMessage(getLanguage(), 'key027')),
         confirmPassword: Yup.string()
-          .oneOf([Yup.ref('password'), null], 'Passwords must match')
-          .required('Confirm Password is required'),
+          .oneOf([Yup.ref('password'), null], getMessage(getLanguage(), 'key030'))
+          .required(getMessage(getLanguage(), 'key028')),
       })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {

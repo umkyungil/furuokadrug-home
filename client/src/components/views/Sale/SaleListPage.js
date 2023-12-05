@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { SaleType, MAIN_CATEGORY } from '../../utils/Const.js'
 
 import { LanguageContext } from '../../context/LanguageContext.js';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -104,7 +103,7 @@ function SaleListPage() {
 				setSales([...data]);
 			}
 		} catch (err) {
-			console.log("err: ",err);
+			console.log("SaleListPage getSales err: ",err);
 		}
 	}
 
@@ -116,8 +115,8 @@ function SaleListPage() {
         return result.data.productInfo[0].title;
       }
     } catch (err) {
-      alert("Failed to get product information")
-      console.log("err: ",err);
+      alert(getMessage(getLanguage(), 'key048'));
+      console.log("SaleListPage getProduct err: ",err);
     }
   }
 

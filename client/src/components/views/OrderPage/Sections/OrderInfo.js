@@ -7,8 +7,7 @@ import { NOT_SET } from '../../../utils/Const';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../../context/LanguageContext.js';
-import '../../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -38,7 +37,7 @@ function OrderInfo(props) {
         if (response.data.success) {
 					history.push("/order/list");
         } else {
-          alert("Failed to delete order information");
+          alert(getMessage(getLanguage(), 'key015'));
         }
       })
 	}

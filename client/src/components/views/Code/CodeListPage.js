@@ -1,12 +1,10 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Table } from 'antd';
 import { CODE_SERVER } from '../../Config';
-import { getLocalTime } from '../../utils/CommonFunction';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLocalTime, getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 
 // CORS 대책
@@ -110,7 +108,7 @@ function CodeListPage() {
 
 			setCode([...data]);
 		} catch (err) {
-			console.log("err: ",err);
+			console.log("CodeListPage getCode err: ",err);
 		}
 	}
 

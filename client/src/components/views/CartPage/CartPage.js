@@ -9,8 +9,7 @@ import { getCartItems, removeCartItem, onSuccessBuy, onSuccessBuyTmp } from '../
 import { ORDER_SERVER, COUPON_SERVER, POINT_SERVER, SALE_SERVER, SID } from '../../Config.js';
 import { NOT_SET, UNIDENTIFIED, DEPOSITED, EC_SYSTEM, MAIN_CATEGORY, UseWithSale, CouponType, SaleType } from '../../utils/Const';
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -144,8 +143,8 @@ function CartPage(props) {
         return saleInfos;
       }
     } catch (err) {
-      console.log("getSale err: ", err);
-      alert("Please contact the administrator");
+      console.log("CartPage getSale err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
       history.push("/");
     }
   }
@@ -413,7 +412,7 @@ function CartPage(props) {
           setCoupon({});
           setCouponCode("");
           setCouponAmount(0);
-          alert("Please re-enter the coupon or points")
+          alert(getMessage(getLanguage(), 'key085'));
         }
       }
     })
@@ -433,12 +432,12 @@ function CartPage(props) {
           totalPoint += pointInfos[i].remainingPoints;
         }
       } else {
-        alert("Failed to get point information")
+        alert(getMessage(getLanguage(), 'key071'));
       }
 
       return totalPoint;
     } catch (err) {
-      console.log("err: ",err);
+      console.log("CartPage getCalcPoint err: ",err);
     }
   }
 
@@ -503,7 +502,7 @@ function CartPage(props) {
           if (response.data.success) {
             console.log('Order information registration success');
           } else {
-            alert("Please contact the administrator");
+            alert(getMessage(getLanguage(), 'key001'));
             history.push("/");
           }
         });
@@ -579,7 +578,7 @@ function CartPage(props) {
     } else if (paymentType === 'wechat') {
       history.push(`/payment/wechat/confirm/${loginUserId}/${sid}/${sod}/${siam1}/${uniqueField}/${staffName}/`);
     } else {
-      alert("Please contact the administrator");
+      alert(getMessage(getLanguage(), 'key001'));
     }
   }
 
@@ -588,7 +587,7 @@ function CartPage(props) {
     if (e.target.value !== "") {
       
       if (isNaN(e.target.value)) {
-        alert("Points can only be entered in numbers");
+        alert(getMessage(getLanguage(), 'key086'));
         setUsePoint(0);
         setInputPoint("");
         return false;
@@ -598,21 +597,21 @@ function CartPage(props) {
 
       // 보유포인트가 100 포인트 이하인 경우
       if (MyPoint < 100) {
-        alert("Points can be used from 100 points");
+        alert(getMessage(getLanguage(), 'key087'));
         setUsePoint(0);
         setInputPoint("");
         return false;
       }
       // 입력한 포인트가 음수인 경우
       if (point < 0) {
-        alert("Please check the available points");
+        alert(getMessage(getLanguage(), 'key088'));
         setUsePoint(0);
         setInputPoint("");
         return false;
       }
       // 입력한 포인트가 보유 포인트보다 많은경우
       if (point > MyPoint) {
-        alert("Please check the available points");
+        alert(getMessage(getLanguage(), 'key088'));
         setUsePoint(0);
         setInputPoint("");
         return false;
@@ -631,7 +630,7 @@ function CartPage(props) {
   const handleConfirmPoint = () => {
     // 숫자가 아닌경우
     if (isNaN(UsePoint)) {
-      alert("Points can only be entered in numbers");
+      alert(getMessage(getLanguage(), 'key086'));
       setUsePoint(0);
       setInputPoint("");
       setPointConfirm(0);
@@ -639,7 +638,7 @@ function CartPage(props) {
     }
     // 확인버튼을 클릭했다면
     if (PointConfirm === 1) {
-      alert("Points can be applied only once.");
+      alert(getMessage(getLanguage(), 'key089'));
       return false;
     } else {
       // 확인버튼을 클릭 안한 상태로 변경
@@ -647,7 +646,7 @@ function CartPage(props) {
     }
     // 보유포인트가 100 포인트 이하인 경우
     if (MyPoint < 100) {
-      alert("Points can be used from 100 points");
+      alert(getMessage(getLanguage(), 'key087'));
       setUsePoint(0);
       setInputPoint("");
       setPointConfirm(0);
@@ -655,7 +654,7 @@ function CartPage(props) {
     }
     // 입력한 포인트가 100보다 작은경우(음수 포함)
     if (UsePoint < 100) {
-      alert("Points can be used from 100 points");
+      alert(getMessage(getLanguage(), 'key087'));
       setUsePoint(0);
       setInputPoint("");
       setPointConfirm(0);
@@ -663,7 +662,7 @@ function CartPage(props) {
     }
     // 입력한 포인트가 보유한 포인트보다 클 경우
     if (UsePoint > MyPoint) {
-      alert("Please check the available points.");
+      alert(getMessage(getLanguage(), 'key088'));
       setUsePoint(0);
       setInputPoint("");
       setPointConfirm(0);
@@ -746,7 +745,7 @@ function CartPage(props) {
         return true;
       }
     } catch (err) {
-      console.log('registerCouponHistory err: ', err);
+      console.log('CartPage regCouponHistory err: ', err);
       return false;
     }
   }
@@ -755,12 +754,12 @@ function CartPage(props) {
   const handleConfirmCoupon = async() => {
     // 쿠폰은 일회만 사용이 가능(처음 입력한 쿠폰으로 계산된 금액이 있는지 확인)
     if (Coupon.code) {
-      alert("Coupon can only be used once");
+      alert(getMessage(getLanguage(), 'key090'));
       return false;
     }
 
     if (CouponCode === "") {
-      alert("Please enter coupon");
+      alert(getMessage(getLanguage(), 'key091'));
       return false;
     }
 
@@ -793,7 +792,7 @@ function CartPage(props) {
           let expEndDate = new Date(dtBirth.getFullYear(), dtBirth.getMonth() + 1, lastDate, 23, 59, 59 );
 
           if (today < expStartDate) {
-            alert("This is not the period during which the birthday coupon can be used");
+            alert(getMessage(getLanguage(), 'key092'));
             setCoupon({});
             setCouponCode("");
             setCouponAmount(0);
@@ -801,7 +800,7 @@ function CartPage(props) {
           }
 
           if (today > expEndDate) {
-            alert("This is not the period during which the birthday coupon can be used");
+            alert(getMessage(getLanguage(), 'key092'));
             setCoupon({});
             setCouponCode("");
             setCouponAmount(0);
@@ -817,7 +816,7 @@ function CartPage(props) {
           // 유효기간 종료일
           const dtValidTo = new Date(couponInfo.validTo);
           if(dtValidTo < curDate) {
-            alert("This coupon has expired");
+            alert(getMessage(getLanguage(), 'key093'));
             setCoupon({});
             setCouponCode("");
             setCouponAmount(0);
@@ -829,7 +828,7 @@ function CartPage(props) {
         const useWithSale = Number(couponInfo.useWithSale);
         // 세일정보가 있는데 세일만 사용이 가능한 쿠폰인 경우
         if (saleTotalDiscountAmount.current > 0 && useWithSale === UseWithSale[2].key) {
-          alert("This coupon cannot be used with sales");
+          alert(getMessage(getLanguage(), 'key094'));
           setCoupon({});
           setCouponCode("");
           setCouponAmount(0);
@@ -853,7 +852,7 @@ function CartPage(props) {
             if (historyInfos.data.couponInfo.length > 0) {
               // 쿠폰 사용횟수와 동일한 경우(쿠폰 사용횟수보다 클수는 없지만 일단 크거나 같은 조건으로 함)
               if (Number(count) <= historyInfos.data.couponInfo.length) {
-                alert("The coupon redemption limit has been exceeded")
+                alert(getMessage(getLanguage(), 'key095'));
                 setCoupon({});
                 setCouponCode("");
                 setCouponAmount(0);
@@ -861,7 +860,7 @@ function CartPage(props) {
               }
             }
           } else {
-            alert("Failed to search coupon history information\nPlease contact your administrator")
+            alert(getMessage(getLanguage(), 'key096'));
             setCoupon({});
             setCouponCode("");
             setCouponAmount(0);
@@ -873,7 +872,7 @@ function CartPage(props) {
         if (couponUserId !== "") {
           // 로그인 사용자가 지정된 쿠폰 사용자 인지
           if (couponUserId !== props.user.userData._id) {
-            alert("This coupon can only be used by designated users");
+            alert(getMessage(getLanguage(), 'key105'));
             setCoupon({});
             setCouponCode("");
             setCouponAmount(0);
@@ -899,14 +898,14 @@ function CartPage(props) {
         }
       } else {
         // 쿠폰이 등록되어 있지 않은경우
-        alert("This is an unregistered coupon");
+        alert(getMessage(getLanguage(), 'key106'));
         setCoupon({});
         setCouponCode("");
         setCouponAmount(0);
       }
     } else {
       // 쿠폰정보 가져오기에 실패한 경우
-      alert("Failed to get coupon information");
+      alert(getMessage(getLanguage(), 'key072'));
       setCoupon({});
       setCouponCode("");
       setCouponAmount(0);
@@ -951,7 +950,7 @@ function CartPage(props) {
           showSaleTotalRef.current = false;
         }
         // 상품가격이 0은 세일대상의 상품이 없는것이기에 작업종료 
-        alert("There are no categories or products for which coupons can be used");
+        alert(getMessage(getLanguage(), 'key107'));
         setCoupon({});
         setCouponCode("");
         setCouponAmount(0);
@@ -976,7 +975,7 @@ function CartPage(props) {
           showSaleTotalRef.current = false;
         }
         // 상품가격이 0은 세일대상의 상품이 없는것이기에 작업종료 
-        alert("There are no categories or products for which coupons can be used");
+        alert(getMessage(getLanguage(), 'key107'));
         setCoupon({});
         setCouponCode("");
         setCouponAmount(0);

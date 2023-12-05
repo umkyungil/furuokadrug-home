@@ -8,8 +8,7 @@ import { useTranslation } from 'react-i18next';
 import cookie from 'react-cookies';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import './Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -168,8 +167,8 @@ function ProductListPage(props) {
 				setShowSuccess(false);
 			}
 		} catch (err) {
-			console.log("err: ", err);
-			alert("Please contact the administrator");
+			console.log("ProductListPage getProductsByType err: ", err);
+			alert(getMessage(getLanguage(), 'key001'));
 			listHandler();
 		}
 	}
@@ -224,8 +223,8 @@ function ProductListPage(props) {
 				setShowSuccess(false);
 			}
 		} catch (err) {
-			console.log("err: ", err);
-			alert("Please contact the administrator");
+			console.log("ProductListPage getProducts err: ", err);
+			alert(getMessage(getLanguage(), 'key001'));
 			listHandler();
 		}
 	}
@@ -269,7 +268,7 @@ function ProductListPage(props) {
 				setSaleInfos(saleInfos);
       }
     } catch (err) {
-      console.log("err: ", err);
+      console.log("ProductListPage getSale err: ", err);
     }
   }
 

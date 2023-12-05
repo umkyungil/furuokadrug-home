@@ -20,7 +20,7 @@ router.post("/register", (req, res) => {
       return res.status(200).json({ success: true });
     });
   } catch (err) {
-    console.log(err);
+    console.log("Order register err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -35,7 +35,7 @@ router.post("/tmpRegister", (req, res) => {
       return res.status(200).json({ success: true });
     });
   } catch (err) {
-    console.log(err);
+    console.log("Order tmpRegister err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -695,7 +695,7 @@ router.post("/list", (req, res) => {
       }
     })
   } catch (err) {
-    console.log(err);
+    console.log("Order list err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -711,7 +711,7 @@ router.get('/orders_by_id', (req, res) => {
         return res.status(200).send({success: true, orders});
       })
   } catch (err) {
-    console.log("err: ", err);
+    console.log("Order orders_by_id err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })
@@ -727,7 +727,7 @@ router.get("/deliveryStatus", (req, res) => {
       return res.status(200).send({ success: true });
     });
   } catch (err) {
-    console.log("err: ", err);
+    console.log("Order deliveryStatus err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -771,7 +771,7 @@ router.post('/delete', (req, res) => {
         if (err) return res.status(400).send(err);
       })
   } catch (err) {
-    console.log("err: ", err);
+    console.log("Order delete err: ", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 })

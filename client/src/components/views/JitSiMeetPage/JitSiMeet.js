@@ -5,8 +5,7 @@ import { Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -32,7 +31,7 @@ function JitSiMeet() {
     if (localStorage.getItem("userId")) {
       getUserInfo(localStorage.getItem("userId"))
     } else {
-      alert("Please login");
+      alert(getMessage(getLanguage(), 'key079'));
       history.push("/login");
     }
   }, [isLanguage])
@@ -44,12 +43,12 @@ function JitSiMeet() {
       if (response.data.success) {
         // 모달 뛰우고 메일및 주소정보 설정
         mainProcess();
-      } else {
-        alert("Failed to get user information.")
+      } else {        
+        alert(getMessage(getLanguage(), 'key070'));
       }
     } catch (err) {
-      console.log("err: ",err);
-      alert("Please contact the administrator");
+      console.log("JitSiMeet getUserInfo err: ",err);
+      alert(getMessage(getLanguage(), 'key001'));
     }
   }
 

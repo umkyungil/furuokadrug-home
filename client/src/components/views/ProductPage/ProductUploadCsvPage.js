@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import { useHistory } from 'react-router-dom';
 import { Button } from 'antd';
 import { PRODUCT_SERVER } from '../../Config.js';
+import { getLanguage, getMessage } from '../../utils/CommonFunction.js'
 
 // CORS 대책
 import axios from 'axios';
@@ -33,7 +34,7 @@ function ProductUploadCsvPage() {
     // 개행으로 레코드를 나누어서 배열에 저장(타이틀 포함)
     let sptLine = file.split(/\r\n|\n/);
     if (sptLine.length < 1) {
-      alert("There is a problem with the selected file.")
+      alert(getMessage(getLanguage(), 'key075'));
     }
     // 참고: 상품디비의 sold는 등록안하고 기본값이 0으로 상품을 구매할때 카운트 증가시킨다
     // writer도 이 메소드 내에서 직접 추가한다 
@@ -90,7 +91,6 @@ function ProductUploadCsvPage() {
       body.push(obj_data);
     }
     
-    console.log("body>>>>>>>>>>>>>>>>: ", body);
     setCsvData(body);
   }
 
@@ -132,10 +132,8 @@ function ProductUploadCsvPage() {
         return false;
       }
     }
-
-    console.log("CsvData: ", CsvData);
-
-    try {
+    
+    // try {
       // 상품등록
       // const result = await axios.post(`${PRODUCT_SERVER}/register`, CsvData);
       // if (result.data.success) {
@@ -143,22 +141,21 @@ function ProductUploadCsvPage() {
       //   // Landing page 이동
       //   history.push("/");
       // } else {
-      //   alert('CSV registration failed \n Please contact the administrator');
+      //   alert(getMessage(getLanguage(), 'key003'));
       //   // 원래대로 복귀처리(등록한 데이터 삭제)
 
       //   // Landing page 이동
       //   history.push("/");
-
       // }
         
-    } catch (err) {
-      console.log("err: ", err);
-      alert('CSV registration failed \n Please contact the administrator');
-      // 원래대로 복귀처리(등록한 데이터 삭제)
+    // } catch (err) {
+    //   console.log("ProductUploadCsvPage registerHandler err: ", err);
+    //   alert(getMessage(getLanguage(), 'key003'));
+    //   // 원래대로 복귀처리(등록한 데이터 삭제)
 
-      // Landing page 이동
-      history.push("/");
-    }
+    //   // Landing page 이동
+    //   history.push("/");
+    // }
   }
 
   // CSV데이타 조합

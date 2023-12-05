@@ -8,8 +8,7 @@ import { COUPON_SERVER, MAIL_SERVER, PRODUCT_SERVER, USER_SERVER } from '../../C
 import schedule from 'node-schedule'
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -116,11 +115,11 @@ function CouponUpdatePage(props) {
           setProductId(couponInfo.productId);
         }
       } else {
-        alert("Failed to get coupon information")
+        alert(getMessage(getLanguage(), 'key072'));
       }      
     } catch (err) {
-      alert("Failed to get coupon information")
-      console.log("getCoupon err: ",err);
+      alert(getMessage(getLanguage(), 'key072'));
+      console.log("CouponUpdatePage getCoupon err: ",err);
     }
   }
 
@@ -146,8 +145,8 @@ function CouponUpdatePage(props) {
         setUserName(result.data.user[0].lastName);
       }
     } catch (err) {
-      alert("Failed to get user information")
-      console.log("getUserName err: ",err);
+      alert(getMessage(getLanguage(), 'key070'));
+      console.log("CouponUpdatePage getUserName err: ",err);
     }
   } 
 
@@ -159,8 +158,8 @@ function CouponUpdatePage(props) {
         setProductName(result.data.productInfo[0].title);
       }
     } catch (err) {
-      alert("Failed to get product information")
-      console.log("getProduct err: ",err);
+      alert(getMessage(getLanguage(), 'key073'));
+      console.log("CouponUpdatePage getProduct err: ",err);
     }
   }
 
@@ -202,7 +201,7 @@ function CouponUpdatePage(props) {
     const jtc = new Date(MailBatch);
 
     if (today > jtc) {
-      alert("Mail setup time is in the past");
+      alert(getMessage(getLanguage(), 'key049'));
       return false;
     }
     
@@ -241,7 +240,7 @@ function CouponUpdatePage(props) {
           // 모든 사용자 또는 지정된 사용자와 관리자에게 메일을 보낸다
           await axios.post(`${MAIL_SERVER}/coupon`, body);
         } catch (err) {
-          console.log("Failed to send coupon registration mail: ", err);
+          console.log("CouponUpdatePage mailBatch err: ", err);
         }
     })
   }
@@ -261,16 +260,16 @@ function CouponUpdatePage(props) {
       axios.post(`${COUPON_SERVER}/delete`, dataToSubmit)
       .then(response => {
         if (response.data.success) {
-          alert('Coupon has been deleted');
+          alert(getMessage(getLanguage(), 'key100'));
         } else {
-          alert('Please contact the administrator');
+          alert(getMessage(getLanguage(), 'key001'));
         }
         // 세일리스트 이동
         history.push("/coupon/list");
       })
     } catch(err) {
-      console.log("deleteHandler err: ", err);
-      alert('Please contact the administrator');
+      console.log("CouponUpdatePage deleteHandler err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
       history.push("/coupon/list");
     }
 	}
@@ -292,16 +291,16 @@ function CouponUpdatePage(props) {
               if (response.data.success) {
                 sendMail(body);
 
-                alert('Coupon has been edited');
+                alert(getMessage(getLanguage(), 'key101'));
               } else {
-                alert('Please contact the administrator');
+                alert(getMessage(getLanguage(), 'key001'));
               }
               // 쿠폰리스트 이동
               history.push("/coupon/list");
             })
           } catch(err) {
-            alert('Please contact the administrator');
-            console.log("Coupon edit err: ", err);
+            alert(getMessage(getLanguage(), 'key001'));
+            console.log("CouponUpdatePage return err: ", err);
             // 쿠폰리스트 이동
             history.push("/coupon/list");
           }

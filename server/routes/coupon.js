@@ -32,7 +32,7 @@ router.post("/list", (req, res) => {
             })
         }
     } catch (err) {
-        console.log(err);
+        console.log("Coupon list err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }   
 });
@@ -50,7 +50,7 @@ router.post("/birth/list", (req, res) => {
             }
         )
     } catch (err) {
-        console.log(err);
+        console.log("Coupon birth_list err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }   
 });
@@ -67,7 +67,7 @@ router.post("/history/list", (req, res) => {
                 return res.status(200).send({ success: true, couponInfo });
         })
     } catch (err) {
-        console.log(err);
+        console.log("Coupon history_list err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }   
 });
@@ -83,7 +83,7 @@ router.get("/history/list", (req, res) => {
                 return res.status(200).send({ success: true, couponInfos });
         })
     } catch (err) {
-        console.log(err);
+        console.log("Coupon history_list err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }   
 });
@@ -97,7 +97,7 @@ router.post("/history/register", (req, res) => {
             return res.status(200).json({ success: true });
         });
     } catch (err) {
-        console.log(err);
+        console.log("Coupon history_register err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }   
 });
@@ -111,7 +111,7 @@ router.post("/register", (req, res) => {
             return res.status(200).json({ success: true });
         });
     } catch (err) {
-        console.log(err);
+        console.log("Coupon register err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }   
 });
@@ -127,7 +127,7 @@ router.get('/coupons_by_id', (req, res) => {
             return res.status(200).send({success: true, couponInfo});
         })
     } catch (err) {
-        console.log(err);
+        console.log("Coupon coupons_by_id err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -143,7 +143,7 @@ router.get('/coupons_by_cd', (req, res) => {
             return res.status(200).send({success: true, couponInfo});
         })
     } catch (err) {
-        console.log(err);
+        console.log("Coupon coupons_by_cd err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -161,7 +161,7 @@ router.post("/update", (req, res) => {
             }
         );
     } catch (err) {
-        console.log(err);
+        console.log("Coupon update err: ", err);
         return res.status(500).json({ success: false, message: err.message })
     }
 });
@@ -176,7 +176,7 @@ router.post('/delete', (req, res) => {
             if (err) return res.status(400).send(err);
         })
     } catch (err) {
-        console.log(err);
+        console.log("Coupon delete err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });

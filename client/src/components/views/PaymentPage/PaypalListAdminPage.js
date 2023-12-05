@@ -5,8 +5,7 @@ import { PAYMENT_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -106,7 +105,7 @@ function PaypalListAdminPage(props) {
         setPaypalInfo([...data]);
       }
     } catch (err) {
-      console.log("getPaypalInfo err: ", err);
+      console.log("PaypalListAdminPage getPaypalInfo err: ", err);
     }
   }
 

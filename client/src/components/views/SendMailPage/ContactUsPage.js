@@ -5,8 +5,7 @@ import { MAIL_SERVER } from '../../Config.js';
 import { useTranslation } from 'react-i18next';
 import Footer from '../Footer/Footer';
 import { LanguageContext } from '../../context/LanguageContext.js';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -65,14 +64,14 @@ function ContactUsPage() {
       const result = await axios.post(`${MAIL_SERVER}/inquiry`, body);
 
       if (result.data.success) {
-        alert("The mail has been sent");
+        alert(getMessage(getLanguage(), 'key025'));
       } else {
-        alert("Please try again after a while");
+        alert(getMessage(getLanguage(), 'key019'));
       }
       history.push("/");
     } catch(err) {
-      console.log("ContactUsPage err: ", err);
-      alert("Please try again after a while");
+      console.log("ContactUsPage sendEmail err: ", err);
+      alert(getMessage(getLanguage(), 'key019'));
       history.push("/");
     }
   }

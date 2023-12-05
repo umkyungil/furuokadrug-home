@@ -6,8 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ADMIN_EMAIL } from '../../utils/Const.js';
 
 import { LanguageContext } from '../../context/LanguageContext.js';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -84,12 +83,12 @@ const NoticeMailPage = (props) => {
       if (result.data.success) {
         history.push("/");
       } else {
-        alert("Please contact the administrator");
+        alert(getMessage(getLanguage(), 'key001'));
         history.push("/");
       }
     } catch(err) {
-      console.log("sendEmail err: ", err);
-      alert("Please contact the administrator");
+      console.log("NoticeMailPage sendEmail err: ", err);
+      alert(getMessage(getLanguage(), 'key001'));
       history.push("/");
     }
   }

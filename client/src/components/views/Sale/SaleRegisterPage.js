@@ -4,13 +4,11 @@ import { useHistory } from 'react-router-dom';
 import { DatePicker, Select, Form, Input, Button, Checkbox } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MAIN_CATEGORY, SaleType } from '../../utils/Const';
-import { dateFormatYMD } from '../../utils/CommonFunction';
 import { MAIL_SERVER, SALE_SERVER, PRODUCT_SERVER } from '../../Config.js';
 import schedule from 'node-schedule';
 
 import { LanguageContext } from '../../context/LanguageContext';
-import '../ProductPage/Sections/product.css';
-import { getLanguage, setHtmlLangProps } from '../../utils/CommonFunction';
+import { dateFormatYMD, getLanguage, setHtmlLangProps, getMessage } from '../../utils/CommonFunction';
 
 // CORS 대책
 import axios from 'axios';
@@ -220,7 +218,7 @@ function SaleRegisterPage() {
     const jtc = new Date(MailBatch);
 
     if (today > jtc) {
-      alert("Mail setup time is in the past");
+      alert(getMessage(getLanguage(), 'key049'));
       return false;
     }
     
@@ -259,7 +257,7 @@ function SaleRegisterPage() {
           // 모든 사용자와 관리자에게 메일을 보낸다
           await axios.post(`${MAIL_SERVER}/sale`, body);
         } catch (err) {
-          console.log("Failed to send sale registration mail: ", err);
+          console.log("SaleRegisterPage mailBatch err: ", err);
         }
     })
   }
@@ -267,7 +265,7 @@ function SaleRegisterPage() {
   // 상품검색(검색버튼)
   const productPopupHandler = () => {
     if (Item === 0) {
-      alert("In case of category ALL, product selection is not possible");
+      alert(getMessage(getLanguage(), 'key056'));
     } else {
       window.open(`/coupon/product/${Item}`,"product list","width=550, height=700, top=10, left=10");
     }
@@ -292,8 +290,8 @@ function SaleRegisterPage() {
         setProductItem(result.data.productInfo[0].continents);
       }
     } catch (err) {
-      alert("Failed to get product information")
-      console.log("getProduct err: ",err);
+      alert(getMessage(getLanguage(), 'key048'));
+      console.log("SaleRegisterPage getProduct err: ",err);
     }
   }
 
@@ -303,29 +301,29 @@ function SaleRegisterPage() {
         setTimeout(() => {
           // 세일코드 체크
           if (SaleCode === "") {
-            alert("Code is required");
+            alert(getMessage(getLanguage(), 'key051'));
             setSubmitting(false);
             return false;
           }
           if (SaleCode.length > 4) {
-            alert("The sales code must be exactly 4 characters long");
+            alert(getMessage(getLanguage(), 'key052'));
             setSubmitting(false);
             return false;
           }
           if (!Except) {
             // 세일타입의 값 체크
             if (Amount === "") {
-              alert("Please enter a value for the sale type");
+              alert(getMessage(getLanguage(), 'key053'));
               setSubmitting(false);
               return false;
             }
             if (isNaN(Number(Amount))) {
-              alert("Only numbers can be entered for the amount");
+              alert(getMessage(getLanguage(), 'key054'));
               setSubmitting(false);
               return false;
             }
             if (Number(Amount) < 1) {
-              alert("Only positive numbers can be entered for the amount");
+              alert(getMessage(getLanguage(), 'key055'));
               setSubmitting(false);
               return false;
             }
@@ -333,7 +331,7 @@ function SaleRegisterPage() {
           // 카테고리가 ALL인데 상품이 지정되어 있는경우
           if (Item === MAIN_CATEGORY[0].key) {
             if (ProductId !== "") {
-              alert("If the category is ALL, you cannot designate a product");
+              alert(getMessage(getLanguage(), 'key056'));
               setSubmitting(false);
               return false;
             }
@@ -344,7 +342,7 @@ function SaleRegisterPage() {
               getProduct(ProductId);
                 
               if (Item !== ProductItem) {
-                alert("This product does not belong to a category");
+                alert(getMessage(getLanguage(), 'key057'));
                 setSubmitting(false);
                 return false;
               }
@@ -353,7 +351,7 @@ function SaleRegisterPage() {
           // 세일타입이 할인금액이 아닌데 최소금액에 값이있는경우
           if (Type !== SaleType[2].key) {
             if (MinAmount !== "") {
-              alert("The minimum amount can be set only for the discount amount");
+              alert(getMessage(getLanguage(), 'key058'));
               setSubmitting(false);
               return false;
             }
@@ -362,29 +360,29 @@ function SaleRegisterPage() {
           if (MinAmount !== "") {
             // 금액 체크
             if (isNaN(Number(MinAmount))) {
-              alert("Only numbers can be entered for the minimum amount");
+              alert(getMessage(getLanguage(), 'key059'));
               setSubmitting(false);
               return false;
             }
             if (Number(MinAmount) < 1) {
-              alert("Only positive numbers can be entered for the minimum minimum amount");
+              alert(getMessage(getLanguage(), 'key060'));
               setSubmitting(false);
               return false;
             }
           }
           // 날짜 체크
           if (ExpirationPeriod.length < 1) {
-            alert("Expiration period is required");
+            alert(getMessage(getLanguage(), 'key061'));
             setSubmitting(false);
             return false;
           }
           if (!ExpirationPeriod[0]) {
-            alert("Expiration period is required");
+            alert(getMessage(getLanguage(), 'key061'));
             setSubmitting(false);
             return false;
           }
           if (!ExpirationPeriod[1]) {
-            alert("Expiration period is required");
+            alert(getMessage(getLanguage(), 'key061'));
             setSubmitting(false);
             return false;
           }
@@ -394,19 +392,19 @@ function SaleRegisterPage() {
           const endDate = new Date(ExpirationPeriod[1]);
           // 입력한 날짜가 과거인지 체크
           if (curDate > startDate) {
-            alert("Past dates cannot be used");
+            alert(getMessage(getLanguage(), 'key062'));
             setSubmitting(false);
             return false;
           }
           // 입력한 날짜가 과거인지 체크
           if (curDate > endDate) {
-            alert("Past dates cannot be used");
+            alert(getMessage(getLanguage(), 'key062'));
             setSubmitting(false);
             return false;
           }
           // 날짜의 form to 상관관계 체크
           if (startDate > endDate) {
-            alert("Please check the entered date");
+            alert(getMessage(getLanguage(), 'key062'));
             setSubmitting(false);
             return false;
           }
@@ -433,7 +431,7 @@ function SaleRegisterPage() {
           if (Except) {
             // ALL은 선택할수 없다 
             if (Item === 0) {
-              alert("You cannot select category ALL in sales exclusion information");
+              alert(getMessage(getLanguage(), 'key063'));
               setSubmitting(false);
               return false;
             }
@@ -446,7 +444,7 @@ function SaleRegisterPage() {
               // 세일정보가 존재하면 에러
               if (response.data.success) {
                 if (response.data.saleInfos.length > 0) {
-                  alert("The same kind of sale exists within the period");
+                  alert(getMessage(getLanguage(), 'key064'));
 
                   return false;
                 } else {
@@ -457,9 +455,9 @@ function SaleRegisterPage() {
                       // 메일 전송
                       sendMail(body);
 
-                      alert('Sale has been registered');
+                      alert(getMessage(getLanguage(), 'key065'));
                     } else {
-                      alert('Please contact the administrator');
+                      alert(getMessage(getLanguage(), 'key001'));
                     }
                     // 리스트 페이지로 이동
                     history.push("/sale/list");
@@ -467,13 +465,13 @@ function SaleRegisterPage() {
                 }
               } else {
                 // 같은 세일코드가 존재하는 경우
-                alert("There are duplicate sale codes");
+                alert(getMessage(getLanguage(), 'key066'));
                 return false;
               }
             })
           } catch (err) {
-            alert("Please contact the administrator");
-            console.log("Sale register err: ", err);
+            alert(getMessage(getLanguage(), 'key001'));
+            console.log("SaleRegisterPage return err: ", err);
             // 세일리스트 이동
             history.push("/sale/list");
           }

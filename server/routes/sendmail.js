@@ -39,7 +39,7 @@ const registerMailHistory = async (body) => {
             return true;
         });    
     } catch (err) {
-        console.log("Failed to send mail: ", err);
+        console.log("SendMail registerMailHistory err: ", err);
         return false;
     }
 }
@@ -73,7 +73,7 @@ router.post("/notice", auth, async (req, res) => {
             return res.status(200).json({ success: true })
         }
     } catch (err) {
-        console.log(err);
+        console.log("SendMail notice err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -116,7 +116,7 @@ router.post("/live", auth, async (req, res) => {
             return res.status(200).json({ success: true })
         }
     } catch (err) {
-        console.log(err);
+        console.log("SendMail live err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -196,8 +196,7 @@ router.post("/inquiry", async (req, res) => {
 
         return res.status(200).json({ success: true });
     } catch (err) {
-        console.log("err.code: ", err.code);
-
+        console.log("SendMail inquiry err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -284,7 +283,7 @@ router.post("/reserve", async (req, res) => {
 
         return res.status(200).json({ success: true });
     } catch (err) {
-        console.log(err);
+        console.log("SendMail reserve err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -322,7 +321,7 @@ router.post("/passwordChange", async (req, res) => {
 
         return res.status(200).json({ success: true });
     } catch (err) {
-        console.log(err);
+        console.log("SendMail passwordChange err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -360,7 +359,7 @@ router.post("/passwordConfirm", async (req, res) => {
 
         return res.status(200).json({ success: true });
     } catch (err) {
-        console.log(err);
+        console.log("SendMail passwordConfirm err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -441,7 +440,7 @@ router.post("/preregister", async (req, res) => {
 
         return res.status(200).json({ success: true });
     } catch (err) {
-        console.log(err);
+        console.log("SendMail preregister err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
@@ -479,7 +478,7 @@ router.post("/register", async (req, res) => {
 
         return res.status(200).json({ success: true });
     } catch (err) {
-        console.log("User Registration: ", err);
+        console.log("SendMail register err: ", err);
 
         if (err.statusCode === 400) {
             // 사용자 논리삭제
@@ -843,7 +842,7 @@ router.post("/coupon", async (req, res) => {
             }
         }
     } catch (err) {
-        console.log("Coupon send mail err:", err);
+        console.log("SendMail coupon err: ", err);
     }
 });
 
@@ -1200,7 +1199,7 @@ router.post("/coupon/birth", async (req, res) => {
             }
         }
     } catch (err) {
-        console.log("Coupon send mail err:", err);
+        console.log("SendMail coupon_birth err: ", err);
     }
 });
 
@@ -1279,7 +1278,7 @@ router.post("/coupon/admin", async (req, res) => {
         };
         await sendMailProcess(adminOptions);
     } catch (err) {
-        console.log(err);
+        console.log("SendMail coupon_admin err: ", err);
     }
 });
 
@@ -1339,7 +1338,7 @@ router.post("/coupon/birth/admin", async (req, res) => {
         };
         await sendMailProcess(adminOptions);
     } catch (err) {
-        console.log(err);
+        console.log("SendMail coupon_birth_admin err: ", err);
     }
 });
 
@@ -1540,7 +1539,7 @@ router.post("/sale", async (req, res) => {
             }
         }
     } catch (err) {
-        console.log("Sale registration failed: ", err);
+        console.log("SendMail sale err: ", err);
     }
 });
 
@@ -1585,7 +1584,7 @@ router.post("/saleExcept", async (req, res) => {
         
         
     } catch (err) {
-        console.log(err);
+        console.log("SendMail saleExcept err: ", err);
     }
 });
 
@@ -1667,7 +1666,7 @@ router.post("/sale/admin", async (req, res) => {
         };
         await sendMailProcess(adminOptions);
     } catch (err) {
-        console.log(err);
+        console.log("SendMail sale_admin err: ", err);
     }
 });
 
@@ -1738,7 +1737,7 @@ router.post("/list", (req, res) => {
             });
         }
     } catch (err) {
-        console.log(err);
+        console.log("SendMail list err: ", err);
         return res.status(500).json({ success: false, message: err.message });
     }
 });
