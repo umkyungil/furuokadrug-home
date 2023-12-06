@@ -3,7 +3,7 @@
 
 body {
   margin: 0;
-  font-family: "游ゴシック体", YuGothic, "游ゴシック", "Yu Gothic", "SF Pro SC", "SF Pro Text", "SF Pro Icons", "PingFang SC", "Helvetica Neue", "Helvetica", "Arial", sans-serif !important;
+  font-family: "游ゴシック体", YuGothic, "游ゴシック", "Yu Gothic", "Helvetica Neue", "Helvetica", "Arial", sans-serif !important;
   font-feature-settings: 'palt' !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
