@@ -18,8 +18,8 @@ const blankTag = {
 	borderStyle: 'none',
   top: "150px",
   left: "165px",
-  width: "60px",
-  height: "24px",
+  width: "52px",
+  height: "20px",
   color: "#ffffff",
   background: "#ffffff",
 }
