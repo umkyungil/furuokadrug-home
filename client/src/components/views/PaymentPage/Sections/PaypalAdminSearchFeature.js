@@ -47,4 +47,4 @@ function PaypalSearchFeature(props) {
   )
 }
 
-export default PaypalSearchFeature
+export default PaypalSearchFeature;

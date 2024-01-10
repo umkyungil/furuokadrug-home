@@ -16,4 +16,4 @@ function SearchFeature(props) {
   )
 }
 
-export default SearchFeature
+export default SearchFeature;
