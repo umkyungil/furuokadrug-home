@@ -179,9 +179,9 @@ function RightMenu(props) {
                 <a href="/myInfo/detail">MyInfo detail</a>
               </Menu.Item>
             </SubMenu>
-            {/* <Menu.Item key="live">
+            <Menu.Item key="live">
               <a href="/live" style={{color: 'white'}}>Live Streaming</a>
-            </Menu.Item>             */}
+            </Menu.Item>
             <Menu.Item key="cart" style={{paddingBottom:3}}>
               <Badge count={count}>
                 <a href="/user/cart" className="head-example" style={{marginRight:-22, color:'#667777'}}>
@@ -216,9 +216,9 @@ function RightMenu(props) {
             {/* <Menu.Item key="chat">
               <a onClick={chatHandler}>Chat</a>
             </Menu.Item> */}
-            {/* <Menu.Item key="live">
+            <Menu.Item key="live">
               <a href="/live" style={{color: 'white'}}>Live Streaming</a>
-            </Menu.Item> */}
+            </Menu.Item>
             <SubMenu title={<span style={{color: 'white'}}>History</span>}>
               <SubMenu title={<span>Payment</span>}>
                 <Menu.Item key="aliPayList">
@@ -259,12 +259,12 @@ function RightMenu(props) {
             {/* <Menu.Item key="chat">
               <a onClick={chatHandler}>Chat</a>
             </Menu.Item> */}
-            {/* <Menu.Item key="live">
+            <Menu.Item key="live">
               <a href="/live" style={{color: 'white'}}>Live Streaming</a>
-            </Menu.Item> */}
-            {/* <Menu.Item key="jitSi">
+            </Menu.Item>
+            <Menu.Item key="jitSi">
               <a href="/jitSi" style={{color: 'white'}}>JitSi meet</a>
-            </Menu.Item>  */}
+            </Menu.Item> 
             <SubMenu title={<span style={{color: 'white'}}>User</span>}>
               <Menu.Item key="userRegister">
                 <a href="/register">User reg</a>

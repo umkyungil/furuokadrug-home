@@ -19,7 +19,7 @@ const blankTag = {
   top: "150px",
   left: "165px",
   width: "52px",
-  height: "20px",
+  height: "21px",
   color: "#ffffff",
   background: "#ffffff",
 }
